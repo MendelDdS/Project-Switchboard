@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="TransferCall" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/transfer_call.gd" id="1_call"]
+
+[resource]
+script = ExtResource("1_call")
+voice = "m"
+caller = "Seu Jair"
+caller_name = "Jair Monteiro"
+opening = PackedStringArray("Boa noite. Li no jornal que agora tem que dar o nome pra telefonista.", "Me liga com o Cine Odeon, faz favor.")
+repeat = "O cinema, moça. O Odeon."
+target = "344"
+destination = "Cine Odeon"
+thanks = "Obrigado. E boa sorte com a papelada, moça."
+overheard = PackedStringArray("Odeon? Aqui é o Jair. Que filme passa no sábado?", "Boa noite, seu Jair. Um faroeste, às sete e às nove.", "Às nove ainda tem? Com essa história de nome e documento pra tudo...", "Por enquanto tem. Mas a censura cortou meia hora do filme.", "Cortou o quê?", "A parte do xerife que prende o governador. Ficou sem pé nem cabeça.")
+name_line = "Jair Monteiro. Anota aí, já que agora é obrigado."

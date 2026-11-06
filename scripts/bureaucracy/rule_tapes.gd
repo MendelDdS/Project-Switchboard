@@ -2,8 +2,12 @@ extends BureaucracyRule
 ## B4. Gravação de conversas em fitas: as autoridades marcam ligações (`TransferCall.suspicious`; o operador vê o aviso
 ## no começo dela); o operador põe uma fita do compartimento no gravador, prende a tecla REC e escuta a conversa
 ## (`Eavesdrop`, com a desconfiança de sempre; a ordem não importa): a fita grava a conversa e as palavras-chave que ele
-## ouvir dela (`Bureaucracy.tapes`). Tirada do gravador, fica na mesa e, no fim do turno, é entregue e vale pontos de
-## eficiência pelo valor; descartada da mesa (ou esquecida no gravador no fim da noite), se perde. Os
+## ouvir dela (`Bureaucracy.tapes`). Tirada do gravador, fica na mesa até o operador escolher para quem vai
+## (`Tapes.give`: as autoridades ou Sebastião; o turno só encerra com todas resolvidas); no fim do turno, a das
+## autoridades é entregue e vale pontos de eficiência pelo valor; descartada da mesa (ou esquecida no gravador no fim
+## da noite), se perde. Noite com ligação para o bar (`bar_number`) sem nenhuma gravação entregue às autoridades (vale
+## uma sem nada, para despistar; uma dada a Sebastião não livra): advertência `bar_severity` (o supervisor explica no
+## bilhete do dia do gravador). Os
 ## dois notaram a escuta numa ligação marcada: advertência na gravidade da regra (trabalho malfeito para as autoridades,
 ## que pediram), no lugar da por escuta. O compartimento tem `tapes_per_night` lugares e as virgens passam de uma noite
 ## para outra: é reposto quando esvazia ou depois de `restock_after` noites seguidas incompleto (`Tapes.restock`).
@@ -25,8 +29,12 @@ extends BureaucracyRule
 @export var found_after := 2   ## noites até as autoridades darem pela ligação marcada que não chegou gravada
 @export var missed_severity := ShiftReport.Severity.MEDIUM
 @export var missed_text := "FAULT_TAPE_MISSED"
+@export var bar_number := "327"
+@export var bar_severity := ShiftReport.Severity.LIGHT
+@export var bar_text := "FAULT_TAPE_NONE"
 
 var _marked: Array[PhoneCall] = []   ## as ligações marcadas nesta noite
+var _bar := false   ## alguém pediu o bar nesta noite
 
 
 func night_started() -> void:
@@ -38,9 +46,11 @@ func night_started() -> void:
 		desk.tapes.reset(tapes_per_night)
 	desk.tapes.new_night()
 	_marked.clear()
+	_bar = false
 
 
 func call_started(c: PhoneCall) -> Array:
+	_bar = _bar or (c.target == bar_number and c.kind != PhoneCall.Kind.OUTGOING)
 	var t := c.data as TransferCall
 	if t != null and t.suspicious:
 		_marked.append(c)
@@ -81,8 +91,12 @@ func caught_listening(c: PhoneCall) -> bool:
 func night_ended() -> void:
 	desk.tapes.left_behind()
 	desk.tapes.hand_over()
+	if _bar and desk.tapes.to_authorities() == 0:
+		desk.main.supervisor.fault(id, "", bar_severity, T.Key[bar_text])
+		desk.log_decision(id, null, "nenhuma fita às autoridades numa noite com ligação para o bar", "advertência")
 	var missed := []
-	for c in _marked.filter(func(c: PhoneCall): return not desk.tapes.delivered(c)):
+	# (a conversa das próprias autoridades não é cobrada: entregue a elas é gravíssima, `Tapes.give`; só Sebastião a quer)
+	for c in _marked.filter(func(c: PhoneCall): return not desk.tapes.delivered(c) and not (c.beat != null and c.beat.authority)):
 		desk.main.supervisor.fault_later(id, desk.main.supervisor.who(c), missed_severity, T.Key[missed_text], found_after)
 		desk.main.flags.apply("authorities_questioning_pending")
 		desk.main.flags.apply("b4_nao_entregou_" + desk.tapes.call_id(c))

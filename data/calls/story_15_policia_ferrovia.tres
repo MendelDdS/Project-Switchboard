@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="TransferCall" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/transfer_call.gd" id="1_story"]
+
+[resource]
+script = ExtResource("1_story")
+group = 2
+voice = "m"
+caller = "Policial"
+opening = PackedStringArray("A delegacia, por favor. É urgente.")
+repeat = "A delegacia, rápido."
+target = "184"
+destination = "Delegacia de Polícia"
+thanks = "Obrigado."
+overheard = PackedStringArray("Plantão? Rubens, da rodoviária.", "Fala.", "Os dois de ontem voltaram, com mais quatro. Estão indo a pé pra [street:Rua da Estação].", "Pra ferrovia. Manda duas viaturas pra lá, agora.", "Só tenho uma.", "Então vai você com ela. Ninguém chega perto dos trilhos.")
+caller_name = "Rubens Moura"
+name_line = "Rubens Moura, do posto da rodoviária."
+code_line = "Autorização {code}."

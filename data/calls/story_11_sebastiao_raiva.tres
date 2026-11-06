@@ -1,0 +1,49 @@
+[gd_resource type="Resource" script_class="PrankCall" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/prank_call.gd" id="1_call"]
+[ext_resource type="Script" path="res://scripts/data/prank_step.gd" id="2_step"]
+
+[sub_resource type="Resource" id="Step_00"]
+script = ExtResource("2_step")
+text = "Você viu o jornal, Maria? Viu?"
+
+[sub_resource type="Resource" id="Step_01"]
+script = ExtResource("2_step")
+text = "Crianças. Levaram crianças. Os filhos dos nossos, que a Cecília te pediu pra esconder."
+
+[sub_resource type="Resource" id="Step_02"]
+script = ExtResource("2_step")
+kind = 1
+options = PackedStringArray("Eu não sabia que...", "Eu não podia...")
+sets = PackedStringArray()
+
+[sub_resource type="Resource" id="Step_03"]
+script = ExtResource("2_step")
+text = "Era uma ligação. Uma só!"
+
+[sub_resource type="Resource" id="Step_04"]
+script = ExtResource("2_step")
+kind = 2
+seconds = 1.0
+
+[sub_resource type="Resource" id="Step_05"]
+script = ExtResource("2_step")
+text = "Eu passei a vida esperando o dia em que ninguém mais ia sumir no escuro. E agora são as crianças."
+
+[sub_resource type="Resource" id="Step_06"]
+script = ExtResource("2_step")
+text = "Escuta bem: se você não estiver com a gente, tudo vai desabar. Pra eles, pra mim e pra você também."
+
+[sub_resource type="Resource" id="Step_07"]
+script = ExtResource("2_step")
+text = "Não me faça me arrepender de ter dito o seu nome, Maria."
+
+[sub_resource type="Resource" id="Step_08"]
+script = ExtResource("2_step")
+kind = 3
+
+[resource]
+script = ExtResource("1_call")
+voice = "m"
+caller = "Sebastião Falcão"
+steps = Array[ExtResource("2_step")]([SubResource("Step_00"), SubResource("Step_01"), SubResource("Step_02"), SubResource("Step_03"), SubResource("Step_04"), SubResource("Step_05"), SubResource("Step_06"), SubResource("Step_07"), SubResource("Step_08")])

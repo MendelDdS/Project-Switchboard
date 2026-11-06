@@ -32,6 +32,7 @@ const FAULTS := {
 	"emergency_worse": [Severity.MEDIUM, T.Key.FAULT_EMERGENCY_WORSE],
 	"emergency_critical": [Severity.SEVERE, T.Key.FAULT_EMERGENCY_CRITICAL],
 	"emergency_lost": [Severity.CRITICAL, T.Key.FAULT_EMERGENCY_LOST],
+	"authority_ignored": [Severity.MEDIUM, T.Key.FAULT_AUTHORITY_IGNORED],   # a cobrança do supervisor no Dia 12 (`StoryFlags.FAULT`)
 }
 ## Os pontos que cada gravidade tira da eficiência (a gravíssima vale duas graves). A média pesa mais que um acerto: a
 ## não atendida liga de novo e, com 8, o crédito do retorno a apagava (o robô que deixa tocar 1 em 3 passava sempre).

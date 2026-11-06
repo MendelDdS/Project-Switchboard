@@ -2,6 +2,8 @@
 
 [ext_resource type="Script" path="res://scripts/data/directory_entry.gd" id="1_entry"]
 [ext_resource type="Script" path="res://scripts/data/motive.gd" id="2_motive"]
+[ext_resource type="Script" path="res://scripts/data/chat_topic.gd" id="8_chat"]
+[ext_resource type="Script" path="res://scripts/data/chat_reply.gd" id="9_reply"]
 
 [sub_resource type="Resource" id="Motive_06"]
 script = ExtResource("2_motive")
@@ -13,6 +15,36 @@ script = ExtResource("2_motive")
 text = "Meu filho trabalha lá e ainda não voltou pra casa."
 talks = Array[PackedStringArray]([PackedStringArray("Boa noite. Meu filho trabalha aí e ainda não voltou pra casa.", "O rapaz do curral? Ficou até mais tarde por causa de uma vaca.", "Ai, que susto. Está tudo bem com ele?", "Está, sim. A vaca pariu agora há pouco e ele ajudou.", "E como ele volta a essa hora? A estrada está escura.", "Levo ele de charrete daqui a {wait}."), PackedStringArray("Boa noite. Meu filho ainda está aí no sítio?", "Está. Ficou consertando a cerca que o boi derrubou.", "A janta dele está esfriando. Ele demora?", "Falta pouco. Ele disse que chega antes das {hour}.", "Pede pra ele vir pela estrada, não pelo mato.", "Pode deixar. Empresto a lanterna pra ele.")])
 
+[sub_resource type="Resource" id="Dial_0_0"]
+script = ExtResource("9_reply")
+text = "Vocês entregam leite na cidade?"
+follow = "Toda manhã, na carroça, às seis. É só deixar o litro vazio no portão."
+
+[sub_resource type="Resource" id="Dial_0_1"]
+script = ExtResource("9_reply")
+text = "Como está a estrada aí?"
+follow = "Na seca, poeira; na chuva, barro. Hoje dá para passar."
+
+[sub_resource type="Resource" id="Dial_0"]
+script = ExtResource("8_chat")
+line = "Sítio Boa Esperança, pois não? Aqui já está todo mundo deitando."
+replies = Array[ExtResource("9_reply")]([SubResource("Dial_0_0"), SubResource("Dial_0_1")])
+
+[sub_resource type="Resource" id="Dial_1_0"]
+script = ExtResource("9_reply")
+text = "Está me ouvindo?"
+follow = "Mal e mal. O fio passa no meio do pasto, e as vacas se coçam no poste."
+
+[sub_resource type="Resource" id="Dial_1_1"]
+script = ExtResource("9_reply")
+text = "Desculpe, foi engano."
+follow = "Engano até aqui no mato? Boa noite, moça."
+
+[sub_resource type="Resource" id="Dial_1"]
+script = ExtResource("8_chat")
+line = "Alô? Fala alto, que a ligação daqui é ruim."
+replies = Array[ExtResource("9_reply")]([SubResource("Dial_1_0"), SubResource("Dial_1_1")])
+
 [resource]
 script = ExtResource("1_entry")
 name = "Sítio Boa Esperança"
@@ -21,3 +53,5 @@ number = "209"
 hello = "Sítio Boa Esperança, pois não?"
 spoken = "o Sítio Boa Esperança"
 motives = Array[ExtResource("2_motive")]([SubResource("Motive_06"), SubResource("Motive_07")])
+answers = Array[ExtResource("8_chat")]([SubResource("Dial_0"), SubResource("Dial_1")])
+closes = 180.0

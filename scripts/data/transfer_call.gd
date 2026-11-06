@@ -43,12 +43,21 @@ enum Group {
 ## telefonista de lá.
 @export var far_number := ""
 
+@export_group("Vira emergência")
+## Feito o pedido, se a transferência demora (`Main.SMALLTALK_AFTER`, no lugar da conversa fiada), algo acontece onde a
+## pessoa está e a ligação vira esta emergência (`Main.turn_emergency`): ela grita o `opening` da emergência e dali em
+## diante é emergência como as outras (barra, despacho, caderno); despachado o socorro, o `after` dela diz por que não
+## precisa mais da transferência. Transferida antes, fica ligação comum.
+@export var turns: EmergencyCall
+
 @export_group("Se ninguém atender")
 ## Outro estabelecimento que o operador pode sugerir quando `target` não atende (sorteado: `PhoneCall.away`).
 @export var alt_target := ""
 @export var alt_destination := ""
 @export var alt_ask := ""
 @export var alt_yes := ""
+## Não vazio: o número pedido dá ocupado na primeira tentativa, e quem ligou diz isto (pede para tentar de novo).
+@export var busy_line := ""
 
 @export_group("Burocracias")
 ## B1, identificação: nome e sobrenome de quem liga. O chat mostra `caller` até ele dizer o nome (`name_line`) e este

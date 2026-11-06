@@ -2,6 +2,8 @@
 
 [ext_resource type="Script" path="res://scripts/data/directory_entry.gd" id="1_entry"]
 [ext_resource type="Script" path="res://scripts/data/motive.gd" id="2_motive"]
+[ext_resource type="Script" path="res://scripts/data/chat_topic.gd" id="8_chat"]
+[ext_resource type="Script" path="res://scripts/data/chat_reply.gd" id="9_reply"]
 
 [sub_resource type="Resource" id="Motive_43"]
 script = ExtResource("2_motive")
@@ -13,6 +15,36 @@ script = ExtResource("2_motive")
 text = "Saiu meu nome errado na edição de hoje."
 talks = Array[PackedStringArray]([PackedStringArray("Boa noite. Meu nome saiu errado no jornal de hoje.", "Em que página?", "Na lista dos aprovados do concurso. Trocaram uma letra.", "Peço desculpas. Amanhã sai a correção, na página dois.", "Por favor. Minha mãe já recortou a errada pra guardar.", "Então ela vai ter duas pra guardar."), PackedStringArray("Boa noite. O jornal de hoje errou meu nome na notícia da feira.", "A do concurso de abóbora?", "Essa. Eu ganhei o primeiro lugar e saiu o nome do vizinho.", "Que vergonha. Amanhã a gente corrige com foto e tudo.", "E o vizinho já está se gabando pela rua toda.", "Amanhã ele lê a correção. Venha às {hour} pra foto.")])
 
+[sub_resource type="Resource" id="Dial_0_0"]
+script = ExtResource("9_reply")
+text = "Até que horas recebem anúncio?"
+follow = "Até as dez. Depois disso, só no jornal de depois de amanhã."
+
+[sub_resource type="Resource" id="Dial_0_1"]
+script = ExtResource("9_reply")
+text = "O que sai na primeira página amanhã?"
+follow = "Isso a senhora lê amanhã, como todo mundo. Se o censor deixar."
+
+[sub_resource type="Resource" id="Dial_0"]
+script = ExtResource("8_chat")
+line = "Gazeta, redação. Fala rápido, que a edição está fechando."
+replies = Array[ExtResource("9_reply")]([SubResource("Dial_0_0"), SubResource("Dial_0_1")])
+
+[sub_resource type="Resource" id="Dial_1_0"]
+script = ExtResource("9_reply")
+text = "Quem fica aí de noite?"
+follow = "Eu e a rotativa. Ela faz mais barulho que eu."
+
+[sub_resource type="Resource" id="Dial_1_1"]
+script = ExtResource("9_reply")
+text = "Dá para corrigir um nome que saiu errado?"
+follow = "Mande uma carta. A errata sai na quinta, num cantinho."
+
+[sub_resource type="Resource" id="Dial_1"]
+script = ExtResource("8_chat")
+line = "Redação. Aqui é o revisor; o pessoal já foi embora."
+replies = Array[ExtResource("9_reply")]([SubResource("Dial_1_0"), SubResource("Dial_1_1")])
+
 [resource]
 script = ExtResource("1_entry")
 wary = 1.4
@@ -22,3 +54,6 @@ number = "101"
 hello = "Gazeta, redação. Quem fala?"
 spoken = "a Gazeta"
 motives = Array[ExtResource("2_motive")]([SubResource("Motive_43"), SubResource("Motive_44")])
+answers = Array[ExtResource("8_chat")]([SubResource("Dial_0"), SubResource("Dial_1")])
+bye = "Boa noite. Leia a Gazeta amanhã."
+closes = 360.0

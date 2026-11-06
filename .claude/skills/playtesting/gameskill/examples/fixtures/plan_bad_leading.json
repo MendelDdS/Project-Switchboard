@@ -1,0 +1,8 @@
+{
+  "cohorts": ["FTUE", "Core"],
+  "silent_observer": true,
+  "telemetry_events": ["death", "dwell", "resource_bank", "quit"],
+  "debrief_questions": [
+    {"text": "Did you like the lantern glow?", "leading": true, "open_ended": false}
+  ]
+}

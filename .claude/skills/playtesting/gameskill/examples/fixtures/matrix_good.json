@@ -1,0 +1,29 @@
+[
+  {
+    "Player ID": "#P01",
+    "Cohort": "FTUE",
+    "Encounter / Level": "Level 1: Night Garden Gate",
+    "Observed Behavior (Action)": "Walked past the lantern gate 4 times; bumped the closed door",
+    "Stated Reason (Words)": "I didn't know where to go",
+    "Root Cause Category": "UX Friction: gate lever lacked contrast",
+    "Actionable Solution": "Add rim-light to the lever and emissive glow"
+  },
+  {
+    "Player ID": "#P02",
+    "Cohort": "Core",
+    "Encounter / Level": "Boss 1: Moth Warden",
+    "Observed Behavior (Action)": "Died 6 times to the phase 2 wing sweep",
+    "Stated Reason (Words)": "The sweep hits too fast to dodge",
+    "Root Cause Category": "Difficulty Tuning: telegraph window too short (120ms)",
+    "Actionable Solution": "Extend windup from 120ms to 350ms"
+  },
+  {
+    "Player ID": "#P03",
+    "Cohort": "Hardcore",
+    "Encounter / Level": "Level 2: Pollen Arena",
+    "Observed Behavior (Action)": "Jumped repeatedly on wall geometry to skip the fight",
+    "Stated Reason (Words)": "I found a cool shortcut",
+    "Root Cause Category": "Feature Noise: player suggested adding crafting",
+    "Actionable Solution": "Investigate powerlessness symptom; do not add crafting"
+  }
+]

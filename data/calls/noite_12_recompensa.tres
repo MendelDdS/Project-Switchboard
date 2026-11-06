@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="TransferCall" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/transfer_call.gd" id="1_call"]
+
+[resource]
+script = ExtResource("1_call")
+voice = "m"
+caller = "Seu Gilberto"
+caller_name = "Gilberto Freitas"
+opening = PackedStringArray("Boa noite. O Bilhar do Tonho, por favor.", "Quero saber se tem mesa livre amanhã.")
+repeat = "O bilhar do Tonho, moça."
+target = "355"
+destination = "Bilhar do Tonho"
+thanks = "Obrigado, moça."
+overheard = PackedStringArray("Tonho? É o Gilberto. Viu a recompensa no jornal?", "Vi. Dinheiro pra comprar uma casa.", "Tem gente aqui que entrega a mãe por menos.", "Por isso eu não conheço ninguém. Nem você, Gilberto.", "Nem eu me conheço, Tonho. Guarda a mesa das oito?", "Guardo. Mas às oito e meia eu fecho, por causa do toque.")

@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="TransferCall" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/transfer_call.gd" id="1_call"]
+
+[resource]
+script = ExtResource("1_call")
+group = 1
+voice = "f"
+caller = "Dona Helena"
+caller_name = "Helena Vieira"
+opening = PackedStringArray("Boa noite. Me liga com a Sônia Vieira? É minha irmã.", "Dois, três, sete.")
+repeat = "Sônia Vieira, moça. Minha irmã."
+target = "237"
+destination = "Sônia Vieira"
+thanks = "Obrigada, moça."
+overheard = PackedStringArray("Sônia? É a Helena. Fica com as crianças amanhã?", "Fico. Você vai pra Capital?", "Vou. Dizem que levaram o Artur pro quartel de lá.", "Quem disse?", "Uma mulher na fila da delegacia. Ela também procura o marido.", "Vai com Deus. E não fala o nome dele em voz alta.")

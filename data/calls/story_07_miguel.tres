@@ -1,0 +1,66 @@
+[gd_resource type="Resource" script_class="PrankCall" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/prank_call.gd" id="1_call"]
+[ext_resource type="Script" path="res://scripts/data/prank_step.gd" id="2_step"]
+
+[sub_resource type="Resource" id="Step_00"]
+script = ExtResource("2_step")
+text = "Alô, central? É o Miguel."
+
+[sub_resource type="Resource" id="Step_01"]
+script = ExtResource("2_step")
+text = "Oi, Maria!"
+requires = PackedStringArray("miguel_maria")
+
+[sub_resource type="Resource" id="Step_02"]
+script = ExtResource("2_step")
+kind = 1
+options = PackedStringArray("Oi, Miguel. Como foi o dia?", "Miguel, agora estou ocupada.")
+sets = PackedStringArray("miguel_amigo", "!miguel_amigo")
+
+[sub_resource type="Resource" id="Step_03"]
+script = ExtResource("2_step")
+text = "A professora leu a minha redação na frente da turma! Era sobre o meu irmão."
+requires = PackedStringArray("miguel_amigo")
+
+[sub_resource type="Resource" id="Step_04"]
+script = ExtResource("2_step")
+kind = 1
+options = PackedStringArray("Que orgulho! O que você escreveu?", "Sobre o seu irmão?")
+requires = PackedStringArray("miguel_amigo")
+
+[sub_resource type="Resource" id="Step_05"]
+script = ExtResource("2_step")
+text = "Que ele é o mais forte da rua. Ele já tem dezoito anos."
+requires = PackedStringArray("miguel_amigo")
+
+[sub_resource type="Resource" id="Step_06"]
+script = ExtResource("2_step")
+text = "Mas ele anda estranho. Chega tarde, não joga mais bola comigo, fica cochichando com uns amigos no portão."
+requires = PackedStringArray("miguel_amigo")
+
+[sub_resource type="Resource" id="Step_07"]
+script = ExtResource("2_step")
+kind = 1
+options = PackedStringArray("Coisa de gente grande.", "Ele deve estar cansado.")
+requires = PackedStringArray("miguel_amigo")
+
+[sub_resource type="Resource" id="Step_08"]
+script = ExtResource("2_step")
+text = "Hum. Deve ser. Boa noite!"
+requires = PackedStringArray("miguel_amigo")
+
+[sub_resource type="Resource" id="Step_09"]
+script = ExtResource("2_step")
+text = "Tá bom. Tchau."
+requires = PackedStringArray("!miguel_amigo")
+
+[sub_resource type="Resource" id="Step_10"]
+script = ExtResource("2_step")
+kind = 3
+
+[resource]
+script = ExtResource("1_call")
+voice = "k"
+caller = "Menino"
+steps = Array[ExtResource("2_step")]([SubResource("Step_00"), SubResource("Step_01"), SubResource("Step_02"), SubResource("Step_03"), SubResource("Step_04"), SubResource("Step_05"), SubResource("Step_06"), SubResource("Step_07"), SubResource("Step_08"), SubResource("Step_09"), SubResource("Step_10")])

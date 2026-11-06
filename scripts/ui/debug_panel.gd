@@ -20,7 +20,7 @@ const LETTERS := {"a": "a", "b": "bê", "c": "cê", "d": "dê", "e": "é", "f": 
 	"t": "tê", "u": "u", "v": "vê", "w": "dáblio", "x": "xis", "y": "ípsilon", "z": "zê", "ç": "cê cedilha", "á": "á",
 	"â": "â", "ã": "ã", "é": "é", "ê": "ê", "í": "í", "ó": "ó", "ô": "ô", "õ": "õ", "ú": "ú"}
 const LETTERS_PER_ROW := 10
-const KIND_NAMES := ["transferência", "emergência", "trote", "informação", "desconhecida"]   # PhoneCall.Kind
+const KIND_NAMES := ["transferência", "emergência", "trote", "informação", "discador"]   # PhoneCall.Kind
 
 var C: GameContent = GameData.CONTENT
 
@@ -49,7 +49,7 @@ func _ready() -> void:
 	_row([["Restaurar tudo", _restore_all]])
 	_section("Ligações e mesa", main.drop_all)
 	_row([["Transferência", _ring_transfer.bind(false)], ["Molde", _ring_transfer.bind(true)], ["Interurbano", _ring_trunk], ["Informação", func(): _ring(Schedule.info_call())]])
-	_row([["Trote", func(): _ring(PhoneCall.from_prank(C.pranks.pick_random()))], ["Desconhecida", func(): _ring(PhoneCall.mystery())], ["Imprimir bilhete", _print_ticket]])
+	_row([["Trote", func(): _ring(PhoneCall.from_prank(C.pranks.pick_random()))], ["Imprimir bilhete", _print_ticket]])
 	_emergency = OptionButton.new()
 	_emergency.focus_mode = Control.FOCUS_NONE
 	for e in C.emergencies:
@@ -105,7 +105,7 @@ func _ready() -> void:
 	lamp.button_pressed = SceneView.lamp_light
 	lamp.toggled.connect(func(on: bool): SceneView.lamp_light = on)
 	_box.add_child(lamp)
-	var flick := CheckButton.new()   # a luminária piscando, como na ligação desconhecida (`Main.flick`; ela também liga e desliga)
+	var flick := CheckButton.new()   # a luminária piscando (`Main.flick`; o passo EFFECT "flick" também liga)
 	flick.text = "Luminária piscando"
 	flick.focus_mode = Control.FOCUS_NONE
 	flick.button_pressed = main.flick
@@ -127,7 +127,10 @@ func _ready() -> void:
 	_row([["Pichação (noite 4)", func(): main.background.start_scene("graffiti")], ["Tinta por cima (noite 7)", func(): main.background.start_scene("paint")]])
 	_row([["Banca fechada (noite 12)", func(): main.background.start_scene("newsstand")], ["Desfile (noite 10)", func(): main.background.start_scene("parade")]])
 	_row([["Fuga da família (noite 14)", func(): main.background.start_scene("moving")], ["Sinalizador (noite 15)", func(): main.background.start_scene("flare")]])
+	_row([["Incêndio e combate (noite 15)", func(): main.background.start_scene("battle")]])
 	_row([["Batida no hotel (noite 13)", func(): main.background.start_scene("raid")], ["Pedra na janela (noite 14)", func(): main.background.start_scene("stone")]])
+	_row([["Bandeira na varanda (noite 15)", func(): main.background.start_scene("banner")], ["Homem de sobretudo (noites 13 e 14)",
+		func(): main.background.schedule("stranger", main.background.minutes + Background.MAN_WALK)]])
 	_section("Noites", func(): _go_night(1))
 	_row([["◀ Noite anterior", func(): _go_night(main.night_no - 1)], ["Próxima noite ▶", func(): _go_night(main.night_no + 1)]])
 	_row([["Amanhecer (última noite, 4h)", func(): _go_night(C.nights.size(), 10 * 60.0)]])

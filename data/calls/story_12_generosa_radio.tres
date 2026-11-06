@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="TransferCall" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/transfer_call.gd" id="1_story"]
+
+[resource]
+script = ExtResource("1_story")
+group = 0
+voice = "f"
+caller = "Moça"
+opening = PackedStringArray("Boa noite. A Rádio Serena, por favor.", "Fui ver o Otávio no São Lucas. Ele está muito mal, quase não fala.", "Quero oferecer uma música pra ele.")
+repeat = "A Rádio Serena, por favor."
+target = "390"
+destination = "Rádio Serena AM"
+thanks = "Obrigada."
+overheard = PackedStringArray("Rádio Serena, boa noite.", "Boa noite. Quero oferecer [other:Luar da Serra] pro [person:Otávio], na ala 3C do [place:São Lucas].", "Quem oferece?", "A moça de fita amarela. Ele sabe.", "Vai ao ar depois do noticiário, moça. Melhoras pra ele.")
+caller_name = "Generosa Prates"
+name_line = "Generosa Prates."

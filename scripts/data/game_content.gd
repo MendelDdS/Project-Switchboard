@@ -11,6 +11,9 @@ const DialCall := preload("res://scripts/data/dial_call.gd")
 @export_group("Lista telefônica e cidade")
 ## Em ordem alfabética (é a ordem da lista telefônica).
 @export var directory: Array[DirectoryEntry] = []
+## As telefonistas das outras centrais (001 o Centro, 002 o Alto da Serra; o fim é o setor): fora da lista e da mesa,
+## só pelo discador; os números vão no rodapé da lista (`PhoneBook`). O 003 é a própria central (`GameData.OWN`).
+@export var operators: Array[DirectoryEntry] = []
 @export var streets: Array[Street] = []
 ## Tipos de ocorrência no despacho.
 @export var occurrences: PackedStringArray = []
@@ -20,6 +23,9 @@ const DialCall := preload("res://scripts/data/dial_call.gd")
 @export var nights: Array[Night] = []
 ## A noite 0, antes da primeira: o treinamento (`Night.lesson`) e um turno calmo. Fica fora de `nights`.
 @export var training: Night
+## A noite 16, depois da última (a do golpe): o epílogo, com as ligações conforme o final (`Rebellion.FINALS`). Fica
+## fora de `nights`, para a última continuar sendo a 15 (a meia-noite do golpe, nenhuma advertência). Na presa, não há.
+@export var epilogue: Night
 ## Níveis de ritmo das ligações sorteadas, do mais calmo ao limite (veja Pace): o 1 é o da primeira noite e o último
 ## vale para todas as noites depois de chegar nele.
 @export var paces: Array[Pace] = []
@@ -34,13 +40,15 @@ const DialCall := preload("res://scripts/data/dial_call.gd")
 @export var pranks: Array[PrankCall] = []
 
 @export_group("Moldes")
-## Transferências com lacunas: {place} "o Hotel Estrela", {of_place} "do Hotel Estrela", {to_place} "pro Hotel Estrela",
+## Transferências com lacunas: {place} "o Hotel Serena", {of_place} "do Hotel Serena", {to_place} "pro Hotel Serena",
 ## {street} rua do contato, {number} "305", {digits} "três, zero, cinco", {reason} um dos motivos do contato.
 ## Só vão para contatos com `spoken` e `motives` que atendem à noite (a conversa depois de conectados vem do motivo).
 ## Quem liga sai de `callers`.
 @export var transfer_templates: Array[TransferCall] = []
 ## Agradecimento de quem foi transferido por molde (sem gênero: quem liga é sorteado).
 @export var transfer_thanks: PackedStringArray = []
+## B1: como diz o nome quem só diz quando o operador pede ({name} o nome e sobrenome; `rule_identification.ask_share`).
+@export var name_lines: PackedStringArray = []
 ## Interurbanos com lacunas: {to_city} "pra Capital" (`trunk_to`) e {far} o número na outra cidade. Vão para um
 ## tronco sorteado (`GameData.trunk_transfer`).
 @export var trunk_templates: Array[TransferCall] = []
@@ -138,7 +146,7 @@ const DialCall := preload("res://scripts/data/dial_call.gd")
 @export_multiline var low_warning := ""
 
 @export_group("Pedidos de informação")
-## %s vira "do Hotel Estrela" (DirectoryEntry.spoken com "d" na frente).
+## %s vira "do Hotel Serena" (DirectoryEntry.spoken com "d" na frente).
 @export var ask_number: PackedStringArray = []
 @export var info_thanks: PackedStringArray = []
 @export var info_doubt: PackedStringArray = []

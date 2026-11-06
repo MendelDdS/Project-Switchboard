@@ -6,9 +6,9 @@
 script = ExtResource("1_7qtdx")
 caller = "Dona Fátima"
 caller_name = "Fátima Pires"
-opening = PackedStringArray("Boa noite, central.", "Minha filha chegou no ônibus das dez e foi pro Hotel Estrela. Quero saber se ela chegou bem.")
-repeat = "O Hotel Estrela, na avenida."
+opening = PackedStringArray("Boa noite, central.", "Minha filha chegou no ônibus das dez e foi pro Hotel Serena. Quero saber se ela chegou bem.")
+repeat = "O Hotel Serena, na avenida."
 target = "305"
-destination = "Hotel Estrela"
+destination = "Hotel Serena"
 thanks = "Ai, obrigada. Mãe não dorme, né?"
 overheard = PackedStringArray("Boa noite. Minha filha chegou no ônibus das dez. Ela está aí?", "A moça de chapéu? Chegou, sim. Já subiu pro quarto.", "Ai, que alívio. Ela estava bem?", "Cansada, mas bem. Pediu um chá e foi deitar.", "Então não acorda ela. Amanhã eu ligo de novo.")

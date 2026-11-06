@@ -19,7 +19,6 @@ const PEN := Color("2b3f78")       ## a caneta azul do supervisor: o parecer do 
 const AMBER := Color("f3a83c")
 const GREEN := Color("8dbb6c")
 const RED := Color("d4553f")
-const GHOST := Color("cfe6d2")
 const TEXT := Color("e6dbbd")
 const DIM := Color("9a917a")
 const GLOW := Color("ffd183")
@@ -33,7 +32,7 @@ const BOOK_LEAVES := Color("c6b994")   ## o miolo das listas visto de lado, na m
 const BOOK_PAGE := Color("e3d6b2")     ## ...e a página da lista aberta (`PhoneBook`)
 const BOOK_TAG: Array[Color] = [Color("e2d7b6"), Color("4a4038"), Color("d8cba6")]   ## na capa da lista de cima: a etiqueta colada, o ano nela e a folha à mostra na ponta dobrada
 const PAD_BACK: Array[Color] = [Color("8a7f6c"), Color("6c6253"), Color("463f35")]   ## o papelão de trás do bloco de fichas: a beira na luz, o papelão, a beira na sombra
-const PAD_TAPE: Array[Color] = [Color("5f6845"), Color("424930"), Color("292e1e")]   ## a fita de pano oliva (os tons do painel, `BOARD_METAL`) da colagem, no alto do bloco
+const PAD_TAPE: Array[Color] = [Color("b04a3e"), Color("8e2a22"), Color("5e1a14")]   ## a fita de pano vermelha da colagem, no alto do bloco (a lição da Cecília a chama assim; os vermelhos da folhinha, `CALENDAR_HEAD`)
 const NOTE_PAGE := Color("d2c5a0")     ## a ficha de ocorrências (o bloco de fichas)...
 const NOTE_RULE := Color("bfb38e")     ## ...a pauta...
 const NOTE_MARGIN := Color("b07060")   ## ...e a margem vermelha
@@ -46,12 +45,14 @@ const PENCIL_LEAD := Color("2a2620")
 ## Os carimbos do caderno (`Notebook.STAMPS`): Comum (tinta azul), Emergência (vermelho), Trote (sépia) e a não atendida
 ## (grafite: registrada sozinha).
 const LOG_STAMPS: Array[Color] = [Color("3a4f7a"), Color("8a2a1c"), Color("7a5214"), Color("5c5a55")]
-const PENDING: Array[Color] = [Color("d4c084"), Color("cdbda4")]   ## as tiras dos registros pendentes saindo do bloco de fichas
+## As tiras dos registros pendentes saindo do bloco de fichas, na cor do tipo da ligação (`Notebook.STRIPS`): Comum
+## (azul), Emergência (vermelho) e Trote (ocre), os carimbos num papel mais claro.
+const PENDING: Array[Color] = [Color("6a86b4"), Color("b8503e"), Color("cc9e3c")]
 const BOARD: Array[Color] = [Color("8a5e3a"), Color("6e4a2c"), Color("4a3018"), Color("7e5634")]   ## a tábua da prancheta: a beira de cima, na luz, a tábua, a beira na sombra e a da esquerda
 const SHEET := Color("cdc09c")       ## a folha da prancheta (a nova, ainda não lida: SHEET_NEW)
 const SHEET_NEW := Color("e0d5b4")
 const SHEET_INK: Array[Color] = [Color("5a5448"), Color("6a6458")]   ## a letra das folhas da prancheta: o título e as linhas
-const FORM_RED := Color("a8564a")    ## o fio vermelho do cabeçalho da folha, a marca das tiras e as tiras vermelhas das listas
+const FORM_RED := Color("a8564a")    ## o fio vermelho do cabeçalho da folha e as tiras vermelhas das listas
 const STRIP := Color("e0d4b0")       ## as tiras de papel creme marcando páginas nas listas
 const NEWSPRINT := Color("d3c69f")   ## o papel-jornal
 const NEWS_INK := Color("776c51")    ## a letra miúda das colunas do jornal
@@ -193,6 +194,11 @@ const CHROME: Array[Color] = [Color("3a3d33"), Color("4a4840"), Color("5a574e"),
 const FOLDERS: Array[Color] = [Color("6e5a3a"), Color("8a7a5a"), Color("4a5a6a"), Color("7a3a2a")]   ## as pastas nas prateleiras do armário
 const LABEL_PAPER := Color("e3d6b2")   ## o cartão do porta-etiqueta do armário e as etiquetas das pastas...
 const LABEL_INK := Color("4a4438")     ## ...e a letra datilografada no cartão
+## Os pacotes das fitas gravadas (B4): o de carta, branco, para Sebastião; o oficial, amarelo com um risco azul de
+## ponta a ponta, para as autoridades (`Cassette.parcel`, `Background._art_tape`).
+const PARCEL_WHITE := Color("e6e1d3")
+const PARCEL_YELLOW := Color("c9a443")
+const PARCEL_STRIPE := Color("2d4f8e")
 const NOTE_PAPER := Color("efe6cc")  ## o bilhete com o número anotado, colado no armário...
 const NOTE_INK := Color("2a2a4a")    ## ...e a caneta dele
 const UMBRELLA_WOOD: Array[Color] = [Color("6b4529"), Color("4a2c18"), Color("2a1a0f")]   ## o cabo do guarda-chuva: luz, meio, sombra...
@@ -283,6 +289,9 @@ const BALCONY_ROOM := Color("0b1018")   ## ...a sala escura atrás do vidro, com
 const BALCONY_IRON := Color("15191c")   ## ...o gradil de ferro...
 const BALCONY_SLAB := Color("2a1a14")   ## ...a beira da laje...
 const LAUNDRY: Array[Color] = [Color("9a948a"), Color("6a2e2c"), Color("3a4e66")]   ## ...e a roupa no varal
+const BANNER: Array[Color] = [Color("121214"), Color("d9b23a")]   ## ...a bandeira da rebelião (noite 15): o pano preto e o círculo amarelo (o símbolo, por ora)...
+const STRANGER: Array[Color] = [Color("141316"), Color("0e0e11")]   ## o homem de sobretudo (embaixo do poste e de perto, `Arrest`): o sobretudo e o chapéu pretos e a calça
+const REBEL: Array[Color] = [Color("5a4232"), Color("2a2e36"), Color("8c8676"), Color("1c1c20")]   ## ...e quem a estende: a jaqueta de couro, a calça, a camisa e a boina
 const SHUTTER: Array[Color] = [Color("18211c"), Color("2a372e")]   ## as venezianas de madeira, verdes, na lateral do prédio de tijolos: as frestas e as lâminas
 const ANTENNA := Color("262c32")   ## as antenas de TV nos telhados de lá (e o cavalete das caixas d'água): o alumínio contra o céu
 const ETERNIT: Array[Color] = [Color("25282a"), Color("373a3a"), Color("4c4e4a")]   ## o cimento das caixas d'água nos telhados (de concreto e de cimento-amianto): a sombra, o meio e a luz
@@ -352,6 +361,12 @@ const SUITCASE: Array[Color] = [Color("4e3626"), Color("2a1c14")]
 ## (acesa por ele perto, cinza longe)
 const SIGNAL_FLARE: Array[Color] = [Color("ffe8e0"), Color("ff3a2a"), Color("d0281c")]
 const SIGNAL_SMOKE: Array[Color] = [Color("a04a44"), Color("4a4650")]
+## O combate da noite 15 (`Battle`): o fogo no horizonte (o miolo amarelo e o clarão laranja), o clarão de um estouro,
+## o traçante (a cabeça e o rastro) e a fumaça (acesa pelo fogo embaixo, cinza no alto)
+const BATTLE_FIRE: Array[Color] = [Color("ffd27a"), Color("ff8a2a")]
+const BATTLE_BLAST := Color("fff0c8")
+const BATTLE_TRACER: Array[Color] = [Color("fff2b0"), Color("ff7a1e")]
+const BATTLE_SMOKE: Array[Color] = [Color("8a4a2a"), Color("3a3840")]
 const CHASE_SUIT: Array[Color] = [Color("2a2d36"), Color("38342c")]
 const BLOOD: Array[Color] = [Color("2a0606"), Color("440a0a"), Color("6a1410")]
 const AWNINGS: Array[Color] = [Color("4a1c1c"), Color("1e3a2c"), Color("2a3048")]   ## os toldos de lona das lojas de lá (desbotados pela noite)

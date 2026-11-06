@@ -848,3 +848,184 @@ curva, outro caminho), mostre antes como proposta e pergunte, não entregue como
   a disposição dela (a fonte em dobro com relevo, `PixelArt.big`, é o tamanho das miúdas da mesa em 3×).
   E use as mesmas peças: na chapa do banco troquei a letra estampada (`PLATE_LETTERS`) e o estêncil (`PixelArt.tiny`)
   pela fonte do jogo, e "ainda não condiz". Peça com desenho próprio no jogo vai de perto com aquele desenho ampliado.
+
+## Pergunta ao usuário se lê sozinha
+No relato do passo 3 do roteiro, listei as dúvidas que ainda faltavam só pelo número que elas tinham numa análise
+antiga ("0 · 1 · 3 · 5 · 7–9 · 13–25"), com um resumo de três palavras; o usuário: "não entendi absolutamente nada
+dessa tabela de dúvidas. O que são esses números?". Ele não guarda a numeração de mensagens passadas. Cada pergunta
+vai escrita inteira, com o contexto e uma sugestão, e só as que importam para o próximo passo; numeração, só a da
+própria mensagem.
+
+## Antes de perguntar, jogue a cena de cabeça
+Perguntei se "ignorar as ligações para a delegacia e a Alta Cúpula" (Dia 9) era não atender ou atender e não
+transferir; o usuário: "como que o jogador vai descobrir que aquela ligação é da cúpula ou delegacia? Pergunta sem
+sentido." O destino só se sabe depois de atender. Antes de mandar uma dúvida de roteiro, siga a ligação na mesa
+(toca, atende, ouve o pedido, transfere) e só pergunte o que o jogo de fato deixa em aberto.
+
+## Detalhe pequeno em objeto deitado vai na tela
+Pus o lacre da carta no desenho de frente do envelope; a homografia o entortou num losango e o usuário achou
+"estranho, não tá esticada". Detalhe de poucos pixels em objeto chato da mesa (lacre, lápis, risco) vai na tela,
+deitado (mais largo que alto), no ponto que `_tex_pt` dá, como o `_ink`.
+
+## Nomeie a coisa, não o apelido do plano
+Escrevi "a senha do Dia 4 vale das 20:30 às 21h" e o usuário perguntou "a senha só vale por trinta minutos? Como
+assim?"; depois: "você não deixou claro que senha seria". Era a regra que ele mesmo tinha dado (a ligação ao hotel
+com "A semente brotou"), mas "a senha" soava como o código da B3 do bilhete. Ao citar uma regra do roteiro, diga a
+cena inteira: quem liga para onde, o que diz e o que conta.
+
+## Cena da rua nasce na regra de qualidade
+Fiz a bandeira da noite 15 como silhueta andando e um retângulo descendo e mostrei as capturas; o usuário: "como eu
+já tinha falado e especificado antes, as animações e detalhes dos eventos precisam ser bons". Toda cena nova na vista
+(evento do roteiro ou não) segue o `PLANO_RUA.md`, seção 1, desde a primeira versão: rig ou figura com poses
+suavizadas, objeto com peso (cai, quica, assenta), detalhe e luz do lugar, chuva e névoa, som. Leia a seção antes de
+desenhar.
+
+
+## Distância antes de desculpa de escala
+Disse que o homem na varanda não comportava detalhe por ser pequeno; o usuário: "por que não dá pra colocar detalhes?
+Na prática, ele está na mesma distância das pessoas que andam na rua". Antes de alegar limite de escala, compare o `z`
+com o de quem já é desenhado com detalhe ali perto; o que apagava o detalhe era a contraluz forte que eu pus.
+
+
+## O que o usuário já decidiu não volta como pergunta
+Deixei o relatório do supervisor no fim da noite 16 e perguntei se estava bom; o usuário: "Não tem relatório, já
+falei isso. Após o epílogo seriam os créditos basicamente". Antes de listar dúvidas, procure a resposta no
+`HISTORICO.md` e no `PLANO_ROTEIRO.md`; o que já foi dito vira código, não pergunta.
+
+## Figura pequena na vista: conferir a cor final na captura, pixel a pixel
+O homem de sobretudo saiu "marrom" duas vezes: a luz do contorno do rig (`_draw_pixels`) acende as beiras de cima e do
+lado, e numa figura de 3–4 px quase todo pixel é beira; e a gradação da noite clareia os escuros (um `2c2b2d` vira
+`3a3a3d`). Figura pequena que tem de parecer preta: sem contorno (`rim`) e cor bem escura no `Pal`, conferida no
+valor do pixel da captura, não só no olho. Desenho próprio com retângulos em metros (o antigo) flutuava e não tinha
+rosto: pessoa na rua é sempre o rig de quem passa.
+
+## Quem tem nome tem a voz da pessoa, e lugar tomado fecha
+A Morgana saiu com a voz "w" (homem velho) porque a voz do contato foi escrita sem conferir quem é; e as centrais dos
+setores continuavam atendendo depois que o setor passou à Maria. Pelo modelo físico: setor entregue é central fechada,
+sem ninguém do outro lado. Ao criar contato com nome, confira a voz pelo sexo e pela idade; ao mudar quem atende um
+setor, feche o que ficou para trás (`gone_from`).
+
+## Sugestão de design: resolver o problema, não criar sistema
+Pedido "sugira desculpas e consequências", propus conferir a desculpa com a noite, mentira descoberta depois, contador
+de suspeita em degraus e cobranças em seis noites. O usuário recusou: "vai só adicionar mais coisa no jogo sendo que
+podemos simplificar o que de fato é problema". Antes de sugerir mecânica, diga qual problema ela resolve e proponha o
+menor ajuste no que já existe; sistema novo só se ele pedir.
+
+## Final que vira variação: procure todo `requires` do final que absorveu
+Ao fundir a vitória amarga no sucesso (`custou_gente`), troquei os `requires` do epílogo, mas o fecho da noite 15
+("Amanhece", o encontro com Sebastião) pedia só `final_sucesso` e passou a valer também na amarga, que não tem
+encontro. Quem ganha um marcador a mais herda tudo o que pedia só aquele marcador: ao fundir dois estados, procure
+(`grep`) cada `requires` do que ficou, em todas as noites, não só nos arquivos do que saiu.
+
+## Pergunta de "quem faz": responda com o nome, não com a condição
+"Quem verifica se as falas soam naturais?" respondi "isso depende de jogar", e o usuário reclamou: bastava "você" ou
+"eu", e já tinha pedido clareza antes. Na revisão, listei incoerências sem dizer se a correção já era proposta ou
+esperava a escolha dele. Pergunta de quem/quando/sim-ou-não começa pela resposta seca ("Você."); cada problema
+apontado diz em uma frase o que está errado e o que eu faria, e se já fiz ou espero aprovação.
+
+## Rua no mapa: confira o trecho, não só o setor da rua
+Na revisão do roteiro afirmei que a Rua do Moinho e a Rua da Estação eram só da Vila Serena e "corrigi" falas e o
+endereço do Joaquim Ferreira; o usuário aprovou com base nisso. Errado: rua com `continues` tem 6 trechos e do 300 em
+diante fica no outro setor (`Street.block_sector`). O `test_content` já confere o endereço contra o bairro do número;
+antes de apontar rua no bairro errado, olhe `continues` e o número.
+
+## Reflexo na rua molhada: espelhe a cena, não desenhe riscos
+Os reflexos da chuva eram riscos desenhados pixel a pixel embaixo de cada luz: em linhas, pareciam linhas; ondulando,
+água parada; retos e manchados, ainda "não tá ficando bom". O que lê como asfalto molhado é o espelho do que está lá
+(a vitrine com o vão, a porta com a pessoa), esticado e borrado para baixo, com poças mais nítidas: um shader que lê
+o que já foi desenhado (`hint_screen_texture`, como o `spot_light`) e vira no pé das fachadas. Depois de duas
+tentativas no mesmo caminho recusadas, troque o método em vez de afinar o parâmetro.
+
+## Reflexo na rua molhada: quebras horizontais, não manchas; luz lisa
+O grão do reflexo na rua molhada em manchas que sumiam aos poucos parecia fumaça; em manchas de beira seca, parecia
+manchado. Recortar um reflexo em manchas 2D lê como mancha, qualquer que seja a beira: asfalto molhado se texturiza
+por quebras finas na horizontal (1 px, em trechos, mais juntas lá longe, sem deslocar para o lado, que vira água) e
+pelo esticar para baixo; mancha grande só onde é poça. O que tem de ser liso é a luz (o sumiço ao longo do reflexo,
+a poça da luminária). Antes de propor uma causa visual, teste tirando a suspeita numa captura.
+
+## Rastro de bala é linha reta e inteira
+
+O traçante do combate da noite 15 saiu primeiro como risco de 8 px (lia como faísca) e depois como linha esmaecendo
+para trás (lia como míssil). Bala traçante é uma linha reta, de cor única, inteira, subindo em diagonal desde trás
+dos telhados. Antes de desenhar algo que se move, pense no objeto físico (bala, míssil, fogo) e no que ele parece de
+longe, e não só no tamanho na captura.
+
+## Texto que fala de uma cor ou de um rótulo amarra o objeto
+Mudar a cor de um objeto (a fita do bloco, de vermelha para oliva) ou o tamanho de uma coluna (o carimbo do tipo, na
+base 960×540) deixou o tutorial errado ("a fita vermelha") e o carimbo cortado ("LIGAÇ..."). Ao mudar cor, rótulo ou
+largura, procure nas falas (`grep` em `data/`) quem descreve aquilo e capture o texto mais longo de cada idioma.
+
+## O objeto do relato: ache na captura o que a pessoa vê
+"As fitas na ficha são brancas com uma linhazinha vermelha" eram as tiras pendentes saindo do bloco; pintei a fita
+de pano do alto, porque a fala citava "fita". Antes de consertar, ache na captura o que bate com a descrição (cor,
+forma, quantidade) e confira o nome do código pelo desenho, não pela palavra.
+
+## `--import` com o editor aberto: confira antes e pare
+Rodei `pgrep ... && echo EDITOR; Godot --import` numa linha só: o aviso saiu e o import rodou mesmo assim. A
+conferência do editor tem de bloquear o comando (`pgrep ... || Godot --import`), nunca só avisar.
+
+## Contar ligações do roteiro pelas versões, não pelas entradas
+Disse que a noite 8 tinha 12 ligações do roteiro contando as entradas do `.tres`; quase todas eram versões que se
+excluem pelo `requires` (bar avisado ou não, três do hotel). Numa partida tocam ~6. Para falar de ritmo ou densidade,
+agrupe as entradas por horário e conte uma por grupo.
+
+## Despedida de quem liga: o que uma pessoa comum faria de verdade
+Escrevi o homem do táxi se despedindo com "vou ficar aqui e ajudar o rapaz", e ele estava vendo quatro baterem num
+rapaz: soa como se ele fosse entrar na briga. Passou a "vou ficar aqui e ver no que posso auxiliar". Ao escrever a
+reação de quem presencia a emergência, confira se a frase descreve um gesto plausível e seguro para aquela pessoa,
+não um heroísmo que a cena não sustenta.
+
+## A despedida do despacho não ouve a sirene
+Escrevi as despedidas das ligações que viram emergência com "Tô ouvindo a sirene" e "Os bombeiros chegaram": a pessoa
+fala logo depois do despacho, e o socorro chegando ali é rápido demais. O `after` de uma emergência é dito na hora em
+que as unidades saem: nada de chegada, sirene ou socorro já no local.
+
+## Mecânica nova muda o treinamento junto
+O treinamento (`data/nights/night_00.tres`) ficou para trás: o mapa passou a pedir dois cliques (datilografar e
+imprimir), a escuta e o discador entraram, o despacho virou máquina creme, e a Cecília seguia com as falas antigas e
+citava o manual da parede, escondido. Com o `HintSlot` escondido, o que só estava no `hint` de um passo (tirar o cabo
+na lâmpada vermelha, voltar o FONE da espera) não chegava ao jogador. Mudou uma interação, um objeto ou uma tecla:
+confira as falas da Cecília; todo passo de espera precisa ser dito por ela antes, não só na dica.
+
+## Objeto da mesa em tamanho de verdade ainda precisa ler
+A unidade de despacho, o calculógrafo e o carimbo estavam "no tamanho de verdade" (`PROP_K`) e mesmo assim pequenos
+perto das listas e do relógio: o usuário julga pelo peso na tela, não pela medida. Cresceram ~20% (o carimbo
+redesenhado em 25 × 39, nunca esticado) e a unidade recuou (`UNIT_AT`) para o calculógrafo não tapar a base dela.
+Depois (item 545): o usuário compara com outro objeto que conhece na mão ("o carimbo não é menor que um plug P10").
+Crescer não é ampliar por igual: pense no objeto de verdade (um datador tem uns 10 cm de alto por 4,5 de largo) e
+cresça na direção que ele tem. O carimbo a 31 × 42 ficou atarracado ("crescendo pros lados"); a 21 × 50, certo.
+Meça o vizinho de referência em px na captura (o plug guardado: 12 × 48 à mostra).
+
+## Gente em lugar alto, vista de baixo
+Quem anda numa varanda acima dos olhos, atrás da beira da laje, tem os pés projetados abaixo dela: desenhada por
+inteiro, a pessoa "atravessa o chão" (item 551). Corte na beira de cima da laje (`_slab_clip`). E quem passa atrás
+de um poste, coluna ou objeto fino precisa dele desenhado de novo por cima (`_draw_pole`).
+
+## Música gerada: o gênero vem das palavras do pedido
+No ACE-Step, "MPB", "samba-canção", "uplifting", "beautiful" e bateria levaram o amanhecer e os finais para balada e
+pop, fora do clima do jogo (item 553). Peça o gênero pela trilha (filme noir, cinema de autor dos anos 70, conjunto
+de câmara), negue bateria, batida e pop no texto e no `lm_negative_prompt`. Ele não faz efeitos sonoros: pedido de
+"campainha" ou "chuva" sai música. E peça longa não segue um arco: gere as partes e emende.
+
+## Efeito gerado: olhe o espectrograma antes de mostrar
+Os efeitos do MOSS-SoundEffect saíram todos com ruído (item 553): faixa fixa de 16–18 kHz, chiado e ronco grave; a
+medida do piso (RMS) não acusou, o espectrograma (`showspectrumpic` do ffmpeg) mostrou na hora. Nem limpos agradaram
+e o modelo saiu. Ao testar outro gerador, confira um espectrograma de cada antes de mostrar.
+
+## Voz: o pitch_scale leva os formantes junto
+Subir a altura de uma sílaba pelo `pitch_scale` encolhe a boca de quem fala junto (os formantes sobem na mesma
+proporção). Na voz com muito sopro (o sussurro "w"), que quase não tem tom, as variações somadas (pessoa, nervoso,
+exclamação, pergunta) faziam o homem soar criança (item 555). Variação de altura nova numa voz: confira o produto de
+todas contra o `tract` das outras vozes (criança 1,25), não cada uma sozinha.
+
+## Setor novo não cai em noite de evento do golpe
+A noite em que um setor é entregue segura o ritmo (`Pace.next`) para o jogador aprender o bairro; as noites dos ataques
+(4 e 9) trocam as sorteadas por quatro emergências. O setor 2 na 9 juntava as duas coisas: alívio e aperto na mesma
+noite (item 556). Ao mexer em `SECTOR_NIGHTS` ou numa noite de evento, confira que não coincidem, e que o roteiro da
+noite não usa número de setor que ainda não chegou (o `test_content` só cobra as sorteadas, não as do roteiro).
+
+## Cache de textura esvaziado: quem não se redesenha fica branco
+O `draw_texture` guarda só o RID da textura; esvaziar um cache libera as texturas, e a camada que só se redesenha
+quando o estado muda passa a desenhar uma textura que não existe mais, um retângulo branco (item 558, as chapas dos
+bancos). Cache de textura que esvazia manda tudo se redesenhar (`PixelArt._evict`); e "esvaziar só custa remontar o
+que está na tela" só vale para o que se redesenha sozinho.

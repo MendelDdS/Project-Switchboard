@@ -13,6 +13,7 @@ const TAB_W := 26.0           # largura das abas de índice, na borda direita
 const NAV_H := 42.0           # altura da barra de Voltar/Virar, embaixo do livro
 const TOP := 32.0             # onde começam os contatos da página (abaixo do cabeçalho)
 const CLUE_H := 34.0          # altura de cada palavra-chave anotada
+const FOOT_H := 56.0          # o rodapé da página da direita das letras: os números das centrais (`_footer`)
 const PLAIN := {"á": "a", "à": "a", "â": "a", "ã": "a", "é": "e", "ê": "e", "í": "i", "ó": "o", "ô": "o", "õ": "o", "ú": "u", "ç": "c"}
 
 var marked := -1
@@ -218,6 +219,7 @@ func _draw() -> void:
 	for e in pg[0]:
 		_draw_entry(left, ey, e)
 		ey += entry_height(e)
+	_footer(right)
 	if pg[1].is_empty():
 		_ruled(right)
 		return
@@ -291,12 +293,24 @@ func _draw_clues(x0: float, groups: Array, none := false) -> void:
 ## Página sem contatos: só a pauta.
 func _ruled(x0: float) -> void:
 	var y := TOP + 24.0
-	while y < bottom:
+	while y < bottom - FOOT_H:   # (o rodapé embaixo)
 		var lx := x0 - 4
 		while lx < x0 + page_w + 4:
 			draw_rect(Rect2(lx, y, 2, 1), Pal.PAPER_LINE)
 			lx += 4
 		y += 32.0
+
+
+## O rodapé, como nas listas impressas: os números das telefonistas das centrais, um por setor (o fim é o setor:
+## 001 o Centro, 002 o Alto da Serra, 003 esta), embaixo da página da direita (nas duas, a letra P não cabia mais).
+func _footer(x: float) -> void:
+	var y := bottom - FOOT_H + 4
+	draw_rect(Rect2(x, y - 3, page_w, 1), Pal.INK_SOFT)
+	var lines := [T.text(T.Key.BOOK_CENTRALS)]
+	for s in [1, 2, 3]:
+		lines.append("00%d %s" % [s, T.text(CityMap.DISTRICT[s])])
+	for i in lines.size():
+		draw_string(Pal.mono, Vector2(x, y + i * 13 + Pal.mono.get_ascent(11)), lines[i], HORIZONTAL_ALIGNMENT_LEFT, page_w, 11, Pal.INK_SOFT)
 
 
 ## Contato: nome, pontilhado até o número e, embaixo, observação, endereço e bairro.

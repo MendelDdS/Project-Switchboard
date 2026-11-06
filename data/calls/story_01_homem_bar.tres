@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="TransferCall" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/transfer_call.gd" id="1_story"]
+
+[resource]
+script = ExtResource("1_story")
+group = 2
+voice = "m"
+caller = "Homem"
+opening = PackedStringArray("Boa noite. O Bar do Zé, por favor.")
+repeat = "O bar. O do Zé."
+target = "327"
+destination = "Bar do Zé"
+thanks = "Obrigado, Maria."
+caller_name = "Sebastião Falcão"
+name_line = "Sebastião Falcão."
+overheard = PackedStringArray("Zé? Sou eu.", "Até que enfim. E então?", "Ela passou a ligação. Chamei pelo nome e ela nem estranhou.", "É a filha dele mesmo?", "É. A mesma voz da mãe. Amanhã eu ligo de novo.")
+wary = 1.5
+identify = 1
+refuse_line = "Isso não importa agora."

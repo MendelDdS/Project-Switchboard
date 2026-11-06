@@ -1,0 +1,8 @@
+[
+  {"player": "#P01", "category": "UX Friction", "symptom": "gate_lever_invisible", "solution": "Add rim-light to lever"},
+  {"player": "#P02", "category": "UX Friction", "symptom": "gate_lever_invisible", "solution": "Add rim-light to lever"},
+  {"player": "#P03", "category": "Difficulty Tuning", "symptom": "boss_telegraph_short", "solution": "Extend windup to 350ms"},
+  {"player": "#P04", "category": "Difficulty Tuning", "symptom": "boss_telegraph_short", "solution": "Extend windup to 350ms"},
+  {"player": "#P05", "category": "Difficulty Tuning", "symptom": "boss_telegraph_short", "solution": "Extend windup to 350ms"},
+  {"player": "#P06", "category": "Feature Noise", "symptom": "wants_crafting", "solution": "Investigate powerlessness; do not add crafting"}
+]

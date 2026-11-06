@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="TransferCall" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/transfer_call.gd" id="1_story"]
+
+[resource]
+script = ExtResource("1_story")
+group = 2
+voice = "m"
+caller = "Investigador"
+opening = PackedStringArray("Alta Cúpula, por favor.")
+repeat = "A Alta Cúpula."
+target = "296"
+destination = "Alta Cúpula"
+thanks = "Obrigado."
+overheard = PackedStringArray("Boa noite. Vilela, da investigação.", "Diga.", "Estamos perto do comandante deles. Um rapaz preso hoje falou num [place:armazém].", "Que armazém? A cidade tem dezenas.", "No [place:Alto da Serra]. Amanhã a gente revista um por um, começando pela [street:Rua do Moinho].", "Antes de amanhecer, Vilela. Amanhã pode ser tarde.", "Às [time:cinco] eu estou na rua com os homens.")
+caller_name = "Nestor Vilela"
+name_line = "Nestor Vilela, da investigação."
+code_line = "Autorização {code}."

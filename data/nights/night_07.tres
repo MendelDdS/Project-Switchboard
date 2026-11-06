@@ -1,7 +1,23 @@
 [gd_resource type="Resource" script_class="Night" format=3]
 
+[ext_resource type="Script" path="res://scripts/data/story_text.gd" id="j_story_text"]
 [ext_resource type="Script" path="res://scripts/data/night.gd" id="1_night"]
 [ext_resource type="Script" path="res://scripts/data/street_event.gd" id="2_event"]
+[ext_resource type="Script" path="res://scripts/data/prank_step.gd" id="x0_prank_step"]
+[ext_resource type="Script" path="res://scripts/data/dial_call.gd" id="x1_dial_call"]
+[ext_resource type="Script" path="res://scripts/data/story_call.gd" id="x2_story_call"]
+[ext_resource type="Resource" path="res://data/calls/story_07_bar_radio.tres" id="x3_story_07_bar_radio"]
+[ext_resource type="Resource" path="res://data/calls/story_07_bar_radio_avisado.tres" id="x4_story_07_bar_radio_avisado"]
+[ext_resource type="Resource" path="res://data/calls/story_07_bar_armas.tres" id="x5_story_07_bar_armas"]
+[ext_resource type="Resource" path="res://data/calls/story_07_bar_armas_avisado.tres" id="x6_story_07_bar_armas_avisado"]
+[ext_resource type="Resource" path="res://data/calls/story_07_bar_grupo_c.tres" id="x7_story_07_bar_grupo_c"]
+[ext_resource type="Resource" path="res://data/calls/story_07_bar_grupo_c_avisado.tres" id="x8_story_07_bar_grupo_c_avisado"]
+[ext_resource type="Resource" path="res://data/calls/story_07_miguel.tres" id="a_story_07_miguel"]
+[ext_resource type="Resource" path="res://data/calls/noite_07_baile.tres" id="j_baile"]
+[ext_resource type="Resource" path="res://data/calls/noite_07_parente.tres" id="j_parente"]
+[ext_resource type="Resource" path="res://data/calls/noite_07_taxi.tres" id="j_taxi"]
+[ext_resource type="Resource" path="res://data/calls/noite_07_raimundo_padre.tres" id="j_raimundo_padre"]
+[ext_resource type="Resource" path="res://data/calls/noite_07_raimundo_caiu.tres" id="j_raimundo_caiu"]
 
 [sub_resource type="Resource" id="ev_0"]
 script = ExtResource("2_event")
@@ -13,7 +29,127 @@ script = ExtResource("2_event")
 kind = "paint"
 at = 70.0
 
+[sub_resource type="Resource" id="D_aviso_00"]
+script = ExtResource("x0_prank_step")
+text = "Bar do Zé, boa noite."
+
+[sub_resource type="Resource" id="D_aviso_01"]
+script = ExtResource("x0_prank_step")
+kind = 1
+options = PackedStringArray("Cuidado: a polícia está gravando tudo o que vai para aí.", "Desculpe, foi engano.")
+sets = PackedStringArray("avisou_bar_7", "")
+
+[sub_resource type="Resource" id="D_aviso_02"]
+script = ExtResource("x0_prank_step")
+kind = 2
+seconds = 1.2
+requires = PackedStringArray("avisou_bar_7")
+
+[sub_resource type="Resource" id="D_aviso_03"]
+script = ExtResource("x0_prank_step")
+text = "...Entendi. Obrigado, moça. A gente sabe se virar."
+requires = PackedStringArray("avisou_bar_7")
+
+[sub_resource type="Resource" id="D_aviso_04"]
+script = ExtResource("x0_prank_step")
+text = "Boa noite."
+requires = PackedStringArray("!avisou_bar_7")
+
+[sub_resource type="Resource" id="D_aviso_05"]
+script = ExtResource("x0_prank_step")
+kind = 3
+
+[sub_resource type="Resource" id="D_aviso"]
+script = ExtResource("x1_dial_call")
+number = "327"
+from = 0.0
+to = 95.0
+voice = "m"
+steps = Array[ExtResource("x0_prank_step")]([SubResource("D_aviso_00"), SubResource("D_aviso_01"), SubResource("D_aviso_02"), SubResource("D_aviso_03"), SubResource("D_aviso_04"), SubResource("D_aviso_05")])
+
+[sub_resource type="Resource" id="S_bar0"]
+script = ExtResource("x2_story_call")
+at = 100.0
+call = ExtResource("x3_story_07_bar_radio")
+requires = PackedStringArray("!avisou_bar_7")
+if_delivered = PackedStringArray("fita_radio_entregue")
+again = false
+
+[sub_resource type="Resource" id="S_bar0w"]
+script = ExtResource("x2_story_call")
+at = 100.0
+call = ExtResource("x4_story_07_bar_radio_avisado")
+requires = PackedStringArray("avisou_bar_7")
+again = false
+
+[sub_resource type="Resource" id="S_bar1"]
+script = ExtResource("x2_story_call")
+at = 170.0
+call = ExtResource("x5_story_07_bar_armas")
+requires = PackedStringArray("!avisou_bar_7")
+if_delivered = PackedStringArray("fita_armas_entregue")
+again = false
+
+[sub_resource type="Resource" id="S_bar1w"]
+script = ExtResource("x2_story_call")
+at = 170.0
+call = ExtResource("x6_story_07_bar_armas_avisado")
+requires = PackedStringArray("avisou_bar_7")
+again = false
+
+[sub_resource type="Resource" id="S_bar2"]
+script = ExtResource("x2_story_call")
+at = 250.0
+call = ExtResource("x7_story_07_bar_grupo_c")
+requires = PackedStringArray("!avisou_bar_7")
+if_delivered = PackedStringArray("fita_grupo_c_entregue")
+again = false
+
+[sub_resource type="Resource" id="S_bar2w"]
+script = ExtResource("x2_story_call")
+at = 250.0
+call = ExtResource("x8_story_07_bar_grupo_c_avisado")
+requires = PackedStringArray("avisou_bar_7")
+again = false
+
+[sub_resource type="Resource" id="A_story_07_miguel"]
+script = ExtResource("x2_story_call")
+at = 60.0
+call = ExtResource("a_story_07_miguel")
+if_hung_up = PackedStringArray("!miguel_amigo")
+again = false
+
+[sub_resource type="Resource" id="J_call_baile"]
+script = ExtResource("x2_story_call")
+call = ExtResource("j_baile")
+
+[sub_resource type="Resource" id="J_back_raimundo_padre"]
+script = ExtResource("x2_story_call")
+call = ExtResource("j_raimundo_padre")
+requires = PackedStringArray("raimundo_delegacia_7")
+
+[sub_resource type="Resource" id="J_back_raimundo_caiu"]
+script = ExtResource("x2_story_call")
+call = ExtResource("j_raimundo_caiu")
+requires = PackedStringArray("!raimundo_delegacia_7")
+
+[sub_resource type="Resource" id="J_call_parente"]
+script = ExtResource("x2_story_call")
+call = ExtResource("j_parente")
+if_connected = PackedStringArray("raimundo_delegacia_7")
+callback = [SubResource("J_back_raimundo_padre"), SubResource("J_back_raimundo_caiu")]
+
+[sub_resource type="Resource" id="J_call_taxi"]
+script = ExtResource("x2_story_call")
+call = ExtResource("j_taxi")
+
 [resource]
 script = ExtResource("1_night")
-note = "O supervisor deixou um recado: \"Domingo é mais calmo. Aproveite para conferir a lista antes de conectar: são mais números agora.\""
+note = "O supervisor deixou um recado: \"Instalaram um gravador na sua mesa, a pedido das autoridades. A linha do bar foi liberada, e elas querem gravado tudo o que for para lá. Em noite com ligação para o bar, entregue às autoridades pelo menos uma fita, mesmo que a conversa não tenha nada: grave assim mesmo, para não ter reclamação. E daqui em diante, o que as autoridades pedirem, atenda, mesmo contra as regras: não vai haver advertência.\""
 street_events = Array[ExtResource("2_event")]([SubResource("ev_0"), SubResource("ev_1")])
+dial = Array[ExtResource("x1_dial_call")]([SubResource("D_aviso")])
+story = Array[ExtResource("x2_story_call")]([SubResource("S_bar0"), SubResource("S_bar0w"), SubResource("S_bar1"), SubResource("S_bar1w"), SubResource("S_bar2"), SubResource("S_bar2w"), SubResource("A_story_07_miguel")])
+news_stories = PackedStringArray("Baile da praça termina em revista geral\nPerto da meia-noite, a polícia cercou a praça do Centro e revistou todos os que saíam do baile. Doze pessoas sem documento passaram a noite na delegacia. A prefeitura promete novos bailes.")
+calls = Array[ExtResource("x2_story_call")]([SubResource("J_call_baile"), SubResource("J_call_parente"), SubResource("J_call_taxi")])
+news_photo = "viatura"
+news_caption = "A barreira na saída da praça."

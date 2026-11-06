@@ -1,91 +1,15 @@
 [gd_resource type="Resource" script_class="Night" format=3]
 
+[ext_resource type="Script" path="res://scripts/data/story_text.gd" id="j_story_text"]
 [ext_resource type="Script" path="res://scripts/data/night.gd" id="1_night"]
 [ext_resource type="Script" path="res://scripts/data/chat_topic.gd" id="8_chat"]
 [ext_resource type="Script" path="res://scripts/data/chat_reply.gd" id="9_reply"]
-[ext_resource type="Script" path="res://scripts/data/prank_step.gd" id="2_step"]
 [ext_resource type="Script" path="res://scripts/data/story_call.gd" id="3_story"]
-[ext_resource type="Resource" path="res://data/calls/story_02_seu_ernesto_radio_serena_am.tres" id="4_ernesto"]
-
-[sub_resource type="Resource" id="Story_01"]
-script = ExtResource("3_story")
-at = 120.0
-call = ExtResource("4_ernesto")
-
-[sub_resource type="Resource" id="Step_01"]
-script = ExtResource("2_step")
-kind = 2
-seconds = 3.0
-
-[sub_resource type="Resource" id="Step_02"]
-script = ExtResource("2_step")
-text = "...você ainda está aí?"
-seconds = 0.8
-
-[sub_resource type="Resource" id="Step_03"]
-script = ExtResource("2_step")
-kind = 1
-options = PackedStringArray("Central telefônica. Quem fala?")
-
-[sub_resource type="Resource" id="Step_04"]
-script = ExtResource("2_step")
-kind = 2
-seconds = 2.0
-
-[sub_resource type="Resource" id="Step_05"]
-script = ExtResource("2_step")
-text = "Ontem você não me respondeu."
-seconds = 0.6
-
-[sub_resource type="Resource" id="Step_06"]
-script = ExtResource("2_step")
-kind = 1
-options = PackedStringArray("Respondi o quê?")
-
-[sub_resource type="Resource" id="Step_07"]
-script = ExtResource("2_step")
-kind = 2
-seconds = 1.6
-
-[sub_resource type="Resource" id="Step_08"]
-script = ExtResource("2_step")
-text = "Se ela sempre fica acesa."
-seconds = 0.6
-
-[sub_resource type="Resource" id="Step_09"]
-script = ExtResource("2_step")
-kind = 4
-effect = "flick"
-
-[sub_resource type="Resource" id="Step_10"]
-script = ExtResource("2_step")
-kind = 2
-seconds = 1.0
-
-[sub_resource type="Resource" id="Step_11"]
-script = ExtResource("2_step")
-kind = 1
-options = PackedStringArray("Fica. A noite toda.")
-
-[sub_resource type="Resource" id="Step_12"]
-script = ExtResource("2_step")
-kind = 2
-seconds = 2.4
-
-[sub_resource type="Resource" id="Step_13"]
-script = ExtResource("2_step")
-kind = 4
-effect = "static_loud"
-
-[sub_resource type="Resource" id="Step_14"]
-script = ExtResource("2_step")
-text = "Então é por isso que eu consigo te ver."
-seconds = 2.4
-
-[sub_resource type="Resource" id="Step_15"]
-script = ExtResource("2_step")
-text = "Não apaga, tá?"
-seconds = 0.5
+[ext_resource type="Resource" path="res://data/calls/story_02_homem_bar_1.tres" id="x0_story_02_homem_bar_1"]
+[ext_resource type="Resource" path="res://data/calls/story_02_homem_bar_2.tres" id="x1_story_02_homem_bar_2"]
+[ext_resource type="Resource" path="res://data/calls/story_02_homem_bar_3.tres" id="x2_story_02_homem_bar_3"]
+[ext_resource type="Resource" path="res://data/calls/story_02_otavio_radio.tres" id="a_story_02_otavio_radio"]
+[ext_resource type="Resource" path="res://data/calls/noite_02_panfleto.tres" id="j_panfleto"]
 
 [sub_resource type="Resource" id="ChatReply_00_0"]
 script = ExtResource("9_reply")
@@ -102,7 +26,7 @@ tone = 2
 [sub_resource type="Resource" id="ChatTopic_00"]
 script = ExtResource("8_chat")
 requires = PackedStringArray("prometeu_quermesse")
-line = "Disseram que o senhor ia na quermesse hoje à tarde e não apareceu, hein!"
+line = "Disseram que a senhora ia na quermesse hoje à tarde e não apareceu, hein!"
 replies = Array[ExtResource("9_reply")]([SubResource("ChatReply_00_0"), SubResource("ChatReply_00_1")])
 
 [sub_resource type="Resource" id="ChatReply_01_0"]
@@ -120,12 +44,48 @@ tone = 2
 [sub_resource type="Resource" id="ChatTopic_01"]
 script = ExtResource("8_chat")
 requires = PackedStringArray("!prometeu_quermesse")
-line = "A quermesse hoje à tarde foi uma beleza, o senhor perdeu."
+line = "A quermesse hoje à tarde foi uma beleza, a senhora perdeu."
 replies = Array[ExtResource("9_reply")]([SubResource("ChatReply_01_0"), SubResource("ChatReply_01_1")])
+
+[sub_resource type="Resource" id="S_homem1"]
+script = ExtResource("3_story")
+at = 90.0
+call = ExtResource("x0_story_02_homem_bar_1")
+if_connected = PackedStringArray("bar_2")
+again = false
+
+[sub_resource type="Resource" id="S_homem2"]
+script = ExtResource("3_story")
+at = 150.0
+call = ExtResource("x1_story_02_homem_bar_2")
+requires = PackedStringArray("!bar_2")
+if_connected = PackedStringArray("bar_2")
+again = false
+
+[sub_resource type="Resource" id="S_homem3"]
+script = ExtResource("3_story")
+at = 210.0
+call = ExtResource("x2_story_02_homem_bar_3")
+requires = PackedStringArray("!bar_2")
+if_connected = PackedStringArray("bar_2")
+again = false
+
+[sub_resource type="Resource" id="A_story_02_otavio_radio"]
+script = ExtResource("3_story")
+at = 120.0
+call = ExtResource("a_story_02_otavio_radio")
+again = false
+
+[sub_resource type="Resource" id="J_call_panfleto"]
+script = ExtResource("3_story")
+call = ExtResource("j_panfleto")
 
 [resource]
 script = ExtResource("1_night")
-note = "O supervisor deixou um recado: \"Ontem a linha ficou com chiado depois das dez. A companhia vai olhar. Se acontecer de novo, anote na ficha.\""
-story = Array[ExtResource("3_story")]([SubResource("Story_01")])
-mystery = Array[ExtResource("2_step")]([SubResource("Step_01"), SubResource("Step_02"), SubResource("Step_03"), SubResource("Step_04"), SubResource("Step_05"), SubResource("Step_06"), SubResource("Step_07"), SubResource("Step_08"), SubResource("Step_09"), SubResource("Step_10"), SubResource("Step_11"), SubResource("Step_12"), SubResource("Step_13"), SubResource("Step_14"), SubResource("Step_15")])
+note = "O supervisor deixou um recado: \"Hoje é como ontem: atenda, transfira e anote tudo na ficha.\""
+story = Array[ExtResource("3_story")]([SubResource("S_homem1"), SubResource("S_homem2"), SubResource("S_homem3"), SubResource("A_story_02_otavio_radio")])
 smalltalk = Array[ExtResource("8_chat")]([SubResource("ChatTopic_00"), SubResource("ChatTopic_01")])
+news_stories = PackedStringArray("Panfletos contra a Alta Cúpula aparecem na estação\nCentenas de folhas mimeografadas amanheceram espalhadas pela plataforma e pelos bancos da estação. A polícia recolheu o material e procura a gráfica clandestina. Quem souber de algo deve procurar a delegacia.")
+calls = Array[ExtResource("3_story")]([SubResource("J_call_panfleto")])
+news_photo = "papeis"
+news_caption = "Folhas recolhidas na plataforma da estação."

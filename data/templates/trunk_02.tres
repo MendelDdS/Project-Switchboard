@@ -6,4 +6,4 @@
 script = ExtResource("1_tr")
 group = 2
 opening = PackedStringArray("Central? Preciso ligar {to_city}, é sobre um negócio.", "Anota aí: {far}.")
-repeat = "{to_city}, moço. O número é {far}."
+repeat = "{to_city}, moça. O número é {far}."

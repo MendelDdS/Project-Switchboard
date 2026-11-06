@@ -2,6 +2,19 @@
 
 [ext_resource type="Script" path="res://scripts/data/night.gd" id="1_night"]
 [ext_resource type="Script" path="res://scripts/data/street_event.gd" id="2_event"]
+[ext_resource type="Script" path="res://scripts/data/story_text.gd" id="x0_story_text"]
+[ext_resource type="Script" path="res://scripts/data/story_call.gd" id="x1_story_call"]
+[ext_resource type="Resource" path="res://data/calls/story_09_sebastiao.tres" id="x2_story_09_sebastiao"]
+[ext_resource type="Resource" path="res://data/calls/story_09_policia_radio.tres" id="x3_story_09_policia_radio"]
+[ext_resource type="Resource" path="res://data/calls/story_09_cupula_radio.tres" id="x4_story_09_cupula_radio"]
+[ext_resource type="Resource" path="res://data/calls/story_09_cupula_radio_caiu.tres" id="x4c_story_09_cupula_radio_caiu"]
+[ext_resource type="Resource" path="res://data/calls/story_09_policia_cancao.tres" id="x5_story_09_policia_cancao"]
+[ext_resource type="Resource" path="res://data/calls/story_09_policia_cancao_caiu.tres" id="x5c_story_09_policia_cancao_caiu"]
+[ext_resource type="Resource" path="res://data/calls/story_09_carro_fogo.tres" id="x0_story_09_carro_fogo"]
+[ext_resource type="Resource" path="res://data/calls/story_09_baleado.tres" id="x1_story_09_baleado"]
+[ext_resource type="Resource" path="res://data/calls/story_09_mae_atropelado.tres" id="x2_story_09_atropelada"]
+[ext_resource type="Resource" path="res://data/calls/story_09_briga.tres" id="x3_story_09_briga"]
+[ext_resource type="Resource" path="res://data/calls/noite_09_toque.tres" id="j_toque"]
 
 [sub_resource type="Resource" id="ev_0"]
 script = ExtResource("2_event")
@@ -14,7 +27,111 @@ script = ExtResource("2_event")
 kind = "curfew"
 at = 180.0
 
+[sub_resource type="Resource" id="News_grupos"]
+script = ExtResource("x0_story_text")
+text = "Polícia ocupa a estação e a praça da Matriz\nDesde a madrugada, viaturas guardam a estação, a praça da Matriz e as saídas do Alto da Serra. A Alta Cúpula fala em \"prevenção\" e não dá detalhes."
+requires = PackedStringArray("fita_grupos_entregue")
+photo = "viatura"
+caption = "A viatura na praça da Matriz."
+
+[sub_resource type="Resource" id="News_comandante"]
+script = ExtResource("x0_story_text")
+text = "Cerco a armazém na Rua do Moinho\nA polícia cercou nesta madrugada um armazém da Rua do Moinho onde estaria escondido o chefe dos rebeldes. Houve tiros. A Alta Cúpula não confirma prisões."
+requires = PackedStringArray("fita_comandante_entregue")
+photo = "viatura"
+caption = "A barreira na Rua do Moinho."
+
+[sub_resource type="Resource" id="S_seb"]
+script = ExtResource("x1_story_call")
+at = 10.0
+call = ExtResource("x2_story_09_sebastiao")
+if_dropped = PackedStringArray("cumpriu_9")
+again = false
+
+[sub_resource type="Resource" id="S_aut0"]
+script = ExtResource("x1_story_call")
+at = 70.0
+call = ExtResource("x3_story_09_policia_radio")
+authority = true
+if_connected = PackedStringArray("!cumpriu_9")
+if_elsewhere = PackedStringArray("!cumpriu_9")
+again = false
+
+[sub_resource type="Resource" id="S_aut1"]
+script = ExtResource("x1_story_call")
+at = 245.0
+call = ExtResource("x4_story_09_cupula_radio")
+requires = PackedStringArray("!tomada_caiu")
+authority = true
+if_connected = PackedStringArray("!cumpriu_9")
+if_elsewhere = PackedStringArray("!cumpriu_9")
+again = false
+
+[sub_resource type="Resource" id="S_aut1a"]
+script = ExtResource("x1_story_call")
+at = 245.0
+call = ExtResource("x4c_story_09_cupula_radio_caiu")
+requires = PackedStringArray("tomada_caiu")
+authority = true
+if_connected = PackedStringArray("!cumpriu_9")
+if_elsewhere = PackedStringArray("!cumpriu_9")
+again = false
+
+[sub_resource type="Resource" id="S_aut2"]
+script = ExtResource("x1_story_call")
+at = 270.0
+call = ExtResource("x5_story_09_policia_cancao")
+requires = PackedStringArray("!tomada_caiu")
+authority = true
+if_connected = PackedStringArray("!cumpriu_9")
+if_elsewhere = PackedStringArray("!cumpriu_9")
+again = false
+
+[sub_resource type="Resource" id="S_aut2a"]
+script = ExtResource("x1_story_call")
+at = 270.0
+call = ExtResource("x5c_story_09_policia_cancao_caiu")
+requires = PackedStringArray("tomada_caiu")
+authority = true
+if_connected = PackedStringArray("!cumpriu_9")
+if_elsewhere = PackedStringArray("!cumpriu_9")
+again = false
+
+[sub_resource type="Resource" id="E_car"]
+script = ExtResource("x1_story_call")
+at = 50.0
+call = ExtResource("x0_story_09_carro_fogo")
+again = false
+
+[sub_resource type="Resource" id="E_bal"]
+script = ExtResource("x1_story_call")
+at = 125.0
+call = ExtResource("x1_story_09_baleado")
+again = false
+
+[sub_resource type="Resource" id="E_atr"]
+script = ExtResource("x1_story_call")
+at = 205.0
+call = ExtResource("x2_story_09_atropelada")
+again = false
+
+[sub_resource type="Resource" id="E_bri"]
+script = ExtResource("x1_story_call")
+at = 290.0
+call = ExtResource("x3_story_09_briga")
+again = false
+
+[sub_resource type="Resource" id="J_call_toque"]
+script = ExtResource("x1_story_call")
+call = ExtResource("j_toque")
+
 [resource]
 script = ExtResource("1_night")
-note = "O supervisor deixou um recado: \"Último setor: a partir de hoje, o setor 2, o Alto da Serra, também fica com você. Os números que começam com 2 passam pela sua mesa. A cidade inteira está nas suas mãos.\""
+note = "O supervisor deixou um recado: \"Com o toque de recolher, a noite promete: emergência vem primeiro.\""
 street_events = Array[ExtResource("2_event")]([SubResource("ev_0"), SubResource("ev_1")])
+news_if = Array[ExtResource("x0_story_text")]([SubResource("News_grupos"), SubResource("News_comandante")])
+story = Array[ExtResource("x1_story_call")]([SubResource("S_seb"), SubResource("S_aut0"), SubResource("S_aut1"), SubResource("S_aut1a"), SubResource("S_aut2"), SubResource("S_aut2a"), SubResource("E_car"), SubResource("E_bal"), SubResource("E_atr"), SubResource("E_bri")])
+news_stories = PackedStringArray("Toque de recolher às nove da noite\nA partir de hoje, ninguém fica na rua depois das 21h sem salvo-conduto, por ordem da Alta Cúpula. Bares e cinemas fecham às oito e meia. Quem for pego na rua responde na delegacia.")
+calls = Array[ExtResource("x1_story_call")]([SubResource("J_call_toque")])
+news_photo = "rua"
+news_caption = "Rua do Centro às nove e cinco."

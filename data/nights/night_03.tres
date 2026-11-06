@@ -1,14 +1,136 @@
 [gd_resource type="Resource" script_class="Night" format=3]
 
+[ext_resource type="Script" path="res://scripts/data/story_text.gd" id="j_story_text"]
 [ext_resource type="Script" path="res://scripts/data/night.gd" id="1_night"]
 [ext_resource type="Script" path="res://scripts/data/street_event.gd" id="2_event"]
+[ext_resource type="Script" path="res://scripts/data/story_call.gd" id="x0_story_call"]
+[ext_resource type="Resource" path="res://data/calls/story_03_cecilia_aviso.tres" id="x1_story_03_cecilia_aviso"]
+[ext_resource type="Resource" path="res://data/calls/story_03_cecilia_bar.tres" id="x2_story_03_cecilia_bar"]
+[ext_resource type="Script" path="res://scripts/data/prank_step.gd" id="x3_prank_step"]
+[ext_resource type="Script" path="res://scripts/data/dial_call.gd" id="x4_dial_call"]
+[ext_resource type="Resource" path="res://data/calls/story_03_generosa.tres" id="a_story_03_generosa"]
+[ext_resource type="Resource" path="res://data/calls/story_03_miguel_trote.tres" id="a_story_03_miguel_trote"]
+[ext_resource type="Resource" path="res://data/calls/story_03_otavio.tres" id="a_story_03_otavio"]
+[ext_resource type="Resource" path="res://data/calls/noite_03_nome.tres" id="j_nome"]
 
 [sub_resource type="Resource" id="ev_0"]
 script = ExtResource("2_event")
 kind = "beating"
 at = 160.0
 
+[sub_resource type="Resource" id="S_cec1"]
+script = ExtResource("x0_story_call")
+at = 20.0
+call = ExtResource("x1_story_03_cecilia_aviso")
+again = false
+
+[sub_resource type="Resource" id="S_cec2"]
+script = ExtResource("x0_story_call")
+at = 180.0
+call = ExtResource("x2_story_03_cecilia_bar")
+if_dropped = PackedStringArray("cecilia_bar_3")
+again = false
+
+[sub_resource type="Resource" id="D_bar_00"]
+script = ExtResource("x3_prank_step")
+text = "Bar do Zé."
+
+[sub_resource type="Resource" id="D_bar_01"]
+script = ExtResource("x3_prank_step")
+kind = 2
+seconds = 1.0
+
+[sub_resource type="Resource" id="D_bar_02"]
+script = ExtResource("x3_prank_step")
+text = "Maria? É você? Obrigado por ligar."
+
+[sub_resource type="Resource" id="D_bar_03"]
+script = ExtResource("x3_prank_step")
+text = "Ontem você me ouviu. Hoje eu preciso de mais uma coisa."
+requires = PackedStringArray("bar_2")
+
+[sub_resource type="Resource" id="D_bar_04"]
+script = ExtResource("x3_prank_step")
+text = "Ontem você não quis me ouvir. Eu entendo. Mas hoje eu preciso de você."
+requires = PackedStringArray("!bar_2")
+
+[sub_resource type="Resource" id="D_bar_05"]
+script = ExtResource("x3_prank_step")
+kind = 1
+options = PackedStringArray("Quem é você?", "O que você quer?")
+sets = PackedStringArray("quem_e_3", "")
+
+[sub_resource type="Resource" id="D_bar_06"]
+script = ExtResource("x3_prank_step")
+text = "Alguém que conhece você desde criança. Por enquanto, basta isso."
+requires = PackedStringArray("quem_e_3")
+
+[sub_resource type="Resource" id="D_bar_07"]
+script = ExtResource("x3_prank_step")
+text = "Amanhã, às oito e meia da noite, ligue para o Hotel Serena pelo seu discador."
+
+[sub_resource type="Resource" id="D_bar_08"]
+script = ExtResource("x3_prank_step")
+text = "Quando atenderem, diga só isto: \"A semente brotou.\" Nada mais."
+
+[sub_resource type="Resource" id="D_bar_09"]
+script = ExtResource("x3_prank_step")
+kind = 1
+options = PackedStringArray("\"A semente brotou.\" Entendi.", "E se eu não ligar?")
+sets = PackedStringArray("", "duvida_3")
+
+[sub_resource type="Resource" id="D_bar_10"]
+script = ExtResource("x3_prank_step")
+text = "Então nada acontece. E tudo continua como está."
+requires = PackedStringArray("duvida_3")
+
+[sub_resource type="Resource" id="D_bar_11"]
+script = ExtResource("x3_prank_step")
+text = "Oito e meia. Não esqueça. Boa noite, Maria."
+
+[sub_resource type="Resource" id="D_bar_12"]
+script = ExtResource("x3_prank_step")
+kind = 3
+
+[sub_resource type="Resource" id="D_bar"]
+script = ExtResource("x4_dial_call")
+number = "327"
+from = 180.0
+to = 345.0
+requires = PackedStringArray("cecilia_bar_3")
+caller = "Homem"
+voice = "m"
+sets = PackedStringArray("sabe_senha_3")
+steps = Array[ExtResource("x3_prank_step")]([SubResource("D_bar_00"), SubResource("D_bar_01"), SubResource("D_bar_02"), SubResource("D_bar_03"), SubResource("D_bar_04"), SubResource("D_bar_05"), SubResource("D_bar_06"), SubResource("D_bar_07"), SubResource("D_bar_08"), SubResource("D_bar_09"), SubResource("D_bar_10"), SubResource("D_bar_11"), SubResource("D_bar_12")])
+
+[sub_resource type="Resource" id="A_story_03_generosa"]
+script = ExtResource("x0_story_call")
+at = 45.0
+call = ExtResource("a_story_03_generosa")
+if_dropped = PackedStringArray("generosa_3")
+again = false
+
+[sub_resource type="Resource" id="A_story_03_miguel_trote"]
+script = ExtResource("x0_story_call")
+at = 100.0
+call = ExtResource("a_story_03_miguel_trote")
+again = false
+
+[sub_resource type="Resource" id="A_story_03_otavio"]
+script = ExtResource("x0_story_call")
+at = 140.0
+call = ExtResource("a_story_03_otavio")
+again = false
+
+[sub_resource type="Resource" id="J_call_nome"]
+script = ExtResource("x0_story_call")
+call = ExtResource("j_nome")
+
 [resource]
 script = ExtResource("1_night")
-note = "O supervisor deixou um recado: \"Boa semana até aqui. Continue registrando tudo na ficha.\""
+note = "O supervisor deixou um recado: \"Ordem da diretoria: a partir de hoje, peça o nome e o sobrenome de quem liga antes de completar a ligação. Quem não disser, não passa.\""
 street_events = Array[ExtResource("2_event")]([SubResource("ev_0")])
+story = Array[ExtResource("x0_story_call")]([SubResource("S_cec1"), SubResource("S_cec2"), SubResource("A_story_03_generosa"), SubResource("A_story_03_miguel_trote"), SubResource("A_story_03_otavio")])
+dial = Array[ExtResource("x4_dial_call")]([SubResource("D_bar")])
+news_stories = PackedStringArray("Telefônica vai exigir o nome de quem liga\nA partir de hoje, a Companhia Telefônica de São Sotero só completa a ligação de quem disser nome e sobrenome à telefonista. A diretoria fala em \"segurança de todos\" e pede a compreensão dos assinantes.")
+calls = Array[ExtResource("x0_story_call")]([SubResource("J_call_nome")])

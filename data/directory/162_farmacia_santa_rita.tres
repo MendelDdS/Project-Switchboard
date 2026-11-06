@@ -2,6 +2,8 @@
 
 [ext_resource type="Script" path="res://scripts/data/directory_entry.gd" id="1_entry"]
 [ext_resource type="Script" path="res://scripts/data/motive.gd" id="2_motive"]
+[ext_resource type="Script" path="res://scripts/data/chat_topic.gd" id="8_chat"]
+[ext_resource type="Script" path="res://scripts/data/chat_reply.gd" id="9_reply"]
 
 [sub_resource type="Resource" id="Motive_20"]
 script = ExtResource("2_motive")
@@ -18,6 +20,36 @@ script = ExtResource("2_motive")
 text = "Quero saber se tem xarope pra tosse."
 talks = Array[PackedStringArray]([PackedStringArray("Boa noite. Vocês têm xarope pra tosse?", "Tenho de dois tipos. É tosse seca ou com catarro?", "Seca. Não para nem de noite.", "Então é o de mel e agrião. Uma colher antes de dormir.", "Posso pegar amanhã cedo, antes das {hour}?", "Pode. Deixo separado no balcão com o seu nome."), PackedStringArray("Boa noite. Minha filha está tossindo a noite inteira.", "Tem febre junto?", "Um pouco. Ela pegou chuva voltando da escola.", "Tenho um xarope infantil. Uma colherinha de seis em seis horas.", "Vou buscar agora. Chego em {wait}.", "Vem com casaco, que a noite esfriou.")])
 
+[sub_resource type="Resource" id="Dial_0_0"]
+script = ExtResource("9_reply")
+text = "Vocês ficam abertos a noite toda?"
+follow = "A noite toda. É só tocar a campainha da portinhola."
+
+[sub_resource type="Resource" id="Dial_0_1"]
+script = ExtResource("9_reply")
+text = "Tem xarope para tosse?"
+follow = "Tem, o de mel e agrião. Para criança, meia colher."
+
+[sub_resource type="Resource" id="Dial_0"]
+script = ExtResource("8_chat")
+line = "Farmácia Santa Rita, plantão. Pois não?"
+replies = Array[ExtResource("9_reply")]([SubResource("Dial_0_0"), SubResource("Dial_0_1")])
+
+[sub_resource type="Resource" id="Dial_1_0"]
+script = ExtResource("9_reply")
+text = "Precisa de receita para remédio de pressão?"
+follow = "Precisa. Mas, se for urgente, a gente dá um jeito até amanhã."
+
+[sub_resource type="Resource" id="Dial_1_1"]
+script = ExtResource("9_reply")
+text = "Desculpe acordar vocês."
+follow = "Não acordou ninguém. Aqui a noite é comprida."
+
+[sub_resource type="Resource" id="Dial_1"]
+script = ExtResource("8_chat")
+line = "Santa Rita. Fala baixinho, moça, que o farmacêutico cochilou no banquinho."
+replies = Array[ExtResource("9_reply")]([SubResource("Dial_1_0"), SubResource("Dial_1_1")])
+
 [resource]
 script = ExtResource("1_entry")
 name = "Farmácia Santa Rita"
@@ -27,3 +59,5 @@ hello = "Farmácia Santa Rita, boa noite."
 category = "farmácia"
 spoken = "a Farmácia Santa Rita"
 motives = Array[ExtResource("2_motive")]([SubResource("Motive_20"), SubResource("Motive_21"), SubResource("Motive_22")])
+answers = Array[ExtResource("8_chat")]([SubResource("Dial_0"), SubResource("Dial_1")])
+bye = "Boa noite. Estamos de plantão até de manhã."

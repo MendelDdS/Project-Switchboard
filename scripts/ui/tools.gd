@@ -5,7 +5,7 @@ extends VBoxContainer
 ## teclas 1 a 4 (Main.TAB_KEYS) abrem a ferramenta: o papel sai do objeto dela na mesa (`origin`) e vem para a frente do
 ## operador, com a forma do objeto (`PaperDeco`), e volta para ele ao guardar. Sem abas: para trocar, o objeto da mesa
 ## ou a tecla (as abas repetiam os objetos e tomavam altura do papel). A tecla da aberta ou Esc guardam. O jornal da
-## manhã (`news`) também abre aqui, só pelo objeto da mesa.
+## manhã (`news`) e a carta da noite (`letter`) também abrem aqui, só pelo objeto da mesa.
 
 ## O id de cada ferramenta: o mesmo nos objetos da mesa (`Background.PROPS`), nas teclas (`Main.TAB_KEYS`) e no papel
 ## aberto (`PaperDeco.kind`). Use as constantes, nunca o texto.
@@ -14,22 +14,24 @@ const DISPATCH := "despacho"
 const LOGBOOK := "caderno"
 const CALL_LOG := "registro"
 const NEWS := "jornal"   ## o jornal da manhã: só pelo objeto da mesa, sem tecla
+const LETTER := "carta"   ## a carta da noite (`Night.letter_for`), em cima do jornal: só pelo objeto da mesa, sem tecla
 const TOLL := "calculografo"   ## o calculógrafo dos interurbanos e os bilhetes de tarifação: só pelo objeto da mesa, sem tecla
 const SLIDE_SEC := 0.2
 ## A cor do papel de cada ferramenta, a mesma do objeto dela na mesa (as outras, `Pal.PAPER`); a unidade de despacho é
 ## de metal (a moldura do vidro e a base das máquinas) e o calculógrafo fica no tampo da mesa.
-const PAPER := {LOGBOOK: Pal.NOTE_PAGE, CALL_LOG: Pal.SHEET, NEWS: Pal.NEWSPRINT, DISPATCH: Pal.PANEL, TOLL: Pal.DESK}
+const PAPER := {LOGBOOK: Pal.NOTE_PAGE, CALL_LOG: Pal.SHEET, NEWS: Pal.NEWSPRINT, LETTER: Pal.SHEET_NEW, DISPATCH: Pal.PANEL, TOLL: Pal.DESK}
 
 @onready var book: PhoneBook = %PhoneBook
 @onready var dispatch: Dispatch = %Dispatch
 @onready var notebook: Notebook = %Notebook
 @onready var call_log: CallLog = %CallLog
 @onready var news: NewsView = %News
+@onready var letter: RichTextLabel = %Letter
 @onready var toll: Toll = %Toll
 @onready var body: Control = %Body   ## onde a ferramenta aberta fica (e, guardada, a janela aparece)
 @onready var _paper: Control = %Paper
 @onready var _deco: PaperDeco = %Deco
-@onready var _views := {DIRECTORY: book, DISPATCH: dispatch, LOGBOOK: notebook, CALL_LOG: call_log, NEWS: news, TOLL: toll}
+@onready var _views := {DIRECTORY: book, DISPATCH: dispatch, LOGBOOK: notebook, CALL_LOG: call_log, NEWS: news, LETTER: letter, TOLL: toll}
 
 var tab := DIRECTORY   ## a última aberta
 var open := false
@@ -81,9 +83,9 @@ func close() -> void:
 	_apply()
 
 
-## Quantos registros esperam no caderno: as tiras saindo do caderno aberto, como no da mesa.
-func set_pending(n: int) -> void:
-	_deco.pending = n
+## Os registros que esperam no caderno, um por cor do tipo: as tiras saindo do caderno aberto, como no da mesa.
+func set_pending(strips: PackedColorArray) -> void:
+	_deco.pending = strips
 
 
 ## O papel sai do objeto da ferramenta na mesa (pequeno, em cima dele) e vem para o lugar, ou volta para ele e some.

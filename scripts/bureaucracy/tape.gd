@@ -1,8 +1,10 @@
 extends RefCounted
 ## Uma fita da B4 (`Tapes`), tirada do compartimento: a conversa que gravou, as palavras-chave ouvidas dela e o
-## destino (`fate`).
+## destino (`fate`). Na mesa, o operador escolhe para quem ela vai (`to`): embrulhada num pacote, sai no fim do turno.
 
-enum Fate { INSIDE, ON_DESK, DELIVERED, DISCARDED, LEFT }   ## no gravador, na mesa, entregue, descartada, esquecida no gravador
+## No gravador, na mesa, entregue às autoridades, descartada, esquecida (no gravador ou na mesa sem destino), dada a Sebastião.
+enum Fate { INSIDE, ON_DESK, DELIVERED, DISCARDED, LEFT, SEBASTIAO }
+enum To { NONE, SEBASTIAO, AUTHORITIES }   ## para quem vai a da mesa: ninguém ainda, Sebastião (pacote branco de carta), as autoridades (amarelo, risco azul)
 
 var slot := -1   ## o lugar do compartimento de onde saiu (a virgem devolvida volta para ele, se estiver vazio)
 var call: PhoneCall   ## a conversa gravada (null: virgem)
@@ -12,6 +14,7 @@ var words: Array[String] = []   ## as palavras-chave ouvidas dela
 var marked := false   ## uma conversa que as autoridades pediram gravada (`Tapes.mark_key`)
 var value := 0   ## os pontos que valeu na entrega
 var fate := Fate.INSIDE
+var to := To.NONE
 
 
 ## As palavras-chave para o registro de decisões ("nada" sem nenhuma).

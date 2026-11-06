@@ -1,0 +1,8 @@
+{
+  "cohorts": ["FTUE", "Core", "Hardcore"],
+  "silent_observer": false,
+  "telemetry_events": ["death", "quit"],
+  "debrief_questions": [
+    {"text": "What was your goal when you entered the moth hollow?", "leading": false, "open_ended": true}
+  ]
+}

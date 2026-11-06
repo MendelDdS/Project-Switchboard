@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="TransferCall" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/transfer_call.gd" id="1_story"]
+
+[resource]
+script = ExtResource("1_story")
+group = 2
+voice = "f"
+caller = "Senhora"
+opening = PackedStringArray("O Hotel Serena, por favor.")
+repeat = "O hotel. O Serena."
+target = "305"
+destination = "Hotel Serena"
+thanks = "Obrigada."
+caller_name = "Irene Barbosa"
+name_line = "Irene Barbosa."
+suspicious = true
+overheard = PackedStringArray("Boa noite. Quem está falando?", "O vigia, senhora. O hotel está fechado, a polícia lacrou.", "Eu sei. Só preciso saber do hóspede do [number:doze]. Ele saiu antes?", "Saiu pelos fundos, antes de chegarem. Foi pra casa da [person:irmã].", "Graças a Deus. Se ele ligar, diz que amanhã é na [place:igreja], às [time:nove].", "Digo, senhora. Agora é melhor desligar.")

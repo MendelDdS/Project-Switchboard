@@ -5,11 +5,13 @@ extends RefCounted
 ## Com a tecla REC presa (`rec`), a fita no gravador grava a conversa que o operador escuta (a primeira em que ele entra
 ## assim) e guarda as palavras-chave ouvidas dela (`Clue`, só as ouvidas: a escuta e a desconfiança de sempre valem).
 ## Cada virgem tem o lugar dela no compartimento (`slots`); cada fita tirada dele é uma `Tape`. Tirada do gravador,
-## fica na mesa (`Tape.Fate.ON_DESK`) até o fim do turno, quando vai para as autoridades (`hand_over`) e vale
-## pontos de eficiência pelo valor (`value`), ou até o operador descartá-la (`discard`), e se perde. Qualquer regra pode usar; a B4
+## fica na mesa (`Tape.Fate.ON_DESK`), onde o operador escolhe para quem vai (`give`): às autoridades (no fim do turno,
+## `hand_over`, vale pontos de eficiência pelo valor, `value`) ou a Sebastião, na noite em que ele pediu (`sebastiao_asked`); ou a descarta (`discard`), e se perde. O
+## turno só encerra com todas resolvidas (`unresolved`). Qualquer regra pode usar; a B4
 ## configura (`rule_id`, `per_word`) e grava. As equipamentos da mesa (`scenes/ui/equipment/`) mexem por aqui.
 
 const Tape := preload("res://scripts/bureaucracy/tape.gd")
+const ASKED := "sebastiao_pediu_fita_"   ## + a noite: o marcador que a ligação de Sebastião pedindo a fita liga (`sebastiao_asked`)
 
 var desk: Node   ## o `Bureaucracy` (o registro de decisões e as advertências)
 var rule_id := ""   ## a regra em nome de quem o registro anota
@@ -173,6 +175,31 @@ func on_desk() -> Array:
 	return done.filter(func(t: Tape): return t.fate == Tape.Fate.ON_DESK)
 
 
+## As fitas da mesa ainda sem destino (o turno espera por elas).
+func unresolved() -> Array:
+	return on_desk().filter(func(t: Tape): return t.to == Tape.To.NONE)
+
+
+## Sebastião pediu fita nesta noite (o marcador `ASKED` + a noite, do desfecho da ligação dele): só então a pilha
+## oferece dar a ele.
+func sebastiao_asked() -> bool:
+	return desk.main.flags.has(ASKED + str(desk.main.night_no))
+
+
+## O operador escolhe para quem vai a fita `t` da mesa (`to`): ela é embrulhada e sai no fim do turno. Sem volta.
+func give(t: Tape, to: Tape.To) -> void:
+	if t.fate != Tape.Fate.ON_DESK or t.to != Tape.To.NONE or to == Tape.To.NONE:
+		return
+	t.to = to
+	desk.log_decision(rule_id, t.call, "embrulhou a fita %s(%s) para %s" % ["pedida " if t.marked else "", t.words_text(),
+		"Sebastião" if to == Tape.To.SEBASTIAO else "as autoridades"], "sai no fim do turno")
+
+
+## Quantas gravadas (com conversa, mesmo sem nada nela) foram entregues às autoridades nesta noite.
+func to_authorities() -> int:
+	return done.filter(func(t: Tape): return t.fate == Tape.Fate.DELIVERED and t.call != null).size()
+
+
 ## O operador descarta a fita `t`, da mesa: se perde. A de uma conversa marcada é não colaborar de propósito: custa o
 ## mesmo que não entregar e liga o marcador `b4_descartou_<ligação>` para o roteiro (`call_id`).
 func discard(t: Tape) -> void:
@@ -189,14 +216,34 @@ static func call_id(c: PhoneCall) -> String:
 	return c.data.resource_path.get_file().get_basename() if c != null and c.data != null else ""
 
 
-## Fim do turno: as fitas da mesa vão para as autoridades e valem pelo que gravaram. A gravação de uma conversa que
-## ninguém pediu vai para o registro como tal (o roteiro pode cobrar).
+## Fim do turno: as fitas da mesa saem para quem o operador escolheu. As das autoridades valem pelo que gravaram (a
+## gravação de uma conversa que ninguém pediu vai para o registro como tal; a de uma conversa delas mesmas,
+## `StoryCall.authority`, é advertência gravíssima e não vale nada); as de Sebastião ligam os marcadores da
+## ligação gravada (`StoryCall.if_sebastiao`); as sem destino (o turno acabou à força) ficam esquecidas.
 func hand_over() -> void:
 	for t: Tape in on_desk():
+		if t.to == Tape.To.NONE:
+			t.fate = Tape.Fate.LEFT
+			desk.log_decision(rule_id, t.call, "deixou a fita na mesa sem destino (%s)" % t.words_text(), "não entregue")
+			continue
+		if t.to == Tape.To.SEBASTIAO:
+			t.fate = Tape.Fate.SEBASTIAO
+			if t.call != null and t.call.beat != null:
+				for f in t.call.beat.if_sebastiao:
+					desk.main.flags.apply(f)
+			desk.log_decision(rule_id, t.call, "deu a fita a Sebastião (%s)" % t.words_text(), "não entregue às autoridades")
+			continue
 		t.fate = Tape.Fate.DELIVERED
+		if t.call != null and t.call.beat != null and t.call.beat.authority:   # gravou as próprias autoridades
+			desk.main.supervisor.fault(rule_id, t.who, ShiftReport.Severity.CRITICAL, T.Key.FAULT_TAPE_AUTHORITY)
+			desk.log_decision(rule_id, t.call, "entregou às autoridades a fita da conversa delas", "advertência gravíssima")
+			continue
 		t.value = value(t)
 		if t.value > 0:
 			desk.main.supervisor.credit("tape", t.value)
+		if t.call != null and t.call.beat != null and not t.words.is_empty():
+			for f in t.call.beat.if_delivered:
+				desk.main.flags.apply(f)
 		var result := "gravação não pedida" if t.call != null and not t.marked else (
 			"vazia: não conta como entregue" if t.marked and t.words.is_empty() else "%d pontos" % t.value)
 		desk.log_decision(rule_id, t.call, "entregou a fita (%s)" % t.words_text(), result)

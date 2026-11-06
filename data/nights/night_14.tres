@@ -1,7 +1,24 @@
 [gd_resource type="Resource" script_class="Night" format=3]
 
 [ext_resource type="Script" path="res://scripts/data/night.gd" id="1_night"]
+[ext_resource type="Script" path="res://scripts/data/prank_step.gd" id="2_step"]
 [ext_resource type="Script" path="res://scripts/data/street_event.gd" id="2_event"]
+[ext_resource type="Script" path="res://scripts/data/story_call.gd" id="3_story"]
+[ext_resource type="Script" path="res://scripts/data/story_text.gd" id="5_text"]
+[ext_resource type="Script" path="res://scripts/data/dial_call.gd" id="6_dial"]
+[ext_resource type="Resource" path="res://data/calls/story_14_sebastiao.tres" id="c_story_14_sebastiao"]
+[ext_resource type="Resource" path="res://data/calls/story_14_policia_aeroporto.tres" id="c_story_14_policia_aeroporto"]
+[ext_resource type="Resource" path="res://data/calls/story_14_bar.tres" id="c_story_14_bar"]
+[ext_resource type="Resource" path="res://data/calls/story_14_radio.tres" id="c_story_14_radio"]
+[ext_resource type="Resource" path="res://data/calls/story_14_policia_hotel.tres" id="c_story_14_policia_hotel"]
+[ext_resource type="Resource" path="res://data/calls/story_14_cupula_aviao.tres" id="c_story_14_cupula_aviao"]
+[ext_resource type="Resource" path="res://data/calls/story_14_hotel.tres" id="c_story_14_hotel"]
+[ext_resource type="Resource" path="res://data/calls/story_14_tv.tres" id="c_story_14_tv"]
+[ext_resource type="Resource" path="res://data/calls/story_14_cupula_comandante.tres" id="c_story_14_cupula_comandante"]
+[ext_resource type="Resource" path="res://data/calls/story_14_cupula_comandante_armas.tres" id="c_story_14_cupula_comandante_armas"]
+[ext_resource type="Resource" path="res://data/calls/story_14_miguel.tres" id="a_story_14_miguel"]
+[ext_resource type="Resource" path="res://data/calls/noite_14_pensao.tres" id="j_pensao"]
+[ext_resource type="Resource" path="res://data/calls/noite_14_parente.tres" id="j_parente"]
 
 [sub_resource type="Resource" id="ev_0"]
 script = ExtResource("2_event")
@@ -17,8 +34,116 @@ at = 120.0
 script = ExtResource("2_event")
 kind = "stone"
 at = 300.0
+requires = PackedStringArray("!chance_alta")
+
+[sub_resource type="Resource" id="ev_3"]
+script = ExtResource("2_event")
+kind = "stranger"
+at = 240.0
+
+[sub_resource type="Resource" id="ev_4"]
+script = ExtResource("2_event")
+kind = "closed"
+at = 0.0
+
+[sub_resource type="Resource" id="S_seb"]
+script = ExtResource("3_story")
+at = 20.0
+call = ExtResource("c_story_14_sebastiao")
+again = false
+
+[sub_resource type="Resource" id="S_pol1"]
+script = ExtResource("3_story")
+at = 45.0
+call = ExtResource("c_story_14_policia_aeroporto")
+again = false
+
+[sub_resource type="Resource" id="S_bar"]
+script = ExtResource("3_story")
+at = 90.0
+call = ExtResource("c_story_14_bar")
+if_delivered = PackedStringArray("obedeceu_bar_14")
+again = false
+
+[sub_resource type="Resource" id="S_radio"]
+script = ExtResource("3_story")
+at = 120.0
+call = ExtResource("c_story_14_radio")
+again = false
+
+[sub_resource type="Resource" id="S_pol2"]
+script = ExtResource("3_story")
+at = 150.0
+call = ExtResource("c_story_14_policia_hotel")
+again = false
+
+[sub_resource type="Resource" id="S_cup1"]
+script = ExtResource("3_story")
+at = 200.0
+call = ExtResource("c_story_14_cupula_aviao")
+again = false
+
+[sub_resource type="Resource" id="S_hotel"]
+script = ExtResource("3_story")
+at = 235.0
+call = ExtResource("c_story_14_hotel")
+if_delivered = PackedStringArray("obedeceu_hotel_14")
+again = false
+
+[sub_resource type="Resource" id="S_tv"]
+script = ExtResource("3_story")
+at = 255.0
+call = ExtResource("c_story_14_tv")
+again = false
+
+[sub_resource type="Resource" id="S_cup2"]
+script = ExtResource("3_story")
+at = 285.0
+call = ExtResource("c_story_14_cupula_comandante")
+requires = PackedStringArray("!fita_armas_entregue")
+again = false
+
+[sub_resource type="Resource" id="S_cup2a"]
+script = ExtResource("3_story")
+at = 285.0
+call = ExtResource("c_story_14_cupula_comandante_armas")
+requires = PackedStringArray("fita_armas_entregue")
+again = false
+
+[sub_resource type="Resource" id="A_story_14_miguel"]
+script = ExtResource("3_story")
+at = 175.0
+call = ExtResource("a_story_14_miguel")
+if_hung_up = PackedStringArray("!miguel_amigo")
+again = false
+
+[sub_resource type="Resource" id="J_news_0"]
+script = ExtResource("5_text")
+text = "Batida no Hotel Serena: cinco presos\nNa noite de ontem, um camburão e uma viatura pararam na porta do Hotel Serena, e a polícia saiu com cinco homens algemados. O hotel foi lacrado. A delegacia fala em \"ninho de agitadores\"."
+requires = PackedStringArray("fita_hotel_entregue")
+photo = "hotel"
+caption = "O Hotel Serena, lacrado depois da batida."
+
+[sub_resource type="Resource" id="J_news_1"]
+script = ExtResource("5_text")
+text = "Hotel Serena é lacrado pela polícia\nO Hotel Serena amanheceu com as portas lacradas e um aviso da delegacia: \"fechado para averiguação\". Os hóspedes foram mandados embora de madrugada. O dono não foi encontrado."
+requires = PackedStringArray("!fita_hotel_entregue")
+photo = "hotel"
+caption = "A porta do Hotel Serena, com o lacre da delegacia."
+
+[sub_resource type="Resource" id="J_call_pensao"]
+script = ExtResource("3_story")
+call = ExtResource("j_pensao")
+
+[sub_resource type="Resource" id="J_call_parente"]
+script = ExtResource("3_story")
+call = ExtResource("j_parente")
+requires = PackedStringArray("fita_hotel_entregue")
 
 [resource]
 script = ExtResource("1_night")
-note = "O supervisor deixou um recado: \"Amanhã é sua última noite deste período. Capriche.\""
-street_events = Array[ExtResource("2_event")]([SubResource("ev_0"), SubResource("ev_1"), SubResource("ev_2")])
+note = "O supervisor deixou um recado: \"Pedido das autoridades para hoje: grave toda conversa suspeita do bar e do hotel. As linhas da Rádio Serena e da TV Orbital estão bloqueadas, não transfira nada para elas. Amanhã é sua última noite deste período. Capriche.\""
+story = Array[ExtResource("3_story")]([SubResource("S_seb"), SubResource("S_pol1"), SubResource("S_bar"), SubResource("S_radio"), SubResource("S_pol2"), SubResource("S_cup1"), SubResource("S_hotel"), SubResource("S_tv"), SubResource("S_cup2"), SubResource("S_cup2a"), SubResource("A_story_14_miguel")])
+street_events = Array[ExtResource("2_event")]([SubResource("ev_0"), SubResource("ev_1"), SubResource("ev_2"), SubResource("ev_3"), SubResource("ev_4")])
+news_if = Array[ExtResource("5_text")]([SubResource("J_news_0"), SubResource("J_news_1")])
+calls = Array[ExtResource("3_story")]([SubResource("J_call_pensao"), SubResource("J_call_parente")])

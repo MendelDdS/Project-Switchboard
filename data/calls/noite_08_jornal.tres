@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="TransferCall" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/transfer_call.gd" id="1_call"]
+
+[resource]
+script = ExtResource("1_call")
+voice = "f"
+caller = "Dona Alzira"
+caller_name = "Alzira Campos"
+opening = PackedStringArray("Boa noite. A Farmácia Central, ainda abre?", "Preciso de um calmante pro meu marido.")
+repeat = "A Farmácia Central, moça."
+target = "118"
+destination = "Farmácia Central"
+thanks = "Obrigada, querida."
+overheard = PackedStringArray("Farmácia? É a Alzira. Tem calmante? O Jorge não dorme desde o jornal.", "Tenho, dona Alzira. Mas o que deu nele?", "A polícia anda revirando a cidade de novo. Ele acha que vem bater aqui.", "Vocês não têm nada a esconder.", "Ninguém tem, até a polícia chegar. Guarda dois vidros pra mim?", "Guardo. Mando o menino levar amanhã cedo.")

@@ -1,6 +1,6 @@
 class_name PrankStep
 extends Resource
-## Um passo de um roteiro falado: trotes e a ligação desconhecida de cada noite (Night.mystery).
+## Um passo de um roteiro falado: trotes e as do discador (`DialCall`).
 
 enum Kind {
 	CALLER,    ## quem ligou fala `text` (e espera `seconds`, se houver)

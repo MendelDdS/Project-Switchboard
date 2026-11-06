@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="TransferCall" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/transfer_call.gd" id="1_story"]
+
+[resource]
+script = ExtResource("1_story")
+group = 1
+voice = "f"
+caller = "Moça"
+opening = PackedStringArray("Boa noite! O Otávio Almeida, por favor. Da Rua da Estação.", "Moça, ontem ele me deu um beijo! Na porta de casa, com a minha mãe espiando pela janela!")
+repeat = "O Otávio Almeida, da Rua da Estação."
+target = "361"
+destination = "Otávio Almeida"
+thanks = "Obrigada!"
+overheard = PackedStringArray("Alô?", "Sou eu. Liguei só pra ouvir a sua voz.", "Amanhã eu vou na [place:praça] com o pessoal da estação. Vai ter muita gente.", "Na praça? Otávio, toma cuidado.", "É só uma passeata. Depois eu te ligo.", "Liga mesmo, hein?")
+caller_name = "Generosa Prates"
+name_line = "Generosa Prates."

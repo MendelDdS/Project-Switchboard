@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="TransferCall" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/transfer_call.gd" id="1_call"]
+
+[resource]
+script = ExtResource("1_call")
+voice = "m"
+caller = "Seu Norberto"
+caller_name = "Norberto Assis"
+opening = PackedStringArray("Boa noite, moça. A Pensão Dona Cota, por favor.", "Fui ao Hotel Serena e está lacrado.")
+repeat = "A pensão da dona Cota."
+target = "312"
+destination = "Pensão Dona Cota"
+thanks = "Obrigado, moça. Salvou minha noite."
+overheard = PackedStringArray("Pensão? Tem um quarto? O Hotel Serena está lacrado.", "Tem o último, nos fundos. O senhor é o terceiro do hotel que liga hoje.", "Não tinha ninguém lá na porta. Só o aviso da polícia.", "Traga o documento. A polícia passa aqui toda noite olhando o livro.", "Eu sou vendedor de tecido, dona.", "Todo mundo é. Chegue antes das nove.")

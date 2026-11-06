@@ -2,13 +2,71 @@
 
 [ext_resource type="Script" path="res://scripts/data/night.gd" id="1_night"]
 [ext_resource type="Script" path="res://scripts/data/street_event.gd" id="2_event"]
+[ext_resource type="Script" path="res://scripts/data/story_text.gd" id="x0_story_text"]
+[ext_resource type="Script" path="res://scripts/data/story_call.gd" id="x1_story_call"]
+[ext_resource type="Resource" path="res://data/calls/story_05_cecilia.tres" id="x2_story_05_cecilia"]
+[ext_resource type="Resource" path="res://data/calls/story_05_sebastiao.tres" id="x3_story_05_sebastiao"]
+[ext_resource type="Resource" path="res://data/calls/story_05_otavio.tres" id="a_story_05_otavio"]
+[ext_resource type="Resource" path="res://data/calls/story_05_otavio_radio.tres" id="a_story_05_otavio_radio"]
+[ext_resource type="Resource" path="res://data/calls/noite_05_jornal.tres" id="j_jornal"]
+[ext_resource type="Resource" path="res://data/calls/noite_05_parente.tres" id="j_parente"]
 
 [sub_resource type="Resource" id="ev_0"]
 script = ExtResource("2_event")
 kind = "speaker"
 at = 75.0
 
+[sub_resource type="Resource" id="News_tv"]
+script = ExtResource("x0_story_text")
+text = "Rebeldes ocupam a TV Orbital\nPor quase duas horas, na noite de ontem, a TV Orbital transmitiu a mensagem de um grupo que se diz a resistência de São Sotero. A polícia retomou a emissora de madrugada. Ninguém foi preso."
+requires = PackedStringArray("tv_conquistada")
+photo = "torre"
+caption = "A torre da TV Orbital, ocupada ontem à noite."
+
+[sub_resource type="Resource" id="S_cec"]
+script = ExtResource("x1_story_call")
+at = 25.0
+call = ExtResource("x2_story_05_cecilia")
+again = false
+
+[sub_resource type="Resource" id="S_seb"]
+script = ExtResource("x1_story_call")
+at = 140.0
+call = ExtResource("x3_story_05_sebastiao")
+requires = PackedStringArray("senha_hotel_4", "!denunciou_bar_4")
+if_dropped = PackedStringArray("sebastiao_5")
+if_missed = PackedStringArray("sebastiao_5")
+again = false
+
+[sub_resource type="Resource" id="A_story_05_otavio"]
+script = ExtResource("x1_story_call")
+at = 90.0
+call = ExtResource("a_story_05_otavio")
+requires = PackedStringArray("otavio_numero")
+again = false
+
+[sub_resource type="Resource" id="A_story_05_otavio_radio"]
+script = ExtResource("x1_story_call")
+at = 90.0
+call = ExtResource("a_story_05_otavio_radio")
+requires = PackedStringArray("!otavio_numero")
+again = false
+
+[sub_resource type="Resource" id="J_call_jornal"]
+script = ExtResource("x1_story_call")
+call = ExtResource("j_jornal")
+
+[sub_resource type="Resource" id="J_call_parente"]
+script = ExtResource("x1_story_call")
+call = ExtResource("j_parente")
+
 [resource]
 script = ExtResource("1_night")
-note = "O supervisor deixou um recado: \"A partir de hoje, o setor 1, o Centro, também é seu: a central de lá não tem mais turno da noite. Os números que começam com 1 agora passam pela sua mesa. A lista já foi atualizada.\""
+note = "O supervisor deixou um recado: \"A partir de hoje, o setor 1, o Centro, também é seu: a central de lá não tem mais turno da noite. Os números que começam com 1 agora passam pela sua mesa. A lista já foi atualizada. E, por ordem da polícia, a linha do Bar do Zé (327) está bloqueada: não transfira nada para lá.\""
 street_events = Array[ExtResource("2_event")]([SubResource("ev_0")])
+news_if = Array[ExtResource("x0_story_text")]([SubResource("News_tv")])
+story = Array[ExtResource("x1_story_call")]([SubResource("S_cec"), SubResource("S_seb"), SubResource("A_story_05_otavio"), SubResource("A_story_05_otavio_radio")])
+news_stories = PackedStringArray("Explosões em quatro pontos da cidade\nBombas caseiras atingiram uma subestação, dois postes de energia e a porta da delegacia do Centro na tarde de ontem. Não houve mortos. A polícia fala em atentado e promete resposta.", "Protesto termina com dezenas de presos\nA manifestação na praça foi dispersada pela polícia ao anoitecer. A Alta Cúpula pede calma à população e diz que os responsáveis serão encontrados.")
+calls = Array[ExtResource("x1_story_call")]([SubResource("J_call_jornal"), SubResource("J_call_parente")])
+news_photo = "viatura"
+news_caption = "Viatura no Centro, na manhã de ontem."

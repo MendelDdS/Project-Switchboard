@@ -4,10 +4,12 @@ extends RefCounted
 ## ficam salvos para as seguintes (Progress.flags). Qualquer sistema pode consultar (`allows`) ou alterar (`apply`).
 ##
 ## Condição (`requires` nos Resources): lista de nomes; todos precisam estar ligados, e com "!" na frente,
-## desligados. Ex.: ["respondeu_a_luz", "!ligou_de_volta_1"]. Lista vazia = sempre vale.
+## desligados. Ex.: ["prometeu_quermesse", "!senha_hotel_4"]. Lista vazia = sempre vale.
 ## Alteração (`apply`): "nome" liga, "!nome" desliga, vazio não faz nada.
 
 signal changed(name: String, on: bool)
+
+const FAULT := "advertencia_"   ## marcador ligado com este começo é advertência (`ShiftReport` "authority_ignored", `Main.flags`)
 
 var _on := {}   ## nome -> true
 

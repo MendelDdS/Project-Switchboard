@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="TransferCall" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/transfer_call.gd" id="1_call"]
+
+[resource]
+script = ExtResource("1_call")
+voice = "m"
+caller = "Seu Fábio"
+caller_name = "Fábio Rezende"
+opening = PackedStringArray("Boa noite. O Cine Odeon, por favor.", "Quero saber se ainda tem a sessão das nove.")
+repeat = "O cinema, moça. O Odeon."
+target = "344"
+destination = "Cine Odeon"
+thanks = "Obrigado, moça."
+overheard = PackedStringArray("Odeon? Tem a sessão das nove hoje?", "Não tem mais, rapaz. Toque de recolher. A última é às sete.", "Às sete? Eu saio do serviço às sete!", "Então só no domingo, na matinê.", "E se eu for pego na rua depois das nove?", "Aí você vê o filme na delegacia. Vá direto pra casa.")

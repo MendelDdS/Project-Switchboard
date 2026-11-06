@@ -1,0 +1,61 @@
+[gd_resource type="Resource" script_class="PrankCall" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/prank_call.gd" id="1_call"]
+[ext_resource type="Script" path="res://scripts/data/prank_step.gd" id="2_step"]
+
+[sub_resource type="Resource" id="Step_00"]
+script = ExtResource("2_step")
+text = "Boa noite! É a Generosa Prates. Lembra de mim? A da fita amarela."
+requires = PackedStringArray("otavio_numero")
+
+[sub_resource type="Resource" id="Step_01"]
+script = ExtResource("2_step")
+text = "Eu precisava contar pra alguém: fomos ao cinema! Ele não prestou atenção no filme nem um minuto."
+requires = PackedStringArray("otavio_numero")
+
+[sub_resource type="Resource" id="Step_02"]
+script = ExtResource("2_step")
+kind = 1
+options = PackedStringArray("E você?", "Que bom, Generosa!")
+requires = PackedStringArray("otavio_numero")
+
+[sub_resource type="Resource" id="Step_03"]
+script = ExtResource("2_step")
+text = "Nem eu. Obrigada por ter passado o recado. Boa noite!"
+requires = PackedStringArray("otavio_numero")
+
+[sub_resource type="Resource" id="Step_04"]
+script = ExtResource("2_step")
+text = "Boa noite. É a Generosa Prates. Desculpe ligar de novo."
+requires = PackedStringArray("otavio_mentira")
+
+[sub_resource type="Resource" id="Step_05"]
+script = ExtResource("2_step")
+text = "O rapaz da música nunca deixou recado, né? Ouvi ele oferecer de novo na rádio... e nada."
+requires = PackedStringArray("otavio_mentira")
+
+[sub_resource type="Resource" id="Step_06"]
+script = ExtResource("2_step")
+text = "Vai ver mudou de ideia."
+requires = PackedStringArray("otavio_mentira")
+
+[sub_resource type="Resource" id="Step_07"]
+script = ExtResource("2_step")
+kind = 1
+options = PackedStringArray("Ninguém ligou, não.", "[Ficar em silêncio]")
+requires = PackedStringArray("otavio_mentira")
+
+[sub_resource type="Resource" id="Step_08"]
+script = ExtResource("2_step")
+text = "Tá bom. Boa noite."
+requires = PackedStringArray("otavio_mentira")
+
+[sub_resource type="Resource" id="Step_09"]
+script = ExtResource("2_step")
+kind = 3
+
+[resource]
+script = ExtResource("1_call")
+voice = "f"
+caller = "Moça"
+steps = Array[ExtResource("2_step")]([SubResource("Step_00"), SubResource("Step_01"), SubResource("Step_02"), SubResource("Step_03"), SubResource("Step_04"), SubResource("Step_05"), SubResource("Step_06"), SubResource("Step_07"), SubResource("Step_08"), SubResource("Step_09")])

@@ -1,0 +1,28 @@
+[gd_resource type="Resource" script_class="EmergencyCall" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/emergency_call.gd" id="1_em"]
+
+[resource]
+script = ExtResource("1_em")
+voice = "m"
+caller = "Rapaz"
+opening = "Moça, espera! Começou uma briga aqui na frente do bar! Quatro em cima de um rapaz! Chama a polícia!"
+questions = PackedStringArray("Qual é o endereço?", "Alguém está ferido?", "Eles estão armados?")
+answers = PackedStringArray("Rua do Mercado, 90! Na frente do bar!", "Ainda não, o rapaz tá se defendendo. Mas tão batendo pra valer!", "Não vi arma, não. É só soco e pontapé.")
+street = "mercado"
+block = 0
+address = "Rua do Mercado, 90"
+occurrence = "Outro"
+units = PackedStringArray("pol")
+after = "Moça, não precisa mais transferir pro ponto de táxi. Vou ficar aqui e ver no que posso auxiliar."
+stage_sec = Vector3(55, 22, 22)
+worsening = "Derrubaram o rapaz no chão! Tão chutando ele!"
+worsening_units = PackedStringArray("amb")
+worsening_question = "Ele está se mexendo?"
+worsening_answer = "Mexe a mão... mas a cabeça tá sangrando muito!"
+critical = "Ele parou de se mexer! Os outros fugiram correndo!"
+critical_question = "Ele está respirando?"
+critical_answer = "Tá, mas bem fraquinho!"
+lost = "Ele não respira mais, moça... era um menino."
+lost_answer = "Ninguém mais. Só ele, no chão."
+lost_units = PackedStringArray("amb")

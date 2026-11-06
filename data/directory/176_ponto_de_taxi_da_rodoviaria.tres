@@ -2,6 +2,8 @@
 
 [ext_resource type="Script" path="res://scripts/data/directory_entry.gd" id="1_entry"]
 [ext_resource type="Script" path="res://scripts/data/motive.gd" id="2_motive"]
+[ext_resource type="Script" path="res://scripts/data/chat_topic.gd" id="8_chat"]
+[ext_resource type="Script" path="res://scripts/data/chat_reply.gd" id="9_reply"]
 
 [sub_resource type="Resource" id="Motive_53"]
 script = ExtResource("2_motive")
@@ -13,6 +15,36 @@ script = ExtResource("2_motive")
 text = "O último ônibus sai às onze e eu não posso perder."
 talks = Array[PackedStringArray]([PackedStringArray("Boa noite. O último ônibus sai às onze e eu não posso perder.", "Onde você está?", "Na {street}. Dá tempo?", "Dá, se sair já. O carro chega em {wait}.", "Fico esperando no portão, com a mala.", "O motorista buzina duas vezes quando chegar."), PackedStringArray("Boa noite. Preciso pegar o ônibus das onze. É urgente.", "Vai pra capital?", "Vou. Começo num serviço novo amanhã cedo.", "Então vamos correr. Qual o endereço?", "{street}, {house}. A casa da esquina.", "Em {wait} o carro está aí. Deixa a mala no portão.")])
 
+[sub_resource type="Resource" id="Dial_0_0"]
+script = ExtResource("9_reply")
+text = "Quanto é uma corrida até a Vila Serena?"
+follow = "Vinte cruzeiros. Depois da meia-noite, bandeira dois."
+
+[sub_resource type="Resource" id="Dial_0_1"]
+script = ExtResource("9_reply")
+text = "Vocês rodam a noite toda?"
+follow = "Até o último ônibus chegar. Depois, só acordando o Juvenal no banco de trás."
+
+[sub_resource type="Resource" id="Dial_0"]
+script = ExtResource("8_chat")
+line = "Ponto de táxi, boa noite. Tem dois carros parados aqui."
+replies = Array[ExtResource("9_reply")]([SubResource("Dial_0_0"), SubResource("Dial_0_1")])
+
+[sub_resource type="Resource" id="Dial_1_0"]
+script = ExtResource("9_reply")
+text = "A rodoviária fica aberta à noite?"
+follow = "Fica, mas só tem o guarda e os bancos de cimento."
+
+[sub_resource type="Resource" id="Dial_1_1"]
+script = ExtResource("9_reply")
+text = "Não é corrida, é da central."
+follow = "Então desliga, moça, que pode ter freguês tentando ligar."
+
+[sub_resource type="Resource" id="Dial_1"]
+script = ExtResource("8_chat")
+line = "Táxi. Se for para a rodoviária, o último ônibus sai às onze."
+replies = Array[ExtResource("9_reply")]([SubResource("Dial_1_0"), SubResource("Dial_1_1")])
+
 [resource]
 script = ExtResource("1_entry")
 name = "Ponto de Táxi da Rodoviária"
@@ -21,3 +53,5 @@ number = "176"
 hello = "Ponto de táxi, boa noite."
 spoken = "o ponto de táxi da rodoviária"
 motives = Array[ExtResource("2_motive")]([SubResource("Motive_53"), SubResource("Motive_54")])
+answers = Array[ExtResource("8_chat")]([SubResource("Dial_0"), SubResource("Dial_1")])
+bye = "Precisando de carro, é só chamar."

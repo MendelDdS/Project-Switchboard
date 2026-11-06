@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="TransferCall" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/transfer_call.gd" id="1_story"]
+
+[resource]
+script = ExtResource("1_story")
+group = 0
+voice = "f"
+caller = "Moça"
+opening = PackedStringArray("O Hospital São Lucas.", "Quero saber o horário de visita.")
+repeat = "O São Lucas."
+target = "213"
+destination = "Hospital São Lucas"
+thanks = "Obrigada."
+busy_line = "Ocupado? ...Tenta de novo, por favor."
+overheard = PackedStringArray("Hospital São Lucas.", "O horário de visita da ala 3C.", "Das duas às quatro. Só parente.", "Eu sou a noiva dele.", "Então traga um documento.")
+caller_name = "Generosa Prates"
+name_line = "Generosa Prates."

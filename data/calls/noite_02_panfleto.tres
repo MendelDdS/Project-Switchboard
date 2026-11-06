@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="TransferCall" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/transfer_call.gd" id="1_call"]
+
+[resource]
+script = ExtResource("1_call")
+voice = "f"
+caller = "Dona Ivone"
+caller_name = "Ivone Paiva"
+opening = PackedStringArray("Boa noite, moça. Me liga com a Pensão Dona Cota?", "Quero falar com a dona Cota, é urgente.")
+repeat = "A pensão da dona Cota, minha filha. Três, um, dois."
+target = "312"
+destination = "Pensão Dona Cota"
+thanks = "Deus lhe pague, moça."
+overheard = PackedStringArray("Cota? É a Ivone. Você viu o jornal de hoje?", "Vi. Os papéis na estação. Um hóspede meu achou um na mala.", "Pois tinha um debaixo da minha porta também. Queimei no fogão.", "Fez bem. A polícia passou aqui perguntando quem anda de noite.", "E você falou o quê?", "Que aqui só dorme caixeiro-viajante. E é verdade.")

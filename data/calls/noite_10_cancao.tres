@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="TransferCall" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/transfer_call.gd" id="1_call"]
+
+[resource]
+script = ExtResource("1_call")
+voice = "f"
+caller = "Dona Celeste"
+caller_name = "Celeste Amaral"
+opening = PackedStringArray("Boa noite. A Padaria Pão Dourado, por favor.", "A dona de lá é minha irmã.")
+repeat = "A padaria, moça. Pão Dourado."
+target = "142"
+destination = "Padaria Pão Dourado"
+thanks = "Obrigada, moça. Que noite."
+overheard = PackedStringArray("Nair? É a Celeste. Você ouviu a rádio ontem?", "Ouvi. A Canção da Madrugada. Fazia quinze anos.", "Eu chorei na cozinha. O papai cantava essa.", "Cantava baixinho, pra vizinha não ouvir.", "Será que volta a tocar?", "Se tocar, eu deixo a janela aberta.")

@@ -1,0 +1,59 @@
+[gd_resource type="Resource" script_class="PrankCall" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/prank_call.gd" id="1_call"]
+[ext_resource type="Script" path="res://scripts/data/prank_step.gd" id="2_step"]
+
+[sub_resource type="Resource" id="Step_00"]
+script = ExtResource("2_step")
+text = "Maria, é o Sebastião. A Cecília já te falou de mim."
+
+[sub_resource type="Resource" id="Step_01"]
+script = ExtResource("2_step")
+text = "Ontem a TV falou por nós. Aquilo foi você também."
+
+[sub_resource type="Resource" id="Step_02"]
+script = ExtResource("2_step")
+kind = 1
+options = PackedStringArray("Por que eu?", "Quem é você, afinal?")
+sets = PackedStringArray()
+
+[sub_resource type="Resource" id="Step_03"]
+script = ExtResource("2_step")
+text = "Eu conheci o seu pai, Maria. Eu era menino e ia com o meu pai às reuniões. O seu pai sempre levava pão doce pra mim."
+
+[sub_resource type="Resource" id="Step_04"]
+script = ExtResource("2_step")
+text = "Levaram os dois na mesma noite. O seu e o meu. Nunca devolveram os corpos."
+
+[sub_resource type="Resource" id="Step_05"]
+script = ExtResource("2_step")
+kind = 2
+seconds = 1.5
+
+[sub_resource type="Resource" id="Step_06"]
+script = ExtResource("2_step")
+kind = 1
+options = PackedStringArray("Eu tinha oito anos.", "Por que está me contando isso?")
+sets = PackedStringArray()
+
+[sub_resource type="Resource" id="Step_07"]
+script = ExtResource("2_step")
+text = "Porque você merece saber por quem está fazendo isso. Confie em mim, Maria."
+
+[sub_resource type="Resource" id="Step_08"]
+script = ExtResource("2_step")
+text = "Eles tiraram os nossos pais de nós no escuro e chamaram isso de ordem. Eu vou fazer este país voltar a ser nosso, nem que seja a última coisa que eu faça."
+
+[sub_resource type="Resource" id="Step_09"]
+script = ExtResource("2_step")
+text = "Agora preciso desligar. A gente se fala."
+
+[sub_resource type="Resource" id="Step_10"]
+script = ExtResource("2_step")
+kind = 3
+
+[resource]
+script = ExtResource("1_call")
+voice = "m"
+caller = "Sebastião Falcão"
+steps = Array[ExtResource("2_step")]([SubResource("Step_00"), SubResource("Step_01"), SubResource("Step_02"), SubResource("Step_03"), SubResource("Step_04"), SubResource("Step_05"), SubResource("Step_06"), SubResource("Step_07"), SubResource("Step_08"), SubResource("Step_09"), SubResource("Step_10")])

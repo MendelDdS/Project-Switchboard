@@ -1,0 +1,59 @@
+[gd_resource type="Resource" script_class="DirectoryEntry" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/directory_entry.gd" id="1_entry"]
+[ext_resource type="Script" path="res://scripts/data/motive.gd" id="2_motive"]
+[ext_resource type="Script" path="res://scripts/data/chat_topic.gd" id="8_chat"]
+[ext_resource type="Script" path="res://scripts/data/chat_reply.gd" id="9_reply"]
+
+[sub_resource type="Resource" id="Motive_1"]
+script = ExtResource("2_motive")
+text = "Quero saber qual é o filme de sábado."
+talks = Array[PackedStringArray]([PackedStringArray("Boa noite. É da TV Orbital? Qual é o filme de sábado?", "É, sim. Sábado passa um faroeste, depois do jornal.", "Faroeste! Lá em casa vão gostar. Começa a que horas?", "Logo depois do jornal das {hour}.", "Vou avisar todo mundo. Boa noite.", "Disponha. Boa noite."), PackedStringArray("Boa noite. Vocês já sabem o filme da sessão de sábado?", "Ainda não chegou a fita. Deve ser uma comédia.", "Comédia está bom. Passa no horário de sempre?", "No de sempre, depois do jornal.", "Então está combinado. Agradeço a informação.", "Por nada. Boa noite.")])
+
+[sub_resource type="Resource" id="Motive_2"]
+script = ExtResource("2_motive")
+text = "A imagem do canal está chuviscando."
+talks = Array[PackedStringArray]([PackedStringArray("Boa noite. A imagem do canal está chuviscando aqui. É problema de vocês?", "Deve ser o tempo. A antena da serra anda falhando com o vento.", "Então não adianta mexer na antena de casa?", "Pode tentar virar um pouco para a serra. Se não melhorar, é daqui.", "Vou tentar, então. Boa noite.", "Boa noite."), PackedStringArray("Boa noite. Sumiu o som do canal faz meia hora.", "Estamos sabendo. O técnico já está mexendo no transmissor.", "Volta ainda hoje?", "Ele disse que até as {hour} resolve.", "Tomara. Não quero perder o fim da novela.", "Vai dar tempo. Boa noite.")])
+
+[sub_resource type="Resource" id="Dial_0_0"]
+script = ExtResource("9_reply")
+text = "Até que horas o canal fica no ar?"
+follow = "Até as onze e meia, com o hino. Depois, só o chuvisco."
+
+[sub_resource type="Resource" id="Dial_0_1"]
+script = ExtResource("9_reply")
+text = "Qual é o filme de sábado?"
+follow = "Um faroeste. A censura cortou metade, mas tem tiro de sobra."
+
+[sub_resource type="Resource" id="Dial_0"]
+script = ExtResource("8_chat")
+line = "TV Orbital, boa noite. Aqui é o técnico de plantão."
+replies = Array[ExtResource("9_reply")]([SubResource("Dial_0_0"), SubResource("Dial_0_1")])
+
+[sub_resource type="Resource" id="Dial_1_0"]
+script = ExtResource("9_reply")
+text = "A imagem está chuviscando aqui."
+follow = "É a antena do morro. Com vento, ela vira sozinha."
+
+[sub_resource type="Resource" id="Dial_1_1"]
+script = ExtResource("9_reply")
+text = "Quem apresenta o jornal hoje?"
+follow = "O de sempre. Lê o que mandam ler, como todo mundo."
+
+[sub_resource type="Resource" id="Dial_1"]
+script = ExtResource("8_chat")
+line = "Orbital, controle mestre. Seja rápida, que o comercial acaba em um minuto."
+replies = Array[ExtResource("9_reply")]([SubResource("Dial_1_0"), SubResource("Dial_1_1")])
+
+[resource]
+script = ExtResource("1_entry")
+name = "TV Orbital"
+address = "Rua da Matriz, 210"
+number = "155"
+voice = "m"
+spoken = "a TV Orbital"
+hello = "TV Orbital, boa noite."
+motives = Array[ExtResource("2_motive")]([SubResource("Motive_1"), SubResource("Motive_2")])
+answers = Array[ExtResource("8_chat")]([SubResource("Dial_0"), SubResource("Dial_1")])
+bye = "Boa noite. Fique ligada na Orbital."
+closes = 330.0

@@ -11,5 +11,5 @@ opening = PackedStringArray("Boa noite. Preciso falar com o Padre Anselmo.", "É
 repeat = "O Padre Anselmo. Na casa dele, não na igreja."
 target = "120"
 destination = "Casa Paroquial"
-thanks = "Obrigada, meu filho."
+thanks = "Obrigada, minha filha."
 overheard = PackedStringArray("Boa noite, padre. É sobre a missa de sétimo dia do meu marido.", "Meus pêsames, minha filha. Quer pra quando?", "Pra sexta. Ele gostava da missa da tarde.", "Sexta, às cinco. Eu mesmo celebro.", "Obrigada, padre. Ele ia ficar contente.")

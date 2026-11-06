@@ -2,6 +2,8 @@
 
 [ext_resource type="Script" path="res://scripts/data/directory_entry.gd" id="1_entry"]
 [ext_resource type="Script" path="res://scripts/data/motive.gd" id="2_motive"]
+[ext_resource type="Script" path="res://scripts/data/chat_topic.gd" id="8_chat"]
+[ext_resource type="Script" path="res://scripts/data/chat_reply.gd" id="9_reply"]
 
 [sub_resource type="Resource" id="Motive_31"]
 script = ExtResource("2_motive")
@@ -13,6 +15,36 @@ script = ExtResource("2_motive")
 text = "Quero deixar uma encomenda pra amanhã cedo."
 talks = Array[PackedStringArray]([PackedStringArray("Boa noite. Queria deixar uma encomenda pra amanhã cedo.", "Pode falar, que eu anoto.", "Dois quilos de arroz, um de feijão e uma lata de óleo.", "Anotado. Busca ou eu mando entregar?", "Pode mandar. É na {street}, número {house}.", "O menino leva antes das {hour}."), PackedStringArray("Boa noite. Amanhã cedo eu preciso de pão e leite.", "O pão chega às {dawn}. Quantos?", "Dez pãezinhos e dois litros de leite.", "Separo. Quer que eu ponha um queijo também?", "Pode pôr. Eu pago tudo amanhã.", "Fica na caderneta. Pode vir buscar quando quiser.")])
 
+[sub_resource type="Resource" id="Dial_0_0"]
+script = ExtResource("9_reply")
+text = "Até que horas vocês ficam abertos?"
+follow = "Até as nove. Depois disso, só batendo na janela dos fundos."
+
+[sub_resource type="Resource" id="Dial_0_1"]
+script = ExtResource("9_reply")
+text = "Ainda tem vela?"
+follow = "Um pacote. Com essa luz que vai e volta, vela vende mais que pão."
+
+[sub_resource type="Resource" id="Dial_0"]
+script = ExtResource("8_chat")
+line = "Mercearia Silva, boa noite. Estou baixando a porta."
+replies = Array[ExtResource("9_reply")]([SubResource("Dial_0_0"), SubResource("Dial_0_1")])
+
+[sub_resource type="Resource" id="Dial_1_0"]
+script = ExtResource("9_reply")
+text = "Não é fiado, é só uma informação."
+follow = "Ah, bom. Hoje todo mundo liga para pedir fiado."
+
+[sub_resource type="Resource" id="Dial_1_1"]
+script = ExtResource("9_reply")
+text = "Vocês abrem amanhã cedo?"
+follow = "Às seis, com o pão que vem da Pão Dourado."
+
+[sub_resource type="Resource" id="Dial_1"]
+script = ExtResource("8_chat")
+line = "Silva. Se for fiado, a caderneta já está cheia."
+replies = Array[ExtResource("9_reply")]([SubResource("Dial_1_0"), SubResource("Dial_1_1")])
+
 [resource]
 script = ExtResource("1_entry")
 name = "Mercearia Silva"
@@ -22,3 +54,5 @@ hello = "Mercearia Silva, boa noite."
 category = "mercearia"
 spoken = "a Mercearia Silva"
 motives = Array[ExtResource("2_motive")]([SubResource("Motive_31"), SubResource("Motive_32")])
+answers = Array[ExtResource("8_chat")]([SubResource("Dial_0"), SubResource("Dial_1")])
+closes = 180.0

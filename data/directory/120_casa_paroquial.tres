@@ -2,6 +2,8 @@
 
 [ext_resource type="Script" path="res://scripts/data/directory_entry.gd" id="1_entry"]
 [ext_resource type="Script" path="res://scripts/data/motive.gd" id="2_motive"]
+[ext_resource type="Script" path="res://scripts/data/chat_topic.gd" id="8_chat"]
+[ext_resource type="Script" path="res://scripts/data/chat_reply.gd" id="9_reply"]
 
 [sub_resource type="Resource" id="Motive_08"]
 script = ExtResource("2_motive")
@@ -12,6 +14,36 @@ talks = Array[PackedStringArray]([PackedStringArray("Boa noite. Queria marcar um
 script = ExtResource("2_motive")
 text = "Quero pedir uma visita do padre pra minha mãe, que está de cama."
 talks = Array[PackedStringArray]([PackedStringArray("Boa noite. Minha mãe está de cama e queria uma visita do padre.", "Ela está muito mal?", "Não, graças a Deus. Mas não sai de casa faz um mês e sente falta da missa.", "Amanhã, depois da missa das sete, alguém leva a comunhão.", "Ela mora na {street}, número {house}.", "Anotado. Deixa o portão aberto, por favor."), PackedStringArray("Boa noite. Dá pra pedir que o padre passe lá em casa? Minha mãe pediu.", "Ela está doente?", "Quebrou a perna e está de cama. Queria se confessar.", "Sábado de manhã dá. Lá pelas {hour}, depois das visitas do hospital.", "Está ótimo. Ela vai ficar tão contente.", "Diga a ela que vamos rezar por ela.")])
+
+[sub_resource type="Resource" id="Dial_0_0"]
+script = ExtResource("9_reply")
+text = "A que horas é a missa amanhã?"
+follow = "Às sete, e outra às seis da tarde. Venha, que a igreja anda vazia."
+
+[sub_resource type="Resource" id="Dial_0_1"]
+script = ExtResource("9_reply")
+text = "O senhor atende confissão à noite?"
+follow = "Para quem precisa, a porta da sacristia está sempre aberta."
+
+[sub_resource type="Resource" id="Dial_0"]
+script = ExtResource("8_chat")
+line = "Casa Paroquial. Padre Anselmo falando."
+replies = Array[ExtResource("9_reply")]([SubResource("Dial_0_0"), SubResource("Dial_0_1")])
+
+[sub_resource type="Resource" id="Dial_1_0"]
+script = ExtResource("9_reply")
+text = "Não, padre, é só uma informação."
+follow = "Graças a Deus. A essa hora, eu sempre penso no pior."
+
+[sub_resource type="Resource" id="Dial_1_1"]
+script = ExtResource("9_reply")
+text = "O senhor pode visitar um doente amanhã?"
+follow = "Posso, depois da missa das sete. Deixe o endereço com a secretaria."
+
+[sub_resource type="Resource" id="Dial_1"]
+script = ExtResource("8_chat")
+line = "Pois não? Aqui é o padre. Alguém precisa da extrema-unção?"
+replies = Array[ExtResource("9_reply")]([SubResource("Dial_1_0"), SubResource("Dial_1_1")])
 
 [resource]
 script = ExtResource("1_entry")
@@ -24,3 +56,6 @@ hello = "Casa Paroquial, boa noite."
 category = "igreja"
 spoken = "a Casa Paroquial"
 motives = Array[ExtResource("2_motive")]([SubResource("Motive_08"), SubResource("Motive_09")])
+answers = Array[ExtResource("8_chat")]([SubResource("Dial_0"), SubResource("Dial_1")])
+bye = "Vá com Deus, minha filha."
+closes = 240.0

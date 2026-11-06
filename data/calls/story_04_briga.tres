@@ -1,0 +1,29 @@
+[gd_resource type="Resource" script_class="EmergencyCall" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/emergency_call.gd" id="1_em"]
+[ext_resource type="Script" path="res://scripts/data/emergency_case.gd" id="2_case"]
+
+[resource]
+script = ExtResource("1_em")
+voice = "f"
+caller = "Moça"
+opening = "Central! Tão brigando aqui na rua, uns rapazes do protesto contra uns homens de outro bairro!"
+questions = PackedStringArray("Qual é o endereço?", "Alguém se machucou?", "Tem alguém armado?")
+answers = PackedStringArray("Rua das Acácias, 150, na frente da quitanda!", "Um rapaz levou uma garrafada na cabeça, tá sangrando!", "Um deles puxou uma faca!")
+street = "acacias"
+block = 1
+address = "Rua das Acácias, 150"
+occurrence = "Outro"
+units = PackedStringArray("pol", "amb")
+after = "Vem rápido, que tá juntando mais gente!"
+stage_sec = Vector3(45, 18, 18)
+worsening = "Agora é pancadaria de verdade, são uns dez!"
+worsening_question = "O rapaz ferido saiu de lá?"
+worsening_answer = "Arrastaram ele pra calçada, tá meio tonto!"
+critical = "Esfaquearam um! Tá caído no meio da rua!"
+critical_units = PackedStringArray("amb")
+critical_question = "Onde ele foi atingido?"
+critical_answer = "Na barriga! Tem sangue pra todo lado!"
+lost = "Fugiram todos... e deixaram dois no chão."
+lost_answer = "Dois no chão, e um não se mexe!"
+lost_units = PackedStringArray("amb")

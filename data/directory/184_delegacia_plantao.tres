@@ -1,0 +1,59 @@
+[gd_resource type="Resource" script_class="DirectoryEntry" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/directory_entry.gd" id="1_entry"]
+[ext_resource type="Script" path="res://scripts/data/motive.gd" id="2_motive"]
+[ext_resource type="Script" path="res://scripts/data/chat_topic.gd" id="8_chat"]
+[ext_resource type="Script" path="res://scripts/data/chat_reply.gd" id="9_reply"]
+
+[sub_resource type="Resource" id="Motive_1"]
+script = ExtResource("2_motive")
+text = "Quero fazer uma queixa."
+talks = Array[PackedStringArray]([PackedStringArray("Boa noite. Arrombaram o portão da minha garagem e levaram a bicicleta.", "Queixa de furto é pessoalmente, aqui no balcão.", "A esta hora? A rua está escura feito breu.", "Então venha amanhã cedo. Anote a hora em que notou.", "Notei agora há pouco, umas {hour}.", "Está certo. Amanhã cedo, com documento."), PackedStringArray("Boa noite. O vizinho de cima está batendo na parede faz uma hora.", "É briga ou é barulho?", "Barulho, eu acho. Mas não deixa ninguém dormir.", "Barulho é com o síndico. Se virar briga, ligue de novo.", "O síndico mora fora. Vou aguentar, então.", "Boa noite.")])
+
+[sub_resource type="Resource" id="Motive_2"]
+script = ExtResource("2_motive")
+text = "Perdi meus documentos."
+talks = Array[PackedStringArray]([PackedStringArray("Boa noite. Meu pai perdeu a carteira com os documentos no ônibus.", "Alguém entregou uma aqui hoje à tarde. Qual o nome?", "Pedro Lopes. A carteira é marrom, de couro.", "É essa mesma. Ele vem buscar, com outro documento.", "Ele vai amanhã, então. Agradeço muito.", "Boa noite."), PackedStringArray("Boa noite. Perdi a carteira de trabalho. Preciso dar parte?", "Precisa, para tirar a segunda via.", "E eu faço isso aí, à noite?", "De noite só flagrante. Venha amanhã de manhã.", "Amanhã de manhã, então.", "Traga duas testemunhas, se tiver.")])
+
+[sub_resource type="Resource" id="Dial_0_0"]
+script = ExtResource("9_reply")
+text = "É da central. Estamos testando a linha."
+follow = "A linha está boa. Não ocupe o plantão à toa."
+
+[sub_resource type="Resource" id="Dial_0_1"]
+script = ExtResource("9_reply")
+text = "Quem está de plantão hoje?"
+follow = "Isso não se diz por telefone. Mais alguma coisa?"
+
+[sub_resource type="Resource" id="Dial_0"]
+script = ExtResource("8_chat")
+line = "Delegacia, plantão. Quem fala?"
+replies = Array[ExtResource("9_reply")]([SubResource("Dial_0_0"), SubResource("Dial_0_1")])
+
+[sub_resource type="Resource" id="Dial_1_0"]
+script = ExtResource("9_reply")
+text = "Aqui é a telefonista da central."
+follow = "Sei quem é. A senhora tem o que fazer aí, não tem?"
+
+[sub_resource type="Resource" id="Dial_1_1"]
+script = ExtResource("9_reply")
+text = "Desculpe, foi engano."
+follow = "Engano para a delegacia... Vou anotar."
+
+[sub_resource type="Resource" id="Dial_1"]
+script = ExtResource("8_chat")
+line = "Plantão. Identifique-se."
+replies = Array[ExtResource("9_reply")]([SubResource("Dial_1_0"), SubResource("Dial_1_1")])
+
+[resource]
+script = ExtResource("1_entry")
+name = "Delegacia de Polícia"
+note = "plantão"
+address = "Avenida Brasil, 380"
+number = "184"
+voice = "m"
+spoken = "a delegacia"
+hello = "Delegacia, plantão."
+motives = Array[ExtResource("2_motive")]([SubResource("Motive_1"), SubResource("Motive_2")])
+answers = Array[ExtResource("8_chat")]([SubResource("Dial_0"), SubResource("Dial_1")])
+bye = "Passe bem."

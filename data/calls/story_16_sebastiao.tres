@@ -1,0 +1,44 @@
+[gd_resource type="Resource" script_class="PrankCall" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/prank_call.gd" id="1_call"]
+[ext_resource type="Script" path="res://scripts/data/prank_step.gd" id="2_step"]
+
+[sub_resource type="Resource" id="Step_00"]
+script = ExtResource("2_step")
+text = "Central 3? Sou eu. Sebastião."
+
+[sub_resource type="Resource" id="Step_01"]
+script = ExtResource("2_step")
+text = "Não é nada urgente. Pela primeira vez, não é nada urgente."
+
+[sub_resource type="Resource" id="Step_02"]
+script = ExtResource("2_step")
+kind = 1
+options = PackedStringArray("Que bom ouvir sua voz.", "Está tudo bem aí?")
+
+[sub_resource type="Resource" id="Step_03"]
+script = ExtResource("2_step")
+text = "Está. A rádio toca o que quer desde cedo. Tem gente na praça que não dormiu."
+
+[sub_resource type="Resource" id="Step_04"]
+script = ExtResource("2_step")
+kind = 2
+seconds = 0.8
+
+[sub_resource type="Resource" id="Step_05"]
+script = ExtResource("2_step")
+text = "Liguei só pra dizer que hoje a noite é sua. Atenda as ligações, como sempre."
+
+[sub_resource type="Resource" id="Step_06"]
+script = ExtResource("2_step")
+text = "Seu pai ia gostar de ver."
+
+[sub_resource type="Resource" id="Step_07"]
+script = ExtResource("2_step")
+kind = 3
+
+[resource]
+script = ExtResource("1_call")
+voice = "m"
+caller = "Sebastião Falcão"
+steps = Array[ExtResource("2_step")]([SubResource("Step_00"), SubResource("Step_01"), SubResource("Step_02"), SubResource("Step_03"), SubResource("Step_04"), SubResource("Step_05"), SubResource("Step_06"), SubResource("Step_07")])

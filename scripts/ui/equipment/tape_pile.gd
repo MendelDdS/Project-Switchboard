@@ -1,8 +1,10 @@
 extends PanelContainer
 ## A pilha de fitas da mesa vista de perto (B4): clicada a pilha (`Background.tapes_clicked`), abre num papel logo
 ## acima dela com as fitas tiradas do gravador (`Tapes.on_desk`), a última em cima, cada uma deitada com a etiqueta
-## (`Cassette.lying`) e o botão Descartar (`Tapes.discard`): a descartada cai do papel para fora da tela (`_fall`). As que ficam vão para as autoridades no fim do turno
-## (`Tapes.hand_over`). Fecha clicando fora dela ou com Esc, e sozinha quando não sobra fita ou o turno acaba.
+## (`Cassette.lying`) e os botões Dar a Sebastião (só na noite em que ele pediu, `Tapes.sebastiao_asked`), Dar às autoridades (`Tapes.give`: ela vira o pacote, `Cassette.parcel`,
+## sem volta) e Descartar (`Tapes.discard`: cai do papel para fora da tela, `_fall`). Os pacotes saem no fim do turno
+## (`Tapes.hand_over`), que espera todas resolvidas. Fecha clicando fora dela ou com Esc, e sozinha quando não sobra
+## fita ou o turno acaba.
 
 const Cassette := preload("res://scripts/ui/equipment/cassette.gd")
 const Tape := preload("res://scripts/bureaucracy/tape.gd")
@@ -59,17 +61,33 @@ func _fill() -> void:
 		tape.custom_minimum_size = Vector2(Cassette.SPINE.y, Cassette.SPINE.x)
 		tape.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 		tape.draw.connect(_draw_tape.bind(tape, t))
-		var b := Button.new()
-		b.theme_type_variation = &"InkButton"
-		b.text = T.text(T.Key.EQUIP_DISCARD)
-		b.pressed.connect(_discard.bind(t, tape))
 		row.add_child(tape)
-		row.add_child(b)
+		if t.to == Tape.To.NONE:
+			for b: Array in [[T.Key.TAPE_TO_SEBASTIAO, _give.bind(t, Tape.To.SEBASTIAO)],
+					[T.Key.TAPE_TO_AUTHORITIES, _give.bind(t, Tape.To.AUTHORITIES)], [T.Key.EQUIP_DISCARD, _discard.bind(t, tape)]]:
+				var btn := Button.new()
+				btn.theme_type_variation = &"InkButton"
+				btn.text = T.text(b[0])
+				btn.pressed.connect(b[1])
+				btn.visible = b[0] != T.Key.TAPE_TO_SEBASTIAO or _desk.tapes.sebastiao_asked()   # (escondido: os índices ficam)
+				row.add_child(btn)
+		else:
+			var l := Label.new()
+			l.theme_type_variation = &"InkLabel"
+			l.text = T.text(T.Key.TAPE_FOR_SEBASTIAO if t.to == Tape.To.SEBASTIAO else T.Key.TAPE_FOR_AUTHORITIES)
+			row.add_child(l)
 		_rows.add_child(row)
 	reset_size()
 	var pile: Rect2 = _desk.main.background.prop_rect(Background.TAPES_ID)
 	var vp := get_viewport_rect().size
 	position = Vector2(clampf(pile.get_center().x - size.x / 2.0, 4.0, vp.x - size.x - 4.0), maxf(pile.position.y - size.y - 6.0, 4.0)).round()
+
+
+## Embrulha a fita `t` para `to`: o papel se refaz com o pacote no lugar dela.
+func _give(t: Tape, to: Tape.To) -> void:
+	_desk.tapes.give(t, to)
+	Sfx.play_at("page", _sx())
+	_fill()
 
 
 func _discard(t: Tape, tape: Control) -> void:
@@ -98,6 +116,9 @@ func _fall(t: Tape, from: Vector2) -> void:
 
 ## A fita `t` deitada em `n`, com a etiqueta.
 func _draw_tape(n: Control, t: Tape) -> void:
+	if t.to != Tape.To.NONE:
+		Cassette.parcel(n, Vector2.ZERO, t.to)
+		return
 	Cassette.lying(n, Vector2.ZERO, Cassette.label_of(t.call) if t.call != null else "", t.hour, t.words.size(), t.call != null and not t.marked)
 
 

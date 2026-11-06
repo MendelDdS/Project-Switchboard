@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="TransferCall" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/transfer_call.gd" id="1_story"]
+
+[resource]
+script = ExtResource("1_story")
+group = 2
+voice = "f"
+caller = "Senhora"
+opening = PackedStringArray("Pelo amor de Deus, o Cine Odeon! Minha filha foi à sessão das sete e disseram que explodiu uma bomba perto da praça!")
+repeat = "O cinema, o Odeon! Rápido!"
+target = "344"
+destination = "Cine Odeon"
+thanks = "Obrigada, minha filha. Deus te pague."
+caller_name = "Neusa Prado"
+name_line = "Neusa Prado. Rápido, por favor!"
+overheard = PackedStringArray("Alô, o cinema? A minha filha está aí, a [person:Lúcia]!", "Calma, senhora. A sessão parou, mas ninguém se machucou aqui.", "E a bomba?", "Foi na [street:Rua do Comércio], no Centro. Aqui só tremeu o vidro.", "Graças a Deus. Diz pra ela vir direto pra casa.")

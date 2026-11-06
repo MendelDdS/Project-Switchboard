@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="TransferCall" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/transfer_call.gd" id="1_story"]
+
+[resource]
+script = ExtResource("1_story")
+group = 2
+voice = "m"
+caller = "Rapaz"
+opening = PackedStringArray("O Bar do Zé, por favor.")
+repeat = "O bar. O do Zé."
+target = "327"
+destination = "Bar do Zé"
+thanks = "Valeu."
+caller_name = "Davi Correia"
+name_line = "Davi Correia."
+wary = 1.2
+suspicious = true
+overheard = PackedStringArray("Zé? É o Davi. Tudo certo pra amanhã?", "Fala baixo, rapaz. Tem gente ouvindo tudo.", "Só quero saber se o [other:material] chegou.", "Chegou. Está no fundo, embaixo das caixas de [other:cerveja].", "E a gente se encontra onde?", "Na [street:Rua das Acácias], às [time:oito]. Agora desliga.")

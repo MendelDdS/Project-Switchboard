@@ -32,7 +32,6 @@ var dest_nums: Array = []      # destinos em serviço (dos setores atendidos)
 var _blocks := {}              # setor -> retângulo do bloco
 var _order: Array = []         # ordem de desenho das pontas: a mexida por último fica por cima
 var info_lines: PackedStringArray = []
-var info_ghost := false
 var info_line := -1
 var info_until := 0
 var _press_pos := Vector2.ZERO
@@ -362,11 +361,10 @@ func go_home(e: int) -> void:
 		end_changed.emit(e, -1, prev)
 
 
-func show_info(text_lines: PackedStringArray, ghost: bool, line: int) -> void:
+func show_info(text_lines: PackedStringArray, line: int) -> void:
 	info_lines = text_lines
-	info_ghost = ghost
 	info_line = line
-	info_until = PixelArt.ms() + (7000 if ghost else 2600)
+	info_until = PixelArt.ms() + 2600
 
 
 func _gui_input(e: InputEvent) -> void:
@@ -864,7 +862,7 @@ func _draw() -> void:
 				Pal.NUMBER_PAINT if exchange.dest(d) == Exchange.Dest.FREE else Pal.TEXT)
 
 	_draw_legend()   # na faixa do alto
-	_draw_badge(Vector2((FRAME + trunks.position.x) / 2.0, trunks.position.y + 4.0))
+	_draw_badge(Vector2((FRAME + trunks.position.x) / 2.0, trunks.get_center().y))   # no meio do vão; os plugs guardados ficam na frente
 
 
 ## As lâmpadas das linhas (com a luz delas no aro da entrada) e o aro aceso dos destinos. As luzes vão para o `Bloom`,
@@ -999,11 +997,10 @@ func _draw_cords() -> void:
 		var bh := 8.0 + info_lines.size() * 14.0
 		var bx := clampf(jr.get_center().x - bw / 2, 6, size.x - bw - 6)
 		var by := minf(jr.end.y + 6, size.y - bh - 6)
-		var bc := Pal.GHOST if info_ghost else Pal.BRASS
-		_cords.draw_rect(Rect2(bx, by, bw, bh), bc)
+		_cords.draw_rect(Rect2(bx, by, bw, bh), Pal.BRASS)
 		_cords.draw_rect(Rect2(bx + 2, by + 2, bw - 4, bh - 4), Pal.BALLOON)
 		for k in info_lines.size():
-			_cords.draw_string(Pal.mono, Vector2(bx + 7, by + 14 + k * 14), info_lines[k], HORIZONTAL_ALIGNMENT_LEFT, -1, 11, Pal.GHOST if info_ghost else Pal.TEXT)
+			_cords.draw_string(Pal.mono, Vector2(bx + 7, by + 14 + k * 14), info_lines[k], HORIZONTAL_ALIGNMENT_LEFT, -1, 11, Pal.TEXT)
 	_ci = self
 
 

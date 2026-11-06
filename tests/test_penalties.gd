@@ -212,7 +212,7 @@ func _initialize() -> void:
 	_clear_board()
 
 	# ---- 7. informação errada: advertência leve e a pessoa liga de novo
-	var c7 := PhoneCall.info("f", "Moça", "Qual é o número do Hotel Estrela?", "o Hotel Estrela", "305")
+	var c7 := PhoneCall.info("f", "Moça", "Qual é o número do Hotel Serena?", "o Hotel Serena", "305")
 	m.ring(c7)
 	_answer(c7)
 	ok(await wait_until(func(): return c7.phase == PhoneCall.Phase.INFO and not c7.talking), "pedido de informação")
@@ -442,7 +442,6 @@ func _initialize() -> void:
 	m.sched.clear()
 	m.notebook.reset()
 	var awaiting := func(c: PhoneCall): return c.phase == PhoneCall.Phase.AWAIT and not c.talking
-	m.after = true
 	m.minutes = m.last_call - 1.0
 	m.running = true
 	await frames(2)

@@ -2,6 +2,8 @@
 
 [ext_resource type="Script" path="res://scripts/data/directory_entry.gd" id="1_entry"]
 [ext_resource type="Script" path="res://scripts/data/motive.gd" id="2_motive"]
+[ext_resource type="Script" path="res://scripts/data/chat_topic.gd" id="8_chat"]
+[ext_resource type="Script" path="res://scripts/data/chat_reply.gd" id="9_reply"]
 
 [sub_resource type="Resource" id="Motive_01"]
 script = ExtResource("2_motive")
@@ -12,6 +14,38 @@ talks = Array[PackedStringArray]([PackedStringArray("Boa noite. Ainda dá pra co
 script = ExtResource("2_motive")
 text = "Quero saber se amanhã chega querosene."
 talks = Array[PackedStringArray]([PackedStringArray("Boa noite. O querosene chega amanhã?", "O caminhão vem amanhã cedo, se a estrada deixar.", "Então separa cinco litros pra mim?", "Separo. Passa depois das {hour}, que até lá já descarregou.", "Levo o galão vazio. Quanto está o litro?", "Subiu um pouco. Amanhã eu te digo o preço certo."), PackedStringArray("Boa noite. O querosene já acabou aí?", "Acabou hoje à tarde. Chega mais amanhã, no caminhão.", "Que horas o caminhão costuma chegar?", "Lá pelas {dawn} da manhã. Ele sai da capital de madrugada.", "Então eu passo cedo, antes de ir pro serviço.", "Vem, que eu guardo um galão no seu nome.")])
+
+[sub_resource type="Resource" id="Dial_0_0"]
+script = ExtResource("9_reply")
+text = "Amanhã chega querosene?"
+follow = "Se o caminhão passar pela barreira da estrada, chega."
+
+[sub_resource type="Resource" id="Dial_0_1"]
+script = ExtResource("9_reply")
+text = "Até que horas vocês ficam abertos?"
+follow = "Até as oito. Depois, só o Joaquim, se ele quiser abrir."
+
+[sub_resource type="Resource" id="Dial_0"]
+script = ExtResource("8_chat")
+requires = PackedStringArray("!fita_armas_entregue")
+line = "Armazém Ferreira. Já fechamos, mas pode falar."
+replies = Array[ExtResource("9_reply")]([SubResource("Dial_0_0"), SubResource("Dial_0_1")])
+
+[sub_resource type="Resource" id="Dial_1_0"]
+script = ExtResource("9_reply")
+text = "Aqui é a telefonista da central."
+follow = "Telefonista? Então a senhora sabe que é tarde. Boa noite."
+
+[sub_resource type="Resource" id="Dial_1_1"]
+script = ExtResource("9_reply")
+text = "Desculpe, foi engano."
+follow = "Engano a essa hora... Boa noite, então."
+
+[sub_resource type="Resource" id="Dial_1"]
+script = ExtResource("8_chat")
+requires = PackedStringArray("!fita_armas_entregue")
+line = "Ferreira. Quem fala?"
+replies = Array[ExtResource("9_reply")]([SubResource("Dial_1_0"), SubResource("Dial_1_1")])
 
 [resource]
 script = ExtResource("1_entry")
@@ -24,3 +58,5 @@ hello = "Armazém Ferreira, boa noite."
 category = "mercearia"
 spoken = "o Armazém Ferreira"
 motives = Array[ExtResource("2_motive")]([SubResource("Motive_01"), SubResource("Motive_02")])
+answers = Array[ExtResource("8_chat")]([SubResource("Dial_0"), SubResource("Dial_1")])
+closes = 240.0

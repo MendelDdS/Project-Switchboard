@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="TransferCall" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/transfer_call.gd" id="1_call"]
+
+[resource]
+script = ExtResource("1_call")
+voice = "f"
+caller = "Dona Zulmira"
+caller_name = "Zulmira Bastos"
+opening = PackedStringArray("Boa noite, moça. A Casa Paroquial, por caridade.", "Levaram os meus netos.")
+repeat = "A casa do padre, minha filha."
+target = "120"
+destination = "Casa Paroquial"
+thanks = "Deus lhe pague, moça."
+overheard = PackedStringArray("Padre, é a Zulmira. Levaram minha filha e os dois meninos.", "Eu soube, Zulmira. Estou rezando por vocês.", "Reza não basta, padre. Pra onde levam criança?", "Dizem que para o abrigo do Estado, na Capital.", "Eu tenho a certidão deles. Eu sou a avó!", "Venha amanhã cedo. Eu escrevo ao bispo.")

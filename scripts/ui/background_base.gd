@@ -60,6 +60,7 @@ var weather := "rain"
 var clears_at := INF   ## a hora (minutos do dia) em que a chuva para na noite (`Night.clears_at`; o Main atualiza)
 var _moon_x0 := 0.5   # onde a lua nasce: o x da igreja em fração do vidro (a vista atualiza ao desenhar)
 var night := 1   ## a noite do jogo (o Main atualiza): a data da folhinha na parede e a fase da lua
+var sign_from := 0.0   ## desde quando o letreiro do hotel acende (min do dia; o Main: apagado na última noite, aceso às 2h com o golpe vencido)
 var minutes := 18 * 60.0:   ## a hora do jogo (minutos do dia; o Main atualiza): o relógio de flip da mesa
 	set(v):
 		if int(v) != int(minutes):   # a plaqueta vira
@@ -185,7 +186,7 @@ func _moon_light() -> float:
 
 ## O letreiro aceso: quase sempre; de vez em quando apaga um instante, como neon velho.
 func _sign_on() -> bool:
-	return minutes < STREET_OFF and not (int(PixelArt.ms() / 110.0) % 97 in [40, 42, 43, 71])
+	return minutes >= sign_from and minutes < STREET_OFF and not (int(PixelArt.ms() / 110.0) % 97 in [40, 42, 43, 71])
 
 
 ## A letra do letreiro que falha (`SIGN_BUZZ`) acesa: com ele aceso (`_sign_on`), ela falha sozinha, em rajadas.

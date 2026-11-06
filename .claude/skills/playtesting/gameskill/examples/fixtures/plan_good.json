@@ -1,0 +1,9 @@
+{
+  "cohorts": ["FTUE", "Core", "Hardcore"],
+  "silent_observer": true,
+  "telemetry_events": ["death", "dwell", "resource_bank", "quit"],
+  "debrief_questions": [
+    {"text": "Walk me through how you decided where to go in the night garden.", "leading": false, "open_ended": true},
+    {"text": "What was your goal when you reached the lantern gate?", "leading": false, "open_ended": true}
+  ]
+}

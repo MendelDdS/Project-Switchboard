@@ -1,0 +1,29 @@
+[gd_resource type="Resource" script_class="EmergencyCall" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/emergency_call.gd" id="1_em"]
+[ext_resource type="Script" path="res://scripts/data/emergency_case.gd" id="2_case"]
+
+[resource]
+script = ExtResource("1_em")
+voice = "f"
+caller = "Senhora"
+opening = "Central! Um carro passou por cima de um rapaz do protesto e nem parou!"
+questions = PackedStringArray("Qual é o endereço?", "Como ele está?", "A rua está livre?")
+answers = PackedStringArray("Avenida Brasil, 80, perto da padaria!", "Tá no chão, com a perna torta, chorando de dor!", "Livre nada! A avenida tá fechada com pedra, e tem gente correndo pra todo lado!")
+street = "brasil"
+block = 0
+address = "Avenida Brasil, 80"
+occurrence = "Acidente de trânsito"
+units = PackedStringArray("amb", "pol")
+after = "Graças a Deus. Vou ficar aqui com ele."
+stage_sec = Vector3(45, 18, 18)
+worsening = "Ele tá vomitando, moça! Bateu a cabeça também!"
+worsening_question = "Ele está acordado?"
+worsening_answer = "Tá, mas não sabe nem o próprio nome!"
+critical = "Começaram a jogar pedra de novo! Acertaram um senhor na cabeça!"
+critical_units = PackedStringArray("amb")
+critical_question = "Onde está o senhor?"
+critical_answer = "Caído aqui do lado, sangrando na testa!"
+lost = "O rapaz desmaiou... ninguém veio."
+lost_answer = "Desmaiou! Não acorda!"
+lost_units = PackedStringArray("amb")

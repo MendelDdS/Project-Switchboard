@@ -1,0 +1,66 @@
+[gd_resource type="Resource" script_class="PrankCall" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/prank_call.gd" id="1_call"]
+[ext_resource type="Script" path="res://scripts/data/prank_step.gd" id="2_step"]
+
+[sub_resource type="Resource" id="Step_00"]
+script = ExtResource("2_step")
+text = "Maria? É o Miguel. Já tô em casa. De muleta!"
+requires = PackedStringArray("miguel_maria")
+
+[sub_resource type="Resource" id="Step_01"]
+script = ExtResource("2_step")
+text = "Moça da central? É o Miguel. Já tô em casa. De muleta!"
+requires = PackedStringArray("!miguel_maria")
+
+[sub_resource type="Resource" id="Step_02"]
+script = ExtResource("2_step")
+text = "A mãe disse que agora eu vou me cuidar. Eu prometi. Juro que prometi."
+requires = PackedStringArray("!fita_grupo_c_entregue")
+
+[sub_resource type="Resource" id="Step_03"]
+script = ExtResource("2_step")
+kind = 1
+options = PackedStringArray("Cumpre a promessa, hein?", "Que bom, Miguel.")
+requires = PackedStringArray("!fita_grupo_c_entregue")
+
+[sub_resource type="Resource" id="Step_04"]
+script = ExtResource("2_step")
+text = "Cumpro. Boa noite!"
+requires = PackedStringArray("!fita_grupo_c_entregue")
+
+[sub_resource type="Resource" id="Step_05"]
+script = ExtResource("2_step")
+text = "Mas o meu irmão não voltou pra casa. A polícia levou ele. Faz uma semana."
+requires = PackedStringArray("fita_grupo_c_entregue")
+
+[sub_resource type="Resource" id="Step_06"]
+script = ExtResource("2_step")
+text = "A mãe chora a noite inteira. Você fala com a cidade toda... Sabe de alguma coisa?"
+requires = PackedStringArray("fita_grupo_c_entregue")
+
+[sub_resource type="Resource" id="Step_07"]
+script = ExtResource("2_step")
+kind = 1
+options = PackedStringArray("Não sei, Miguel. Mas vou ficar de ouvido.", "Eu sinto muito.", "[Ficar em silêncio]")
+requires = PackedStringArray("fita_grupo_c_entregue", "miguel_amigo")
+
+[sub_resource type="Resource" id="Step_08"]
+script = ExtResource("2_step")
+text = "Se souber, me conta? Promete?"
+requires = PackedStringArray("fita_grupo_c_entregue", "miguel_amigo")
+
+[sub_resource type="Resource" id="Step_09"]
+script = ExtResource("2_step")
+text = "Ninguém sabe de nada. Tchau."
+requires = PackedStringArray("fita_grupo_c_entregue", "!miguel_amigo")
+
+[sub_resource type="Resource" id="Step_10"]
+script = ExtResource("2_step")
+kind = 3
+
+[resource]
+script = ExtResource("1_call")
+voice = "k"
+caller = "Menino"
+steps = Array[ExtResource("2_step")]([SubResource("Step_00"), SubResource("Step_01"), SubResource("Step_02"), SubResource("Step_03"), SubResource("Step_04"), SubResource("Step_05"), SubResource("Step_06"), SubResource("Step_07"), SubResource("Step_08"), SubResource("Step_09"), SubResource("Step_10")])

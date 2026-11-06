@@ -88,3 +88,40 @@ Sem build: só a tag no código (o commit dela) · os executáveis saem quando a
 - Recomeçar pelo clique tirava a cena do meio do evento.
 - O título e o texto das telas finais pulavam quando o botão aparecia.
 - Letras encostando na moldura da placa do fabricante e nomes encostando no mapa.
+
+## v0.7.0-alpha — 29/10/2026
+
+Sem build: só a tag no código (commit `75e5e16`; a entrada foi escrita depois, junto com a 0.8.0)
+
+### Novidades
+- Burocracias: normas que o operador pode descumprir (identificação, números bloqueados com o sinal secreto de
+  estalos, código de autorização, fitas gravadas), com a coluna do gravador, o porta-fitas e a pilha na mesa.
+- A mesa comutadora retrofuturista: gabinete creme esmaltado, painel verde-oliva, chaves de escuta com volume, plugs
+  como tubos 3D e cordões que contornam os plugs encaixados.
+- Broches como recompensa, numa almofada na prateleira da mesa.
+- O save com versão e gravação segura; um save ilegível fica guardado ao lado.
+
+### Correções
+- Beiras da pixel art limpas (cordões, persiana, bloco de fichas) e fios presos debaixo de cordões esticados.
+
+## v0.8.0-alpha — 02/11/2026
+
+Commit `5df0f75` · macOS, Windows e Linux
+
+### Novidades
+- O roteiro de Maria nas noites 1 a 15: Sebastião, o bar, a TV e a rádio, as autoridades, as fitas, a Cecília, e
+  três finais (sucesso, com a vitória amarga no epílogo, fracasso e presa), com o epílogo jogável na noite 16, "Fim"
+  e os créditos.
+- Duas histórias paralelas: os trotes e as conversas de Miguel, e Otávio e Generosa.
+- O discador: o operador liga pelo próprio fone para os lugares e as outras centrais.
+- Tela inicial com a mesa de perto e o menu (Carregar, Novo jogo, Configurações, Sair).
+- A carta da noite, lacrada em cima do jornal.
+- Cenas na rua: o policial na noite 3, a viatura no hotel, o vigia no terraço, o toque de recolher com o holofote,
+  pichação, carro de som, panfletos, a batida no hotel, a fuga da família, a pedra que trinca a janela, o homem de
+  sobretudo, o sinalizador vermelho, o incêndio e o combate atrás da igreja, a bandeira na varanda.
+- Pedestres com passo articulado; quem está dentro, contra a luz, desenhado com roupa e rosto.
+- Rua molhada que espelha as vitrines e o letreiro na chuva; as portas do hotel e da varanda abrem.
+
+### Correções
+- Continuidade do roteiro: calendário, convites e falas que valem em todos os caminhos.
+- A sombra do painel na prateleira e o discador da prateleira.

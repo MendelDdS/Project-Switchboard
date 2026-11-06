@@ -3038,3 +3038,419 @@ Chaves:
     cair": o trincado ~1,5× maior (11 riscos, 4 arcos, o miolo maior, `ART`, `RAY_LEN`, `RINGS`), a batida mais forte
     (`glass_hit` a 0 dB, com mais grave; o chocalho também) e, depois da batida, a pedra quica um pouco para cima, se
     afasta (encolhe) e cai até sumir no pé do vidro em 0,7 s (`BOUNCE`, `FALL`, `DROP`, `Stone.END`), atrás do trincado.
+503. #roteiro "Vamos criar uma branch a partir da develop e agora de fato implementar o roteiro" (o documento
+    "Roteiro — Planejamento dia a dia (Maria, a telefonista)"): primeiro o motor, em passos, com as dúvidas tiradas
+    antes de cada um (`PLANO_ROTEIRO.md`). Passo 1: o desfecho das ligações do roteiro liga marcadores
+    (`StoryCall.if_connected`, `if_elsewhere`, `if_dropped`, `if_missed`) e o retorno automático pode sair (`again`),
+    para as tentativas do Dia 2 e as escolhas de transferir ou não.
+    Passo 2: as burocracias valem pelas noites do roteiro, não só pelo debug (B1 da 3; B2 com o Bar do Zé, 327, na 5 e
+    na 6; B4 da 7), continuam até a 15, mas na última noite nenhuma advertência conta ("como a noite 15 é a última,
+    não tem motivo pra contabilizar advertência"); pedido das autoridades (`StoryCall.authority`) sem advertência; o
+    acordo do Dia 6 com os estalos; só as ligações do roteiro marcadas para gravar; a demissão continua; o robô do
+    turno cumpre as regras; save na versão 2 (as regras ligadas pelo debug nos saves antigos não valem).
+    Passo 2, pendências: o código de autorização (B3) vai valer para a delegacia, o hospital e a Alta Cúpula (que
+    deixa de ser um tronco e vira um número do setor 2; falta onde ficam na mesa); 40% das ligações comuns sem fala do
+    nome só dizem quando a Maria pede ("algumas pessoas já pedem para transferir para um local sem dizer o nome, aí
+    precisa cobrar"; `rule_identification.ask_share`, `GameContent.name_lines`).
+    Passo 3: "precisamos implementar um fator sucesso bem definido e testado para cada situação, conquistas da emissora
+    de TV, rádio e final do jogo" (`scripts/model/rebellion.gd`, `tests/test_story.gd`); a batida no hotel (13) "só
+    acontece dependendo das falhas do jogador" (uma fita do hotel na polícia); a pedra (14) só sem chances altas; o
+    sinalizador da 15 sempre ("mesmo se o jogador não tiver conhecimento disso"); o homem de sobretudo sempre; no
+    fracasso, o turno acaba à meia-noite e "vai direto pra tela do final" (a tela vem no passo 7).
+    Passo 3, respostas: a delegacia, o hospital e a Alta Cúpula na mesa trocando contatos ("Vamos trocar como você
+    sugeriu"): o 184 (Ivo Teixeira) vira a Delegacia de Polícia, plantão; o 296 (Rosa Lima) vira a Alta Cúpula; o
+    hospital é a Clínica São Lucas (213), que já tinha tomada; saem as duas ligações para os contatos que sumiram. A
+    B3 vale da noite 10 para esses três, com o código da noite no bilhete do supervisor. O setor 2 fica na noite 9
+    ("mantenha na noite 9"); a batida da noite 13 passa para as 21h ("Pode passar a batida pras 21h"); a carta de
+    Sebastião (Dia 11) "aparece como um papel, para o jogador abrir a qualquer momento".
+    Mais respostas: o epílogo é uma noite jogável; "todas as cartas ficam na mesa", desde o começo do turno ("não faz o
+    menor sentido ela aparecer do nada"), com um aviso de que há carta: envelope lacrado em cima do jornal, o lacre
+    vermelho e a dica do começo; aberta, volta sem o lacre (`Night.letters`, `Tools.LETTER`). A carta de Sebastião do
+    Dia 11 em duas versões (amiga com chances altas; ameaça, com o nome do pai, Cristóvão, nas outras). A clínica vira
+    o Hospital São Lucas. A Cecília tem o número 002 e os números dos setores (001, 002, 003) vão no rodapé da lista;
+    a TV fica no lugar do Geraldo Martins (155). As falas do roteiro: "Pode escrever" (só alguns do setor 3, que
+    conhecem a Maria, a chamam pelo nome); a ligação desconhecida sai; o hotel da história passa a ser o Hotel Serena
+    (o do neon) nos textos; a senha do Dia 4 vale das 20:30 às 21h; "avisar o bar" é o do Dia 7 (no 6, Sebastião pede
+    que toda ligação do bar vá para o hotel); fita: pelo menos uma entregue às autoridades nas noites com ligação para
+    o bar (pode ser de conversa sem informação, para despistar; sem nenhuma, advertência leve), e a fita gravada na
+    mesa tem duas saídas, dar para Sebastião (pacote branco de carta) ou para as autoridades (pacote amarelo com um
+    risco azul vertical), resolvidas antes de encerrar o turno; obedecer às autoridades é transferir (transferir e
+    desligar antes do fim da conversa é desobedecer); o encontro com Sebastião num texto na tela preta; dos finais
+    sugeridos, só a vitória amarga e a presa.
+    Depois: "Uma fita dada a Sebastião e nenhuma às autoridades não livra da advertência"; a telefonista do 001 é a
+    Morgana, séria e comportada (para não levantar suspeita de que também ajuda os rebeldes); a Cecília larga o setor
+    no Dia 8 e liga de outro lugar no Dia 10, e o setor passa à Maria no 9 (ela não liga no Dia 8); a TV é a TV Orbital
+    (155, no lugar do Geraldo Martins); Miguel e Generosa virão depois, sem mexer no roteiro principal. "A cera que
+    sela a carta está estranha, não tá esticada": o lacre passou a ser desenhado na tela, deitado
+    (`_envelope_seal`). Passo 5: as centrais pelo discador e no rodapé da lista.
+    "Commit e siga com o próximo": commit dos passos 1–5 e o passo 6, as fitas (os dois pacotes na pilha da mesa, o
+    turno esperando as sem destino, a fita mínima às autoridades nas noites com ligação para o bar e o bilhete da noite 7).
+    "Dar a Sebastião só aparece quando houver a ligação dele": o botão da pilha só na noite em que ele pediu (o
+    marcador `sebastiao_pediu_fita_<noite>`, que a ligação dele liga, `Tapes.ASKED`). Passo 7: obedecer é transferir e
+    deixar a conversa acabar (o desfecho da conectada espera o fim; cortada antes vale `if_dropped`); a ligação
+    desconhecida saiu inteira ("se você tiver falando da ligação do desconhecido que acontecia nas primeiras versões do
+    jogo, sim sai"): as falas das noites 1 e 2, a hora dela na agenda, ligar de volta, o silêncio da noite antes dela,
+    o homem do poste chamado por ela (fica para o passo 8), o estilo "fantasma" da conversa e os dois detalhes da sala
+    que dependiam dela (o número anotado, o armário entreaberto; o desenho ficou). A senha do Dia 4 voltou como
+    pergunta ("a senha só vale por trinta minutos? Como assim?").
+    "Não deixou claro que senha seria [...] das 20:30 às 21h mesmo": a senha do Dia 4 é a ligação pelo discador ao
+    hotel (305) dizendo "A semente brotou", que só conta das 20:30 às 21h (`DialCall`). "Se o jogador der uma fita com
+    gravação de conversa com autoridades para elas mesma, sofre punição gravíssima." "A condição da bandeira na
+    varanda é um evento que acontece somente se o golpe foi sucesso": passo 8, o homem de sobretudo nas noites 13 e
+    14 (22h–23h) e a bandeira da meia-noite da 15 com `golpe_venceu`. "Como eu já tinha falado e especificado antes,
+    as animações e detalhes dos eventos precisam ser bons": a primeira bandeira (silhueta andando, um retângulo
+    descendo) foi refeita na regra do `PLANO_RUA.md` (o rig com o rolo, poses suavizadas, o pano quicando e assentando,
+    pregas no vento, a luz do poste, a chuva, o som), e o homem de sobretudo passou a fumar.
+    "A bandeira será preta com símbolo amarelo no centro [...] coloque apenas um círculo"; o homem de sobretudo sai
+    antes da pedra (fica até 22h50); "por que não dá pra colocar detalhes? Na prática, ele está na mesma distância das
+    pessoas que andam na rua": quem estende a bandeira ganhou a cor da roupa (jaqueta de couro aberta, camisa, boina),
+    só um pouco de contraluz, no detalhe de quem passa na calçada de lá. "Pode continuar com o passo 9."
+    Passo 9, os finais: `Rebellion.final` (sucesso; vitória amarga com fita custosa ou a paróquia esquecida; fracasso;
+    presa, o golpe falhou e ela desobedeceu alguma vez), o texto do fim na tela (`Night.endings`, `Ending.play`, "Fim" e
+    voltar ao menu), a noite 16 como epílogo jogável fora das 15 (`GameContent.epilogue`, a carta do supervisor no
+    fracasso), as ligações do roteiro depois das 23:40 (`Main._story_late`). Na presa, a cúpula liga à meia-noite e,
+    no lugar do relatório, a cena `Arrest`: o homem de sobretudo fuma embaixo do poste, pisa no cigarro e atravessa.
+    "Para o final “presa” seria interessante uma viatura parar em frente ao prédio, do lado de cá e descer dois
+    policiais": a viatura para na mão de cá, em frente ao prédio, com a sirene girando; os dois descem pelo lado da rua
+    (o do banco de trás e o motorista: o lado de cá dela fica embaixo do peitoril), dão a volta pela traseira e somem
+    atrás do arbusto, e o homem vai atrás deles.
+    Respostas do passo 9: Miguel e Generosa ficam para depois; o Otávio do epílogo é o Otávio Almeida (251); a mãe
+    da Cecília liga no epílogo em todos os finais, com a conversa de cada um: no fracasso, "muito triste por Maria não
+    ter colaborado e a morte da filha foi em vão"; no sucesso, "o quanto ela admira Maria e está orgulhosa dela, que o
+    pai estaria feliz (pense em uma conversa mais emocionante)"; na amarga, agradece sem saber o preço. A presa
+    (sugestão aceita a pedido, "o que você sugere?"): o golpe falhou e ela cortou mais pedidos das autoridades nas
+    noites 14 e 15 do que atendeu. "Não tem relatório, já falei isso. Após o epílogo seriam os créditos": o fim do
+    jogo (epílogo ou presa) não mostra relatório, e depois do fecho vêm os créditos. As conversas do roteiro entram no
+    caderno como ligação comum ("não tem motivo de criar um tipo novo").
+    Passo 10, as falas ("pode escrever as falas e depois eu vou testar"). Dia 14: as autoridades pedem gravar as
+    conversas suspeitas do bar e do hotel e não transferir para a rádio e a TV; os rebeldes, gravar as conversas das
+    autoridades e mandar a Sebastião (a polícia fala das suspeitas e do cerco ao aeroporto e à ferrovia, e de fechar o
+    hotel e o bar, "então nesse dia o hotel estará com as luzes das janelas apagadas"; a Cúpula, de levar o líder
+    político ao setor 1 e tirá-lo de avião, e de estar perto do paradeiro do comandante). Dia 15: as autoridades,
+    rádio e TV bloqueadas "sujeito a prisão", denunciar na delegacia quem ligar para o bar ou o hotel, transferir
+    tudo para a delegacia e a Cúpula (ligações estratégicas: o grupo avança por tal rua, mandem viaturas); os
+    rebeldes, não transferir nenhuma ligação das autoridades, no sinal das 21h ligar para os 2 setores dizendo que
+    começou e às 22h pedir uma música à rádio (instrução da carta). "As ligações sem informações são as comuns" (as
+    duas do bar nas noites 7 e 8 não pedem nada novo); a reação sem o código da B3 já existe ("Não posso transferir sem
+    uma autorização"). Feito: o hotel 305 passa a se chamar Hotel Serena na lista também; "os 2 setores" são a Casa
+    Paroquial (120, Centro) e o Armazém Ferreira (288, Alto da Serra, o do comandante); a música é a "Canção da
+    Madrugada"; cada ordem de Sebastião não cumprida é um vacilo (`Rebellion.ORDERS`); à meia-noite da 15, o bar
+    pelo discador dá a mensagem de liberdade (do documento).
+504. #vista #rua "O homem de sobretudo está na frente do poste e parece estar flutuando, os detalhes dele também estão
+    ruins, ele está todo preto e deveria ser uma pessoa normal com sobretudo e chapéu preto, mas precisa ter rosto
+    como os pedestres"; depois, "A roupa precisa ser preta, na imagem está marrom". Ele passa a ser o rig de quem passa
+    (o mesmo da presa, `Arrest.COAT`), no tamanho dos pedestres, com os pés no chão, ao lado do poste da esquina
+    (`MAN_X` 7,4, e `Arrest.POST`), sem o contorno aceso (estreito, pegava o corpo todo e ficava marrom) e com o
+    sobretudo e o chapéu pretos (`Pal.STRANGER`, mais escuro também na presa).
+505. #vista #roteiro "O neon apaga no dia 15, mas às 2h da manhã ele acende se o golpe deu certo." O letreiro do hotel
+    fica apagado a última noite inteira (`Background.sign_from`, posto no `Main._load_night`) e volta às 2h com o golpe
+    vencido (`Main.SIGN_BACK`, no `_midnight`).
+506. #roteiro "Prossiga implementando as falas dos dias restantes." As ligações do roteiro das noites 1 a 13, fiéis ao
+    documento: o homem sério e o bar (1; 2 em três tentativas, `bar_2`); a Cecília e o bar pelo discador com a senha
+    (3, `sabe_senha_3`; sem ela, o hotel do Dia 4 não oferece a senha); a denúncia na delegacia pelo discador e a cidade
+    em pânico (4; a ligação do roteiro no discador atende fora dos setores); o nome dele, a história dos pais e a TV no
+    jornal (5); o acordo do bar para o hotel com os estalos (6); avisar o bar e as três conversas gravadas (7); o
+    hospital, o hotel gravado ou avisado e a volta dele (8); ignorar a delegacia e a Cúpula (9, `cumpriu_9`); a Cecília
+    indo embora e a paróquia (10); a raiva dele com as crianças presas no jornal (11); as fitas das autoridades para
+    ele (12); o bilhete da morte da Cecília (13); a versão dele na 14 (torturada, sem dizer o nome dela). Jornal por
+    marcador nas noites 5, 8, 9, 10 e 11. Traduções en/es.
+507. #roteiro #discador "Um homem atende o setor 1 e uma mulher diferente atende o setor 2 ... Eles deveriam ter sido
+    fechados e equipamentos removidos." A Morgana (001) com voz de mulher (estava com a do homem velho) e a central do
+    Centro fechada da noite 5 em diante, quando o setor passa à Maria (`gone_from`, sem número, como a da Cecília da 9).
+    A Cecília do discador já tem a voz e o tom das outras ligações dela (o tom sai do nome).
+508. #roteiro "As emergências devem ser relacionadas ao ataque dos rebeldes: baleados, atropelados, feridos em brigas,
+    incêndios." Quatro emergências do roteiro no Dia 4 (baleado, atropelado no protesto, bomba na loja, briga com faca)
+    e quatro no Dia 9 (carro em chamas na barricada, tiroteio, atropelada por carro preto, briga pela rádio); elas
+    contam no espaçamento das sorteadas (`Schedule`) e, quatro na noite, tomam o lugar delas.
+509. #roteiro "É interessante rolar uma cobrança." Dia 12, só com `cumpriu_9`: o supervisor liga às 18:05, cobra as
+    ligações das autoridades que não passaram e avisa que vai para a ficha, sem respostas ("essa mecânica não vai dar
+    certo, vai só adicionar mais coisa no jogo": saíram as desculpas e a suspeita propostas). Atendida, cortada ou
+    deixada tocando, advertência média (`ShiftReport` "authority_ignored"; o marcador `advertencia_*`, `StoryFlags.FAULT`,
+    ligado pelo desfecho da ligação).
+510. #roteiro #testes "Depois vamos criar um robô que jogue os vários fluxos da história." `test_shift --path=sucesso|amarga|presa|fracasso`
+    joga um caminho (disca para quem o caminho pede, grava a conversa conectada e entrega a fita, corta ou obedece aos
+    pedidos das autoridades, aceita ou recusa o acordo da B2) e `tools/caminhos.sh` encadeia as noites 1 a 15 de cada um,
+    os marcadores de uma para a outra, conferindo o final. Ele achou dois defeitos: todas as ligações do discador de uma
+    noite davam o mesmo marcador do feito (`DialCall.done_flag`), e a primeira completada calava as outras (na 15, o
+    sinal do Alto da Serra não atendia depois do Centro); e o `advertencia_*` salvo, aplicado ao carregar antes do
+    supervisor existir, derrubava o jogo na noite seguinte à cobrança.
+511. #roteiro #agenda "Enquanto tiver fazendo “missões” da história principal, seria interessante barrar outras ligações
+    aleatórias, justamente para não atrapalhar a jogatina." Missão (`Main.on_mission`): uma ligação do roteiro na mesa
+    (já valia), a conversa dela conectada que o jogador escuta (para ouvir ou gravar) e a ligação do roteiro feita pelo
+    discador. Enquanto dura, nada novo toca; o robô confere.
+512. #balanceamento "Vamos precisar balancear isso." As noites Insuficiente dos caminhos rebeldes eram quase todas do
+    robô (transferia com o nome ainda sendo dito na B1, ignorava o pedido de código da B3, transferia depois de avisar
+    o bloqueio da B2); corrigido, nenhum caminho fica abaixo de Regular. Contradição corrigida: a conversa das próprias
+    autoridades (noite 12) vinha marcada, sem fita era advertência média e entregue a elas gravíssima; agora sem fita
+    não é cobrada.
+511. #roteiro "Adicione isso como uma skill de roteirização do meu jogo." O protocolo de auditoria narrativa (Diretor
+    Narrativo: sete categorias, cinco etapas, gravidades, relatório em formato fixo) virou a skill `auditar-roteiro`,
+    com um cabeçalho dizendo onde está o material do projeto e que as soluções descrevem a mudança sem escrever falas.
+512. #roteiro #saiu "Três finais, não mais que isso" e "Dias 12 e 13 magros". Os finais são três (sucesso, fracasso,
+    presa): a vitória amarga virou variação do sucesso no epílogo (`custou_gente`, `Rebellion.costly`: a mesma condição,
+    muda só quem liga, o jornal e o fecho; `final_amarga` saiu) e a esquecida, nunca feita, seria variação do fracasso.
+    A noite 12 ficou como está (a primeira ordem da carta, gravar para Sebastião, e a cobrança do supervisor), porque o
+    repetido era a 14: Sebastião ali pedia de novo as fitas das autoridades. Saiu da 14 o pedido (as duas falas,
+    `sebastiao_pediu_fita_14`, `cumpriu_fitas_14` e a ordem dela em `Rebellion.ORDERS`). A 13 já era a noite parada.
+513. #roteiro #noites "Use a skill auditar-roteiro para analisar o que foi feito até agora junto com o roteiro; corrija o
+    que já deve ser corrigido e liste dúvidas e próximos passos." Corrigido pela auditoria: o fecho "Amanhece" da 15
+    vazava para a vitória amarga (`!custou_gente`); o calendário das falas pelo do jogo (a noite 1 é segunda, 8/10): a
+    rádio "na noite de terça" (era quinta; a 9 é terça), a encomenda que "chega amanhã" (era segunda, e chegava no
+    domingo), o comandante "até o dia vinte e dois" (era quinze, a data da própria noite 8), a reunião do grupo C "esta
+    noite, às três da madrugada" (era sábado, e a batida saía no jornal de segunda), os jornais de fita entregue "nesta
+    madrugada" (a fita sai no fim do turno) e o recado da 10 sem "quase fim de semana" (é quarta); a Cúpula da 9
+    perguntando da programação da rádio passou das 20:40 para 22:05 (a tomada é às dez); a versão oficial da morte da
+    Cecília no recado da 13 ("mal súbito"), que a 14 desmente; Sebastião na 8 não diz que sumiu para quem perdeu a
+    ligação dele na 5 (`if_missed`); na 14 ele pede uma fita qualquer às autoridades, não a do bar e do hotel (entregá-la
+    é vacilo, e a fala antiga parecia mandar entregar).
+514. #roteiro #noites "Sobre as dúvidas: convite de cada lado (Sebastião deixa claro que qualquer coisa estranha das
+    autoridades é para ligar e avisar o bar ou o hotel; o mesmo para as autoridades); tire o chiado, é antigo; as
+    ligações das autoridades da 14 ficam como clima; o homem de sobretudo confirmado pode ficar." Convites: o recado da
+    4 traz o pedido da delegacia (conversa suspeita, comunique pelo 184; a 15 já pedia); o acordo da 6 termina com
+    Sebastião pedindo para avisar o bar ou o hotel de qualquer coisa estranha das autoridades (o aviso ao bar é na 7);
+    na 8 ele pede o aviso ao hotel antes das nove; a carta da 15 manda ligar para o bar à meia-noite, fora das três
+    ordens (a mensagem de liberdade). Saíram o recado do chiado da 2 (ficou um recado neutro) e a ligação do Seu
+    Ernesto ("uma moça falando na minha linha"), restos da ligação desconhecida. O Armazém Ferreira no ramo da fita
+    das armas fica para versões das ligações, a descrever antes.
+515. #roteiro #noites "Pode escrever essa versão" (o Armazém Ferreira no ramo da fita das armas). Com a fita das armas
+    entregue na 7 (`fita_armas_entregue`), o armazém caiu e o grupo espera na casa do dono, Joaquim Ferreira (291, Rua
+    da Estação): o Lauro ao hotel na 8 (`story_08_hotel_grupos_armas`), o Vilela na 14 ("O do armazém? Esse já foi
+    revistado", `story_14_cupula_comandante_armas`) e na 15 ("Achamos a casa do Ferreira", `story_15_cupula_armazem_armas`),
+    a carta da 15 (`letter_15a`) e o "Começou." pelo discador no 291 (`D_sef`, o mesmo `sinal_serra_15`); as versões
+    comuns pedem `!fita_armas_entregue`. O robô do caminho amargo liga também o 291.
+516. #roteiro #noites "Pode escrever" (os itens 4, 5 e 7 dos próximos passos da auditoria). A denúncia reconhecida:
+    Sebastião na 8 sabe que alguém da mesa falou do bar na delegacia e não cobra (`denunciou_bar_4`); o Vilela na 12
+    lembra que foi ela quem denunciou o bar, e o homem que ligava pelo nome dela (`denunciou_homem_4`, que não era lido),
+    em versões da ligação (`_denuncia`, `_homem`). A frase do Vilela que supunha desobediência ("ligações que caem,
+    fitas que não chegam") virou uma que vale em todo caminho ("metade dos recados deles passa por aquela mesa"). A
+    rádio da 9 nas duas ligações das autoridades (22:05 e 22:30) segue o que já aconteceu na hora: com um pedido das
+    autoridades passado ou a fita da rádio ou a dos grupos na polícia, a tomada caiu (`_caiu`: a viatura pegou os
+    rapazes nos fundos), pelo marcador `tomada_caiu`, que o `Rebellion.sync` liga com a mesma conta da rádio
+    (`takeover_lost`) sem esperar o fim da noite ("aplique tomada_caiu": cobre também as armas e o grupo C com o
+    hospital esquecido ou o hotel avisado). Sebastião na 12 reconhece a carta: "Eu sei o que escrevi: o
+    telefone não é seguro."
+517. #roteiro #rua "Pode passar a batida para mais cedo, umas 20h" (o toque de recolher e a batida no hotel eram os dois
+    às 21h na 13; o toque já vale da 9 à 14). A batida (`raid`) passou para as 20h; a cena esvazia a rua sozinha (sem
+    carro nem gente nova). O Davi da 7 (domingo) pergunta do "jogo de hoje", não "de domingo", e se despede com "até mais tarde".
+518. #roteiro "Pode corrigir" (a revisão de continuidade). O Anselmo traz a encomenda: na 6 se apresenta ao Zé ("Boa
+    noite, seu Zé. É o Anselmo.") e pergunta onde deixa; na 7 diz que ela chegou e está com ele, o Zé manda para o
+    Armazém Ferreira. (As ruas do Vilela na 14 e na 15 e a casa do Ferreira na Rua da Estação, 360, ficaram como
+    estavam: as ruas verticais da Vila Serena seguem pelo Alto da Serra, do 300 em diante; apontei errado.) "Pode sinalizar com o sino e dizer que abre a
+    igreja": a Casa Paroquial da 15 responde "Vou tocar o sino e abrir a igreja." O Zé da meia-noite da 15 diz que
+    fecharam o bar às onze e já voltaram (a polícia fechou; com o golpe vencido, ele voltou). A mãe da Cecília no
+    epílogo não fala mais em "cada fita" (valia também para quem não entregou fita). A conversa do chiado da Cecília
+    (002) saiu ("versão muito antiga"). O Rubens da 15 se apresenta "do posto da rodoviária", como na 14. O recado da
+    6 (sábado) diz "Hoje o Centro tem baile".
+519. #roteiro "No máximo ele pode falar nas conversas que Maria escuta: Aqui é Rubens, que faz ronda no posto da
+    rodoviária" (é policial da ronda da rodoviária; a apresentação no pedido fica igual). Na 14 ele se apresenta assim.
+520. #roteiro "As reuniões não acontecem por telefone, o resultado delas pode aparecer nas transferências" (a reunião
+    marcada no hotel na 6 para o dia seguinte, e a da pensão na 2, acontecem fora da tela). O Lauro da 8 liga para
+    confirmar "os lugares que a gente combinou ontem", a reunião de domingo no hotel.
+521. #clima #vista #luz "Nos dias de chuva, gostaria que você melhorasse os reflexos das luzes, atualmente os reflexos são
+    linhas" e "Quando as pessoas forem entrar e sair dos prédios, que as portas se abrissem". Os reflexos eram riscos
+    de 1 px em linhas soltas; ondulados e animados, "parece que o reflexo está diretamente na água e não numa rua
+    molhada"; retos e manchados, "não tá ficando bom. Faça algo que você sugeriria". Saiu o desenho risco a risco: a
+    rua molhada é uma camada própria (`_wet`, `wet_street.gdshader`, entre a cidade e a frente da vista) que espelha
+    de verdade o que está aceso nas fachadas (vitrines, porta do hotel, janelas do térreo), virado no pé delas,
+    esticado e borrado para baixo no asfalto áspero (manchado) e nítido nas poças, mais escuras, com os pingos abrindo
+    anéis; o chão de cada carro tapa o espelho atrás dele. Postes, letreiro, sirenes e faróis, que ficam na frente da
+    fachada, viram uma faixa lisa nas cores dos vértices que o shader quebra nas manchas do asfalto. De manhã (sereno),
+    só o que brilha mais reflete, fraco, sem poças. As portas: a de vidro do hotel (era só o saguão com um risco no
+    meio) tem duas folhas que abrem para dentro quando alguém chega a ela, de fora ou de dentro (`_door_clip`), e com
+    o porteiro de manhã; a da varanda abre para quem sai para fumar e para quem recolhe a roupa na 14 (`_swing`,
+    `DOOR_SEC`).
+522. #clima #vista #luz "Pode fazer" (os detalhes que eu sugeri para os reflexos). O letreiro do hotel aparece espelhado
+    no asfalto com as letras, de cabeça para baixo, escorridas e quebradas nas manchas, e a letra que falha some junto
+    (`_wet_sign`; antes, uma faixa vermelha lisa); o relâmpago acende o céu espelhado na rua, mais nas poças (`flash`);
+    a face do meio-fio de lá quebra o reflexo e, na rua, um degrau abaixo, ele desce (`curb`, `drop`, `WET_CURB`);
+    respingos de um pixel acendem e somem no asfalto, mais vistos no reflexo claro; poças, anéis e respingos crescem
+    com a força da chuva (`rain_level`: na garoa, a rua só molhada).
+523. #clima #vista #luz "Os reflexos estão meio esfumaçados para dar textura, não seria melhor colocar transições mais
+    rígidas?". O grão do asfalto molhado (`wet_street.gdshader`) passou de manchas que sumiam aos poucos para manchas
+    de beira seca em três níveis (brilha, meio, quase nada), com um grão miúdo recortando as beiras; a beira das poças
+    também ficou seca e o borrão para cima, menor. O sumiço ao longo do reflexo continua liso.
+524. #clima #vista #luz "Faça então" (o que eu sugeri para o grão do reflexo). As manchas do asfalto molhado ficaram
+    no chão de verdade (pela câmera da vista: mais largas que fundas, maiores perto e miúdas lá longe), sem pixel solto
+    (o que difere dos dois vizinhos fica como eles); as poças também no chão, só na rua. A calçada de lá reflete quase
+    inteira, mais lisa que o asfalto, cortada pelas juntas das lajotas (as de `_draw_city_front`, `SLAB`, `seam`).
+525. #clima #vista #luz "Ainda sinto que esses reflexos parecem manchados" / "Pode fazer, quero ver como vai ficar".
+    A causa era o grão em manchas (testado: sem ele, o reflexo limpa). Saíram as manchas: o reflexo no asfalto fica
+    inteiro, esticado para baixo, cortado por quebras de um pixel na horizontal, em trechos, em faixas de 3 px junto
+    do espelho e mais largas para perto de nós (`band`); nunca deslocadas para o lado (pareceria água). As poças e a
+    calçada com as juntas ficam como estavam.
+526. #clima #vista #luz "Você acha que as luzes nos reflexos estão apagadas e sem cor?" / "Faça". Estavam (a vitrine:
+    brilho 0,68 → 0,43 e cor 0,54 → 0,31 no reflexo). O reflexo passou a tomar o lugar do asfalto em vez de somar por
+    cima do azul dele (`cover`), com a cor mais funda que a da luz (`sat`); o borrão para cima guarda metade do mais
+    claro (os caixilhos não apagam o vidro aceso); e o espelho fica inteiro junto do pé das fachadas antes de sumir.
+    Agora: cor 0,59 e brilho 0,60 na vitrine.
+527. #clima #vista #luz "Pode fazer o 1 e o 2" (o que eu sugeri para os reflexos). Quem passa na calçada de lá já tinha
+    o reflexo em preto fraco, que quase não cortava o reflexo claro: agora ele apaga a vitrine espelhada atrás dele
+    (`_wet_shade` guarda as peças e a rua molhada do quadro seguinte as passa ao shader, `_draw_wet_cuts`). O meio-fio
+    de lá deixou de ser uma linha preta: a quina pega a luz das vitrines e a face, um brilho molhado.
+528. #vista #luz #som "No dia 15, eu gostaria de adicionar alguns eventos após as 21h. Às 21:20, uma luz amarela no
+    fundo do cenário e em seguida fumaça surgindo, dando a entender um incêndio; depois, até às 00h, bombas e tiros
+    distantes, seguidos de luzes e até alguns rastros de balas passando por trás da igreja." Feito como cena da rua da
+    noite 15 (`StreetEvent` "battle" às 21:20, em todos os caminhos): `Battle` (tudo do tempo, sem estado) com o clarão
+    do fogo à esquerda da igreja, a fumaça em bolotas subindo acima dos telhados, estouros (clarão grande e fumaça
+    escura) e rajadas (faíscas no horizonte; das mais perto, traçantes riscando o céu por trás da igreja), crescendo e
+    afrouxando em ondas; os sons sintetizados (`blast`, `gunfire`) chegam depois da luz, pela distância. O fogo apaga
+    aos poucos depois da meia-noite. A luz da sala não muda.
+529. #vista "Os rastros de tiros deveriam ser linhas, não?" Eram riscos de 8 px (0,035 s de voo atrás da cabeça):
+    agora uma linha de ~0,2 s de voo, laranja, esmaecendo em quatro pedaços da cabeça quase branca para trás
+    (`Battle.TRACE_TAIL`, `TRACE_FADE`).
+530. #vista #luz "Após 1h da manhã, o fogo pode começar a apagar até finalizar às 4h, porque o amanhecer não precisa
+    mais mostrar incêndio." O fogo fica forte até a 1h (`Battle.DOUSE`) e apaga até as 4h (`EMBERS`, 3 h de jogo);
+    a última fumaça some uns 45 min depois.
+531. #vista "As balas seriam para cima, seguindo uma linha contínua diagonal, não um rastro que esmaece. É uma bala e
+    não míssil." Os traçantes saem de trás dos telhados (h 5–40 m) e sobem retos em diagonal (`Battle.TRACE_V`, sem
+    queda), cada um uma linha laranja inteira de 0,15 s de voo (`TRACE_TAIL`; saiu o esmaecer, `TRACE_FADE`).
+532. #conteudo "Estou com um arquivo com dois roteiros secundários que não impactam na história principal. Vamos
+    implementar." Miguel (trotes na 1 e na 3, conversas na 6, 7, 8, 12 e 14 com versão simpática e seca, a mãe dele na
+    emergência da 9 no lugar da moça atropelada, o epílogo) e Otávio e Generosa (2, 3, 5, 6, 8, 10, 12 e o epílogo;
+    passar o número ou mentir na 3). Respostas: a música deles é outra ("Luar da Serra"); o Otávio mudou para o 361
+    (setor 3, para a Generosa pedir por ele na 8; a Funerária Paz Eterna foi para o 253); os três complementos (o
+    castigo só nas falas da 12, o gesso leva Maria ao hospital no final de sucesso, a linha ocupada no epílogo de
+    fracasso). Motor: `PrankCall.prank`, `StoryCall.if_hung_up`, `TransferCall.busy_line`.
+533. #caderno #objetos #treinamento No tutorial, o carimbo do tipo na ficha saía "LIGAÇ..." (a coluna encolheu na
+    base 960×540): o tipo comum voltou a ser só "Comum" ("Regular", "Común"; o trote em inglês "Prank") e a coluna do
+    tipo alargou (`Notebook.X_PLACE`/`X_STAMP`, as legendas da cena junto) para "Não atendida" e "No contestada"
+    caberem. A Cecília diz que o bloco tem a fita vermelha, mas ela era oliva (item 380) e o bloco parecia branco com
+    uma linhazinha vermelha: a fita da colagem ficou vermelha (`Pal.PAD_TAPE`, na mesa e no papel aberto).
+534. #caderno #objetos As "fitas" da ficha eram as tiras dos registros pendentes saindo do bloco (creme com um
+    tracinho vermelho), não a fita do alto: cada tira agora tem a cor do tipo da ligação que espera registro (azul
+    comum, vermelho emergência, ocre trote, os tons dos carimbos mais claros; `Pal.PENDING`, `Notebook.STRIPS`,
+    `pending_strips`), na mesa e no caderno aberto, sem o tracinho. A fita do alto continua vermelha (item 533).
+535. #conteudo #idiomas Vários textos tratavam a personagem no masculino ("senhor", "moço", "meu filho", "querido"):
+    a telefonista é Maria. As falas dirigidas a ela (pedidos, agradecimentos, conversa fiada, trotes, retornos, o
+    bilhete da 6) passaram ao feminino ("a senhora", "moça", "minha filha", "querida", "atenta"; o prefeito do trote
+    exige "a telefonista"), com en ("miss", "ma'am", "love") e es ("hija", "señorita", "sola", "tranquila"); na
+    interface, "Você foi demitida", "Encerrada pela telefonista" e o "obrigada" do discador; no treinamento, a opção
+    "Obrigado, Cecília!" virou "Valeu, Cecília!". As falas sobre outra pessoa ou para quem atende do outro lado
+    ficaram.
+536. #jornal #noites #conteudo #ritmo Pedido de notas do jogo; o ponto fraco era o miolo das noites 10 a 13 com pouco
+    roteiro (a 11 com 1 ligação, a 13 sem nenhuma) e o peso das escolhas invisível. O usuário quis cada acontecimento
+    grande como manchete principal do jornal, uma notícia nova todo dia: com influência de Maria, a consequência
+    (fita entregue, denúncia, batida); sem ela, uma notícia que revela suspeita, plano desmontado, apreensão, coerente
+    com a história. A matéria do dia (`Night.stories_for`, a primeira) virou a manchete e as emergências desceram para
+    a lista; manchetes novas nas noites 2–4, 6–10 e 12–15. E dois tipos de ligação novos, escritos por noite
+    (`Night.calls`, entram no sorteio no lugar de transferências, não são missão do roteiro): quem comenta a manchete
+    e quem procura um parente preso (da 5 em diante, algumas só com o marcador da consequência: a família do porão com
+    a fita do grupo C, a mãe do Bar do Zé com a fita da 14). 28 ligações, 1 a 3 por noite.
+537. #jornal #visual Trocar a foto do jornal conforme a manchete. Fotos reaproveitáveis em retícula, desenhadas em
+    código (`NewsView.PHOTOS`, `_tone`): cidade, rua de noite com o poste e os fios, viatura com o cavalete, caixotes e
+    fuzis, torre da emissora, fachada do hotel lacrada, mulher sorrindo (a Cecília na 13; o usuário dispensou o retrato
+    oval, "só uma foto de uma mulher sorrindo sem muitos detalhes") e cartazes com panfletos. A foto e a legenda
+    seguem a manchete: as da variante de `news_if` que vira manchete (`StoryText.photo`/`caption`), senão as da noite
+    (`Night.news_photo`, agora o nome da foto em vez de uma textura que nenhuma noite usava; `Night.photo_for`).
+538. #ligacoes #conteudo #emergencia Dois tipos novos de ligação escrita. (1) A comum que vira emergência no meio do
+    pedido (`TransferCall.turns`, `Main.turn_emergency`): depois da abertura, a pessoa grita a emergência, a ligação
+    passa a emergência (despacho, barra, caderno como emergência) e **termina no despacho**, sem transferência: o
+    usuário pediu que a despedida justifique ("Moça, não precisa transferir para o ponto de táxi, vou tentar
+    ajudar!"). Na 7 o táxi e a briga no bar, na 9 a irmã e os tiros no filho, na 12 o doutor e o fogo no vizinho.
+    (2) Quem volta a ligar na mesma noite (`StoryCall.callback`, `Main._call_back`, 50–90 min depois, uma vez, só se
+    atendida), com a versão escolhida pelo desfecho da primeira: na 6 o pai do menino com febre (conectada: a febre
+    baixou, liga para o avô; cortada: a farmácia estava fechada, pede outra); na 7 Seu Raimundo (conectada: pede o
+    padre; cortada: pede a delegacia de novo). O robô do `test_shift` espera as viaturas voltarem em vez de mandar
+    cartão em branco (a virada pode chegar logo depois de outra emergência). O tipo 3 (emergência que parece trote)
+    ficou para depois.
+539. #ligacoes #conteudo A despedida do homem do táxi (noite 7, a briga no bar) passou de "Vou ficar aqui e ajudar o
+    rapaz!" para "Vou ficar aqui e ver no que posso auxiliar.": o usuário apontou que soava como se ele fosse entrar na
+    briga.
+540. #ligacoes #conteudo As despedidas das três ligações que viram emergência perderam o "Tô ouvindo a sirene" (táxi,
+    irmã) e o "Os bombeiros chegaram" (doutor): o usuário apontou que, logo depois do despacho, o socorro chegaria
+    rápido demais.
+541. #ligacoes #emergencia A ligação que vira emergência (`TransferCall.turns`) não vira mais logo depois do pedido:
+    como a conversa fiada, só se a transferência demora (`Main._nag`, `SMALLTALK_AFTER`, `Conversation.turn`), e
+    então o tipo muda na hora, de comum para emergência. Transferida antes, fica ligação comum (pedido do usuário). Não
+    vira com duas emergências em andamento (`MAX_EMERGENCIES`): ela espera.
+542. #testes #ritmo A skill `playtesting` (gameskill.dev, `.claude/skills/playtesting/`) instalada no projeto a pedido
+    do usuário, e usada para analisar o jogo: o robô do `test_shift` em perfis como coortes simuladas (atento,
+    `--human`, `--clumsy`, `--eager`, `--nosy`, `--nosy --careless`) nas noites 1, 5, 9 e 13, semente 7.
+543. #treinamento #despacho #discador "O tutorial não está de acordo com as novas adições": a Cecília ensina o mapa
+    em dois cliques (datilografa e imprime) e o anel de aproximar; avisa, antes de transferir, que na lâmpada vermelha
+    se tiram as duas pontas e que liga de novo pela entrada 1, e, na espera, que é para voltar à linha dela (com o
+    `HintSlot` escondido, isso só estava na dica); explica a tecla Escutar (proibida, percebem e denunciam); o despacho
+    é a máquina creme com o mapa na tela; no fim, o 002 pelo discador da prateleira, sem o manual da parede (escondido).
+544. #despacho #calculografo #carimbo #objetos "As miniaturas da máquina de despacho, do calculógrafo e do carimbador
+    estão pequenas demais": ~20% maiores (`UNIT` 47 × 7,5 com painel 20, era 39 × 6 e 16; `CALC` 34, era 28; o
+    carimbo da mesinha redesenhado em 25 × 39 px, era 21 × 35); a unidade recuou no tampo (`UNIT_AT` 0,66, era 0,6)
+    para a máquina do calculógrafo não tapar a base dela.
+545. #calculografo #carimbo #objetos "As miniaturas do calculógrafo ainda parecem pequenas, o carimbo não é menor que
+    um plug P10": `CALC` 38 × 6,25 (era 34; com 42 tampava a base da unidade de despacho), a unidade mais recuada
+    (`UNIT_AT` 0,72). O carimbo cresceu primeiro para os lados (31 × 42) e o usuário reprovou ("crescendo pros lados e
+    não para cima; pense em proporções reais"): redesenhado em 21 × 50, a largura do da ferramenta e a proporção de um
+    datador (uns 10 × 4,5 cm), cabo mais longo e armação mais alta; o plug guardado tem 48 à mostra. Na almofada, o
+    cabo passa uns 5 px por cima da frente da máquina (perguntado ao usuário).
+546. #calculografo #objetos "Remova o cabo do calculógrafo; traga ele um pouquinho para a frente, com espaço entre ele
+    e o mapa de despacho": o fio saiu (`_draw_cable` só na unidade de despacho); a mesinha foi para `CALC_AT` 0,045
+    (era 0,06, na linha do bloco de fichas; com 0,02 o carimbo e a caixinha sumiam embaixo do painel de baixo) e a
+    unidade recuou para `UNIT_AT` 0,76: uns 6 px de folga entre as duas.
+547. #calculografo #carimbo "Faça 1 e 2" (das melhorias sugeridas): a almofada da mesinha foi para a esquerda
+    (`Toll.PAD_LEFT` 24, era o `INSET` 36 da caixinha), e o carimbo em pé nela, na sala, não tapa mais a ponta do
+    bilhete na fenda. O carimbo da ferramenta aberta já era alto (`Toll.STAMP` 88 × 201, a proporção de um datador): o
+    "21 × 35" era um comentário velho do da sala, corrigido; nada a redesenhar.
+548. #calculografo #objetos "Divergências na máquina do calculógrafo em relação à miniatura": o painel dos contadores,
+    apertado pela placa CALCULÓGRAFO, a luz e a saída de ar à direita (encavalava a lâmpada de um na plaquinha do
+    seguinte), toma a frente toda (`Toll._screen`); a placa saiu (a chave `TOLL_MACHINE` também), e embaixo ficou o
+    selo CTSS entre a fenda e a beira; a fenda, no meio da máquina. A miniatura da mesa segue: o visor na frente toda,
+    cada contador como o da aberta em escala (plaquinha creme, tambores escuros com os algarismos, lâmpada de vidro),
+    a fenda no meio e o selo de 6 × 3 px.
+549. #mesa #objetos "A marca CTSS da mesa comutadora pode ficar centralizada na parte vazia também, mesmo que os cabos
+    fiquem por cima": o emblema desceu do alto do vão à esquerda do interurbano para o meio dele (na altura do meio do
+    bloco do interurbano); os plugs guardados ficam na frente dele (sobreposição pedida).
+550. #vista #rua "O homem de preto pode caminhar até depois do poste, pois ele fica pouco visível onde está": ele para
+    do outro lado do poste da esquina (`MAN_X` 5,2, era 7,4, na frente da porta acesa da loja), na quina do prédio de
+    tijolos; passando atrás do poste, a coluna é desenhada de novo na frente dele (`_draw_pole`). Na presa, o mesmo
+    lugar (`Arrest.POST`). A luz da vitrine do bar, que era centrada nele, fica no meio da vitrine.
+551. #vista #rua "Quando o homem vai estender a bandeira na varanda, dá pra ver os pés dele atravessando o chão": visto
+    de baixo, quem anda na varanda tem os pés abaixo da beira da laje; agora cortados nela (`_slab_clip`), também o
+    fumante e quem esvazia o apartamento. A captura ganhou `--banner=t`.
+552. #discador #documentos "Faça 4 e correção nos documentos": o discador chega ao Centro e ao Alto da Serra: os 23
+    números de lá (fora os do despacho) atendem quem liga da central, dois atendimentos cada, com duas perguntas e a
+    despedida, e a hora de fechar dos que fecham (a secretaria da Matriz às 20h, a mercearia e o sítio às 21h...); o
+    Armazém Ferreira deixa de atender depois de `fita_armas_entregue` (o armazém caiu). Rascunho para revisar, com en e
+    es. O `test_content` cobra todos os setores; o `test_dial` contava 5 ligações do discador na noite 15 (são 6). Os
+    documentos deixam de dizer que as noites 3–15 são genéricas e que as reações da B3 são de teste; a lista do fim de
+    cada cena no `PLANO_RUA.md` deixa de parecer pendência.
+553. #som #musica #saiu "Use essa ferramenta (ACE-Step 1.5) pra gerar música e efeitos sonoros pro jogo": música
+    gerada para a tela inicial, o fundo do turno, o amanhecer da 15, os finais e as canções da Rádio Serena pela janela
+    (o ACE-Step só faz música); depois efeitos pelo MOSS-SoundEffect v2, que saíram com ruído (faixa de 16–18 kHz,
+    chiado, ronco) e nem limpos agradaram. "Remova todos os sons... esse modelo gera áudios muito ruins" e "desfaça tudo
+    de áudio, inclusive no código... remova audio/music": tudo desfeito (a música, o barramento Music e o Street, o
+    volume Música, as canções pela janela, as ferramentas e os modelos); o jogo voltou aos sons sintetizados. Ficou o
+    `audio/clear_night_ambience.mp3`. As lições dos geradores no `LESSONS.md`.
+554. #som #clima "O que você sugere para melhorar os áudios... mais imersivos": proposta de gravações reais para os
+    ambientes contínuos (chuva, vento, grilos, trovão, cidade), mantendo sintetizado o mecânico e interativo (cabos,
+    campainha, carimbo, papel, vozes). "Comece pelo 1": 21 candidatas em domínio público (CC0, Freesound), numa página
+    para ouvir antes de escolher. Escolhidas: chuva 81819, chuva forte com vento 567108 ("vai diminuindo o volume no
+    final... parecer contínuo": cortada antes de sumir e emendada em loop), trovão 572443 (quatro trovões recortados),
+    vento 557380, grilos 522299; cidade à noite, nenhuma. No jogo no lugar dos sintetizados (`Sfx.RECORDED`), com o
+    volume igualado ao deles; a tempestade entra por cima da chuva quando ela engrossa; a rajada da folhinha passou a
+    ser medida no som do vento (barramento Wind).
+555. #som #voz "o Seu Jair fala baixinho e parece uma criança... Conserte a voz sussurrando de homens": a altura de
+    cada sílaba sobe pelo `pitch_scale`, que leva os formantes junto, e no sussurro (voz "w", muito sopro) só eles dizem
+    o tamanho de quem fala; somadas a pessoa, o nervoso da emergência, a exclamação e a pergunta (até ~1,5×), a boca
+    ficava do tamanho da de criança. O "w" guarda só 35% da variação de altura (`steady`) e tem a boca maior (`tract`
+    0,92).
+556. #setores #ritmo #roteiro "Se na noite 4 ocorre um evento do golpe, o setor 1 só é liberado no dia 5; se o outro
+    evento acontece na noite 9, o setor 2 só é liberado no dia 10", porque a noite 9 tinha as emergências dos ataques e,
+    ao mesmo tempo, o alívio de ritmo da noite de setor novo: o Alto da Serra passa para a noite 10
+    (`SECTOR_NIGHTS`), que agora segura o ritmo no lugar da 9; o recado do setor vai para o bilhete da 10 e a 9 ganha
+    outro. Na 9 o setor fica sem telefonista (a Cecília largou na 8). "Trocar o destino": os dois pedidos da Alta Cúpula
+    da 9 (22:05) vão para a delegacia 184 (o 190 é só do despacho), com o Valadares se apresentando "da Alta Cúpula", e
+    a cobrança do supervisor na 12 fala só da delegacia; "passar para a 10": a mãe que procura o filho no São Lucas e a
+    irmã que liga para a Marta Costa (`noite_10_parente`, `noite_10_irma`).
+557. #roteiro #bilhete "Como na noite 9 não tem nada, pode tirar do bilhete": o "grave toda ligação suspeita" saiu do
+    bilhete da 9 e do da 10 (nenhuma das duas tem ligação marcada, `TransferCall.suspicious`; as marcadas são das
+    noites 7, 8, 12 e 14).
+558. #mesa #pixel #bug "Teve um momento na noite 1 que as letras das placas dos setores ficaram brancas": o cache de
+    texturas do `PixelArt` (`art`, `disc`, `tiny`) se esvazia passando de `CACHE_MAX` (512), e o plug virando ao
+    entrar na tomada monta uma imagem por quadro, então algumas dezenas de cabos o enchiam; o desenho guarda só o RID
+    da textura, e as camadas que não se redesenham (as chapas dos bancos, os plugs guardados) passavam a desenhar uma
+    textura liberada, que sai branca. Agora o cache esvazia por `PixelArt._evict`, que manda tudo se redesenhar.
+559. #roteiro #ligacoes "Pode resolver o 1": os pedidos das autoridades vêm a menos de uma conversa um do outro para o
+    mesmo número (na 9, 22:05 e 22:30 à delegacia; na 12, 14 e 15, à delegacia e à Cúpula), e quem obedecia ao
+    primeiro achava a tomada do segundo ocupada. Agora a ligação do roteiro que toca para um destino em conversa encurta
+    a de lá para `FREE_FOR_STORY` (3 min de jogo; nunca no meio das falas escritas), `Main._free_dest_for`; o desfecho
+    da primeira continua "conectada". O cache das imagens (item 558) esvazia uma ou duas vezes por noite, com um quadro
+    de ~15 ms a mais (medido): fica como está.

@@ -166,8 +166,6 @@ func _render_transcript() -> void:
 					_lines.append("[color=#9a917a][font_size=11]%s[/font_size][/color]\n" % text)
 				"op":
 					_lines.append("[color=#8dbb6c]%s[/color]  %s\n" % [T.text(T.Key.YOU), text])
-				"ghost":
-					_lines.append("[color=#f3a83c]—[/color]  [color=#c6d3c4]%s[/color]\n" % text)
 				_:
 					_lines.append("[color=#f3a83c]%s[/color]  %s\n" % [tr(l["who"]), text])
 	if _warn != "":

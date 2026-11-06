@@ -1,0 +1,29 @@
+[gd_resource type="Resource" script_class="EmergencyCall" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/emergency_call.gd" id="1_em"]
+[ext_resource type="Script" path="res://scripts/data/emergency_case.gd" id="2_case"]
+
+[resource]
+script = ExtResource("1_em")
+voice = "m"
+caller = "Rapaz"
+opening = "Central! Puseram fogo num carro no meio da rua! Fecharam tudo com pneu!"
+questions = PackedStringArray("Qual é o endereço?", "Tem alguém perto do fogo?", "Dá para passar pela rua?")
+answers = PackedStringArray("Rua do Moinho, 60, em frente ao armazém!", "Não, saiu todo mundo de perto. Só tem o fogo.", "Não dá! Tá tudo fechado de pneu queimando!")
+street = "moinho"
+block = 0
+address = "Rua do Moinho, 60"
+occurrence = "Incêndio"
+units = PackedStringArray("bomb", "pol")
+after = "Tá bom. Vou avisar o pessoal pra não chegar perto."
+stage_sec = Vector3(45, 18, 18)
+worsening = "O tanque do carro estourou! O fogo pulou pra uma casa!"
+worsening_question = "Tem gente na casa?"
+worsening_answer = "Não, a família já tinha saído pra ver o fogo!"
+critical = "A casa tá queimando inteira! Um vizinho queimou o braço tentando apagar!"
+critical_units = PackedStringArray("amb")
+critical_question = "O vizinho está consciente?"
+critical_answer = "Tá, mas gritando de dor!"
+lost = "A casa foi embora... só sobrou a parede."
+lost_answer = "O vizinho tá com o braço todo queimado!"
+lost_units = PackedStringArray("amb")

@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="TransferCall" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/transfer_call.gd" id="1_story"]
+
+[resource]
+script = ExtResource("1_story")
+group = 2
+voice = "m"
+caller = "Rapaz"
+opening = PackedStringArray("O Hotel Serena, por favor.")
+repeat = "O hotel. O Serena."
+target = "305"
+destination = "Hotel Serena"
+thanks = "Obrigado."
+caller_name = "Lauro Teixeira"
+name_line = "Lauro Teixeira."
+overheard = PackedStringArray("Hotel? É o Lauro. Preciso confirmar os...", "Seu Lauro! O quarto que o senhor reservou é o de solteiro, não é?", "Quarto? É... é, de solteiro.", "Então está confirmado. Boa noite, senhor.")
+suspicious = true
+wary = 1.5

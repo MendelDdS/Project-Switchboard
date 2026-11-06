@@ -2,6 +2,18 @@
 
 [ext_resource type="Script" path="res://scripts/data/night.gd" id="1_night"]
 [ext_resource type="Script" path="res://scripts/data/street_event.gd" id="2_event"]
+[ext_resource type="Script" path="res://scripts/data/story_text.gd" id="x0_story_text"]
+[ext_resource type="Script" path="res://scripts/data/story_call.gd" id="x1_story_call"]
+[ext_resource type="Resource" path="res://data/calls/story_10_cecilia.tres" id="x2_story_10_cecilia"]
+[ext_resource type="Script" path="res://scripts/data/prank_step.gd" id="x3_prank_step"]
+[ext_resource type="Script" path="res://scripts/data/dial_call.gd" id="x4_dial_call"]
+[ext_resource type="Resource" path="res://data/calls/story_10_generosa.tres" id="a_story_10_generosa"]
+[ext_resource type="Resource" path="res://data/calls/story_10_generosa_volta.tres" id="a_story_10_generosa_volta"]
+[ext_resource type="Resource" path="res://data/calls/noite_10_cancao.tres" id="j_cancao"]
+[ext_resource type="Resource" path="res://data/calls/noite_10_tiros.tres" id="j_tiros"]
+[ext_resource type="Resource" path="res://data/calls/noite_10_barreira.tres" id="j_barreira"]
+[ext_resource type="Resource" path="res://data/calls/noite_10_parente.tres" id="j_parente"]
+[ext_resource type="Resource" path="res://data/calls/noite_10_irma.tres" id="j_irma"]
 
 [sub_resource type="Resource" id="ev_0"]
 script = ExtResource("2_event")
@@ -13,7 +25,185 @@ script = ExtResource("2_event")
 kind = "parade"
 at = 120.0
 
+[sub_resource type="Resource" id="News_radio"]
+script = ExtResource("x0_story_text")
+text = "Rádio Serena fora do controle por três horas\nNa noite de ontem, a Rádio Serena transmitiu uma mensagem da resistência e tocou a \"Canção da Madrugada\", proibida há anos. A Alta Cúpula diz que os responsáveis já foram identificados."
+requires = PackedStringArray("radio_conquistada")
+photo = "torre"
+caption = "A torre da Rádio Serena."
+
+[sub_resource type="Resource" id="S_cec"]
+script = ExtResource("x1_story_call")
+at = 40.0
+call = ExtResource("x2_story_10_cecilia")
+if_dropped = PackedStringArray("cecilia_pediu_10")
+again = false
+
+[sub_resource type="Resource" id="D_par_00"]
+script = ExtResource("x3_prank_step")
+text = "Casa Paroquial, boa noite."
+
+[sub_resource type="Resource" id="D_par_01"]
+script = ExtResource("x3_prank_step")
+kind = 1
+options = PackedStringArray("Preciso de abrigo para algumas famílias do Alto da Serra. Hoje.", "Desculpe, foi engano.")
+sets = PackedStringArray("paroquia_10", "")
+
+[sub_resource type="Resource" id="D_par_02"]
+script = ExtResource("x3_prank_step")
+kind = 2
+seconds = 1.5
+requires = PackedStringArray("paroquia_10")
+
+[sub_resource type="Resource" id="D_par_03"]
+script = ExtResource("x3_prank_step")
+text = "...Quantas forem. A porta dos fundos fica aberta até de manhã. Deus lhe pague, minha filha."
+requires = PackedStringArray("paroquia_10")
+
+[sub_resource type="Resource" id="D_par_04"]
+script = ExtResource("x3_prank_step")
+text = "Boa noite, então."
+requires = PackedStringArray("!paroquia_10")
+
+[sub_resource type="Resource" id="D_par_05"]
+script = ExtResource("x3_prank_step")
+kind = 3
+
+[sub_resource type="Resource" id="D_par"]
+script = ExtResource("x4_dial_call")
+number = "120"
+from = 0.0
+to = 359.0
+requires = PackedStringArray("cecilia_pediu_10")
+voice = "w"
+caller = "Padre"
+steps = Array[ExtResource("x3_prank_step")]([SubResource("D_par_00"), SubResource("D_par_01"), SubResource("D_par_02"), SubResource("D_par_03"), SubResource("D_par_04"), SubResource("D_par_05")])
+
+[sub_resource type="Resource" id="A_story_10_generosa"]
+script = ExtResource("x1_story_call")
+at = 60.0
+call = ExtResource("a_story_10_generosa")
+if_dropped = PackedStringArray("generosa_10")
+again = false
+
+[sub_resource type="Resource" id="A_story_10_generosa_volta"]
+script = ExtResource("x1_story_call")
+at = 320.0
+call = ExtResource("a_story_10_generosa_volta")
+requires = PackedStringArray("generosa_10")
+again = false
+
+[sub_resource type="Resource" id="D_otavio_00"]
+script = ExtResource("x3_prank_step")
+text = "Hospital São Lucas, boa noite."
+
+[sub_resource type="Resource" id="D_otavio_01"]
+script = ExtResource("x3_prank_step")
+kind = 1
+options = PackedStringArray("A Enfermeira Joana, por favor.", "Desculpe, foi engano.")
+sets = PackedStringArray("joana_10", "")
+
+[sub_resource type="Resource" id="D_otavio_02"]
+script = ExtResource("x3_prank_step")
+text = "Um momento."
+requires = PackedStringArray("joana_10")
+
+[sub_resource type="Resource" id="D_otavio_03"]
+script = ExtResource("x3_prank_step")
+kind = 2
+seconds = 2.0
+requires = PackedStringArray("joana_10")
+
+[sub_resource type="Resource" id="D_otavio_04"]
+script = ExtResource("x3_prank_step")
+text = "Joana falando."
+requires = PackedStringArray("joana_10")
+
+[sub_resource type="Resource" id="D_otavio_05"]
+script = ExtResource("x3_prank_step")
+text = "Essa voz eu conheço. Foi você que ligou pela ala 3C, não foi?"
+requires = PackedStringArray("joana_10", "hospital_8")
+
+[sub_resource type="Resource" id="D_otavio_06"]
+script = ExtResource("x3_prank_step")
+kind = 1
+options = PackedStringArray("Tem um Otávio Almeida internado aí?", "Desculpe, liguei errado.")
+sets = PackedStringArray("otavio_achado", "")
+requires = PackedStringArray("joana_10")
+
+[sub_resource type="Resource" id="D_otavio_07"]
+script = ExtResource("x3_prank_step")
+text = "Otávio Almeida... Chegou ontem à noite, da praça. Está na 3C."
+requires = PackedStringArray("otavio_achado")
+
+[sub_resource type="Resource" id="D_otavio_08"]
+script = ExtResource("x3_prank_step")
+text = "Bastante machucado. Mas vivo. Visita de manhã."
+requires = PackedStringArray("otavio_achado")
+
+[sub_resource type="Resource" id="D_otavio_09"]
+script = ExtResource("x3_prank_step")
+text = "Pode dizer a quem perguntar que ele está em boas mãos. Boa noite."
+requires = PackedStringArray("otavio_achado", "hospital_8")
+
+[sub_resource type="Resource" id="D_otavio_10"]
+script = ExtResource("x3_prank_step")
+text = "Boa noite."
+requires = PackedStringArray("otavio_achado", "!hospital_8")
+
+[sub_resource type="Resource" id="D_otavio_11"]
+script = ExtResource("x3_prank_step")
+text = "Boa noite."
+requires = PackedStringArray("joana_10", "!otavio_achado")
+
+[sub_resource type="Resource" id="D_otavio_12"]
+script = ExtResource("x3_prank_step")
+kind = 3
+
+[sub_resource type="Resource" id="D_otavio"]
+script = ExtResource("x4_dial_call")
+number = "213"
+from = 60.0
+to = 330.0
+requires = PackedStringArray("generosa_10")
+voice = "f"
+steps = Array[ExtResource("x3_prank_step")]([SubResource("D_otavio_00"), SubResource("D_otavio_01"), SubResource("D_otavio_02"), SubResource("D_otavio_03"), SubResource("D_otavio_04"), SubResource("D_otavio_05"), SubResource("D_otavio_06"), SubResource("D_otavio_07"), SubResource("D_otavio_08"), SubResource("D_otavio_09"), SubResource("D_otavio_10"), SubResource("D_otavio_11"), SubResource("D_otavio_12")])
+
+[sub_resource type="Resource" id="J_news_0"]
+script = ExtResource("x0_story_text")
+text = "Polícia impede a tomada da Rádio Serena\nUm grupo armado tentou entrar na Rádio Serena AM na noite de ontem e foi recebido a tiros pela guarda. Três foram presos; os outros fugiram pelo Alto da Serra. A emissora não saiu do ar."
+requires = PackedStringArray("!radio_conquistada")
+photo = "torre"
+caption = "A guarda na Rádio Serena, depois do tiroteio."
+
+[sub_resource type="Resource" id="J_call_cancao"]
+script = ExtResource("x1_story_call")
+call = ExtResource("j_cancao")
+requires = PackedStringArray("radio_conquistada")
+
+[sub_resource type="Resource" id="J_call_tiros"]
+script = ExtResource("x1_story_call")
+call = ExtResource("j_tiros")
+requires = PackedStringArray("!radio_conquistada")
+
+[sub_resource type="Resource" id="J_call_barreira"]
+script = ExtResource("x1_story_call")
+call = ExtResource("j_barreira")
+
+[sub_resource type="Resource" id="J_call_parente"]
+script = ExtResource("x1_story_call")
+call = ExtResource("j_parente")
+requires = PackedStringArray("fita_comandante_entregue")
+
+[sub_resource type="Resource" id="J_call_irma"]
+script = ExtResource("x1_story_call")
+call = ExtResource("j_irma")
+
 [resource]
 script = ExtResource("1_night")
-note = "O supervisor deixou um recado: \"Com os três setores, a noite fica mais cheia. Emergência vem primeiro.\""
+note = "O supervisor deixou um recado: \"Último setor: a partir de hoje, o setor 2, o Alto da Serra, também fica com você. Os números que começam com 2 passam pela sua mesa. A cidade inteira está nas suas mãos.\""
 street_events = Array[ExtResource("2_event")]([SubResource("ev_0"), SubResource("ev_1")])
+news_if = Array[ExtResource("x0_story_text")]([SubResource("News_radio"), SubResource("J_news_0")])
+story = Array[ExtResource("x1_story_call")]([SubResource("S_cec"), SubResource("A_story_10_generosa"), SubResource("A_story_10_generosa_volta")])
+dial = Array[ExtResource("x4_dial_call")]([SubResource("D_par"), SubResource("D_otavio")])
+calls = Array[ExtResource("x1_story_call")]([SubResource("J_call_cancao"), SubResource("J_call_tiros"), SubResource("J_call_barreira"), SubResource("J_call_parente"), SubResource("J_call_irma")])

@@ -1,0 +1,27 @@
+[gd_resource type="Resource" script_class="EmergencyCall" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/emergency_call.gd" id="1_em"]
+
+[resource]
+script = ExtResource("1_em")
+voice = "f"
+caller = "Senhora"
+opening = "Meu Deus, tiro! Atiraram lá fora... tem um rapaz caído na esquina... é o Dudu! É o meu filho, moça!"
+questions = PackedStringArray("Qual é o endereço?", "Quem atirou ainda está aí?", "Ele está consciente?")
+answers = PackedStringArray("Rua Bela Vista, 230! Na esquina!", "Um carro passou atirando e sumiu... mas pode voltar!", "Tá gemendo... levou no braço, tá sangrando muito!")
+street = "belavista"
+block = 2
+address = "Rua Bela Vista, 230"
+occurrence = "Outro"
+units = PackedStringArray("pol", "amb")
+after = "Moça, esquece a minha irmã. Eu vou com ele pro hospital."
+stage_sec = Vector3(45, 20, 20)
+worsening = "Ele tá ficando branco, moça... o sangue não para!"
+worsening_question = "Dá para apertar o ferimento com um pano?"
+worsening_answer = "Tô apertando! Tô apertando com a minha blusa!"
+critical = "Ele fechou os olhos! Dudu! Dudu, fala comigo!"
+critical_question = "Ele ainda respira?"
+critical_answer = "Respira... devagarinho."
+lost = "Ele morreu, moça. Morreu no meu colo."
+lost_answer = "Ninguém... só o meu filho."
+lost_units = PackedStringArray("amb")

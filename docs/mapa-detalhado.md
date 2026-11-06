@@ -612,7 +612,7 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
 
 ## Setores (a cidade em três partes)
 - O setor de um número é o primeiro dígito (3xx, 1xx, 2xx; 12 em cada, 36 na mesa). O operador começa com o setor 3
-  e recebe o 1 na noite 5 e o 2 na noite 9 (`GameData.SECTOR_NIGHTS`; o bilhete das noites 5 e 9 avisa).
+  e recebe o 1 na noite 5 e o 2 na noite 10 (`GameData.SECTOR_NIGHTS`; o bilhete das noites 5 e 10 avisa).
   `GameData.sectors` (definido em `Main._load_night`, chamado no `_enter_tree` para valer antes do `_ready` dos filhos)
   filtra a mesa (`board_numbers`), a lista (`PhoneBook`), as transferências (`serves`, `transfers`, `template_transfer`,
   que devolve nulo quando acabam os lugares e a agenda troca por pedido de informação) e os pedidos de informação.
@@ -624,7 +624,7 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   se abre para o bairro novo (`CityMap.pending_reveal`, `REVEAL_SEC`; o bairro novo aparece aos poucos).
 
 ## Noites (roteiro fixo)
-- 15 noites; as 3–15 ainda são genéricas (dia da semana e bilhete, sem roteiro nem ligação desconhecida).
+- 15 noites, todas com o roteiro de Maria (até 20/10/2026 as 3–15 eram genéricas).
 - `GameContent.nights` (ordem) → `Night` (`scripts/data/night.gd`, `data/nights/night_NN.tres`): dia da semana, bilhete
   da intro, clima fixo (vazio = sorteado), a primeira página do jornal (`news_*`, opcional), `story` (`StoryCall`: roteiro escrito + horário fixo) e `mystery` (passos `PrankStep`; vazio = sem
   ligação desconhecida naquela noite). **Só `story` e `mystery` são fixos; não existem ligações "principais".**

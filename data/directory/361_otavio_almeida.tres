@@ -1,0 +1,47 @@
+[gd_resource type="Resource" script_class="DirectoryEntry" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/directory_entry.gd" id="1_entry"]
+[ext_resource type="Script" path="res://scripts/data/motive.gd" id="2_motive"]
+[ext_resource type="Script" path="res://scripts/data/chat_topic.gd" id="8_chat"]
+[ext_resource type="Script" path="res://scripts/data/chat_reply.gd" id="9_reply"]
+
+[sub_resource type="Resource" id="Answer_0_0"]
+script = ExtResource("9_reply")
+text = "É da central. Estamos testando a linha."
+follow = "Ah, tá. Pensei que fosse alguém da rádio."
+
+[sub_resource type="Resource" id="Answer_0_1"]
+script = ExtResource("9_reply")
+text = "Desculpe, foi engano."
+follow = "Tudo bem. Se for a moça de fita amarela, eu tô aqui, viu?"
+
+[sub_resource type="Resource" id="Answer_0"]
+script = ExtResource("8_chat")
+line = "Alô? Otávio falando."
+replies = Array[ExtResource("9_reply")]([SubResource("Answer_0_0"), SubResource("Answer_0_1")])
+
+[sub_resource type="Resource" id="Answer_1_0"]
+script = ExtResource("9_reply")
+text = "Aqui é da central, seu Otávio."
+follow = "Ah, é você! Pode me chamar de Otávio, que eu nem tenho trinta."
+
+[sub_resource type="Resource" id="Answer_1_1"]
+script = ExtResource("9_reply")
+text = "O Trovão fugiu de novo?"
+follow = "Hoje não! Tá aqui dormindo no meu pé."
+
+[sub_resource type="Resource" id="Answer_1"]
+script = ExtResource("8_chat")
+line = "Alô? É a moça da fita amarela?"
+replies = Array[ExtResource("9_reply")]([SubResource("Answer_1_0"), SubResource("Answer_1_1")])
+
+[resource]
+script = ExtResource("1_entry")
+name = "Otávio Almeida"
+address = "Rua da Estação, 209"
+number = "361"
+voice = "m"
+motives = Array[ExtResource("2_motive")]([])
+answers = Array[ExtResource("8_chat")]([SubResource("Answer_0"), SubResource("Answer_1")])
+bye = "Boa noite. Amanhã eu pego cedo na estação."
+answers_until = 8

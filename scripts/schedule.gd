@@ -1,7 +1,7 @@
 class_name Schedule
 extends RefCounted
-## Monta a agenda de uma noite: as ligações do roteiro (horário fixo; a condição é conferida na hora de tocar), a
-## ligação desconhecida e as sorteadas. Não depende da cena: noite + semente → as mesmas ligações.
+## Monta a agenda de uma noite: as ligações do roteiro (horário fixo; a condição é conferida na hora de tocar) e as
+## sorteadas. Não depende da cena: noite + semente → as mesmas ligações.
 ## Quando cada uma toca de fato (mesa cheia, emergência em curso...) é decidido pelo Main (`_run_schedule`).
 
 const EMERGENCY_GAP := 60.0     # minutos de jogo entre duas emergências sorteadas (em andamento, no máximo `Main.MAX_EMERGENCIES`)
@@ -10,12 +10,8 @@ const STORY_WAIT := 30.0        # a do roteiro espera a mesa silenciar por no m�
 const TEMPLATE_CHANCE := 0.5    # chance de uma transferência ou emergência vir de um molde e não de um roteiro escrito
 const TRANSFER_SHARE := 0.85    # das ligações comuns, quantas são transferências (o resto, pedidos de informação)
 const TRUNK_SHARE := 0.2        # das transferências, quantas são interurbanos (pelo banco INTERURBANO; nunca no treinamento)
-const MYSTERY_WAIT := 30.0      # a ligação desconhecida espera a mesa silenciar por no máximo tantos minutos...
-const MYSTERY_MARGIN := 10.0    # ...e toca no máximo tantos minutos antes da última ligação, para acabar antes do
-                                # botão Encerrar turno (que só aparece depois dela)
 
 var calls: Array[PhoneCall] = []   ## em ordem de horário
-var mystery_at := INF              ## horário sorteado da ligação desconhecida (INF = não toca nesta noite)
 var targets := []                  ## os destinos já pedidos nesta noite (um número por noite; `filler` também usa)
 
 
@@ -28,14 +24,9 @@ static func build(night: Night, pace: Pace, last_call: float) -> Schedule:
 		c.at = st.at
 		c.story = true
 		c.requires = st.requires
+		c.beat = st
 		c.latest = minf(st.at + STORY_WAIT, last_call)
 		fixed.append(c)
-	if not night.mystery.is_empty():
-		var myst := PhoneCall.mystery()
-		myst.at = randf_range(night.mystery_from, night.mystery_to)
-		myst.latest = minf(myst.at + MYSTERY_WAIT, last_call - MYSTERY_MARGIN)
-		s.mystery_at = myst.at
-		fixed.append(myst)
 	s.calls = fixed.duplicate()
 	s.calls.append_array(s._random_calls(night, pace, last_call, fixed))
 	s.calls.sort_custom(func(a: PhoneCall, b: PhoneCall): return a.at < b.at)
@@ -58,17 +49,21 @@ func _random_calls(night: Night, pace: Pace, last_call: float, fixed: Array[Phon
 	kinds.resize(ats.size())
 	var free := range(ats.size())
 	free.shuffle()
-	var em_ats := []
-	var em_count := randi_range(pace.emergencies.x, pace.emergencies.y)
+	var em_ats := fixed.filter(func(f: PhoneCall): return f.kind == PhoneCall.Kind.EMERGENCY).map(func(f: PhoneCall): return f.at)   # as do roteiro contam (Dias 4 e 9)
+	var em_count := randi_range(pace.emergencies.x, pace.emergencies.y) + em_ats.size()
 	for i in free.duplicate():
 		if em_ats.size() < em_count and em_ats.all(func(x): return absf(ats[i] - x) >= EMERGENCY_GAP):
 			kinds[i] = PhoneCall.Kind.EMERGENCY
 			em_ats.append(ats[i])
 			free.erase(i)
-	for i in free.slice(0, randi_range(pace.pranks.x, pace.pranks.y)):
+	var n_pranks := randi_range(pace.pranks.x, pace.pranks.y)
+	for i in free.slice(0, n_pranks):
 		kinds[i] = PhoneCall.Kind.PRANK
+	var own := {}   # vaga -> StoryCall: as escritas da noite (`Night.calls`), nas vagas comuns que sobraram
+	for k in mini(night.calls.size(), free.size() - n_pranks):
+		own[free[n_pranks + k]] = night.calls[k]
 	var used := fixed.map(func(f: PhoneCall): return f.caller)
-	targets = fixed.map(func(f: PhoneCall): return f.target)
+	targets = fixed.map(func(f: PhoneCall): return f.target) + own.values().map(func(st: StoryCall): return st.call.target)
 	var transfers := C.transfers.filter(func(x): return not x.caller in used and GameData.serves(x))
 	var emergencies := C.emergencies.filter(func(e: EmergencyCall): return GameData.street(e.street).block_sector(e.block) in GameData.sectors)
 	var pranks := C.pranks.duplicate()
@@ -82,6 +77,10 @@ func _random_calls(night: Night, pace: Pace, last_call: float, fixed: Array[Phon
 			c = PhoneCall.from_emergency(GameData.with_case(emergencies.pop_back()) if written else GameData.template_emergency())
 		elif kinds[i] == PhoneCall.Kind.PRANK and not pranks.is_empty():
 			c = PhoneCall.from_prank(pranks.pop_back())
+		elif own.has(i):
+			c = PhoneCall.from_script(own[i].call)
+			c.requires = own[i].requires
+			c.beat = own[i]   # o desfecho liga os marcadores dela, e quem volta a ligar (`StoryCall.callback`)
 		elif randf() < TRANSFER_SHARE:
 			# um número por noite: duas pessoas pedindo o mesmo destino ficariam esperando uma pela outra
 			var fresh := transfers.filter(func(x: TransferCall): return not x.target in targets and not x.alt_target in targets)

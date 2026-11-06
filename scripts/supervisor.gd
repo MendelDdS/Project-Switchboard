@@ -2,7 +2,7 @@ class_name Supervisor
 extends Node
 ## As consequências do turno (nó filho de Main): o que vira advertência no relatório (`Main.report`), quem liga de
 ## novo e quem desiste de esperar. O Main avisa quando algo acontece (fim de ligação, despacho, chegada das unidades,
-## registro no caderno); as regras ficam aqui. Tutorial, trotes e ligação desconhecida não geram advertência.
+## registro no caderno); as regras ficam aqui. Tutorial e trotes não geram advertência.
 
 const HOLD_GIVE_UP := 120.0             # minutos de jogo que alguém aguenta em espera antes de desligar
 const BUSY_HOLD := 2.0                  # ...vezes tanto, quem aceitou esperar uma linha livre (`Conversation._all_busy`)
@@ -19,8 +19,9 @@ const TYPE_OF := {
 
 
 ## Uma advertência no relatório (a que entrou, ou vazio no treinamento); `sev` e `text` para as das burocracias.
+## Na última noite também não: não há noite seguinte para o relatório pesar.
 func fault(id: String, detail := "", sev := -1, text := -1) -> Dictionary:
-	if main.training.active:   # o treinamento não gera advertência
+	if main.training.active or main.night_no >= GameData.CONTENT.nights.size():   # o treinamento não gera advertência
 		return {}
 	return main.report.add(id, Main.fmt(main.minutes), detail, sev, text)
 
@@ -46,7 +47,7 @@ func who(c: PhoneCall) -> String:
 
 ## O que o supervisor vai anotar e quem vai ligar de novo por causa de como a ligação terminou.
 func call_ended(c: PhoneCall, reason: PhoneCall.End) -> void:
-	if c.lesson or c.kind in [PhoneCall.Kind.PRANK, PhoneCall.Kind.MYSTERY]:
+	if c.lesson or c.kind == PhoneCall.Kind.PRANK:
 		return
 	var e: EmergencyCall = c.data if c.kind == PhoneCall.Kind.EMERGENCY else null
 	if reason in [PhoneCall.End.MISSED, PhoneCall.End.GAVE_UP]:
@@ -73,7 +74,7 @@ func call_ended(c: PhoneCall, reason: PhoneCall.End) -> void:
 ## Vale também para a ligação do treinamento (que só não gera advertência). Nunca depois da última ligação
 ## (`Main.last_call`): se não couber, o Main a descarta.
 func call_again(c: PhoneCall, why: PhoneCall.Retry) -> void:
-	if why in c.retried:
+	if why in c.retried or (c.beat != null and not c.beat.again):
 		return
 	var n: PhoneCall
 	match c.kind:
@@ -90,6 +91,7 @@ func call_again(c: PhoneCall, why: PhoneCall.Retry) -> void:
 		_:
 			return
 	n.retry = why
+	n.beat = c.beat
 	n.retried = c.retried.duplicate()
 	n.retried.append(why)
 	var now := main.minutes
@@ -102,7 +104,7 @@ func call_again(c: PhoneCall, why: PhoneCall.Retry) -> void:
 ## Quem fica em espera tempo demais desiste.
 func check_hold() -> void:
 	for c in main.live.duplicate():
-		if c.active and not c.lesson and c.kind != PhoneCall.Kind.MYSTERY and main.exchange.line(c.line) == Exchange.Line.HOLD \
+		if c.active and not c.lesson and main.exchange.line(c.line) == Exchange.Line.HOLD \
 				and main.minutes - c.hold_since > HOLD_GIVE_UP * (BUSY_HOLD if c.busy_asked else 1.0):
 			main.end_call(c, PhoneCall.End.GAVE_UP)
 

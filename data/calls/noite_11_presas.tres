@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="TransferCall" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/transfer_call.gd" id="1_call"]
+
+[resource]
+script = ExtResource("1_call")
+voice = "f"
+caller = "Dona Aparecida"
+caller_name = "Aparecida Lopes"
+opening = PackedStringArray("Boa noite. A Mercearia Silva, por favor.", "Preciso avisar o seu Silva de uma coisa.")
+repeat = "A mercearia do Silva, moça. Dois, seis, dois."
+target = "262"
+destination = "Mercearia Silva"
+thanks = "Obrigada, moça. Deus nos proteja."
+overheard = PackedStringArray("Silva? É a Aparecida, sua vizinha de trás.", "Aparecida! Você viu? Levaram a dona Rosa e os netos.", "Vi da janela. O menorzinho chorando no camburão.", "Ela me devia o fiado do mês. Nem me importa mais.", "Se perguntarem dela, a gente não sabe de nada.", "Não sei de nada. Nunca soube.")

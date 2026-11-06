@@ -1,0 +1,57 @@
+[gd_resource type="Resource" script_class="DirectoryEntry" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/directory_entry.gd" id="1_entry"]
+[ext_resource type="Script" path="res://scripts/data/chat_topic.gd" id="8_chat"]
+[ext_resource type="Script" path="res://scripts/data/chat_reply.gd" id="9_reply"]
+[ext_resource type="Script" path="res://scripts/data/motive.gd" id="2_motive"]
+
+[sub_resource type="Resource" id="Motive_23"]
+script = ExtResource("2_motive")
+text = "Meu tio faleceu agora há pouco."
+talks = Array[PackedStringArray]([PackedStringArray("Boa noite. Meu tio faleceu agora há pouco, em casa.", "Meus sentimentos. O médico já veio atestar?", "Já veio. Disse que foi o coração.", "Então eu mando o carro buscar. Qual é o endereço?", "{street}, {house}. A casa do portão {color}.", "Chegamos em {wait}. Separe uma roupa pra ele."), PackedStringArray("Boa noite. Minha avó faleceu agora há pouco.", "Meus sentimentos. Foi em casa ou no hospital?", "Em casa, dormindo. O médico já veio.", "Vocês querem o velório em casa ou na capela?", "Em casa. Ela morava na {street}, {house}.", "Então levo as coisas pra lá em {wait}.")])
+
+[sub_resource type="Resource" id="Motive_24"]
+script = ExtResource("2_motive")
+text = "Preciso acertar o velório de amanhã."
+talks = Array[PackedStringArray]([PackedStringArray("Boa noite. Preciso acertar as coisas do velório de amanhã.", "Pois não. Vai ser na capela ou em casa?", "Na capela. A família quer de manhã, cedo.", "Às oito a capela está livre. Precisa de flores?", "Uma coroa só, simples. Com o nome da família.", "Anotado. Às sete eu abro a capela."), PackedStringArray("Boa noite. Queria saber o preço do caixão e do velório.", "Depende da madeira. Tem o simples e o envernizado.", "O simples. A família não tem muito.", "O simples já vem com as velas e o pano.", "E a coroa de flores, vocês fazem também?", "Faço. Passa aqui amanhã que a gente acerta tudo.")])
+
+[sub_resource type="Resource" id="Answer_0_0"]
+script = ExtResource("9_reply")
+text = "Vocês atendem a noite toda?"
+follow = "A noite toda. A morte não tem hora, infelizmente."
+
+[sub_resource type="Resource" id="Answer_0_1"]
+script = ExtResource("9_reply")
+text = "Onde fica a capela?"
+follow = "Aqui mesmo, na Rua da Estação, defronte dos trilhos."
+
+[sub_resource type="Resource" id="Answer_0"]
+script = ExtResource("8_chat")
+line = "Funerária Paz Eterna, boa noite."
+replies = Array[ExtResource("9_reply")]([SubResource("Answer_0_0"), SubResource("Answer_0_1")])
+
+[sub_resource type="Resource" id="Answer_1_0"]
+script = ExtResource("9_reply")
+text = "Não é nada grave, só uma informação."
+follow = "Que bom. Aqui, quase sempre é."
+
+[sub_resource type="Resource" id="Answer_1_1"]
+script = ExtResource("9_reply")
+text = "Tem velório hoje?"
+follow = "Tem um, de um senhor da Vila. A família pediu silêncio."
+
+[sub_resource type="Resource" id="Answer_1"]
+script = ExtResource("8_chat")
+line = "Paz Eterna. Em que posso ajudar?"
+replies = Array[ExtResource("9_reply")]([SubResource("Answer_1_0"), SubResource("Answer_1_1")])
+
+[resource]
+script = ExtResource("1_entry")
+name = "Funerária Paz Eterna"
+address = "Rua da Estação, 330"
+number = "253"
+hello = "Funerária Paz Eterna, boa noite."
+spoken = "a Funerária Paz Eterna"
+motives = Array[ExtResource("2_motive")]([SubResource("Motive_23"), SubResource("Motive_24")])
+answers = Array[ExtResource("8_chat")]([SubResource("Answer_0"), SubResource("Answer_1")])
+bye = "Boa noite. Que Deus lhe guarde."

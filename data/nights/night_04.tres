@@ -1,14 +1,164 @@
 [gd_resource type="Resource" script_class="Night" format=3]
 
+[ext_resource type="Script" path="res://scripts/data/story_text.gd" id="j_story_text"]
 [ext_resource type="Script" path="res://scripts/data/night.gd" id="1_night"]
 [ext_resource type="Script" path="res://scripts/data/street_event.gd" id="2_event"]
+[ext_resource type="Script" path="res://scripts/data/dial_call.gd" id="3_dial"]
+[ext_resource type="Script" path="res://scripts/data/prank_step.gd" id="4_step"]
+[ext_resource type="Script" path="res://scripts/data/story_call.gd" id="x0_story_call"]
+[ext_resource type="Resource" path="res://data/calls/story_04_mae_cinema.tres" id="x1_story_04_mae_cinema"]
+[ext_resource type="Resource" path="res://data/calls/story_04_pensao_marido.tres" id="x2_story_04_pensao_marido"]
+[ext_resource type="Resource" path="res://data/calls/story_04_radio_atentado.tres" id="x3_story_04_radio_atentado"]
+[ext_resource type="Resource" path="res://data/calls/story_04_baleado.tres" id="x0_story_04_baleado"]
+[ext_resource type="Resource" path="res://data/calls/story_04_atropelado.tres" id="x1_story_04_atropelado"]
+[ext_resource type="Resource" path="res://data/calls/story_04_bomba_loja.tres" id="x2_story_04_bomba_loja"]
+[ext_resource type="Resource" path="res://data/calls/story_04_briga.tres" id="x3_story_04_briga"]
+[ext_resource type="Resource" path="res://data/calls/noite_04_dinamite.tres" id="j_dinamite"]
 
 [sub_resource type="Resource" id="ev_0"]
 script = ExtResource("2_event")
 kind = "graffiti"
 at = 315.0
 
+[sub_resource type="Resource" id="Pw_1"]
+script = ExtResource("4_step")
+text = "Hotel, boa noite. Pois não?"
+
+[sub_resource type="Resource" id="Pw_2"]
+script = ExtResource("4_step")
+kind = 1
+options = PackedStringArray("A semente brotou.", "Desculpe, foi engano.")
+sets = PackedStringArray("senha_hotel_4", "")
+requires = PackedStringArray("sabe_senha_3")
+
+[sub_resource type="Resource" id="Pw_2b"]
+script = ExtResource("4_step")
+kind = 1
+options = PackedStringArray("Desculpe, foi engano.")
+sets = PackedStringArray("")
+requires = PackedStringArray("!sabe_senha_3")
+
+[sub_resource type="Resource" id="Pw_3"]
+script = ExtResource("4_step")
+kind = 2
+seconds = 1.5
+requires = PackedStringArray("senha_hotel_4")
+
+[sub_resource type="Resource" id="Pw_4"]
+script = ExtResource("4_step")
+text = "...Entendido. Boa noite, telefonista."
+requires = PackedStringArray("senha_hotel_4")
+
+[sub_resource type="Resource" id="Pw_5"]
+script = ExtResource("4_step")
+text = "Não foi nada. Boa noite."
+requires = PackedStringArray("!senha_hotel_4")
+
+[sub_resource type="Resource" id="Pw_6"]
+script = ExtResource("4_step")
+kind = 3
+
+[sub_resource type="Resource" id="Dial_hotel"]
+script = ExtResource("3_dial")
+number = "305"
+from = 150.0
+to = 180.0
+steps = Array[ExtResource("4_step")]([SubResource("Pw_1"), SubResource("Pw_2"), SubResource("Pw_2b"), SubResource("Pw_3"), SubResource("Pw_4"), SubResource("Pw_5"), SubResource("Pw_6")])
+
+[sub_resource type="Resource" id="S_cine"]
+script = ExtResource("x0_story_call")
+at = 60.0
+call = ExtResource("x1_story_04_mae_cinema")
+
+[sub_resource type="Resource" id="S_pensao"]
+script = ExtResource("x0_story_call")
+at = 130.0
+call = ExtResource("x2_story_04_pensao_marido")
+
+[sub_resource type="Resource" id="S_radio"]
+script = ExtResource("x0_story_call")
+at = 230.0
+call = ExtResource("x3_story_04_radio_atentado")
+
+[sub_resource type="Resource" id="D_den_00"]
+script = ExtResource("4_step")
+text = "Delegacia, plantão."
+
+[sub_resource type="Resource" id="D_den_01"]
+script = ExtResource("4_step")
+kind = 1
+options = PackedStringArray("Quero denunciar o Bar do Zé. Tem gente estranha usando a linha de lá.", "Desculpe, foi engano.")
+sets = PackedStringArray("denunciou_bar_4", "")
+
+[sub_resource type="Resource" id="D_den_02"]
+script = ExtResource("4_step")
+text = "O Bar do Zé, da Vila Serena... A gente já estava de olho. Mais alguma coisa?"
+requires = PackedStringArray("denunciou_bar_4")
+
+[sub_resource type="Resource" id="D_den_03"]
+script = ExtResource("4_step")
+kind = 1
+options = PackedStringArray("Só isso.", "Um homem que liga pedindo pelo meu nome.")
+sets = PackedStringArray("", "denunciou_homem_4")
+requires = PackedStringArray("denunciou_bar_4")
+
+[sub_resource type="Resource" id="D_den_04"]
+script = ExtResource("4_step")
+text = "Anotado. A senhora fez bem. Se ele ligar de novo, avise a gente."
+requires = PackedStringArray("denunciou_bar_4")
+
+[sub_resource type="Resource" id="D_den_05"]
+script = ExtResource("4_step")
+text = "Então não ocupe a linha. Boa noite."
+requires = PackedStringArray("!denunciou_bar_4")
+
+[sub_resource type="Resource" id="D_den_06"]
+script = ExtResource("4_step")
+kind = 3
+
+[sub_resource type="Resource" id="D_den"]
+script = ExtResource("3_dial")
+number = "184"
+from = 0.0
+to = 359.0
+voice = "m"
+steps = Array[ExtResource("4_step")]([SubResource("D_den_00"), SubResource("D_den_01"), SubResource("D_den_02"), SubResource("D_den_03"), SubResource("D_den_04"), SubResource("D_den_05"), SubResource("D_den_06")])
+
+[sub_resource type="Resource" id="E_bal"]
+script = ExtResource("x0_story_call")
+at = 45.0
+call = ExtResource("x0_story_04_baleado")
+again = false
+
+[sub_resource type="Resource" id="E_atr"]
+script = ExtResource("x0_story_call")
+at = 115.0
+call = ExtResource("x1_story_04_atropelado")
+again = false
+
+[sub_resource type="Resource" id="E_bom"]
+script = ExtResource("x0_story_call")
+at = 200.0
+call = ExtResource("x2_story_04_bomba_loja")
+again = false
+
+[sub_resource type="Resource" id="E_bri"]
+script = ExtResource("x0_story_call")
+at = 285.0
+call = ExtResource("x3_story_04_briga")
+again = false
+
+[sub_resource type="Resource" id="J_call_dinamite"]
+script = ExtResource("x0_story_call")
+call = ExtResource("j_dinamite")
+
 [resource]
 script = ExtResource("1_night")
-note = "O supervisor deixou um recado: \"O fim de semana vem aí e o movimento costuma crescer. Não deixe ninguém esperando.\""
+note = "O supervisor deixou um recado: \"Houve explosões em vários pontos da cidade esta tarde, e há protesto marcado na praça. A noite vai ser pesada: emergência primeiro, e nada de conversa na linha. A delegacia pede que qualquer conversa suspeita na linha seja comunicada pelo 184.\""
 street_events = Array[ExtResource("2_event")]([SubResource("ev_0")])
+dial = Array[ExtResource("3_dial")]([SubResource("Dial_hotel"), SubResource("D_den")])
+story = Array[ExtResource("x0_story_call")]([SubResource("S_cine"), SubResource("S_pensao"), SubResource("S_radio"), SubResource("E_bal"), SubResource("E_atr"), SubResource("E_bom"), SubResource("E_bri")])
+news_stories = PackedStringArray("Somem doze caixas de dinamite de pedreira\nO paiol da pedreira do Alto da Serra amanheceu arrombado e sem doze caixas de explosivos. O vigia diz que não viu nada e foi levado para depoimento. A polícia pede que a população denuncie movimentos estranhos.")
+calls = Array[ExtResource("x0_story_call")]([SubResource("J_call_dinamite")])
+news_photo = "armas"
+news_caption = "Caixas como as que sumiram do paiol."

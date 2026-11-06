@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="TransferCall" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/transfer_call.gd" id="1_srh6x"]
+
+[resource]
+script = ExtResource("1_srh6x")
+group = 1
+caller = "Dona Rute"
+caller_name = "Rute Fonseca"
+opening = PackedStringArray("Me liga com o hospital, na recepção.", "Não é pra falar com o doutor, é pra marcar horário.")
+repeat = "A recepção do Hospital São Lucas."
+target = "213"
+destination = "Hospital São Lucas"
+thanks = "Obrigada."
+overheard = PackedStringArray("Boa noite. Queria marcar horário com o doutor.", "Qual o nome da senhora?", "Rute Fonseca. É pra ver a pressão, que anda variando.", "Tem quinta, às nove da manhã. Serve?", "Serve. Preciso ir em jejum?", "Não precisa. Só traz os exames antigos.")

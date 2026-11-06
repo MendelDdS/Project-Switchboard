@@ -164,11 +164,33 @@ Ordem sugerida: das que reaproveitam mais (o rig, a viatura, a passada) para as 
   fica para trás) e ajuda cada um a subir o degrau; fecha as duas (batendo), cada um volta ao seu carro pela porta
   dele, e saem. As sirenes iluminam a rua, a fachada, quem o facho pega, o asfalto molhado e a sala.
 
-## 4. Fechando cada cena
-- [ ] Opção na captura (`tools/shot.gd`) e botão no F1.
-- [ ] `test_content` cobre a hora e a noite; `tests/run.sh` inteiro.
-- [ ] Item no `HISTORICO.md`, a linha da cena no `scripts/ui/CLAUDE.md` e, se mudar a regra, no `CLAUDE.md`.
-- [ ] Aprovação do usuário antes da próxima cena.
+### L. O homem de sobretudo (noites 13 e 14) e a bandeira na varanda (noite 15)
+- [x] O homem de sobretudo (o da antiga ligação desconhecida) das 22h às 22h50 embaixo do poste da esquina do prédio de
+  tijolos: chega andando, fica de frente, fuma (a brasa na mão, a tragada acendendo a brasa e o rosto embaixo da aba,
+  a fumaça na luz do poste) e vai embora (`stranger`, `_draw_stranger`). F1: "Homem de sobretudo".
+- [x] A bandeira, à meia-noite da 15, só com o golpe vencido (`Banner`, `--scene=banner`, F1): a luz do apartamento
+  vazio acende, a porta estala (`latch`), um homem de jaqueta sai com o rolo debaixo do braço (o rig, contra a sala
+  acesa), vira para a rua no gradil, ergue o rolo, o apoia no corrimão e o solta segurando a beira: o pano cai
+  desenrolando (o rolo da cor da faixa que vem, afinando), estala (`unfurl`), quica e balança até assentar; ele
+  amarra as pontas, se endireita, ergue o punho e volta. A bandeira (preta com um círculo amarelo no meio, o símbolo ainda por escolher, `Pal.BANNER`; ele de jaqueta aberta e boina, no detalhe de quem passa na calçada) fica com as
+  pregas mexendo no vento e a luz do poste embaixo, mais escura e pesada na chuva, até o amanhecer.
+- [ ] Aprovação do usuário (e o símbolo da bandeira).
+
+### M. A presa (o fim do jogo, posto pelo `Main.start_ending`)
+- [x] `Arrest`, `--arrest=t0,passo,n`: o homem de sobretudo vem pela calçada de lá fumando, para embaixo do poste de
+  frente para a central, dá a última tragada, solta o cigarro (faíscas no chão), pisa nele e atravessa a rua,
+  crescendo, contornando a viatura, com os passos de sola dura (mais fortes perto) e o contorno aceso pelos postes;
+  some atrás do arbusto (recortado na linha do chão a `BEHIND_BUSH`). A viatura (`Arrest.CAR_*`, `_arrest_car`) chega
+  pela mão de cá aos 4 s, freia e para em frente ao prédio, a sirene pintando a rua e o peitoril; os dois policiais
+  descem pelo lado da rua (as portas batendo) e dão a volta pela traseira até a porta. Capturas com tempo limpo,
+  chuva e névoa; `build/presa.gif`.
+- [ ] Aprovação do usuário.
+
+## 4. Fechando cada cena (a lista de cada cena nova, não pendência)
+- Opção na captura (`tools/shot.gd`) e botão no F1.
+- `test_content` cobre a hora e a noite; `tests/run.sh` inteiro.
+- Item no `HISTORICO.md`, a linha da cena no `scripts/ui/CLAUDE.md` e, se mudar a regra, no `CLAUDE.md`.
+- Aprovação do usuário antes da próxima cena.
 
 ## 5. Decisões em aberto
 - (decidido: a banca fica fechada até o fim do jogo; a pichação é de letras inventadas, sem texto)

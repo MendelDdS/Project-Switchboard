@@ -15,22 +15,20 @@ Abra a pasta no Godot 4.6 (Importar → `project.godot`) e aperte F5.
   Para criar uma ligação nova: duplique um `.tres` em `data/calls/`, edite no inspetor e arraste para a lista certa
   no `content.tres`.
 - `data/nights/` — **uma noite por arquivo** (ordem em `nights` no `content.tres`): dia da semana, bilhete da tela
-  inicial, clima, agenda, ligações do roteiro (`story`: um roteiro de `data/calls/` num horário fixo) e o que se diz
-  na ligação desconhecida (`mystery`, passos como os dos trotes). Para criar uma noite: duplique um `.tres`, edite no
+  inicial, clima, agenda, ligações do roteiro (`story`: um roteiro de `data/calls/` num horário fixo). Para criar uma noite: duplique um `.tres`, edite no
   inspetor e acrescente na lista `nights`. O progresso fica salvo em `user://progress.cfg`, com a versão
   do formato (`Progress.VERSION`): mudou o tipo ou o sentido de um campo, suba a versão e converta o save antigo no
   `load_saved`. Um save de versão mais nova ou corrompido fica guardado ao lado (`progress.v2-<hora>.cfg`,
   `progress.corrompido-<hora>.cfg`), a tela inicial avisa e o jogo começa do zero.
-- **Escolhas que mudam as noites seguintes (marcadores)**: um marcador é um nome (ex.: `respondeu_a_luz`).
+- **Escolhas que mudam as noites seguintes (marcadores)**: um marcador é um nome (ex.: `prometeu_quermesse`).
   - Num passo de operador (`OPERATOR`), `sets` diz o que cada opção faz, na ordem de `options`: `"nome"` liga,
     `"!nome"` desliga, vazio não faz nada.
   - Qualquer passo e qualquer ligação do roteiro (`story`) tem `requires`: só acontece se todos os nomes estiverem
     ligados (com `!` na frente, desligados). A ligação do roteiro confere na hora de tocar, então uma escolha às
     19:00 já vale para uma ligação das 21:00.
-  - O jogo liga sozinho `ligou_de_volta_N` (tentou ligar de volta para a ligação desconhecida da noite N) e
-    `desligou_desconhecida_N` (desligou na cara dela), `sinalizador_N` (o sinalizador da rua acendeu no céu, a
+  - O jogo liga sozinho `sinalizador_N` (o sinalizador da rua acendeu no céu, a
     noite 15 às 21h) e `ligou_<número>_N` (o operador ligou pelo discador e o lugar atendeu).
-  - Para testar um ramo: `godot --path . -- --night=2 --flags=respondeu_a_luz`.
+  - Para testar um ramo: `godot --path . -- --night=2 --flags=prometeu_quermesse`.
 - `data/templates/` — **moldes**: roteiros com lacunas em inglês, preenchidas na hora (veja abaixo).
 - `scripts/main.gd` — conduz o turno (relógio, quando cada ligação toca, mesa, fim de ligação, final).
 - `scripts/schedule.gd` — monta a agenda da noite (quem liga e quando).
@@ -50,8 +48,7 @@ Abra a pasta no Godot 4.6 (Importar → `project.godot`) e aperte F5.
 tela em `scenes/ui/report_view.tscn`): conta os serviços prestados (ligações completadas, informações, emergências
 atendidas...), lista as advertências (leve, média, grave, gravíssima) e dá um **conceito** carimbado (Ótimo, Bom,
 Regular, Insuficiente) com o parecer à mão (`verdicts` no content, um por conceito). O jornal da manhã, com o desfecho
-de cada emergência, vem na mesa na noite seguinte. As ligações do treinamento, os trotes e a
-ligação desconhecida não contam.
+de cada emergência, vem na mesa na noite seguinte. As ligações do treinamento e os trotes não contam.
 
 | Falha | Gravidade | O que acontece no turno |
 |---|---|---|
@@ -158,7 +155,7 @@ O operador liga pelo discador da prateleira (clicado, ele abre de perto): digita
   conversa fiada (`ChatTopic`), com a fala de atendimento (`line`) e as perguntas do operador (`replies`: `text` a
   pergunta, `follow` a resposta, `sets` os marcadores). Pode ter `requires` (só depois de um marcador) e `weather`.
   Sorteia um entre os que valem; o operador vê até duas perguntas e [Encerrar ligação]. `bye` é a despedida (vazio:
-  uma de `dial_byes`, no `content.tres`). Sem atendimento, ninguém atende. Hoje só Vila Serena (o `test_content` cobra).
+  uma de `dial_byes`, no `content.tres`). Sem atendimento, ninguém atende. Todo número da cidade atende, menos os do despacho (o `test_content` cobra).
   `closes`: a hora em que o lugar fecha (minutos depois das 18h) e ninguém mais atende. As respostas podem ter
   palavras-chave (`[person:Benedito Souza]`, como na escuta), que vão para as anotações da lista.
 - **Ligação do roteiro**: um `.tres` com o script `scripts/data/dial_call.gd` (`DialCall`) em `Night.dial` (só naquela
@@ -170,8 +167,8 @@ O operador liga pelo discador da prateleira (clicado, ele abre de perto): digita
 ## Moldes (conversas geradas)
 
 Metade das transferências e das emergências do turno (`TEMPLATE_CHANCE` em `schedule.gd`) vem de um molde; a outra metade,
-dos roteiros escritos em `data/calls/`. Os trotes, o treinamento, as ligações do roteiro da noite e a ligação
-desconhecida são sempre escritos à mão.
+dos roteiros escritos em `data/calls/`. Os trotes, o treinamento, e as ligações do roteiro da noite são sempre
+escritos à mão.
 
 - **Transferência** (`transfer_templates`): o molde é um `TransferCall` com lacunas em `opening` e `repeat`.
   O contato é sorteado entre os que têm `spoken` e `motives` na lista e atendem à noite; quem liga sai de `callers`.
@@ -267,10 +264,10 @@ Ajuste em `main.gd` → `GAME_MIN_PER_SEC`.
   do operador e, na noite em que um setor é entregue, se abre para ele na primeira vez que aparece. A primeira
   ligação para o banco novo da mesa vem com uma dica de onde ele fica. Roda do
   mouse aproxima, arrastar move. As viaturas saem do Centro e demoram pela distância. O operador começa só com o setor 3
-  (10 números na mesa e na lista), recebe o setor 1 (o Centro, +12) na noite 5 e o setor 2 (+12) na noite 9
+  (10 números na mesa e na lista), recebe o setor 1 (o Centro, +12) na noite 5 e o setor 2 (+12) na noite 10
   (`SECTOR_NIGHTS` em `game_data.gd`). As ligações só pedem números dos setores dele. O jogo tem 15 noites; da 3 em
   diante, por enquanto, são genéricas (só o dia e o bilhete).
-- **Nada é fixo, exceto o roteiro da noite** (`story` e `mystery` em `data/nights/`). O resto é sorteado (`Schedule._random_calls`):
+- **Nada é fixo, exceto o roteiro da noite** (`story` em `data/nights/`). O resto é sorteado (`Schedule._random_calls`):
   o ritmo vem de um **nível** (`paces` no content, um `Pace` cada), não da noite. Entre uma ligação e a próxima passam
   `call_gap` minutos de jogo (o máximo é o maior silêncio possível); em `peak_chance` dos intervalos a próxima vem logo
   em seguida (2–6 min); com `max_live` ligações pedindo atenção (tocando ou ainda não conectadas), a próxima espera.
@@ -299,12 +296,9 @@ Ajuste em `main.gd` → `GAME_MIN_PER_SEC`.
   (o número de alguém na lista). Um destino não se repete na mesma noite (o pedido de informação não ocupa o número).
   Com a mesa vazia por muito tempo, toca uma a mais: uma transferência para um número livre (`Schedule.filler`). O treinamento (noite 0) é a Cecília,
   veterana do Alto da Serra, ligando e ensinando o serviço (`data/nights/night_00.tres`, passos `LessonStep`).
-- **Ligação desconhecida**: toca por uma entrada livre qualquer, num horário sorteado entre `mystery_from` e
-  `mystery_to` da noite (22:00–23:30).
 - As ligações tocam no horário mesmo com o operador ocupado; uma emergência espera a anterior desligar e as unidades
   chegarem. Quem ninguém atende desiste (`GIVE_UP_SEC`: 60 s; as do roteiro aguentam 90 s, os retornos 45 s; as do
-  treinamento e a desconhecida não desistem).
-- A ligação desconhecida espera a mesa ficar em silêncio, por no máximo 30 minutos de jogo.
+  treinamento não desistem). As do roteiro esperam a mesa ficar em silêncio, por no máximo 30 minutos de jogo.
 - Alguns números não atendem à noite (`closed_at_night` no contato). Roteiros com `alt_target` deixam o operador
   sugerir outro lugar.
 - Conexões completadas duram 34–68 minutos de jogo, cerca de 45–90 s reais (`talk_len` do nível de ritmo; mais longas do nível 6 em diante); depois as lâmpadas ficam vermelhas
@@ -314,11 +308,10 @@ Ajuste em `main.gd` → `GAME_MIN_PER_SEC`.
   hora (desliga sem advertência e liga de novo mais tarde).
 - A ficha de ocorrências (o bloco de fichas na mesa; a da noite vai para o supervisor) guarda as ocorrências numa fila: dá para registrar depois, sem travar o turno. A aba mostra quantas
   faltam; registrar é um clique no tipo (ligação comum, emergência ou trote), o resto a ficha já anotou.
-- A última ligação nova toca às 23:40 (`LAST_CALL`); a partir daí aparece o botão **Encerrar turno** ao lado do relógio
-  (depois da ligação desconhecida). Encerrar com alguém na linha conta como desligar na cara dela (advertência média).
+- A última ligação nova toca às 23:40 (`LAST_CALL`); a partir daí aparece o botão **Encerrar turno** ao lado do relógio.
+  Encerrar com alguém na linha conta como desligar na cara dela (advertência média).
 - À meia-noite ninguém é cortado: quem está na linha é atendido até o fim (o relógio continua). O turno termina quando a
-  mesa esvazia e não falta nada na ficha (ou pelo botão), depois de a ligação desconhecida ter tocado e caído, e vem
-  a tela final.
+  mesa esvazia e não falta nada na ficha (ou pelo botão) e vem a tela final.
 
 ## Clima e sons
 
@@ -347,9 +340,7 @@ uma vez por noite; o mesmo vale para assuntos com `requires`. Exemplo: na noite 
 o mistério (luzes, barulhos na linha, vultos) fica para as falas do roteiro.
 
 Volumes de cada
-clima em `Sfx.WEATHER_MIX`. 15 minutos antes da ligação desconhecida (`SHADOW_LEAD`) aparece a silhueta de alguém
-do lado de fora da janela; 10 minutos antes (`SHADOW_LEAVE`) ela sai, e então a ligação toca. Antes da ligação desconhecida a noite se cala (grilos param, chuva e brisa
-baixam) e volta aos poucos depois.
+clima em `Sfx.WEATHER_MIX`.
 
 Todos os sons são sintetizados em `sfx.gd`: a campainha ("trrrim-trrrim" de martelinho em duas campânulas), o
 "tuuuu" de chamando (425 Hz, com o corte de frequências da linha) e os sons de ambiente (com o abafamento da distância).
@@ -384,7 +375,7 @@ Com um campo de texto em foco, as teclas vão para o campo. **1**, **2** e **3**
 
 | Seção | O que faz | Limpar |
 |---|---|---|
-| Ligações e mesa | toca transferência (roteiro ou molde), informação, trote, ligação desconhecida e qualquer emergência (escritas e moldes, com o caso sorteado) | encerra todas as ligações, zera a mesa (cabos na base) e tira os retornos da agenda |
+| Ligações e mesa | toca transferência (roteiro ou molde), informação, trote e qualquer emergência (escritas e moldes, com o caso sorteado) | encerra todas as ligações, zera a mesa (cabos na base) e tira os retornos da agenda |
 | Barra de agravamento | mostra estágio, tempo e as unidades exigidas (o que já foi contado e o real); pula para o próximo estágio; encerra a emergência; congela a barra | descongela e encerra a emergência |
 | Tempo | velocidade 1×, 2×, 4×, 8×; +30 min; ir para 23:50; encerrar o turno (relatório e final) | volta a 1× |
 | Viaturas e caderno | viaturas livres na hora (as que estavam a caminho não chegam mais); registra as pendências com o tipo certo; limpa as advertências; apaga o progresso salvo | viaturas livres, caderno em branco, relatório zerado |
@@ -401,7 +392,7 @@ Para começar num ponto específico, combine com as opções de linha de comando
 - **Destinos:** um plug por número da lista (menos polícia, bombeiros e hospital, que vão pelo despacho).
 - **FONE** (cabo verde): sai do encaixe no canto do telefone e só entra nas entradas.
   A ligação da entrada onde o FONE está é a que aparece no telefone.
-- **Cabos de conexão** (vermelho, azul e amarelo; branco quando chega o Centro, na noite 5, e preto com o Alto da Serra, na noite 9;
+- **Cabos de conexão** (vermelho, azul e amarelo; branco quando chega o Centro, na noite 5, e preto com o Alto da Serra, na noite 10;
   `CORD_COLORS`, `patches` em `scripts/ui/switchboard_base.gd`), independentes, com um plug em cada ponta:
   uma ponta na SAÍDA da linha, a outra no destino.
 
@@ -415,8 +406,6 @@ o botão **Desligar** encerra a ligação, e a linha fica "desligou" até o FONE
 **Várias ligações:** levar o FONE para outra entrada que está chamando deixa a ligação anterior em espera
 (a pessoa para de falar até você voltar). Para voltar, leve o FONE de volta à entrada dela.
 "Outras linhas" no telefone lista quem está tocando ou em espera.
-
-Depois da ligação desconhecida, FONE na entrada por onde ela veio tenta ligar de volta.
 
 **Emergência:** na aba **Mapa e despacho**, clique no trecho da rua (passar o mouse mostra a faixa de números, ex.:
 "Rua do Sol, 1–99"), escolha o tipo, marque as unidades e **Enviar**, que só acende com local, tipo e unidade marcados. O tipo
@@ -438,9 +427,3 @@ para a próxima.
 Os cabos são cordas simuladas (Verlet) em `scripts/ui/switchboard.gd`: balançam ao arrastar o plug e
 ao passar o mouse por cima. Ajuste `SLACK` (folga), `DAMPING` (quanto demora para parar),
 `GRAVITY` e `STIFF_ITER` (rigidez) no topo do arquivo.
-
-## Ligação desconhecida
-
-Toca por uma entrada livre sorteada, como qualquer outra (lâmpada piscando, cabo + Atender).
-Quando cai, a linha volta a ficar livre e a ocorrência vai para a ficha; clicar nessa linha
-mostra o registro da última chamada.

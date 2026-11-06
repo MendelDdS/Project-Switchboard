@@ -1,0 +1,58 @@
+[gd_resource type="Resource" script_class="DirectoryEntry" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/directory_entry.gd" id="1_entry"]
+[ext_resource type="Script" path="res://scripts/data/motive.gd" id="2_motive"]
+[ext_resource type="Script" path="res://scripts/data/chat_topic.gd" id="8_chat"]
+[ext_resource type="Script" path="res://scripts/data/chat_reply.gd" id="9_reply"]
+
+[sub_resource type="Resource" id="Motive_1"]
+script = ExtResource("2_motive")
+text = "Preciso de um salvo-conduto para viajar."
+talks = Array[PackedStringArray]([PackedStringArray("Boa noite. Preciso de um salvo-conduto para ir à capital.", "O pedido é por escrito, aqui no balcão, com dois documentos.", "Mas é para enterrar minha mãe. Não dá para ser mais rápido?", "Não depende de mim. Venha amanhã às oito, e cedo.", "Está bem. Amanhã às oito.", "Boa noite."), PackedStringArray("Boa noite. Meu salvo-conduto vence amanhã. Como faço para renovar?", "Traga o antigo e o comprovante de trabalho. Sem ele, não renova.", "E se o patrão não quiser assinar?", "Aí não tem viagem.", "Entendi. Passo aí amanhã.", "Passe cedo. A fila dobra a esquina.")])
+
+[sub_resource type="Resource" id="Motive_2"]
+script = ExtResource("2_motive")
+text = "Quero notícia de um parente que foi detido."
+talks = Array[PackedStringArray]([PackedStringArray("Levaram meu filho ontem, na saída da fábrica. Ninguém diz onde ele está.", "Nome completo e idade.", "Paulo Ferraz, vinte anos. Por favor, ele não fez nada.", "Isso não é comigo. Se houver notícia, mandam avisar.", "E quando vão avisar?", "Quando houver notícia. Boa noite."), PackedStringArray("Meu irmão foi detido no toque de recolher. Posso levar roupa para ele?", "Roupa e comida, só com autorização.", "E a autorização, onde eu peço?", "Aqui mesmo, por escrito. Demora uns dias.", "Uns dias... Está bem. Vou pedir.", "Boa noite.")])
+
+[sub_resource type="Resource" id="Dial_0_0"]
+script = ExtResource("9_reply")
+text = "Aqui é a telefonista da central."
+follow = "Telefonista não liga para cá sem ordem. De quem é a ordem?"
+
+[sub_resource type="Resource" id="Dial_0_1"]
+script = ExtResource("9_reply")
+text = "Desculpe, foi engano."
+follow = "Aqui ninguém liga por engano. O seu nome fica anotado."
+
+[sub_resource type="Resource" id="Dial_0"]
+script = ExtResource("8_chat")
+line = "Alta Cúpula, plantão. Nome e motivo."
+replies = Array[ExtResource("9_reply")]([SubResource("Dial_0_0"), SubResource("Dial_0_1")])
+
+[sub_resource type="Resource" id="Dial_1_0"]
+script = ExtResource("9_reply")
+text = "É da central. Estamos testando a linha."
+follow = "A linha é testada por quem a gente manda. Desligue."
+
+[sub_resource type="Resource" id="Dial_1_1"]
+script = ExtResource("9_reply")
+text = "Como se pede um salvo-conduto?"
+follow = "Pessoalmente, com documento e dois atestados. Por telefone, não."
+
+[sub_resource type="Resource" id="Dial_1"]
+script = ExtResource("8_chat")
+line = "Plantão. A ligação está sendo registrada."
+replies = Array[ExtResource("9_reply")]([SubResource("Dial_1_0"), SubResource("Dial_1_1")])
+
+[resource]
+script = ExtResource("1_entry")
+name = "Alta Cúpula"
+address = "Rua do Cruzeiro, 177"
+number = "296"
+voice = "m"
+spoken = "a Alta Cúpula"
+hello = "Alta Cúpula, plantão."
+motives = Array[ExtResource("2_motive")]([SubResource("Motive_1"), SubResource("Motive_2")])
+answers = Array[ExtResource("8_chat")]([SubResource("Dial_0"), SubResource("Dial_1")])
+bye = "Passe bem."

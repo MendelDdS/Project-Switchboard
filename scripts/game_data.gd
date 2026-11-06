@@ -8,7 +8,7 @@ static var CONTENT: GameContent = load("res://data/content.tres")
 
 ## A cidade tem três setores; o de um número é o primeiro dígito (3xx, 1xx, 2xx). O operador começa com o setor 3 e
 ## recebe os outros em noites fixas: setor -> noite da entrega.
-const SECTOR_NIGHTS := {3: 1, 1: 5, 2: 9}
+const SECTOR_NIGHTS := {3: 1, 1: 5, 2: 10}
 ## Setores atendidos no turno atual (Main define ao carregar a noite); a mesa, a lista e as ligações só usam os
 ## números deles. Polícia, bombeiros e hospital (despacho) valem para a cidade toda.
 static var sectors: Array = [1, 2, 3]
@@ -68,7 +68,7 @@ static func street(id: String) -> Street:
 
 ## Contato da lista telefônica pelo número (nulo se não existir); num tronco, a telefonista da cidade dele.
 static func entry(number: String) -> DirectoryEntry:
-	for e in CONTENT.directory:
+	for e in CONTENT.directory + CONTENT.operators:
 		if e.number == number:
 			return e
 	if is_trunk(number):
@@ -78,6 +78,10 @@ static func entry(number: String) -> DirectoryEntry:
 		t.voice = "f"
 		return t
 	return null
+
+
+## O número da própria central (Vila Serena): no discador, dá ocupado.
+const OWN := "003"
 
 
 ## Os troncos interurbanos, um por cidade (o banco INTERURBANO da mesa): tomadas de destino fora da lista e de todos

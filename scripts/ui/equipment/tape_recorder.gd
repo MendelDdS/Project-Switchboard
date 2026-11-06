@@ -116,7 +116,10 @@ func _process(delta: float) -> void:
 	else:
 		_flap = 1.0 if loaded else 0.0
 	# as tiradas ficam na mesa (a que voa, só quando chega)
-	_desk.main.background.tapes_out = tp.on_desk().size() - (1 if _fly == Fly.DELIVER else 0)
+	var out := tp.on_desk().map(func(t): return t.to)
+	if _fly == Fly.DELIVER:
+		out.pop_back()
+	_desk.main.background.tapes_out = out
 	var shown := [_hover, loaded, rec, tp.rec, int(_rec_sec * 2.0), roundi(_needle * 12.0), _written(), _marks, _pop > 0.0, _press_t > 0.0,
 		_bounce > 0.0, _wrong, _blink, _fly, int(_fly_t * 60.0), roundi(_flap * 12.0)]
 	if shown != _drawn:

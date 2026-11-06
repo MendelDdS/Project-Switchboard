@@ -2,6 +2,8 @@
 
 [ext_resource type="Script" path="res://scripts/data/directory_entry.gd" id="1_entry"]
 [ext_resource type="Script" path="res://scripts/data/motive.gd" id="2_motive"]
+[ext_resource type="Script" path="res://scripts/data/chat_topic.gd" id="8_chat"]
+[ext_resource type="Script" path="res://scripts/data/chat_reply.gd" id="9_reply"]
 
 [sub_resource type="Resource" id="Motive_27"]
 script = ExtResource("2_motive")
@@ -13,6 +15,36 @@ script = ExtResource("2_motive")
 text = "Quero marcar o batizado do meu neto."
 talks = Array[PackedStringArray]([PackedStringArray("Boa noite. Queria marcar o batizado do meu neto.", "Os batizados são no segundo domingo do mês, depois da missa.", "Serve. E os padrinhos precisam fazer o curso?", "Precisam. É no sábado, às {hour}, aqui no salão.", "Vou avisar. O nome dele é Joãozinho, como o avô.", "Traz a certidão de nascimento no dia do curso."), PackedStringArray("Boa noite. Meu neto nasceu e a família quer batizar logo.", "Parabéns! Quem vão ser os padrinhos?", "Minha filha mais velha e o marido dela.", "Tem vaga no domingo que vem, às {hour}. Serve?", "Serve. Precisa levar alguma coisa?", "A vela, a roupinha branca e a certidão.")])
 
+[sub_resource type="Resource" id="Dial_0_0"]
+script = ExtResource("9_reply")
+text = "Como faço para marcar um batizado?"
+follow = "Traga a certidão do bebê e o nome dos padrinhos. Batizado, só no domingo."
+
+[sub_resource type="Resource" id="Dial_0_1"]
+script = ExtResource("9_reply")
+text = "Até que horas a secretaria funciona?"
+follow = "Até as oito da noite. A senhora me pegou por pouco."
+
+[sub_resource type="Resource" id="Dial_0"]
+script = ExtResource("8_chat")
+line = "Igreja Matriz, secretaria. Já estava fechando o livro."
+replies = Array[ExtResource("9_reply")]([SubResource("Dial_0_0"), SubResource("Dial_0_1")])
+
+[sub_resource type="Resource" id="Dial_1_0"]
+script = ExtResource("9_reply")
+text = "Quando é a quermesse?"
+follow = "No mês que vem, se não chover e se deixarem."
+
+[sub_resource type="Resource" id="Dial_1_1"]
+script = ExtResource("9_reply")
+text = "Não é sobre isso. Desculpe."
+follow = "Ah, bom. Hoje só me ligaram por causa disso."
+
+[sub_resource type="Resource" id="Dial_1"]
+script = ExtResource("8_chat")
+line = "Secretaria da Matriz. Se é sobre a quermesse, as barracas já estão todas tomadas."
+replies = Array[ExtResource("9_reply")]([SubResource("Dial_1_0"), SubResource("Dial_1_1")])
+
 [resource]
 script = ExtResource("1_entry")
 name = "Igreja Matriz"
@@ -23,3 +55,6 @@ hello = "Igreja Matriz, secretaria."
 category = "igreja"
 spoken = "a Igreja Matriz"
 motives = Array[ExtResource("2_motive")]([SubResource("Motive_27"), SubResource("Motive_28")])
+answers = Array[ExtResource("8_chat")]([SubResource("Dial_0"), SubResource("Dial_1")])
+bye = "Boa noite. A secretaria abre às oito."
+closes = 120.0

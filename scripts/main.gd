@@ -7,24 +7,27 @@ extends Control
 
 const GAME_MIN_PER_SEC := 0.75          # 360 minutos de turno ≈ 8 minutos reais
 const SHIFT_START_HOUR := 18            # o turno vai das 18:00...
-const LAST_CALL_BEFORE := 20.0          # ...até `Night.shift_end`; tantos minutos antes dele, nada novo toca (a desconhecida
-										# tem regra própria) e aparece o botão Encerrar turno; quem está na linha no fim é atendido até o fim
+const LAST_CALL_BEFORE := 20.0          # ...até `Night.shift_end`; tantos minutos antes dele, nada novo toca
+										# e aparece o botão Encerrar turno; quem está na linha no fim é atendido até o fim
 const CLEAR_SEC := 40.0                 # o som e a cor indo para a noite limpa quando a chuva ou a névoa param (`Night.clears_at`)
-const SHADOW_LEAD := 25.0               # minutos antes da ligação desconhecida em que o homem para embaixo do poste (chega andando)...
-const SHADOW_LEAVE := 10.0              # ...e em que vai embora andando (para ir ligar): fica 15 minutos
 const WEATHERS := ["rain", "fog", "clear"]   # clima sorteado no começo do turno (`-- --weather=fog` força um)
 const QUIET_SHARE := 0.6               # mesa vazia por tanto do maior intervalo do ritmo (`Pace.call_gap`): toca uma a mais
 const GIVE_UP_SEC := 60.0               # quem liga desiste se ninguém atende (as do roteiro aguentam 1,5x; retornos, 0,75x)
+const FREE_FOR_STORY := 3.0            # min de jogo até a conversa num destino que uma ligação do roteiro vai pedir terminar (`_free_dest_for`)
 const SMALLTALK_AFTER := 10.0           # segundos de silêncio esperando a transferência até puxar conversa fiada...
 const SMALLTALK_CHANCE := 0.6           # ...às vezes (respostas e limites: Conversation); sem resposta, reclama da demora:
 const NAG_AFTER := 22.0                 # segundos de silêncio até reclamar da demora (emergência: EMERGENCY_NAG_AFTER)
 const EMERGENCY_NAG_AFTER := 26.0
 const MAX_EMERGENCIES := 2              # emergências em andamento ao mesmo tempo (a próxima espera; o debug recusa)
+const CALL_BACK_AFTER := Vector2(50.0, 90.0)   # quem volta a ligar (`StoryCall.callback`): tantos minutos de jogo depois
 ## Atalhos das ferramentas (Input Map): aba -> ação.
 const DAY_DIM := 0.5   # o quanto o dia enfraquece o brilho da luminária e o halo das luzes (`Bloom`), na força toda
 const WARM_TINT := Color(1.0, 0.62, 0.36, 0.35)   # a luminária recém-acesa: o brilho dela nesse tom e nessa fração da força
 const Badges := preload("res://scripts/model/badges.gd")
 const Dialing := preload("res://scripts/dialing.gd")
+const Rebellion := preload("res://scripts/model/rebellion.gd")
+const SIGN_BACK := 8   # horas depois do início do turno em que o letreiro do hotel volta a acender no golpe vencido (2h)
+const MIDNIGHT := 360.0   # minutos depois do início do turno: na última noite, a conta do golpe (`_midnight`)
 const TAB_KEYS := {Tools.DIRECTORY: "tab_directory", Tools.DISPATCH: "tab_dispatch", Tools.LOGBOOK: "tab_logbook", Tools.CALL_LOG: "tab_call_log"}
 var C: GameContent = GameData.CONTENT
 
@@ -40,7 +43,12 @@ var progress: Progress             ## progresso salvo; nulo quando a noite foi f
 var flags: StoryFlags:             ## marcadores do roteiro valendo agora: os salvos + os desta noite (mudam a sala)
 	set(v):
 		flags = v
-		flags.changed.connect(func(_n: String, _on: bool): _update_room())
+		flags.changed.connect(func(n: String, on: bool):
+			if on and n.begins_with(StoryFlags.FAULT) and is_node_ready():   # (a cobrança do Dia 12; os salvos chegam antes, já cobrados na noite deles)
+				supervisor.fault("authority_ignored")
+			if not n in Rebellion.DERIVED:   # o fator sucesso acompanha os marcadores (as conclusões dele não recontam)
+				Rebellion.sync(flags, night_no)
+			_update_room())
 var weather := "rain"
 var report := ShiftReport.new()    ## advertências do turno, conferidas pelo supervisor no fim do turno
 var minutes := 0.0
@@ -51,10 +59,9 @@ var live: Array[PhoneCall] = []    ## tocando ou em andamento (podem ser várias
 ## Emergências que tocaram, a mais recente por último; as em andamento (`in_progress`) são no máximo
 ## `MAX_EMERGENCIES`. Uma que acabou fica até dar lugar a outra (o despacho ainda pode chegar a ela).
 var emergencies: Array[PhoneCall] = []
-var myst_time := "02:13"
-var myst_line := 0                 ## entrada por onde veio a ligação desconhecida (sorteada)
-var myst_plan := INF               ## horário sorteado da ligação desconhecida (a silhueta segue este, mesmo se ela atrasar)
-var after := false                 ## a ligação desconhecida já tocou e caiu
+var _called_back: Array[StoryCall] = []   # as ligações cujo `callback` já entrou na agenda nesta noite (uma vez cada)
+var _street_waiting: Array = []    ## cenas da rua com `requires`: conferidas na hora delas (`_street_check`)
+var _verdict := false              ## a conta da meia-noite da última noite já foi feita (`_midnight`)
 var ending := false
 var flick := false
 
@@ -71,9 +78,8 @@ var _taught_done := false
 var _taught_multi := false
 var _taught_ring := false
 var _taught_list := false
-var _myst_lead := false
+var _story_talks := {}   ## entrada → a ligação do roteiro conectada ainda falando (o desfecho espera, `_story_talk_over`)
 var _quiet_from := 0.0   # desde quando a mesa está vazia (minutos do turno)
-var _calling_back := false
 var _minute := -1   # o minuto que o relógio de flip mostra (o "tic" quando a plaqueta vira)
 var _taught_midnight := false
 var _taught_bank := false
@@ -131,14 +137,18 @@ func _ready() -> void:
 	if night.clears_at >= 0.0:
 		background.clears_at = SHIFT_START_HOUR * 60 + night.clears_at
 	background.night = night_no
-	for e in night.street_events:   # (as que voltam, de tantos em tantos minutos até o fim do turno)
-		var at := e.at
-		while at < night.shift_end:
-			background.schedule(e.kind, SHIFT_START_HOUR * 60 + at)
-			at = at + e.every if e.every > 0.0 else INF
+	if night_no == C.nights.size():   # a última noite: o letreiro do hotel apagado (acende às 2h com o golpe vencido, `_midnight`)
+		background.sign_from = INF
+	Rebellion.sync(flags, night_no)
+	for e in night.street_events:
+		if e.requires.is_empty():
+			_street(e)
+		else:
+			_street_waiting.append(e)
 	for n in range(1, night_no):   # o que as noites anteriores deixaram na rua (a pichação, a tinta nova, a banca fechada)
 		for e in C.nights[n - 1].street_events:
-			background.left_behind(e.kind)
+			if e.requires.is_empty() or flags.has("rua_%s_%d" % [e.kind, n]):
+				background.left_behind(e.kind)
 	notebook.night = night_no
 	toll.night = night_no
 	_update_room()
@@ -151,8 +161,6 @@ func _ready() -> void:
 	bureaucracy.equipment_changed.connect(func(): board.set_equipment(bureaucracy.equipment()))
 	plan = Schedule.build(night, pace, last_call)
 	sched = plan.calls.filter(func(c: PhoneCall) -> bool: return c.at >= minutes)   # (o debug pode começar mais tarde)
-	myst_plan = plan.mystery_at
-	after = night.mystery.is_empty()   # noite sem ligação desconhecida: o turno fecha à meia-noite
 	board.end_changed.connect(_on_end_changed)
 	board.info_requested.connect(_show_line_info)
 	board.warned.connect(warn)
@@ -174,8 +182,9 @@ func _ready() -> void:
 	notebook.registered.connect(supervisor.on_registered)
 	notebook.registered.connect(func(_r: PhoneCall.Record, _t: T.Key): background.written += 1)   # o lápis muda de lugar
 	notebook.pending_changed.connect(func(n: int):
-		tools.set_pending(n)
-		background.pending = n
+		var strips := notebook.pending_strips()
+		tools.set_pending(strips)
+		background.pending = strips
 		if n > 0:
 			_teach(SAW_SLIPS, T.Key.HINT_DESK_SLIPS))
 	toll.unstamped.connect(func(t: TollTicket): supervisor.fault("toll_unstamped", t.detail()))
@@ -194,12 +203,16 @@ func _ready() -> void:
 	background.prop_clicked.connect(func(id: String): if running and not ending: tools.set_tab(id))   # objetos da cena
 	background.flare_lit.connect(func(): flags.apply("sinalizador_%d" % night_no))   # o sinal do roteiro na noite 15
 	_intro.over = board   # o bilhete do supervisor fica preso no painel da mesa comutadora
+	var b3 := bureaucracy.rule("b3_codigo")
 	_intro.setup(night_no, night, progress != null, report.low_before > 0, bureaucracy.tapes.last,
-		progress.aside if progress else "")
+		progress.aside if progress else "", flags, bureaucracy.codes.code(night_no) if b3 in bureaucracy.live() else "")
 	if is_training():   # o treinamento começa com o FONE já na entrada 1
 		board.plugged(0, 1)
 	if progress != null and night_no > 1:   # o jornal da manhã, com o que aconteceu na noite anterior
 		set_news(progress.news)
+	var letter := night.letter_for(flags)   # a carta da noite, em cima do jornal desde o começo
+	tools.letter.show_letter(letter)
+	background.letter = letter != ""
 	if progress != null:
 		background.damp = progress.rains   # a mancha de umidade da sala, das noites de chuva
 	# noite de entrega de um setor: o mapa se abre para o bairro novo na primeira vez que aparece
@@ -238,8 +251,8 @@ func _load_night() -> void:
 			var after: int = f.get("after", 1)
 			var when := T.text(T.Key.REPORT_YESTERDAY) % f["time"] if after <= 1 else T.text(T.Key.REPORT_NIGHTS_AGO) % [after, f["time"]]
 			report.add(f["id"], when, f["detail"], f.get("sev", -1), f.get("text", -1))
-	night_no = clampi(night_no, 0, C.nights.size())
-	night = C.training if night_no == 0 else C.nights[night_no - 1]
+	night_no = clampi(night_no, 0, C.nights.size() + 1)   # (a 16, depois da última: o epílogo)
+	night = C.training if night_no == 0 else C.epilogue if night_no > C.nights.size() else C.nights[night_no - 1]
 	GameData.sectors = GameData.sectors_for(night_no) if force_sectors.is_empty() else force_sectors
 	pace_level = clampi(forced_pace if forced_pace > 0 else pace_level, 1, C.paces.size())
 	pace = C.paces[pace_level - 1]
@@ -247,6 +260,43 @@ func _load_night() -> void:
 	shift_end = night.shift_end
 	last_call = shift_end - LAST_CALL_BEFORE
 	report.end = shift_end
+
+
+## Põe a cena da rua `e` no cenário (as que voltam, de tantos em tantos minutos até o fim do turno).
+func _street(e: Night.StreetEvent) -> void:
+	var at := e.at
+	while at < night.shift_end:
+		background.schedule(e.kind, SHIFT_START_HOUR * 60 + at)
+		at = at + e.every if e.every > 0.0 else INF
+
+
+## As cenas com `requires` que chegaram na hora: com os marcadores batendo, acontecem (e ligam "rua_<kind>_<noite>").
+func _street_check() -> void:
+	for e: Night.StreetEvent in _street_waiting.duplicate():
+		if minutes < e.at:
+			continue
+		_street_waiting.erase(e)
+		if flags.allows(e.requires):
+			flags.apply("rua_%s_%d" % [e.kind, night_no])
+			_street(e)
+
+
+## Meia-noite da última noite: o golpe vence (o turno segue até o amanhecer) ou falha, e o turno acaba ali.
+func _midnight() -> void:
+	if _verdict or night_no != C.nights.size() or minutes < MIDNIGHT:
+		return
+	_verdict = true
+	var won := Rebellion.won(flags, night_no + 1)   # (a conta como depois da noite: as ordens dela já valem)
+	flags.apply(Rebellion.WON if won else Rebellion.LOST)
+	if won:
+		background.sign_from = (SHIFT_START_HOUR + SIGN_BACK) * 60.0
+	flags.apply(Rebellion.FINALS[Rebellion.final(flags, night_no + 1)])   # (a ligação da cúpula na presa, o epílogo)
+	if won and Rebellion.costly(flags):
+		flags.apply(Rebellion.COST)
+	if not won:
+		shift_end = MIDNIGHT
+		last_call = minf(last_call, MIDNIGHT)
+		report.end = shift_end
 
 
 ## `godot -- --seed=123` repete a mesma agenda de ligações (útil para reproduzir bugs).
@@ -324,7 +374,7 @@ func _start_shift() -> void:
 	running = true
 	bureaucracy.night_started()
 	radio.say(T.text(T.Key.RADIO_PATROL))
-	hint(T.text(T.Key.HINT_WAIT_CALLS))
+	hint(T.text(T.Key.HINT_LETTER if background.letter else T.Key.HINT_WAIT_CALLS))
 	if is_training():
 		_taught_done = true   # a lâmpada vermelha ela ensina
 		training.start(night)
@@ -353,24 +403,26 @@ func _process(delta: float) -> void:
 	if running:
 		# no fim do turno o relógio para, a não ser que ainda haja alguém na linha (o turno se estende até resolver)
 		# no treinamento, o relógio só anda depois que a veterana termina (e nada da agenda toca antes)
-		if (minutes < shift_end or not live.is_empty()) and not training.active:
+		if (minutes < shift_end or not live.is_empty() or _story_late()) and not training.active:
 			minutes += delta * GAME_MIN_PER_SEC
 		if int(minutes) != _minute:   # a plaqueta do relógio de flip vira: o "tic" quando ela bate, vindo do relógio
 			if _minute >= 0:   # (no começo do turno, nada vira)
 				get_tree().create_timer(Background.FLIP_SEC, false).timeout.connect(
 					func() -> void: Sfx.play_at("tick", _across(background.clock_x), -3.0))
 			_minute = int(minutes)
+		_midnight()   # (antes da agenda e das cenas da rua: a ligação da cúpula e a bandeira da meia-noite da 15 pedem o final)
 		_run_schedule()
+		_street_check()
 		_update_line_timers()
-		# o turno fecha depois do fim do turno, da ligação desconhecida, da última ligação e do último registro
+		# o turno fecha depois do fim do turno, da última ligação e do último registro
 		# (com registro pendente ou bilhete na mesa, espera o operador registrar e guardar ou encerrar pelo botão)
-		if minutes >= shift_end and after and live.is_empty():
+		if minutes >= shift_end and live.is_empty() and not _story_late():
 			if not _unregistered():
 				start_ending()
 			elif not _taught_midnight:
 				_taught_midnight = true
-				hint(T.text(T.Key.HINT_MIDNIGHT))
-		var can_end := after and minutes >= last_call and not ending
+				hint(T.text(T.Key.HINT_TAPES if _tapes_open() else T.Key.HINT_MIDNIGHT))
+		var can_end := minutes >= last_call and not ending
 		if night.clears_at >= 0.0 and minutes >= night.clears_at and weather != "clear":   # a chuva ou a névoa pararam
 			set_weather("clear", CLEAR_SEC)
 		if can_end and not _end_shift.visible:   # a campainha da plaqueta: o turno já pode ser encerrado
@@ -427,7 +479,11 @@ func _nag() -> void:
 	if f.kind == PhoneCall.Kind.TRANSFER and f.phase == PhoneCall.Phase.AWAIT:
 		if _transferred(f):   # o destino está tocando ou atendeu: ela espera quieta
 			return
-		if not f.chatted and quiet > SMALLTALK_AFTER:
+		var turns: bool = f.data is TransferCall and f.data.turns != null   # (transferida antes, fica ligação comum)
+		if turns and quiet > SMALLTALK_AFTER and in_progress().size() < MAX_EMERGENCIES:
+			f.last_talk = talk_clock
+			conversation.turn(f)
+		elif not turns and not f.chatted and quiet > SMALLTALK_AFTER:
 			f.chatted = true
 			if randf() < SMALLTALK_CHANCE:
 				f.last_talk = talk_clock
@@ -503,8 +559,6 @@ func _on_end_changed(e: int, j: int, prev: int) -> void:
 func _filled(j: int, e: int) -> void:
 	if e != 0:
 		return
-	if j == myst_line and after:
-		_call_back_mystery()
 	var c := _call_on_line(j)
 	if c != null and c.active and exchange.line(j) == Exchange.Line.HOLD:
 		exchange.set_line(j, Exchange.Line.TALK)
@@ -535,6 +589,7 @@ func _vacated(j: int, e: int) -> void:
 		else:
 			if exchange.line(n) == Exchange.Line.CONN:
 				exchange.set_line(n, Exchange.Line.DONE)   # a conversa foi cortada
+				_story_talk_over(n, true)
 				supervisor.fault("cut_call", T.text(T.Key.LINE_N) % n)
 				if other > 20 and exchange.dest(other) == Exchange.Dest.CONN:
 					exchange.set_dest(other, Exchange.Dest.DONE)
@@ -558,6 +613,7 @@ func _vacated(j: int, e: int) -> void:
 			conversation.transfer_choices(c)
 		elif exchange.line(n) == Exchange.Line.CONN:
 			exchange.set_line(n, Exchange.Line.DONE)
+			_story_talk_over(n, true)
 			supervisor.fault("cut_call", T.text(T.Key.LINE_N) % n)
 
 
@@ -649,6 +705,18 @@ func _ring_dest(c: PhoneCall, d: int) -> void:
 	var g := cancel_dest_ring(d)
 	var right := str(d) == c.target
 	var closed := right and c.away   # ninguém atende: o operador pode sugerir a alternativa
+	var t := c.data as TransferCall
+	if right and t != null and t.busy_line != "" and not c.busy_tried:   # dá ocupado da primeira vez: tentar de novo
+		c.busy_tried = true
+		c.set_options([])
+		if c.on_line:
+			Sfx.play("busy")
+		phone.flash(T.text(T.Key.DISPLAY_BUSY) % d, 3000)
+		c.sys(T.text(T.Key.SYS_LINE_BUSY) % d)
+		if await conversation.say(c, t.busy_line, 0.6):
+			conversation.transfer_choices(c)
+			_update_call_ui()
+		return
 	_quiet[d] = closed
 	exchange.set_dest(d, Exchange.Dest.RING)
 	c.set_options([])   # a conversa agora é com o destino; as opções voltam se a transferência for desfeita
@@ -773,41 +841,21 @@ func _wrong_unattended(c: PhoneCall, d: int) -> void:
 		hint(T.text(T.Key.HINT_WRONG_UNATTENDED))
 
 
-## Depois da ligação desconhecida: FONE na entrada dela tenta ligar de volta.
-func _call_back_mystery() -> void:
-	if _calling_back:
-		return
-	_calling_back = true
-	flags.apply("ligou_de_volta_%d" % night_no)
-	phone.flash(T.text(T.Key.DISPLAY_LINE_DOTS) % myst_line, 60000)
-	Sfx.play("ringback")
-	await get_tree().create_timer(2.2, false).timeout
-	Sfx.static_burst(2.0)
-	Sfx.play("sit")
-	phone.flash(T.text(T.Key.DISPLAY_NO_NUMBER), 3200)
-	_calling_back = false
-
-
 func _show_line_info(n: int) -> void:
 	if n > 10 and n <= 20:
 		var d := board.dest_of_output(n - 10)
 		var what := T.text(T.Key.INFO_FREE) if board.cord_at(n) == -1 else (T.text(T.Key.INFO_TO) % d if d != -1 else T.text(T.Key.INFO_CORD_NO_DEST))
-		board.show_info(PackedStringArray([T.text(T.Key.INFO_OUTPUT) % (n - 10), what]), false, n)
+		board.show_info(PackedStringArray([T.text(T.Key.INFO_OUTPUT) % (n - 10), what]), n)
 		Sfx.play("click")
 		return
 	if n > 20:
-		board.show_info(PackedStringArray([T.text(T.Key.INFO_NUMBER) % n, exchange.dest_label(n).to_upper()]), false, n)
+		board.show_info(PackedStringArray([T.text(T.Key.INFO_NUMBER) % n, exchange.dest_label(n).to_upper()]), n)
 		Sfx.play("click")
-		return
-	if n == myst_line and after and exchange.line(n) == Exchange.Line.FREE:
-		# A linha está livre, mas guarda o registro da última chamada.
-		board.show_info(PackedStringArray([T.text(T.Key.INFO_LINE) % n, T.text(T.Key.INFO_FREE), T.text(T.Key.INFO_LAST_ORIGIN), T.text(T.Key.INFO_NUMBER_UNKNOWN), T.text(T.Key.INFO_DURATION) % myst_time]), true, n)
-		Sfx.static_burst()
 		return
 	var a := PackedStringArray([T.text(T.Key.INFO_LINE) % n, exchange.line_label(n).to_upper()])
 	if board.fone_line() == n:
 		a.append(T.text(T.Key.INFO_FONE_CONNECTED))
-	board.show_info(a, false, n)
+	board.show_info(a, n)
 	Sfx.play("click")
 
 
@@ -829,7 +877,7 @@ func refresh_hiss() -> void:
 	if f != null and eavesdrop.silent == f.line and eavesdrop.listening(f.line):
 		Sfx.fade(Sfx.hiss, Eavesdrop.SILENT_HISS_DB, 0.4)
 	elif f != null and f.active:
-		Sfx.fade(Sfx.hiss, -26.0 if f.kind == PhoneCall.Kind.MYSTERY else -36.0, 0.3)
+		Sfx.fade(Sfx.hiss, -36.0, 0.3)
 	else:
 		Sfx.fade(Sfx.hiss, -80.0, 0.2)
 
@@ -859,16 +907,19 @@ func free_line() -> int:
 	return -1 if free.is_empty() else free.pick_random()
 
 
+## Uma ligação do roteiro marcada para depois da última ligação (a da cúpula à meia-noite da 15, na presa) ainda vai
+## tocar: o relógio anda e o turno espera por ela.
+func _story_late() -> bool:
+	return sched.any(func(c: PhoneCall) -> bool: return _late(c) and flags.allows(c.requires))
+
+
+func _late(c: PhoneCall) -> bool:   # (pela hora do roteiro: a que só foi adiada para depois dela não conta)
+	return c.beat != null and c.beat.at >= last_call
+
+
 func _run_schedule() -> void:
 	if sched.is_empty():
 		return
-	for m in sched:
-		if m.kind == PhoneCall.Kind.MYSTERY and not _myst_lead and minutes >= m.at - 20.0:
-			_myst_lead = true
-			Sfx.hush_nature(true, 20.0)
-			Sfx.fade(Sfx.hum, Sfx.HUM_HUSHED, 20.0)
-	# o homem chega andando, para embaixo do poste lá fora e vai embora antes de a ligação desconhecida tocar
-	background.stranger = Vector2(myst_plan - SHADOW_LEAD, myst_plan - SHADOW_LEAVE) + Vector2.ONE * SHIFT_START_HOUR * 60.0   # (na hora do dia)
 	if not live.is_empty():
 		_quiet_from = minutes
 	elif minutes - _quiet_from >= pace.call_gap.y * QUIET_SHARE:
@@ -876,8 +927,9 @@ func _run_schedule() -> void:
 	var c := sched[0]
 	if minutes < c.at:
 		return
-	# depois da última ligação (`last_call`) não toca mais nada, nem retorno nem quem estava esperando a vez
-	if minutes >= last_call and c.kind != PhoneCall.Kind.MYSTERY:
+	# depois da última ligação (`last_call`) não toca mais nada, nem retorno nem quem estava esperando a vez (só a do
+	# roteiro marcada para depois dela, `_story_late`)
+	if minutes >= last_call and not _late(c):
 		sched.pop_front()
 		return
 	# ligação do roteiro cuja condição não bate (os marcadores podem ter mudado durante a noite)
@@ -888,17 +940,17 @@ func _run_schedule() -> void:
 	if c.kind == PhoneCall.Kind.EMERGENCY and c.retry != PhoneCall.Retry.NONE and report.is_resolved(c.data):
 		sched.pop_front()
 		return
-	# As do roteiro, a ligação desconhecida e quem liga de novo só tocam com a mesa em silêncio (até `latest`), para
+	# As do roteiro e quem liga de novo só tocam com a mesa em silêncio (até `latest`), para
 	# não empilhar ligações sobre quem já está sobrecarregado; as outras esperam uma entrada livre.
-	var hush := (_scripted(c) or c.retry != PhoneCall.Retry.NONE) and not live.is_empty() and minutes < c.latest
-	# com uma do roteiro (ou a desconhecida) na mesa, nenhuma outra toca até ela acabar
-	if live.any(_scripted):
+	var hush := (c.story or c.retry != PhoneCall.Retry.NONE) and not live.is_empty() and minutes < c.latest
+	# numa "missão" do roteiro, nenhuma outra toca até ela acabar
+	if on_mission():
 		hush = true
 	# no máximo `MAX_EMERGENCIES` ao mesmo tempo: a próxima espera uma delas desligar e ter o socorro
-	if c.kind == PhoneCall.Kind.EMERGENCY and in_progress().size() >= MAX_EMERGENCIES:
+	if (c.kind == PhoneCall.Kind.EMERGENCY or c.data is TransferCall and c.data.turns != null) and in_progress().size() >= MAX_EMERGENCIES:
 		hush = true
-	# não sobrecarregar: com `Pace.max_live` ligações pedindo atenção, a próxima espera (a desconhecida tem regra própria)
-	if c.kind != PhoneCall.Kind.MYSTERY and live.size() >= pace.max_live:
+	# não sobrecarregar: com `Pace.max_live` ligações pedindo atenção, a próxima espera
+	if live.size() >= pace.max_live:
 		hush = true
 	if hush or free_line() == -1:
 		c.at = minutes + 3.0
@@ -908,9 +960,12 @@ func _run_schedule() -> void:
 	ring(c)
 
 
-## Ligação do roteiro ou a desconhecida: toca sozinha na mesa.
-func _scripted(c: PhoneCall) -> bool:
-	return c.story or c.kind == PhoneCall.Kind.MYSTERY
+## O jogador está numa "missão" do roteiro: uma ligação do roteiro na mesa, a conversa dela que ele escuta (para
+## ouvir ou gravar) ou a ligação do roteiro que ele fez pelo discador. Enquanto isso, nada novo toca (`_run_schedule`).
+func on_mission() -> bool:
+	return live.any(func(x: PhoneCall): return x.story) \
+		or eavesdrop.talks.keys().any(func(n: int): return eavesdrop.listening(n) and eavesdrop.call_of(n).story) \
+		or dialing.call != null and not dialing.call.data is DirectoryEntry   # (a do roteiro é um `DialCall`)
 
 
 ## A mesa ficou vazia por `QUIET_SHARE` do maior intervalo do ritmo e a próxima ainda demora: toca uma a mais (sorteada na
@@ -946,6 +1001,7 @@ func print_ticket(n: int) -> void:
 
 ## A conversa conectada pela linha `n` terminou: linha e destino ficam vermelhos até o operador tirar as pontas.
 func talk_over(n: int) -> void:
+	_story_talk_over(n, false)
 	exchange.set_line(n, Exchange.Line.DONE)
 	var d := board.dest_of_output(n)
 	if d != -1 and exchange.dest(d) == Exchange.Dest.CONN:
@@ -974,16 +1030,9 @@ func ring(c: PhoneCall) -> void:
 	c.time = fmt(minutes)
 	live.append(c)
 	tools.call_log.track(c)
-	if c.kind == PhoneCall.Kind.MYSTERY:
-		myst_time = c.time
-		myst_line = c.line
 	if c.kind == PhoneCall.Kind.EMERGENCY:
-		for old in emergencies.filter(func(x: PhoneCall): return x.data == c.data or x.ended and not x.urgent()):
-			emergencies.erase(old)   # quem liga de novo recomeça; as que acabaram dão lugar
-			dispatch.fleet.close(old.data)
-		emergencies.append(c)
-		_sent.erase(c.data)
-		dispatch.set_incident(c.data, c.told)
+		_open_emergency(c)
+	_free_dest_for(c)
 	_update_bell()
 	_refresh_panel()
 	if c.lesson:   # a dica é do treinamento
@@ -994,14 +1043,41 @@ func ring(c: PhoneCall) -> void:
 	elif is_training() and not _taught_ring:
 		_taught_ring = true
 		hint(T.text(T.Key.HINT_REMEMBER))
-	if c.kind == PhoneCall.Kind.MYSTERY:
-		await get_tree().create_timer(9.0, false).timeout
-		if c.ringing and not ending:
-			warn(T.text(T.Key.WARN_PHONE_RINGING))
-	elif not c.lesson:
+	if not c.lesson:
 		# por conexão e não `await`: a espera pendente prendia a ligação na memória depois de o Main sair (`restart`)
 		get_tree().create_timer(GIVE_UP_SEC * (0.75 if c.retry != PhoneCall.Retry.NONE else 1.5 if c.story else 1.0), false) \
 				.timeout.connect(_give_up.bind(c))
+
+
+## Ligação do roteiro tocando para um destino já em conversa: a conversa de lá termina logo (`FREE_FOR_STORY`, e nunca
+## no meio das falas escritas), para a tomada estar livre quando ela pedir. Os pedidos das autoridades à delegacia e à
+## Cúpula vêm a menos de uma conversa um do outro (a 9: 22:05 e 22:30) e o segundo achava a tomada ocupada.
+func _free_dest_for(c: PhoneCall) -> void:
+	var t := c.data as TransferCall
+	if not c.story or t == null:
+		return
+	for n in range(1, Exchange.LINES + 1):
+		if exchange.line(n) == Exchange.Line.CONN and str(board.dest_of_output(n)) == t.target:
+			exchange.set_line(n, Exchange.Line.CONN, minf(exchange.line_until(n), minutes + FREE_FOR_STORY))
+
+
+## A emergência `c` entra no despacho e na barra; quem liga de novo recomeça e as que acabaram dão lugar.
+func _open_emergency(c: PhoneCall) -> void:
+	for old in emergencies.filter(func(x: PhoneCall): return x.data == c.data or x.ended and not x.urgent()):
+		emergencies.erase(old)
+		dispatch.fleet.close(old.data)
+	emergencies.append(c)
+	_sent.erase(c.data)
+	dispatch.set_incident(c.data, c.told)
+
+
+## O pedido de transferência `c` vira a emergência do roteiro dele (`TransferCall.turns`; `Conversation.turn`, com a
+## transferência demorando): dali em diante é emergência como as outras.
+func turn_emergency(c: PhoneCall) -> void:
+	c.kind = PhoneCall.Kind.EMERGENCY
+	c.data = (c.data as TransferCall).turns
+	_open_emergency(c)
+	_refresh_panel()
 
 
 ## Ninguém atendeu a tempo (`ring`).
@@ -1067,8 +1143,6 @@ func hangup() -> void:
 		return
 	Sfx.play("sw")
 	c.add_line("", T.text(T.Key.OP_HANGS_UP), "op")
-	if c.kind == PhoneCall.Kind.MYSTERY:
-		flags.apply("desligou_desconhecida_%d" % night_no)
 	end_call(c, PhoneCall.End.OPERATOR)
 
 
@@ -1085,11 +1159,54 @@ func _update_room() -> void:
 
 ## Põe na mesa o jornal da manhã com as manchetes `news` (`ShiftReport.news` da noite anterior).
 func set_news(news: Array) -> void:
-	tools.news.show_news(news, night, night_no)
+	tools.news.show_news(news, night, night_no, flags)
 	background.news = true
 
 
 # ================================================================ fim de ligação
+
+## Os marcadores que o fim da ligação do roteiro `c` liga ou desliga (`StoryCall.if_*`), antes do retorno dela.
+## Conectada, espera o fim da conversa (`_story_talk_over`): cortada antes, conta como encerrada sem transferir.
+func _story_outcome(c: PhoneCall, reason: PhoneCall.End) -> void:
+	if c.beat == null:
+		return
+	if reason == PhoneCall.End.CONNECTED:
+		_story_talks[c.line] = c
+		return
+	_story_flags(c, c.beat.if_missed if reason == PhoneCall.End.MISSED else c.beat.if_dropped)
+	if reason == PhoneCall.End.OPERATOR:
+		_story_flags(c, c.beat.if_hung_up)
+
+
+## A conversa conectada pela linha `n` acabou (`cut`: o operador tirou o cabo antes): o desfecho da do roteiro dela.
+func _story_talk_over(n: int, cut: bool) -> void:
+	var c: PhoneCall = _story_talks.get(n)
+	if c == null:
+		return
+	_story_talks.erase(n)
+	var o := c.beat
+	_story_flags(c, o.if_dropped if cut else (o.if_connected if str(c.dest_num) == c.target else o.if_elsewhere))
+
+
+## Quem volta a ligar depois da ligação `c` (`StoryCall.callback`): uma vez por noite, se ela foi atendida, daqui a
+## `CALL_BACK_AFTER` minutos (antes da última ligação); a versão que toca se escolhe pelos marcadores na hora.
+func _call_back(c: PhoneCall) -> void:
+	if c.beat == null or c.beat.callback.is_empty() or not c.answered or c.beat in _called_back:
+		return
+	_called_back.append(c.beat)
+	for st: StoryCall in c.beat.callback:
+		var n := PhoneCall.from_script(st.call)
+		n.requires = st.requires
+		n.beat = st
+		n.at = minf(minutes + randf_range(CALL_BACK_AFTER.x, CALL_BACK_AFTER.y), maxf(minutes + 2.0, last_call - 4.0))
+		sched.append(n)
+	sched.sort_custom(func(a: PhoneCall, b: PhoneCall): return a.at < b.at)
+
+
+func _story_flags(c: PhoneCall, sets: PackedStringArray) -> void:
+	for f in sets:
+		flags.apply(f.replace("{dest}", str(c.dest_num)))
+
 
 func end_call(c: PhoneCall, reason: PhoneCall.End) -> void:
 	if c.ended:
@@ -1103,8 +1220,6 @@ func end_call(c: PhoneCall, reason: PhoneCall.End) -> void:
 	c.set_options([])
 	live.erase(c)
 	_update_bell()
-	if c.kind == PhoneCall.Kind.MYSTERY:
-		_mystery_aftermath(c)
 	if reason != PhoneCall.End.CONNECTED:
 		# Os cabos ficam na mesa: a linha mostra "desligou" até o operador desmontar.
 		var d := board.dest_of_output(c.line)
@@ -1115,8 +1230,7 @@ func end_call(c: PhoneCall, reason: PhoneCall.End) -> void:
 			exchange.set_dest(d, Exchange.Dest.DONE)
 		if exchange.line(c.line) in [Exchange.Line.TALK, Exchange.Line.HOLD, Exchange.Line.RING]:
 			var plugged := board.cord_at(c.line) != -1 or board.cord_at(c.line + 10) != -1
-			var keep := plugged and c.kind != PhoneCall.Kind.MYSTERY
-			exchange.set_line(c.line, Exchange.Line.DONE if keep else Exchange.Line.FREE)
+			exchange.set_line(c.line, Exchange.Line.DONE if plugged else Exchange.Line.FREE)
 	if reason == PhoneCall.End.OPERATOR:
 		c.sys(T.text(T.Key.SYS_YOU_ENDED))
 	elif reason == PhoneCall.End.MISSED:
@@ -1126,6 +1240,8 @@ func end_call(c: PhoneCall, reason: PhoneCall.End) -> void:
 	_refresh_panel()
 	c.record = _record(c, reason)
 	notebook.add(c.record)
+	_story_outcome(c, reason)
+	_call_back(c)
 	supervisor.call_ended(c, reason)
 	bureaucracy.call_ended(c, reason)
 	await get_tree().create_timer(1.5, false).timeout
@@ -1178,16 +1294,13 @@ func _record(c: PhoneCall, reason: PhoneCall.End) -> PhoneCall.Record:
 				obs = T.text(T.Key.OBS_ALL_BUSY)
 			elif c.kind == PhoneCall.Kind.TRANSFER and not c.connected:
 				obs = T.text(T.Key.OBS_WRONG_NUMBER) if c.wrong > 0 else T.text(T.Key.OBS_NOT_CONNECTED)
-			elif c.kind == PhoneCall.Kind.MYSTERY:
-				obs = T.text(T.Key.OBS_CALL_DROPPED)
 	if c.lesson:   # as da veterana: a de emergência de treino leva o local e o cartão do último envio
 		obs = T.text(T.Key.OBS_TRAINING)
 		if c == training.drill_call and _sent.has(training.drill):
 			where = String(_sent[training.drill]["loc"])
 			unit = String(_sent[training.drill]["units"])
 			card = int(_sent[training.drill]["card"])
-	var unknown := c.kind == PhoneCall.Kind.MYSTERY or reason == PhoneCall.End.MISSED
-	var who := T.text(T.Key.UNKNOWN_CALLER) if unknown else tr(c.caller)
+	var who := T.text(T.Key.UNKNOWN_CALLER) if reason == PhoneCall.End.MISSED else tr(c.caller)
 	var r := PhoneCall.Record.new()
 	r.time = c.time
 	r.who = "%s (%s)" % [who, T.text(T.Key.LINE_N) % c.line]
@@ -1196,7 +1309,7 @@ func _record(c: PhoneCall, reason: PhoneCall.End) -> PhoneCall.Record:
 	r.card = card
 	r.ticket = ticket
 	r.obs = obs
-	r.kind = c.kind
+	r.kind = PhoneCall.Kind.TRANSFER if c.beat != null and c.kind == PhoneCall.Kind.PRANK and not (c.data as PrankCall).prank else c.kind   # (a conversa do roteiro: ligação comum no caderno)
 	r.missed = reason == PhoneCall.End.MISSED
 	r.tut = c.lesson
 	r.shift = reason == PhoneCall.End.SHIFT_OVER
@@ -1261,8 +1374,6 @@ func drop(c: PhoneCall) -> void:
 	c.set_talking(false)
 	c.set_options([])
 	live.erase(c)
-	if c.kind == PhoneCall.Kind.MYSTERY:
-		_mystery_aftermath(c)   # o turno pode terminar e a noite volta ao normal
 	_update_bell()
 	_refresh_panel()
 
@@ -1302,26 +1413,27 @@ func drop_emergency() -> void:
 	dispatch.reset(true)
 
 
-# ================================================================ ligação desconhecida e final
-
-func _mystery_aftermath(c: PhoneCall) -> void:
-	Sfx.play("cut")
-	Sfx.hum.volume_db = -80.0
-	flick = false
-	c.sys(T.text(T.Key.SYS_CALL_DROPPED))
-	after = true
-	get_tree().create_timer(1.8, false).timeout.connect(func(): Sfx.fade(Sfx.hum, -32.0, 3.0))
-	get_tree().create_timer(25.0, false).timeout.connect(Sfx.hush_nature.bind(false, 10.0))   # a noite volta aos poucos
+# ================================================================ final
 
 
 func _unregistered() -> bool:
-	return notebook.has_pending() or not notebook.queue.is_empty() or toll.waiting() > 0
+	return notebook.has_pending() or not notebook.queue.is_empty() or toll.waiting() > 0 or _tapes_open()
+
+
+## Fitas gravadas na mesa ainda sem destino (B4): o turno não encerra sem elas.
+func _tapes_open() -> bool:
+	return not bureaucracy.tapes.unresolved().is_empty()
 
 
 ## Botão Encerrar turno (a partir de `last_call`): quem ainda está na linha ou tocando fica sem resposta, como se o
-## operador desligasse (advertência, `Supervisor.call_ended`); o que falta registrar conta como sem registro.
+## operador desligasse (advertência, `Supervisor.call_ended`); o que falta registrar conta como sem registro. Com fita
+## sem destino na mesa, não encerra: abre a pilha e avisa.
 func end_shift() -> void:
 	if ending:
+		return
+	if _tapes_open():
+		hint(T.text(T.Key.HINT_TAPES))
+		background.tapes_clicked.emit()
 		return
 	dialing.hang_up()
 	for c in live.duplicate():
@@ -1337,10 +1449,14 @@ func start_ending() -> void:
 	%DialView.hide()
 	Sfx.ring_stop()
 	Sfx.stop_ambience(5.0)
-	var last := night_no >= C.nights.size()
-	var later := progress != null and not last and night_no > 0   # o que a companhia cobra amanhã (o treinamento não leva)
+	var prison := flags.has(Rebellion.FINALS[Rebellion.Final.PRISON])
+	var last := night_no > C.nights.size() or prison   # sem noite seguinte: o fim do epílogo, ou a presa
+	var final := night_no >= C.nights.size()   # a do golpe e o epílogo: nada fica para depois
+	var later := progress != null and not final and night_no > 0   # o que a companhia cobra amanhã (o treinamento não leva)
+	for n in _story_talks.keys():   # ainda falando no fim do turno: ninguém cortou
+		_story_talk_over(n, false)
 	bureaucracy.night_ended()   # (antes da cobrança: uma regra pode deixar advertência para depois)
-	if progress == null or last:   # sem noite seguinte: cobra hoje
+	if progress == null or final:   # sem noite seguinte que cobre: cobra hoje
 		for f in report.later:
 			report.add(f["id"], f["time"], f["detail"], f.get("sev", -1), f.get("text", -1))
 	supervisor.shift_over()
@@ -1360,5 +1476,9 @@ func start_ending() -> void:
 			progress.bureaucracy = bureaucracy.state()
 			Badges.award(progress, report, night_no, pace_level)
 			progress.save()
-	await get_tree().create_timer(5.0, false).timeout
-	_ending.play(report, not last)
+	if prison:   # a presa: no lugar do relatório, o homem de sobretudo atravessando a rua para o prédio (`Arrest`)
+		background.start_scene("arrest")
+		await get_tree().create_timer(Background.Arrest.end() + 1.0, false).timeout
+	else:
+		await get_tree().create_timer(5.0, false).timeout
+	_ending.play(report, not last, night.ending_for(flags), not last)   # (o fim do jogo, o epílogo ou a presa: sem relatório)

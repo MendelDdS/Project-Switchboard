@@ -1,0 +1,30 @@
+[gd_resource type="Resource" script_class="PrankCall" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/prank_call.gd" id="1_call"]
+[ext_resource type="Script" path="res://scripts/data/prank_step.gd" id="2_step"]
+
+[sub_resource type="Resource" id="Step_00"]
+script = ExtResource("2_step")
+text = "Maria? É o supervisor. Não vou tomar o seu tempo."
+
+[sub_resource type="Resource" id="Step_01"]
+script = ExtResource("2_step")
+text = "Chegou uma reclamação da Alta Cúpula. Três noites atrás, ligações deles para a delegacia não passaram pela sua mesa."
+
+[sub_resource type="Resource" id="Step_02"]
+script = ExtResource("2_step")
+text = "Ligação das autoridades passa na frente de qualquer uma. Isso vai para a sua ficha."
+
+[sub_resource type="Resource" id="Step_03"]
+script = ExtResource("2_step")
+text = "E eu vou ficar de olho em você. Boa noite, Maria."
+
+[sub_resource type="Resource" id="Step_04"]
+script = ExtResource("2_step")
+kind = 3
+
+[resource]
+script = ExtResource("1_call")
+voice = "m"
+caller = "Supervisor"
+steps = Array[ExtResource("2_step")]([SubResource("Step_00"), SubResource("Step_01"), SubResource("Step_02"), SubResource("Step_03"), SubResource("Step_04")])

@@ -4,7 +4,7 @@ extends Node
 ## `.tres`), repassa a elas os ganchos do ciclo da ligação e resolve, num lugar só, o que elas dizem de cada tentativa
 ## de transferência: todas as infrações vão para o registro de decisões (`decisions`), só a maior vira advertência
 ## (também contra o número errado da mesma tentativa, `wrong_number`). Não conhece nenhuma regra pelo nome.
-## Com a chave geral desligada (`enabled`, o padrão), todo gancho volta na primeira linha: o jogo é o de sempre (nem
+## Com a chave geral desligada (`enabled`; o debug e os testes), todo gancho volta na primeira linha: o jogo é o de sempre (nem
 ## o sorteio muda).
 ##
 ## Roteiro: `main.bureaucracy.enable(true)` e `activate("id")`; `deactivate`, `update_params`. Uma regra que passa a
@@ -23,8 +23,9 @@ const Agreements := preload("res://scripts/bureaucracy/agreements.gd")
 const Tapes := preload("res://scripts/bureaucracy/tapes.gd")
 const EQUIPMENT := "equipamento_"   ## o marcador (`StoryFlags`, salvo) de cada equipamento liberado: "equipamento_gravador"
 
-## A chave geral. Só o debug liga, por enquanto; o roteiro vai ligar nas noites das burocracias.
-static var enabled := false
+## A chave geral: ligada no jogo (cada regra vale nas noites dela, `from_night`/`to_night` no `.tres`); o debug e os
+## testes desligam.
+static var enabled := true
 ## As regras desta sessão (cópias dos `.tres`: o que o debug muda vale até fechar o jogo, também na troca de noite).
 static var _rules: Array[BureaucracyRule] = []
 static var _loaded := false
@@ -262,6 +263,9 @@ func refusal(c: PhoneCall, pool: PackedStringArray) -> String:
 ## Uma advertência fora da tentativa de transferência (um recado repassado...), com o registro: a regra `r` diz a
 ## gravidade `sev` e o texto `text` (`T.Key`).
 func penalize(r: BureaucracyRule, c: PhoneCall, sev: ShiftReport.Severity, why: String, text: int) -> void:
+	if _authority(c):
+		log_decision(r.id, c, why, "permitido: pedido das autoridades")
+		return
 	log_decision(r.id, c, why, "advertência %s" % T.text(ShiftReport.SEVERITY_NAMES[sev]).to_lower())
 	if c == null or not c.lesson:
 		main.supervisor.fault(r.id, why, sev, text)
@@ -344,7 +348,9 @@ func before_transfer(c: PhoneCall, d: int) -> void:
 		var v := r.before_transfer(c, d)
 		if v == null:
 			continue
-		log_decision(r.id, c, "transferiu para %d" % d, _describe(v))
+		log_decision(r.id, c, "transferiu para %d" % d, "permitido: pedido das autoridades" if _authority(c) else _describe(v))
+		if _authority(c):
+			continue
 		if v.kind == BureaucracyRule.Verdict.Kind.INFRACTION and (worst == null or v.severity > worst.severity):
 			worst = v
 			by = r
@@ -389,6 +395,11 @@ func clue_heard(k: Clue) -> void:
 
 func caught_listening(c: PhoneCall) -> bool:
 	return live().any(func(r: BureaucracyRule): return r.caught_listening(c))
+
+
+## Ligação das autoridades (`StoryCall.authority`): as regras não dão advertência.
+func _authority(c: PhoneCall) -> bool:
+	return c != null and c.beat != null and c.beat.authority
 
 
 func _describe(v: BureaucracyRule.Verdict) -> String:

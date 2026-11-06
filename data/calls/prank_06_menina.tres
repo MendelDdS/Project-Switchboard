@@ -15,7 +15,7 @@ options = PackedStringArray("Sim, central telefônica. Pois não?")
 
 [sub_resource type="Resource" id="Resource_1kdjr"]
 script = ExtResource("2_qwgly")
-text = "Meu irmão quer saber se o senhor tem cara de telefone."
+text = "Meu irmão quer saber se a senhora tem cara de telefone."
 options = PackedStringArray()
 
 [sub_resource type="Resource" id="Resource_dl4y7"]

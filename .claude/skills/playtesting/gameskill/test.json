@@ -1,0 +1,45 @@
+{
+  "engine": "agent skill (design docs), no engine",
+  "env": [
+    "Python 3.13 (no third-party packages; Pillow only for the screenshot)",
+    "no agent run: the checks cover the skill's rules as code on our own fixtures"
+  ],
+  "runs": [
+    {
+      "name": "rules as code",
+      "cwd": "examples",
+      "cmd": [
+        "python3",
+        "tests/run_rules.py"
+      ]
+    }
+  ],
+  "screenshot": {
+    "name": "screenshot",
+    "cwd": "examples",
+    "file": "screenshot.png",
+    "cmd": [
+      "python3",
+      "tests/card.py",
+      "playtesting: plan and matrix rules",
+      "../screenshot.png",
+      "--",
+      "python3",
+      "tests/run_rules.py"
+    ]
+  },
+  "triggers": {
+    "positive": [
+      "Help me structure a playtest session with cohorts and a silent observer protocol",
+      "How should I sort playtest feedback into UX friction, difficulty, and feature signal?",
+      "Set up telemetry and a funnel drop-off metric for our playtest"
+    ],
+    "negative": [
+      "Write a GDD for the boss fight with phases and attack patterns",
+      "Tune the camera shake and hit-stop to make combat feel better"
+    ]
+  },
+  "review": {
+    "singleResponsibility": "One job: plan playtest sessions and sort observations into UX friction, difficulty, and feature signal, handing the report to `ccgs-playtest-report`, design changes to `game-design-gdd`, and feel tuning to `game-feel`."
+  }
+}

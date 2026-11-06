@@ -90,11 +90,20 @@ func _check_talks() -> void:
 ## (avulsa, do roteiro de uma noite ou do treinamento, também a alternativa dela), o lugar que um molde pode sortear
 ## (`GameData.template_transfer`: com `spoken` e motivo) e o do mesmo ramo, oferecido quando ele não atende
 ## (`GameData.alternative`). Os só do despacho (`dispatch_only`) ficam de fora: servem às viaturas.
+## As ligações escritas da noite (`Night.calls`) e quem volta a ligar depois delas (`StoryCall.callback`).
+static func _night_calls(n: Night) -> Array:
+	var out: Array = []
+	for st: StoryCall in n.calls:
+		out.append(st)
+		out.append_array(st.callback)
+	return out
+
+
 func _check_destinations() -> void:
 	var C: GameContent = GameData.CONTENT
 	var written: Array[TransferCall] = C.transfers.duplicate()
 	for n: Night in C.nights + [C.training]:
-		for st: StoryCall in n.story:
+		for st: StoryCall in (n.story as Array) + _night_calls(n):
 			if st.call is TransferCall:
 				written.append(st.call)
 		for step: LessonStep in n.lesson:
@@ -136,6 +145,9 @@ func _check_flags() -> void:
 			by_night.append(m.get_string(1))
 		else:
 			given[m.get_string(1)] = true
+	var rebellion := preload("res://scripts/model/rebellion.gd")   # as conclusões do fator sucesso (`Rebellion.sync`)
+	for d: String in rebellion.DERIVED + rebellion.FINALS + [rebellion.WON, rebellion.LOST, rebellion.COST]:
+		given[d] = true
 	for name: String in asked:
 		var nightly := RegEx.create_from_string("^(.+)_[0-9]+$").search(name)
 		ok(given.has(name) or nightly != null and nightly.get_string(1) in by_night,
@@ -155,7 +167,7 @@ func _walk_flags(r: Resource, src: String, seen: Dictionary, asked: Dictionary, 
 		if p["name"] == "requires":
 			for f: String in v:
 				asked[f.trim_prefix("!")] = src
-		elif p["name"] in ["sets", "overheard_sets", "overheard_flags"]:
+		elif p["name"] in ["sets", "overheard_sets", "overheard_flags"] or p["name"].begins_with("if_"):
 			for f: String in v:
 				given[f.trim_prefix("!")] = true
 		elif v is Resource:
@@ -192,7 +204,7 @@ func _initialize() -> void:
 	var named := func(n: String): return n.split(" ").size() >= 2 and treat.search(n) == null
 	var calls: Array = C.transfers.duplicate()
 	for n: Night in C.nights:
-		calls.append_array(n.story.map(func(st: StoryCall): return st.call).filter(func(x): return x is TransferCall))
+		calls.append_array(((n.story as Array) + _night_calls(n)).map(func(st: StoryCall): return st.call).filter(func(x): return x is TransferCall))
 	for t: TransferCall in calls:
 		ok(named.call(t.caller_name), "quem liga sem nome e sobrenome, ou com tratamento: " + t.resource_path)
 	for n in C.caller_names:
@@ -222,9 +234,26 @@ func _initialize() -> void:
 	ok(seen.size() > 1, "o mesmo molde pede unidades diferentes conforme o caso")
 	for p in C.pranks:
 		ok(p.steps.back().kind == PrankStep.Kind.END, "trote termina: " + p.resource_path)
-	for n in C.nights:
+	for i in C.nights.size():
+		var n := C.nights[i]
 		ok(n.story.all(func(st: StoryCall): return st.call is TransferCall or st.call is EmergencyCall or st.call is PrankCall),
 			"ligações do roteiro com roteiro escrito: " + n.resource_path)
+		# as escritas que entram no sorteio: transferências para um número do setor atendido, fora dos do roteiro da noite
+		var story_targets := n.story.map(func(st: StoryCall): return st.call.target if st.call is TransferCall else "")
+		for st: StoryCall in _night_calls(n):
+			ok(st.call is TransferCall and int(st.call.target.left(1)) in GameData.sectors_for(i + 1) and not st.call.target in story_targets,
+				"ligação da noite no setor e sem disputar número com o roteiro: %s (%s)" % [n.resource_path, st.call.resource_path])
+			var e: EmergencyCall = st.call.turns if st.call is TransferCall else null
+			if e != null:   # a que vira emergência: no setor atendido, perguntas com resposta e a despedida que dispensa a transferência
+				ok(GameData.street(e.street).block_sector(e.block) in GameData.sectors_for(i + 1) and not e.units.is_empty()
+					and e.questions.size() == e.answers.size() and e.after != "", "emergência da ligação que vira: " + e.resource_path)
+		# as fotos do jornal, da noite e das manchetes que trocam a dela, existem
+		ok(([n.news_photo] + n.news_if.map(func(v: Resource): return v.photo)).all(func(ph: String): return ph == "" or ph in NewsView.PHOTOS),
+			"foto do jornal conhecida: " + n.resource_path)
+	var f := StoryFlags.new()   # a foto segue a manchete: a da noite, ou a da variante que vira manchete
+	ok(C.nights[5].photo_for(f)[0] == "rua", "noite 6 sem denúncia: a foto da rua")
+	f.apply("denunciou_bar_4")
+	ok(C.nights[5].photo_for(f)[0] == "viatura" and C.nights[5].photo_for(f)[1] != C.nights[5].news_caption, "noite 6 com a denúncia: a viatura, com a legenda dela")
 	# conversa fiada: cada assunto traz as próprias respostas (uma simpática e uma seca), cada uma com a continuação
 	var topics: Array[ChatTopic] = C.smalltalk.duplicate()
 	for n in C.nights:
@@ -233,10 +262,10 @@ func _initialize() -> void:
 		ok(t.line != "" and t.replies.all(func(r: ChatReply): return r.text != "" and r.follow != "")
 			and t.replies.any(func(r): return r.tone == ChatReply.Tone.WARM) and t.replies.any(func(r): return r.tone == ChatReply.Tone.CURT),
 			"assunto com resposta simpática e seca: " + t.line)
-	# o discador (`Dialing`): todo número de Vila Serena atende quem liga da central (os outros setores, ainda não), cada
+	# o discador (`Dialing`): todo número da cidade atende quem liga da central (as centrais, 001 e 002, à parte), cada
 	# atendimento com a fala e as perguntas com resposta; as ligações do roteiro num número da cidade, com o roteiro
 	for e in C.directory:
-		if e.number.begins_with("3") and not e.dispatch_only:
+		if not e.number.begins_with("0") and not e.dispatch_only:
 			ok(not e.answers.is_empty(), "o discador: %s atende quem liga da central" % e.name)
 		for t in e.answers:
 			ok(t.line != "" and not t.replies.is_empty() and t.replies.all(func(r: ChatReply): return r.text != "" and r.follow != ""),

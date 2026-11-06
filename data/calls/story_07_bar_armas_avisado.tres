@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="TransferCall" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/transfer_call.gd" id="1_story"]
+
+[resource]
+script = ExtResource("1_story")
+group = 2
+voice = "w"
+caller = "Senhor"
+opening = PackedStringArray("O Bar do Zé, por gentileza.")
+repeat = "O bar. O do Zé."
+target = "327"
+destination = "Bar do Zé"
+thanks = "Obrigado."
+caller_name = "Anselmo Duarte"
+name_line = "Anselmo Duarte."
+overheard = PackedStringArray("Zé? Anselmo. A encomenda...", "Anselmo! O seu fiado está alto, hein. Quando é que paga?", "Sexta... sexta eu passo aí.", "Sexta, hein. Boa noite.")
+suspicious = true
+wary = 1.5

@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="TransferCall" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/transfer_call.gd" id="1_story"]
+
+[resource]
+script = ExtResource("1_story")
+group = 2
+voice = "m"
+caller = "Policial"
+opening = PackedStringArray("A Alta Cúpula. É da polícia.")
+repeat = "A Alta Cúpula."
+target = "296"
+destination = "Alta Cúpula"
+thanks = "Obrigado."
+overheard = PackedStringArray("Bastos. O toque de recolher continua?", "Continua. E dobrem a ronda na [street:Avenida Brasil].", "E o [place:Hotel Serena]?", "Deixem quieto mais uns dias. Quero ver quem entra.")
+caller_name = "Jorge Bastos"
+name_line = "Jorge Bastos, da polícia."
+suspicious = true
+code_line = "Autorização {code}."

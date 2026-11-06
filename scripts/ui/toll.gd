@@ -20,6 +20,7 @@ const BOX := Vector2(204, 72)   ## ...e a caixinha dos bilhetes, embaixo à dire
 ## A folga da almofada e da caixinha até a beira dos lados e até a de baixo, a mesma nas duas. Encostadas nos cantos, na
 ## sala elas passavam dos lados da máquina (perto, a mesinha abre mais que ela) e o calculógrafo parecia torto.
 const INSET := Vector2(36, 9)
+const PAD_LEFT := 24.0   ## a da almofada à esquerda, menor: com 36, o carimbo em pé nela, na sala, tapava a ponta do bilhete na fenda
 const BOX_MOUTH := 24.0         ## da beira de trás da caixinha até a frente dela: a boca, onde o bilhete entra e some
 const SINK_SEC := 0.3           ## o bilhete descendo para dentro da caixinha
 const OUT_SEC := 0.45           ## o bilhete que esperava na fenda saindo dela quando a ferramenta abre
@@ -185,11 +186,6 @@ func ticket_of(line: int) -> int:
 
 func counting(line: int) -> bool:
 	return _meters.has(line)
-
-
-## Há interurbano sendo contado (a luz âmbar do calculógrafo da mesa).
-func metering() -> bool:
-	return not _meters.is_empty()
 
 
 ## A conversa da entrada `line` acabou no minuto `at`: o bilhete sai impresso e cai na mesa.
@@ -469,23 +465,25 @@ func _notification(what: int) -> void:
 
 
 func _pad(s := _desk.size) -> Rect2:
-	return Rect2(INSET.x, s.y - PAD.y - INSET.y, PAD.x, PAD.y)
+	return Rect2(PAD_LEFT, s.y - PAD.y - INSET.y, PAD.x, PAD.y)
 
 
 func _box(s := _desk.size) -> Rect2:
 	return Rect2(s.x - BOX.x - INSET.x, s.y - BOX.y - INSET.y, BOX.x, BOX.y)
 
 
-## O visor da máquina (no desenho dela): à esquerda da placa; a fenda do bilhete fica embaixo do meio dele.
+## O visor da máquina (no desenho dela): a frente toda, de um lado ao outro; a fenda do bilhete fica embaixo do meio dele,
+## o meio da máquina. (Antes, à direita dele, a placa com o nome, a luz e a saída de ar apertavam os contadores, que se
+## encavalavam.)
 func _screen() -> Rect2:
 	var r := Rect2(Vector2.ZERO, _machine.size - Vector2(2, 2)).abs()
-	return Rect2(r.position.x + 16.0, r.position.y + 12.0, r.size.x - 16.0 - 150.0, r.size.y - 40.0)
+	return Rect2(r.position.x + 16.0, r.position.y + 12.0, r.size.x - 32.0, r.size.y - 40.0)
 
 
-## A máquina: a caixa de plástico das do despacho (`CardMachines.box`) com o painel oliva dos contadores (um por entrada, com a
-## plaquinha, os tambores dos minutos, `_counter`, e a lâmpada acesa enquanto conta), a placa, a luz âmbar acesa
-## enquanto conta algum e, embaixo, a fenda de onde sai o bilhete; apoiada na mesa pelos pés de borracha. Sem relógio:
-## o da mesa da sala, ao lado, já dá a hora.
+## A máquina: a caixa de plástico das do despacho (`CardMachines.box`) com o painel oliva dos contadores na frente toda
+## (um por entrada, com a plaquinha, os tambores dos minutos, `_counter`, e a lâmpada acesa enquanto conta) e, embaixo,
+## a fenda de onde sai o bilhete, no meio, e o selo da companhia à direita; apoiada na mesa pelos pés de borracha. Sem
+## relógio: o da mesa da sala, ao lado, já dá a hora.
 func _draw_machine() -> void:
 	var ci := _machine
 	Bloom.clear(ci)
@@ -503,11 +501,9 @@ func _draw_machine() -> void:
 		var win := Rect2(plate.end.x + 3.0, o.y + roundf((cell.y - DRUM.y - 2.0) / 2.0), DRUMS * (DRUM.x + 1.0) + 1.0, DRUM.y + 2.0)
 		_counter(ci, win, n)
 		CardMachines.led(ci, Vector2(win.end.x + 4.0, win.position.y + 5.0), counting(n), Pal.AMBER)
-	var side := Rect2(screen.end.x + 8.0, r.position.y, r.end.x - screen.end.x - 8.0, r.size.y)
-	CardMachines.plate(ci, Rect2(side.position.x - 10.0, side.position.y - 10.0, side.size.x, side.size.y), T.text(T.Key.TOLL_MACHINE))
-	CardMachines.led(ci, side.position + Vector2(2, 40), metering(), Pal.AMBER)
-	CardMachines.vent(ci, side.position + Vector2(18, 40), 4, side.size.x - 34.0)
 	CardMachines.mouth(ci, roundf(screen.get_center().x - TollTicket.SIZE.x / 2.0), r.end.y - 12.0, TollTicket.SIZE.x)
+	Switchboard.badge(ci, Vector2(roundf((screen.get_center().x + TollTicket.SIZE.x / 2.0 + screen.end.x) / 2.0), r.end.y - 12.0),
+		Pal.BOARD_INK, Pal.KEY_CAP[2], 16.0, 9)   # entre a fenda e a beira, como na frente das máquinas do despacho
 	ci.draw_rect(Rect2(r.position.x + 6.0, r.end.y + 2.0, r.size.x - 6.0, 5), Color(0, 0, 0, 0.3))   # apoiada na mesa: a sombra embaixo...
 	for x: float in [r.position.x + 16.0, r.end.x - 40.0]:   # ...e os pés de borracha
 		ci.draw_rect(Rect2(x, r.end.y, 24, 4), Pal.EDGE)
