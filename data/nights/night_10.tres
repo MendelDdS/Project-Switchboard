@@ -12,6 +12,8 @@
 [ext_resource type="Resource" path="res://data/calls/noite_10_cancao.tres" id="j_cancao"]
 [ext_resource type="Resource" path="res://data/calls/noite_10_tiros.tres" id="j_tiros"]
 [ext_resource type="Resource" path="res://data/calls/noite_10_barreira.tres" id="j_barreira"]
+[ext_resource type="Resource" path="res://data/calls/noite_10_parente.tres" id="j_parente"]
+[ext_resource type="Resource" path="res://data/calls/noite_10_irma.tres" id="j_irma"]
 
 [sub_resource type="Resource" id="ev_0"]
 script = ExtResource("2_event")
@@ -188,11 +190,20 @@ requires = PackedStringArray("!radio_conquistada")
 script = ExtResource("x1_story_call")
 call = ExtResource("j_barreira")
 
+[sub_resource type="Resource" id="J_call_parente"]
+script = ExtResource("x1_story_call")
+call = ExtResource("j_parente")
+requires = PackedStringArray("fita_comandante_entregue")
+
+[sub_resource type="Resource" id="J_call_irma"]
+script = ExtResource("x1_story_call")
+call = ExtResource("j_irma")
+
 [resource]
 script = ExtResource("1_night")
-note = "O supervisor deixou um recado: \"Com os três setores, a noite fica mais cheia. Emergência vem primeiro.\""
+note = "O supervisor deixou um recado: \"Último setor: a partir de hoje, o setor 2, o Alto da Serra, também fica com você. Os números que começam com 2 passam pela sua mesa. A cidade inteira está nas suas mãos.\""
 street_events = Array[ExtResource("2_event")]([SubResource("ev_0"), SubResource("ev_1")])
 news_if = Array[ExtResource("x0_story_text")]([SubResource("News_radio"), SubResource("J_news_0")])
 story = Array[ExtResource("x1_story_call")]([SubResource("S_cec"), SubResource("A_story_10_generosa"), SubResource("A_story_10_generosa_volta")])
 dial = Array[ExtResource("x4_dial_call")]([SubResource("D_par"), SubResource("D_otavio")])
-calls = Array[ExtResource("x1_story_call")]([SubResource("J_call_cancao"), SubResource("J_call_tiros"), SubResource("J_call_barreira")])
+calls = Array[ExtResource("x1_story_call")]([SubResource("J_call_cancao"), SubResource("J_call_tiros"), SubResource("J_call_barreira"), SubResource("J_call_parente"), SubResource("J_call_irma")])

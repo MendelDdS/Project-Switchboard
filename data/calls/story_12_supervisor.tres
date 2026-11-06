@@ -9,7 +9,7 @@ text = "Maria? É o supervisor. Não vou tomar o seu tempo."
 
 [sub_resource type="Resource" id="Step_01"]
 script = ExtResource("2_step")
-text = "Chegou uma reclamação da Alta Cúpula. Três noites atrás, ligações deles para a delegacia e para a Cúpula não passaram pela sua mesa."
+text = "Chegou uma reclamação da Alta Cúpula. Três noites atrás, ligações deles para a delegacia não passaram pela sua mesa."
 
 [sub_resource type="Resource" id="Step_02"]
 script = ExtResource("2_step")

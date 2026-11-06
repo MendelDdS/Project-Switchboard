@@ -1,10 +1,9 @@
 extends Node
-## Autoload `Sfx`: toca, mixa e cuida do ambiente de todos os sons do jogo, sintetizados ao iniciar por `SfxSynth`
-## (nenhum arquivo de áudio).
-## Para trocar por gravações reais, substitua as entradas de `streams` por AudioStreams importados.
+## Autoload `Sfx`: toca, mixa e cuida do ambiente de todos os sons do jogo, sintetizados ao iniciar por `SfxSynth`,
+## menos o ambiente gravado (`RECORDED`, em `audio/ambience/`, preparado por `tools/ambiente/preparar.py`).
 ## Barramentos (default_bus_layout.tres): Ambience (clima, zumbido, chiado), Voices (sílabas), Effects (o resto); Phone
 ## (a banda da linha telefônica) vai para Voices e leva as vozes de quem liga (`SfxSynth.VOICE`, "bus").
-## Clima (`set_weather`): "rain" só chuva; "fog" grilos; "clear" brisa e grilos.
+## Clima (`set_weather`): "rain" só chuva (e a tempestade por cima, com ela forte); "fog" grilos; "clear" brisa e grilos.
 
 const VOL := {
 	"click": -14.0, "sw": -10.0, "plug_in": -3.0, "plug_out": -9.0, "key": -13.0, "page": -11.0,
@@ -16,7 +15,7 @@ const VOL := {
 }
 ## Volume (dB) dos sons de ambiente em cada clima; o que não aparece fica mudo.
 const WEATHER_MIX := {
-	"rain": {"rain": -21.0},
+	"rain": {"rain": -17.5},
 	"fog": {"crickets": -31.0},
 	"clear": {"breeze": -24.0, "crickets": -28.0},
 }
@@ -57,6 +56,16 @@ const BELL_STEP := 0.006
 const VARIED := ["plug_in", "plug_out", "thump", "drop", "cord_stop", "cord_tap", "cord_knock", "cord_snag", "cord_snap", "click", "punch", "lamp_tick", "knob_tick", "snap"]
 ## O zumbido da luminária acesa (dB; era -40, alto demais).
 const LAMP_BUZZ := -44.0
+## Gravações reais (Freesound, CC0; as fontes em `tools/ambiente/preparar.py`) no lugar dos sintetizados: o id no jogo,
+## e o arquivo é `audio/ambience/<id>.ogg` ("~" vira "_"). Os loops tocam em laço; o trovão, uma das quatro versões.
+const RECORDED := ["rain", "storm", "breeze", "crickets", "thunder", "thunder~1", "thunder~2", "thunder~3"]
+## A tempestade (chuva forte com vento) entra por cima da chuva a partir de STORM_FROM de força (`set_rain`) e chega
+## inteira na mais forte.
+const STORM_FROM := 0.5
+## A rajada (`gust`): o pico do vento no barramento Wind, em dB acima do volume dele no clima limpo, de GUST_DB.x
+## (calmo) a GUST_DB.y (a rajada mais forte), medido na gravação (`breeze.ogg`, ~p10 e p98), suavizado em GUST_LERP/s.
+const GUST_DB := Vector2(-19.0, -10.0)
+const GUST_LERP := 3.0
 ## O zumbido elétrico de 60 Hz da sala, a noite toda (dB; era -29, depois -37: tom grave e constante, cansava, sobretudo em fone).
 const HUM_DB := -45.0
 ## A chuva cresce e diminui em ondas lentas (dB de cada onda, período em s), em vez de um chiado constante.
@@ -122,13 +131,17 @@ var vol := VOL.duplicate()   ## o volume em uso; a mesa de som do debug mexe nel
 var pool: Array[AudioStreamPlayer] = []
 var pool_2d: Array[AudioStreamPlayer2D] = []   # para `play_at` (som que vem de um lugar da tela)
 var rain: AudioStreamPlayer
-var breeze: AudioStreamPlayer
+var storm: AudioStreamPlayer      # a chuva forte com vento, por cima da chuva (`STORM_FROM`)
+var breeze: AudioStreamPlayer     # no barramento Wind, que mede a rajada (`gust`)
 var crickets: AudioStreamPlayer
 var hum: AudioStreamPlayer
 var hiss: AudioStreamPlayer
 var lamp_buzz: AudioStreamPlayer  # o zumbido da luminária, que acompanha a luz dela (`lamp`)
 var _rain_db := -80.0             # o volume da chuva pedido pelo clima, antes das ondas
 var _rain_gain := 0.0             # e o tanto a mais (ou a menos) pela força dela agora (`set_rain`)
+var _storm_gain := -80.0          # a tempestade, em dB sobre a chuva, pela força dela (`set_rain`)
+var _gust := 0.0                  # a rajada do vento agora, suavizada (`gust`)
+var _wind_bus := -1
 var _lamp_on := false            # o ambiente da sala está tocando (o zumbido segue a luminária)
 var _late := 0.0                  # quanto a noite já avançou (0..1): a cidade se calando
 var _dawn := 0.0                  # quanto o dia já nasceu (0..1, na última noite): os grilos parando
@@ -159,6 +172,10 @@ var _ring_turn := 0
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS   # o ambiente e os sons do menu seguem durante a pausa
 	streams = SfxSynth.build()
+	for id: String in RECORDED:
+		var s: AudioStreamOggVorbis = load("res://audio/ambience/%s.ogg" % id.replace("~", "_"))
+		s.loop = not id.begins_with("thunder")
+		streams[id] = s
 	for key: String in streams:
 		if "~" in key:
 			var base := key.get_slice("~", 0)
@@ -175,7 +192,10 @@ func _ready() -> void:
 		add_child(p)
 		pool_2d.append(p)
 	rain = _make_loop("rain")
+	storm = _make_loop("storm")
 	breeze = _make_loop("breeze")
+	breeze.bus = &"Wind"
+	_wind_bus = AudioServer.get_bus_index(&"Wind")
 	crickets = _make_loop("crickets")
 	hum = _make_loop("hum")
 	hiss = _make_loop("hiss")
@@ -261,7 +281,7 @@ func _take(id: String) -> String:
 
 
 func start_ambience(w: String) -> void:
-	for p in [rain, breeze, crickets, hum, hiss, lamp_buzz]:
+	for p in [rain, storm, breeze, crickets, hum, hiss, lamp_buzz]:
 		p.play()
 	fade(hum, HUM_DB, 2.0)
 	_lamp_on = true
@@ -285,6 +305,7 @@ func set_weather(w: String, sec: float = 4.0) -> void:
 ## A força da chuva agora (0..1, de garoa a forte): o volume dela acompanha, aos poucos.
 func set_rain(level: float) -> void:
 	_tween(self, "_rain_gain", lerpf(RAIN_GAIN.x, RAIN_GAIN.y, level), RAIN_GAIN.z)
+	_tween(self, "_storm_gain", linear_to_db(maxf(inverse_lerp(STORM_FROM, 1.0, level), 0.0001)), RAIN_GAIN.z)
 
 
 ## Quanto a noite já avançou (0..1, das 22h à meia-noite): os grilos sobem e a brisa baixa aos poucos.
@@ -299,14 +320,10 @@ func set_dawn(k: float) -> void:
 	_apply_mix(8.0)
 
 
-## A rajada da brisa agora (0..1): a onda de 8 s gravada nela (`SfxSynth._build_breeze`, a mesma conta; o laço fecha
-## na onda), pela posição em que ela toca, vezes o volume dela (calada, 0). A ponta da folhinha da parede dobra com ela.
+## A rajada da brisa agora (0..1): o que se ouve dela (o pico no barramento Wind, já com o volume; calada, 0),
+## suavizado no `_process`. A ponta da folhinha da parede dobra com ela.
 func gust() -> float:
-	if not breeze.playing:
-		return 0.0
-	var t := breeze.get_playback_position()
-	var g := 0.55 + 0.3 * sin(TAU * t / 8.0) + 0.15 * sin(TAU * t * 3.0 / 8.0 + 1.3)
-	return clampf((g - 0.1) / 0.9, 0.0, 1.0) * clampf(db_to_linear(breeze.volume_db - WEATHER_MIX["clear"]["breeze"]), 0.0, 1.0)
+	return _gust
 
 
 ## A luz da luminária (0..1): o zumbido acompanha, e some com ela apagada.
@@ -356,6 +373,9 @@ func _process(delta: float) -> void:
 	for w: Vector2 in RAIN_WAVES:
 		wave += w.x * sin(TAU * _t / w.y)
 	rain.volume_db = _rain_db + wave + _rain_gain
+	storm.volume_db = _rain_db + wave + _storm_gain
+	var peak := AudioServer.get_bus_peak_volume_left_db(_wind_bus, 0) - WEATHER_MIX["clear"]["breeze"]
+	_gust = lerpf(_gust, clampf(inverse_lerp(GUST_DB.x, GUST_DB.y, peak), 0.0, 1.0), minf(1.0, delta * GUST_LERP))
 	_rub_v = lerpf(_rub_v, _rub_speed, minf(1.0, delta * 18.0))
 	_rub_mood = _rub_mood.lerp(_rub_want, minf(1.0, delta * 10.0))
 	_rub_feel = _rub_feel.lerp(_rub_feel_want, minf(1.0, delta * 10.0))
@@ -466,8 +486,9 @@ func speak_char(voice: String, text: String, i: int, prev_vowel: bool, laugh: bo
 	var t := _tone(text, i)
 	if laugh:
 		t = [2, 1.13, 0.0]
-	pitch *= 1.0 + agitated * (AGITATION["pitch"] + _rng.randf_range(-1.0, 1.0) * AGITATION["shake"])
-	var sound := syllable.bind(voice, VMAP[lc] + ("n" if _nasal(text, i) else ""), _onset(text, i), t[0], pitch * t[1],
+	pitch *= (1.0 + agitated * (AGITATION["pitch"] + _rng.randf_range(-1.0, 1.0) * AGITATION["shake"])) * t[1]
+	pitch = 1.0 + (pitch - 1.0) * float(SfxSynth.VOICE[voice].get("steady", 1.0))
+	var sound := syllable.bind(voice, VMAP[lc] + ("n" if _nasal(text, i) else ""), _onset(text, i), t[0], pitch,
 		t[2] + agitated * AGITATION["db"] + db, at, long)
 	if wait == 0.0:
 		sound.call()

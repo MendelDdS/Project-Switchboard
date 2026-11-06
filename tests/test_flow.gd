@@ -149,9 +149,9 @@ func _initialize() -> void:
 		ok(w == "rain" or not talk.any(func(t): return "chuva" in t.line), "sem chuva na conversa: " + w)
 	ok(not m.conversation.topics("m").any(func(t): return "Meu marido" in t.line) and not m.conversation.topics("f").any(func(t): return "Minha mulher" in t.line),
 		"assunto só na voz que combina")
-	# setores: o 3 desde a noite 1, o 1 na noite 5 e o 2 na noite 9; mesa, lista e ligações só com os atendidos
+	# setores: o 3 desde a noite 1, o 1 na noite 5 e o 2 na noite 10; mesa, lista e ligações só com os atendidos
 	ok(GameData.sectors_for(1) == [3] and GameData.sectors_for(4) == [3] and GameData.sectors_for(5).size() == 2
-		and GameData.sectors_for(9).size() == 3, "setores entregues nas noites 1, 5 e 9")
+		and GameData.sectors_for(9).size() == 2 and GameData.sectors_for(10).size() == 3, "setores entregues nas noites 1, 5 e 10")
 	var per_sector := {}
 	for e in C.directory:
 		if not e.dispatch_only:

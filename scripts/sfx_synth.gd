@@ -13,12 +13,14 @@ const RATE := 22050
 # multiplicados: a mulher e a criança com as ressonâncias mais altas que as do homem; antes todas iguais às dele).
 # As do telefone (bus "Phone") ganham a banda da linha no barramento (default_bus_layout.tres: distorção do microfone
 # de carvão, 300–3400 Hz, pico em 2 kHz); as outras levam o filtro na própria sílaba: muffle = corte do passa-baixa
-# (quanto menor, mais abafado).
+# (quanto menor, mais abafado). steady = a parte da variação de altura que fica (`Sfx.speak_char`, 1 sem a chave): a
+# altura sobe pelo pitch_scale, que leva os formantes junto, e no sussurro, quase sem tom, só eles dizem o tamanho de
+# quem fala; com a variação inteira (pessoa, nervoso, exclamação, pergunta: até ~1,5×), o homem soava criança.
 const VOICE := {
 	"f": {"f0": 225.0, "breath": 0.10, "dur": 0.13, "tract": 1.15, "db": -7.0, "bus": &"Phone"},
 	"m": {"f0": 118.0, "breath": 0.08, "dur": 0.14, "tract": 1.0, "db": -6.0, "bus": &"Phone"},
 	"k": {"f0": 320.0, "breath": 0.06, "dur": 0.11, "tract": 1.25, "db": -9.0, "bus": &"Phone"},
-	"w": {"f0": 140.0, "breath": 0.45, "dur": 0.14, "tract": 0.97, "db": -8.0, "bus": &"Phone"},
+	"w": {"f0": 140.0, "breath": 0.45, "dur": 0.14, "tract": 0.92, "steady": 0.35, "db": -8.0, "bus": &"Phone"},
 	"g": {"f0": 92.0, "breath": 0.30, "muffle": 700.0, "dur": 0.21, "tract": 0.92, "db": -5.0, "bus": &"Voices"},
 	"r": {"f0": 135.0, "breath": 0.18, "muffle": 2300.0, "dur": 0.12, "tract": 1.0, "db": -11.0, "bus": &"Voices"},
 }
@@ -52,11 +54,9 @@ const BEEP := {"f": 740.0, "dur": 0.13, "gap": 0.09, "count": 2}
 ## Impressora do cartão: colunas de agulhas por segundo (o "zzrt" com tom) e passos por segundo do motor do papel.
 const PRINTER_COLS := 1150.0
 const PRINTER_STEPS := 230.0
-## A chuva do lado esquerdo, em relação ao direito: a janela fica à direita da tela (0,4 = 8 dB mais baixo).
-const RAIN_LEFT := 0.4
 
 ## Os pedaços das receitas ([função, argumentos...]), cada um montado sozinho numa instância (`build`; mais as vozes,
-## uma por pedaço); os mais pesados (a chuva, a brisa, o fio, os grilos, os carros, o sino) ficam em pedaços próprios
+## uma por pedaço); os mais pesados (o fio, os carros, o sino) ficam em pedaços próprios
 ## para se dividirem entre os núcleos.
 const CAR_PEAK := 0.58   ## onde fica o mais alto da passagem do carro (fração da duração): chega devagar, some rápido
 const WET_SWEEP := Vector2(3000, 1000)   ## o chiado do pneu molhado, chegando e indo embora (Hz, o centro do filtro)
@@ -66,8 +66,8 @@ const WET_NEAR := 1.25   ## o carro da mão de cá: o chiado e o corte dos agudo
 const CAR_NEAR_SHARP := 1.8   ## o carro da mão de cá: a passagem mais concentrada no meio (expoente da curva)
 const CAR_TAKES := 3   ## versões de cada carro, cada uma com o seu sorteio
 const PARTS := [["_build_basic"], ["_build_ring"], ["_build_clock"], ["_build_rub"], ["_build_unroll"], ["_build_card"],
-	["_build_thunder"], ["_build_bell"], ["_build_dog"], ["_build_dog", true], ["_build_outside"],
-	["_build_lamp"], ["_build_rain"], ["_build_breeze"], ["_build_crickets"], ["_build_sabia"], ["_build_speaker"], ["_build_army"]]
+	["_build_bell"], ["_build_dog"], ["_build_dog", true], ["_build_outside"],
+	["_build_lamp"], ["_build_sabia"], ["_build_speaker"], ["_build_army"]]
 ## O carro de som da rua (`_build_speaker`, `Background.SPEAKER_*`): quanto ele leva passando (s), o x dele no começo e
 ## no fim (m, a mão de lá, `Background._car_x`), a distância da mão de lá até a janela (m) e os ecos da rua ([s, força]).
 const ARMY := 16.0   ## o caminhão do desfile passando (s; `Background.ARMY_SEC`)
@@ -756,21 +756,6 @@ func _build_lamp() -> void:
 	_end("lamp_tick")
 
 
-## Trovão de longe: um estalo abafado e o ronco grave rolando, em ondas, até sumir.
-func _build_thunder() -> void:
-	var L := 6.0
-	_begin(L)
-	var b := 0.0
-	for i in _w.size():
-		var t := float(i) / RATE
-		b = b * 0.985 + _rng.randf_range(-1.0, 1.0) * 0.06
-		var roll := 0.65 + 0.35 * sin(TAU * t * 0.9 + sin(TAU * t * 0.37) * 2.0)
-		_w[i] = b * (1.0 - exp(-t / 0.12)) * exp(-t / 2.0) * roll
-	_w = _biquad(_biquad(_w, "lp", 220.0, 0.7), "hp", 25.0, 0.7)
-	_noise(0.02, 0.5, "lp", 1100.0, 0.7, 0.25)
-	_end("thunder", false, false, 0.9)
-
-
 ## O carro de som passando (`SPEAKER`): uma voz de locutor, de frases curtas e enfáticas (sílabas de vogais sorteadas,
 ## a tônica mais alta e a última longa, caindo), sem palavras: a corneta (só o meio da voz, saturada), o eco nas
 ## fachadas (`SPEAKER_ECHO`), a distância (mais forte e mais clara quando ele passa na frente; longe, só o abafado que
@@ -888,114 +873,6 @@ func _loopify(sec: float) -> void:
 		var k := float(i) / f
 		_w[i] = _w[i] * sqrt(k) + _w[n + i] * sqrt(1.0 - k)
 	_w.resize(n)
-
-
-## Chuva ouvida de dentro, em estéreo (cada lado com o seu chiado; em mono era um chiado de rádio) e mais do lado da
-## janela, à direita (`RAIN_LEFT`): o ronco grave da água nos telhados e no asfalto, igual nos dois lados; o lençol de
-## gotas longe, sem os agudos (a janela fechada); e o grão miúdo das gotas, denso e por igual. Gotas soltas (batidas,
-## bolhas de poça, gotas no vidro) saíram a pedido: soavam como "tic".
-func _build_rain() -> void:
-	var L := 7.0
-	_begin(L)
-	var n := _w.size()
-	var rumble := PackedFloat32Array()
-	rumble.resize(n)
-	for i in n:
-		rumble[i] = _rng.randf_range(-1.0, 1.0)
-	rumble = _biquad(_biquad(rumble, "lp", 320.0, 0.7), "hp", 40.0, 0.7)
-	var sides: Array[PackedFloat32Array] = []
-	for side in 2:
-		var bed := PackedFloat32Array()
-		var fine := PackedFloat32Array()
-		bed.resize(n)
-		fine.resize(n)
-		fine.fill(0.0)
-		for i in n:
-			bed[i] = _rng.randf_range(-1.0, 1.0)
-		for k in int(L * 3000):
-			fine[_rng.randi() % n] += _rng.randf_range(-1.0, 1.0)
-		bed = _biquad(bed, "bp", 700.0, 0.5)
-		fine = _biquad(fine, "bp", 2600.0, 0.7)
-		for i in n:
-			_w[i] = rumble[i] * 0.6 + bed[i] * 0.6 + fine[i] * 1.1
-		_w = _biquad(_w, "lp", 4500.0, 0.7)   # atrás da janela
-		_loopify(0.4)
-		if side == 0:
-			for i in _w.size():
-				_w[i] *= RAIN_LEFT
-		sides.append(_w)
-		_begin(L)
-	_w = sides[0]
-	_end("rain", false, true, 0.6, sides[1])
-
-
-## Brisa leve: ruído grave em rajadas lentas (ciclos inteiros no loop de 8 s) e um assobio fraquinho.
-func _build_breeze() -> void:
-	_begin(8.6)
-	var n := _w.size()
-	var b := 0.0
-	for i in n:
-		b = b * 0.995 + _rng.randf_range(-1.0, 1.0) * 0.05
-		_w[i] = b
-	_w = _biquad(_biquad(_w, "lp", 650.0, 0.7), "hp", 70.0, 0.7)
-	var hiss := PackedFloat32Array()
-	hiss.resize(n)
-	for i in n:
-		hiss[i] = _rng.randf_range(-1.0, 1.0)
-	hiss = _biquad(hiss, "bp", 900.0, 3.0)
-	for i in n:
-		var t := float(i) / RATE
-		var gust := 0.55 + 0.3 * sin(TAU * t / 8.0) + 0.15 * sin(TAU * t * 3.0 / 8.0 + 1.3)   # (a mesma conta de `Sfx.gust`)
-		_w[i] = _w[i] * gust + hiss[i] * 0.05 * gust * gust
-	_loopify(0.6)
-	_end("breeze", false, true, 0.6)
-
-
-## Grilos: um coro de grilos em distâncias diferentes, cada um com seu tom e seu ritmo. Cada "cri" tem de 3 a 5
-## sílabas curtas e ásperas (o raspar da asa), com o tom caindo um pouco; ao fundo, um trilo contínuo bem longe.
-func _build_crickets() -> void:
-	var L := 8.4
-	_begin(L)
-	var amps := [1.0, 0.6, 0.4, 0.3, 0.2]
-	for c in amps.size():
-		var f := _rng.randf_range(3900.0, 5100.0)
-		var syl := _rng.randi_range(3, 5)
-		var gap := _rng.randf_range(0.028, 0.036)
-		var every := _rng.randf_range(0.38, 0.75)
-		var t := _rng.randf() * every
-		while t < L - 0.3:
-			for s in syl:
-				_cricket_syllable(t + s * gap, f, 0.02, float(amps[c]) * _rng.randf_range(0.8, 1.0))
-			t += every * _rng.randf_range(0.9, 1.12)
-	# grilos de trilo: "criiiiii" de 1,5 a 4 s (pulsos rápidos, ~40 por segundo), pausa, e de novo
-	for tr in [[3800.0, 38.0, 0.55], [4400.0, 46.0, 0.35]]:
-		var t := _rng.randf() * 1.0
-		while t < L - 0.5:
-			var len := minf(_rng.randf_range(1.5, 4.0), L - 0.2 - t)
-			var p := 1.0 / float(tr[1])
-			var k := 0.0
-			while k < len:
-				var fade := minf(1.0, minf(k / 0.3, (len - k) / 0.3))
-				_cricket_syllable(t + k, tr[0], p * 0.6, float(tr[2]) * fade)
-				k += p
-			t += len + _rng.randf_range(0.5, 2.0)
-	_w = _biquad(_biquad(_w, "lp", 7000.0, 0.7), "hp", 2500.0, 0.7)
-	_loopify(0.4)
-	_end("crickets", false, true, 0.5)
-
-
-## Uma sílaba de grilo: ataque curto, tom caindo um pouco, final mais lento.
-func _cricket_syllable(at: float, f: float, dur: float, g: float) -> void:
-	var s0 := int(at * RATE)
-	var ph := _rng.randf()
-	for i in int(dur * RATE):
-		if s0 + i >= _w.size():
-			break
-		var t := float(i) / RATE
-		var k := t / dur
-		ph += f * (1.01 - 0.02 * k) / RATE
-		var env := minf(1.0, t / 0.003) * pow(1.0 - k, 0.8)
-		_w[s0 + i] += sin(TAU * ph) * env * g
 
 
 ## O sabiá-laranjeira cantando no escuro, antes de o sol nascer (`SABIA_TAKES` frases, cada uma uma versão do som):

@@ -3412,3 +3412,34 @@ Chaves:
     es. O `test_content` cobra todos os setores; o `test_dial` contava 5 ligações do discador na noite 15 (são 6). Os
     documentos deixam de dizer que as noites 3–15 são genéricas e que as reações da B3 são de teste; a lista do fim de
     cada cena no `PLANO_RUA.md` deixa de parecer pendência.
+553. #som #musica #saiu "Use essa ferramenta (ACE-Step 1.5) pra gerar música e efeitos sonoros pro jogo": música
+    gerada para a tela inicial, o fundo do turno, o amanhecer da 15, os finais e as canções da Rádio Serena pela janela
+    (o ACE-Step só faz música); depois efeitos pelo MOSS-SoundEffect v2, que saíram com ruído (faixa de 16–18 kHz,
+    chiado, ronco) e nem limpos agradaram. "Remova todos os sons... esse modelo gera áudios muito ruins" e "desfaça tudo
+    de áudio, inclusive no código... remova audio/music": tudo desfeito (a música, o barramento Music e o Street, o
+    volume Música, as canções pela janela, as ferramentas e os modelos); o jogo voltou aos sons sintetizados. Ficou o
+    `audio/clear_night_ambience.mp3`. As lições dos geradores no `LESSONS.md`.
+554. #som #clima "O que você sugere para melhorar os áudios... mais imersivos": proposta de gravações reais para os
+    ambientes contínuos (chuva, vento, grilos, trovão, cidade), mantendo sintetizado o mecânico e interativo (cabos,
+    campainha, carimbo, papel, vozes). "Comece pelo 1": 21 candidatas em domínio público (CC0, Freesound), numa página
+    para ouvir antes de escolher. Escolhidas: chuva 81819, chuva forte com vento 567108 ("vai diminuindo o volume no
+    final... parecer contínuo": cortada antes de sumir e emendada em loop), trovão 572443 (quatro trovões recortados),
+    vento 557380, grilos 522299; cidade à noite, nenhuma. No jogo no lugar dos sintetizados (`Sfx.RECORDED`), com o
+    volume igualado ao deles; a tempestade entra por cima da chuva quando ela engrossa; a rajada da folhinha passou a
+    ser medida no som do vento (barramento Wind).
+555. #som #voz "o Seu Jair fala baixinho e parece uma criança... Conserte a voz sussurrando de homens": a altura de
+    cada sílaba sobe pelo `pitch_scale`, que leva os formantes junto, e no sussurro (voz "w", muito sopro) só eles dizem
+    o tamanho de quem fala; somadas a pessoa, o nervoso da emergência, a exclamação e a pergunta (até ~1,5×), a boca
+    ficava do tamanho da de criança. O "w" guarda só 35% da variação de altura (`steady`) e tem a boca maior (`tract`
+    0,92).
+556. #setores #ritmo #roteiro "Se na noite 4 ocorre um evento do golpe, o setor 1 só é liberado no dia 5; se o outro
+    evento acontece na noite 9, o setor 2 só é liberado no dia 10", porque a noite 9 tinha as emergências dos ataques e,
+    ao mesmo tempo, o alívio de ritmo da noite de setor novo: o Alto da Serra passa para a noite 10
+    (`SECTOR_NIGHTS`), que agora segura o ritmo no lugar da 9; o recado do setor vai para o bilhete da 10 e a 9 ganha
+    outro. Na 9 o setor fica sem telefonista (a Cecília largou na 8). "Trocar o destino": os dois pedidos da Alta Cúpula
+    da 9 (22:05) vão para a delegacia 184 (o 190 é só do despacho), com o Valadares se apresentando "da Alta Cúpula", e
+    a cobrança do supervisor na 12 fala só da delegacia; "passar para a 10": a mãe que procura o filho no São Lucas e a
+    irmã que liga para a Marta Costa (`noite_10_parente`, `noite_10_irma`).
+557. #roteiro #bilhete "Como na noite 9 não tem nada, pode tirar do bilhete": o "grave toda ligação suspeita" saiu do
+    bilhete da 9 e do da 10 (nenhuma das duas tem ligação marcada, `TransferCall.suspicious`; as marcadas são das
+    noites 7, 8, 12 e 14).

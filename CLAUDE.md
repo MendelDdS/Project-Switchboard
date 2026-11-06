@@ -76,10 +76,11 @@ detalhe no comentário do código, o porquê no `HISTORICO.md`. Atualize os `CLA
   aceso brilhando: `Bloom.clear(self)` no começo do `_draw` e `Bloom.light(...)` por luz; o que tapa, `Bloom.occlude`.
   Luz com forma: camada somada (ADD) com a força no `modulate`. Parâmetro de shader entra no estado comparado.
 - **Som**: tudo sintetizado ao iniciar (`SfxSynth.build()`, em pedaços no `WorkerThreadPool` em alta prioridade, um
-  `RandomNumberGenerator` por pedaço; **nada de chamar função a cada amostra** num laço de som). Tocado pelo autoload
+  `RandomNumberGenerator` por pedaço; **nada de chamar função a cada amostra** num laço de som), menos o ambiente gravado (chuva, tempestade, vento, grilos, trovão: gravações CC0 do Freesound em
+  `audio/ambience/`, preparadas por `tools/ambiente/preparar.py`, `Sfx.RECORDED`). Tocado pelo autoload
   `Sfx`; `Sfx.play_at(id, screen_x)` para som com lugar na tela. **Volume só por `Sfx.fade`/`Sfx._tween`** (uma
   mudança nova cancela a anterior). Barramentos em `default_bus_layout.tres` (Ambience com sidechain em Voices,
-  Voices, Effects, Rub, Phone).
+  Voices, Effects, Rub, Phone, Wind: o vento, que mede a rajada da folhinha, `Sfx.gust`).
 - **Tempo e pausa**: todo `create_timer` com `false` no 2º argumento. Recomeçar é sempre `Main.restart()`, nunca
   `reload_current_scene()`. Pausa: `PauseMenu` (`get_tree().paused`); o `Box` do `GameView` processa sempre.
 - **Sorteio**: use o global (`randf`, que segue a semente `--seed`, aplicada no `Main._enter_tree`, antes dos filhos);
@@ -206,7 +207,7 @@ detalhe no comentário do código, o porquê no `HISTORICO.md`. Atualize os `CLA
 - 15 noites (`GameContent.nights`, `Night`, `data/nights/`); a noite 0 é o treinamento (`Training`, `LessonStep`, a
   Cecília). Só `story` é fixo (a ligação desconhecida saiu). Todas, até o epílogo, têm o roteiro de Maria.
 - Setores: o primeiro dígito do número (3 Vila Serena, 1 Centro, 2 Alto da Serra); o operador recebe o 1 na noite 5 e
-  o 2 na 9 (`GameData.SECTOR_NIGHTS`; `GameData.sectors` definido em `Main._load_night`). Testes de cenário usam
+  o 2 na 10, nunca em noite de evento do golpe (`GameData.SECTOR_NIGHTS`; `GameData.sectors` definido em `Main._load_night`). Testes de cenário usam
   `load_main([1, 2, 3])`.
 - Ritmo por nível (`Pace`, 9 níveis; `Pace.next` pelo conceito; o último é o limite; do 6 ao 9 o mesmo `mean_gap` do 5, com mais picos).
 - Cenas na rua da vista: `Night.street_events` (`StreetEvent`: `kind`, `at`, `every`; o Main chama

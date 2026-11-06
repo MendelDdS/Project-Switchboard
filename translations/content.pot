@@ -5870,11 +5870,11 @@ msgstr ""
 msgid "Qual é o endereço?"
 msgstr ""
 
-#: data/calls/story_04_baleado.tres data/calls/noite_09_irma_tiros.tres data/calls/emergency_03_mal_subito_rua_do_sol_230.tres
+#: data/calls/story_04_baleado.tres data/calls/noite_10_irma_tiros.tres data/calls/emergency_03_mal_subito_rua_do_sol_230.tres
 msgid "Ele está consciente?"
 msgstr ""
 
-#: data/calls/story_04_baleado.tres data/calls/noite_09_irma_tiros.tres
+#: data/calls/story_04_baleado.tres data/calls/noite_10_irma_tiros.tres
 msgid "Quem atirou ainda está aí?"
 msgstr ""
 
@@ -7799,7 +7799,7 @@ msgid "...Obrigado por avisar. A gente fala de outro jeito, então."
 msgstr ""
 
 #: data/nights/night_09.tres
-msgid "O supervisor deixou um recado: \"Último setor: a partir de hoje, o setor 2, o Alto da Serra, também fica com você. Os números que começam com 2 passam pela sua mesa. A cidade inteira está nas suas mãos. A pedido das autoridades, grave toda ligação suspeita.\""
+msgid "O supervisor deixou um recado: \"Com o toque de recolher, a noite promete: emergência vem primeiro.\""
 msgstr ""
 
 #: data/calls/story_09_sebastiao.tres
@@ -7866,20 +7866,16 @@ msgstr ""
 msgid "Assessor"
 msgstr ""
 
-#: data/calls/story_09_cupula_radio.tres data/calls/story_09_cupula_radio_caiu.tres data/calls/story_14_cupula_aviao.tres
-msgid "A Alta Cúpula. É urgente."
+#: data/calls/story_09_cupula_radio.tres data/calls/story_09_cupula_radio_caiu.tres
+msgid "A delegacia. É urgente."
 msgstr ""
 
-#: data/calls/story_09_cupula_radio.tres data/calls/story_09_cupula_radio_caiu.tres data/calls/story_12_cupula_ronda.tres
-msgid "A Alta Cúpula."
-msgstr ""
-
-#: data/calls/story_09_cupula_radio.tres data/calls/story_09_cupula_radio_caiu.tres data/calls/story_12_cupula_telefonista.tres
-msgid "Alta Cúpula"
+#: data/calls/story_09_cupula_radio.tres data/calls/story_09_cupula_radio_caiu.tres data/calls/story_14_policia_hotel.tres
+msgid "A delegacia."
 msgstr ""
 
 #: data/calls/story_09_cupula_radio.tres
-msgid "Valadares. Alguém sabe por que a [place:rádio] mudou a programação?"
+msgid "Valadares, da Alta Cúpula. Alguém sabe por que a [place:rádio] mudou a programação?"
 msgstr ""
 
 #: data/calls/story_09_cupula_radio.tres
@@ -7895,7 +7891,7 @@ msgid "Henrique Valadares, da residência oficial."
 msgstr ""
 
 #: data/calls/story_09_cupula_radio_caiu.tres
-msgid "Valadares. Como está a [place:rádio]?"
+msgid "Valadares, da Alta Cúpula. Como está a [place:rádio]?"
 msgstr ""
 
 #: data/calls/story_09_cupula_radio_caiu.tres
@@ -8186,126 +8182,6 @@ msgstr ""
 msgid "Aí você vê o filme na delegacia. Vá direto pra casa."
 msgstr ""
 
-#: data/calls/noite_09_parente.tres
-msgid "Dona Odete"
-msgstr ""
-
-#: data/calls/noite_09_parente.tres
-msgid "Boa noite. O Hospital São Lucas, pelo amor de Deus."
-msgstr ""
-
-#: data/calls/noite_09_parente.tres
-msgid "Meu filho mora na Rua do Moinho. Teve tiro lá."
-msgstr ""
-
-#: data/calls/noite_09_parente.tres
-msgid "O São Lucas, moça. Dois, um, três."
-msgstr ""
-
-#: data/calls/noite_09_parente.tres data/calls/story_16_generosa_hospital.tres data/calls/transfer_18_dona_rute_hospital_sao_lucas.tres
-msgid "Hospital São Lucas"
-msgstr ""
-
-#: data/calls/noite_09_parente.tres data/calls/transfer_14_senhora_casa_paroquial.tres
-msgid "Obrigada, minha filha."
-msgstr ""
-
-#: data/calls/noite_09_parente.tres
-msgid "Hospital? Chegou algum ferido da Rua do Moinho? Um rapaz, Sérgio Lins."
-msgstr ""
-
-#: data/calls/noite_09_parente.tres
-msgid "Chegaram dois, senhora. Mas vieram com a polícia, sem nome."
-msgstr ""
-
-#: data/calls/noite_09_parente.tres
-msgid "Um deles é magro, de bigode?"
-msgstr ""
-
-#: data/calls/noite_09_parente.tres
-msgid "Não posso dizer, senhora. A ala está fechada."
-msgstr ""
-
-#: data/calls/noite_09_parente.tres
-msgid "Fechada pra mãe?"
-msgstr ""
-
-#: data/calls/noite_09_parente.tres
-msgid "Fechada pra todo mundo. Sinto muito."
-msgstr ""
-
-#: data/calls/noite_09_irma.tres
-msgid "Boa noite, moça. Me liga com a Marta Costa, a minha irmã?"
-msgstr ""
-
-#: data/calls/noite_09_irma.tres
-msgid "O meu filho saiu pra casa dela e ainda não chegou."
-msgstr ""
-
-#: data/calls/noite_09_irma.tres
-msgid "A Marta Costa, a minha irmã."
-msgstr ""
-
-#: data/calls/noite_09_irma.tres data/calls/transfer_20_dona_tereza_marta_costa.tres
-msgid "Marta Costa"
-msgstr ""
-
-#: data/calls/noite_09_irma.tres data/calls/noite_12_parente.tres data/calls/noite_14_parente.tres
-msgid "Obrigada, moça."
-msgstr ""
-
-#: data/calls/noite_09_irma_tiros.tres
-msgid "Meu Deus, tiro! Atiraram lá fora... tem um rapaz caído na esquina... é o Dudu! É o meu filho, moça!"
-msgstr ""
-
-#: data/calls/noite_09_irma_tiros.tres
-msgid "Rua Bela Vista, 230! Na esquina!"
-msgstr ""
-
-#: data/calls/noite_09_irma_tiros.tres
-msgid "Um carro passou atirando e sumiu... mas pode voltar!"
-msgstr ""
-
-#: data/calls/noite_09_irma_tiros.tres
-msgid "Tá gemendo... levou no braço, tá sangrando muito!"
-msgstr ""
-
-#: data/calls/noite_09_irma_tiros.tres
-msgid "Moça, esquece a minha irmã. Eu vou com ele pro hospital."
-msgstr ""
-
-#: data/calls/noite_09_irma_tiros.tres
-msgid "Ele tá ficando branco, moça... o sangue não para!"
-msgstr ""
-
-#: data/calls/noite_09_irma_tiros.tres
-msgid "Dá para apertar o ferimento com um pano?"
-msgstr ""
-
-#: data/calls/noite_09_irma_tiros.tres
-msgid "Tô apertando! Tô apertando com a minha blusa!"
-msgstr ""
-
-#: data/calls/noite_09_irma_tiros.tres
-msgid "Ele fechou os olhos! Dudu! Dudu, fala comigo!"
-msgstr ""
-
-#: data/calls/noite_09_irma_tiros.tres data/calls/emergency_23_mal_subito_rua_das_acacias_450.tres
-msgid "Ele ainda respira?"
-msgstr ""
-
-#: data/calls/noite_09_irma_tiros.tres
-msgid "Respira... devagarinho."
-msgstr ""
-
-#: data/calls/noite_09_irma_tiros.tres
-msgid "Ele morreu, moça. Morreu no meu colo."
-msgstr ""
-
-#: data/calls/noite_09_irma_tiros.tres
-msgid "Ninguém... só o meu filho."
-msgstr ""
-
 #: data/nights/night_09.tres
 msgid "Rua do Centro às nove e cinco."
 msgstr ""
@@ -8331,7 +8207,7 @@ msgid "A barreira na Rua do Moinho."
 msgstr ""
 
 #: data/nights/night_10.tres
-msgid "O supervisor deixou um recado: \"Com os três setores, a noite fica mais cheia. Emergência vem primeiro.\""
+msgid "O supervisor deixou um recado: \"Último setor: a partir de hoje, o setor 2, o Alto da Serra, também fica com você. Os números que começam com 2 passam pela sua mesa. A cidade inteira está nas suas mãos.\""
 msgstr ""
 
 #: data/calls/story_10_cecilia.tres
@@ -8564,6 +8440,126 @@ msgstr ""
 
 #: data/calls/noite_10_barreira.tres
 msgid "Então leve o papel do médico. Sem papel, voltam todo mundo."
+msgstr ""
+
+#: data/calls/noite_10_parente.tres
+msgid "Dona Odete"
+msgstr ""
+
+#: data/calls/noite_10_parente.tres
+msgid "Boa noite. O Hospital São Lucas, pelo amor de Deus."
+msgstr ""
+
+#: data/calls/noite_10_parente.tres
+msgid "Meu filho mora na Rua do Moinho. Teve tiro lá."
+msgstr ""
+
+#: data/calls/noite_10_parente.tres
+msgid "O São Lucas, moça. Dois, um, três."
+msgstr ""
+
+#: data/calls/noite_10_parente.tres data/calls/story_16_generosa_hospital.tres data/calls/transfer_18_dona_rute_hospital_sao_lucas.tres
+msgid "Hospital São Lucas"
+msgstr ""
+
+#: data/calls/noite_10_parente.tres data/calls/transfer_14_senhora_casa_paroquial.tres
+msgid "Obrigada, minha filha."
+msgstr ""
+
+#: data/calls/noite_10_parente.tres
+msgid "Hospital? Chegou algum ferido da Rua do Moinho? Um rapaz, Sérgio Lins."
+msgstr ""
+
+#: data/calls/noite_10_parente.tres
+msgid "Chegaram dois, senhora. Mas vieram com a polícia, sem nome."
+msgstr ""
+
+#: data/calls/noite_10_parente.tres
+msgid "Um deles é magro, de bigode?"
+msgstr ""
+
+#: data/calls/noite_10_parente.tres
+msgid "Não posso dizer, senhora. A ala está fechada."
+msgstr ""
+
+#: data/calls/noite_10_parente.tres
+msgid "Fechada pra mãe?"
+msgstr ""
+
+#: data/calls/noite_10_parente.tres
+msgid "Fechada pra todo mundo. Sinto muito."
+msgstr ""
+
+#: data/calls/noite_10_irma.tres
+msgid "Boa noite, moça. Me liga com a Marta Costa, a minha irmã?"
+msgstr ""
+
+#: data/calls/noite_10_irma.tres
+msgid "O meu filho saiu pra casa dela e ainda não chegou."
+msgstr ""
+
+#: data/calls/noite_10_irma.tres
+msgid "A Marta Costa, a minha irmã."
+msgstr ""
+
+#: data/calls/noite_10_irma.tres data/calls/transfer_20_dona_tereza_marta_costa.tres
+msgid "Marta Costa"
+msgstr ""
+
+#: data/calls/noite_10_irma.tres data/calls/noite_12_parente.tres data/calls/noite_14_parente.tres
+msgid "Obrigada, moça."
+msgstr ""
+
+#: data/calls/noite_10_irma_tiros.tres
+msgid "Meu Deus, tiro! Atiraram lá fora... tem um rapaz caído na esquina... é o Dudu! É o meu filho, moça!"
+msgstr ""
+
+#: data/calls/noite_10_irma_tiros.tres
+msgid "Rua Bela Vista, 230! Na esquina!"
+msgstr ""
+
+#: data/calls/noite_10_irma_tiros.tres
+msgid "Um carro passou atirando e sumiu... mas pode voltar!"
+msgstr ""
+
+#: data/calls/noite_10_irma_tiros.tres
+msgid "Tá gemendo... levou no braço, tá sangrando muito!"
+msgstr ""
+
+#: data/calls/noite_10_irma_tiros.tres
+msgid "Moça, esquece a minha irmã. Eu vou com ele pro hospital."
+msgstr ""
+
+#: data/calls/noite_10_irma_tiros.tres
+msgid "Ele tá ficando branco, moça... o sangue não para!"
+msgstr ""
+
+#: data/calls/noite_10_irma_tiros.tres
+msgid "Dá para apertar o ferimento com um pano?"
+msgstr ""
+
+#: data/calls/noite_10_irma_tiros.tres
+msgid "Tô apertando! Tô apertando com a minha blusa!"
+msgstr ""
+
+#: data/calls/noite_10_irma_tiros.tres
+msgid "Ele fechou os olhos! Dudu! Dudu, fala comigo!"
+msgstr ""
+
+#: data/calls/noite_10_irma_tiros.tres data/calls/emergency_23_mal_subito_rua_das_acacias_450.tres
+msgid "Ele ainda respira?"
+msgstr ""
+
+#: data/calls/noite_10_irma_tiros.tres
+msgid "Respira... devagarinho."
+msgstr ""
+
+#: data/calls/noite_10_irma_tiros.tres
+msgid "Ele morreu, moça. Morreu no meu colo."
+msgstr ""
+
+#: data/calls/noite_10_irma_tiros.tres
+msgid "Ninguém... só o meu filho."
 msgstr ""
 
 #: data/nights/night_10.tres
@@ -8851,6 +8847,10 @@ msgid "A Alta Cúpula, por favor."
 msgstr ""
 
 #: data/calls/story_12_cupula_telefonista.tres data/calls/story_12_cupula_telefonista_denuncia.tres data/calls/story_12_cupula_telefonista_homem.tres
+msgid "Alta Cúpula"
+msgstr ""
+
+#: data/calls/story_12_cupula_telefonista.tres data/calls/story_12_cupula_telefonista_denuncia.tres data/calls/story_12_cupula_telefonista_homem.tres
 msgid "Vilela, da investigação. É sobre a central da [place:Vila Serena]."
 msgstr ""
 
@@ -8902,6 +8902,10 @@ msgstr ""
 msgid "A Alta Cúpula. É da polícia."
 msgstr ""
 
+#: data/calls/story_12_cupula_ronda.tres data/calls/story_14_cupula_aviao.tres data/calls/story_14_cupula_comandante.tres
+msgid "A Alta Cúpula."
+msgstr ""
+
 #: data/calls/story_12_cupula_ronda.tres
 msgid "Bastos. O toque de recolher continua?"
 msgstr ""
@@ -8927,7 +8931,7 @@ msgid "Maria? É o supervisor. Não vou tomar o seu tempo."
 msgstr ""
 
 #: data/calls/story_12_supervisor.tres
-msgid "Chegou uma reclamação da Alta Cúpula. Três noites atrás, ligações deles para a delegacia e para a Cúpula não passaram pela sua mesa."
+msgid "Chegou uma reclamação da Alta Cúpula. Três noites atrás, ligações deles para a delegacia não passaram pela sua mesa."
 msgstr ""
 
 #: data/calls/story_12_supervisor.tres
@@ -9483,10 +9487,6 @@ msgid "A delegacia, por favor. Polícia."
 msgstr ""
 
 #: data/calls/story_14_policia_hotel.tres
-msgid "A delegacia."
-msgstr ""
-
-#: data/calls/story_14_policia_hotel.tres
 msgid "Plantão? Aqui é o Bastos. Estou na porta do hotel."
 msgstr ""
 
@@ -9512,6 +9512,10 @@ msgstr ""
 
 #: data/calls/story_14_policia_hotel.tres
 msgid "Entendido. Fico aqui até a troca."
+msgstr ""
+
+#: data/calls/story_14_cupula_aviao.tres
+msgid "A Alta Cúpula. É urgente."
 msgstr ""
 
 #: data/calls/story_14_cupula_aviao.tres

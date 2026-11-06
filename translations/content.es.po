@@ -5871,11 +5871,11 @@ msgstr "¡Central! ¡Le dispararon a un hombre aquí en la calle! ¡Está tirado
 msgid "Qual é o endereço?"
 msgstr "¿Cuál es la dirección?"
 
-#: data/calls/story_04_baleado.tres data/calls/noite_09_irma_tiros.tres data/calls/emergency_03_mal_subito_rua_do_sol_230.tres
+#: data/calls/story_04_baleado.tres data/calls/noite_10_irma_tiros.tres data/calls/emergency_03_mal_subito_rua_do_sol_230.tres
 msgid "Ele está consciente?"
 msgstr "¿Está consciente?"
 
-#: data/calls/story_04_baleado.tres data/calls/noite_09_irma_tiros.tres
+#: data/calls/story_04_baleado.tres data/calls/noite_10_irma_tiros.tres
 msgid "Quem atirou ainda está aí?"
 msgstr "¿Quien disparó sigue ahí?"
 
@@ -7800,8 +7800,8 @@ msgid "...Obrigado por avisar. A gente fala de outro jeito, então."
 msgstr "...Gracias por avisar. Hablaremos de otra manera, entonces."
 
 #: data/nights/night_09.tres
-msgid "O supervisor deixou um recado: \"Último setor: a partir de hoje, o setor 2, o Alto da Serra, também fica com você. Os números que começam com 2 passam pela sua mesa. A cidade inteira está nas suas mãos. A pedido das autoridades, grave toda ligação suspeita.\""
-msgstr "El supervisor dejó una nota: \"Último sector: a partir de hoy, el sector 2, el Alto da Serra, también queda con usted. Los números que empiezan con 2 pasan por su mesa. La ciudad entera está en sus manos. A pedido de las autoridades, grabe toda llamada sospechosa.\""
+msgid "O supervisor deixou um recado: \"Com o toque de recolher, a noite promete: emergência vem primeiro.\""
+msgstr "El supervisor dejó una nota: \"Con el toque de queda, la noche promete: las emergencias van primero.\""
 
 #: data/calls/story_09_sebastiao.tres
 msgid "Maria, é o Sebastião. Hoje é uma noite importante."
@@ -7867,21 +7867,17 @@ msgstr "Rubens Moura, del puesto de la terminal."
 msgid "Assessor"
 msgstr "Asesor"
 
-#: data/calls/story_09_cupula_radio.tres data/calls/story_09_cupula_radio_caiu.tres data/calls/story_14_cupula_aviao.tres
-msgid "A Alta Cúpula. É urgente."
-msgstr "La Alta Cúpula. Es urgente."
+#: data/calls/story_09_cupula_radio.tres data/calls/story_09_cupula_radio_caiu.tres
+msgid "A delegacia. É urgente."
+msgstr "La comisaría. Es urgente."
 
-#: data/calls/story_09_cupula_radio.tres data/calls/story_09_cupula_radio_caiu.tres data/calls/story_12_cupula_ronda.tres
-msgid "A Alta Cúpula."
-msgstr "La Alta Cúpula."
-
-#: data/calls/story_09_cupula_radio.tres data/calls/story_09_cupula_radio_caiu.tres data/calls/story_12_cupula_telefonista.tres
-msgid "Alta Cúpula"
-msgstr "Alta Cúpula"
+#: data/calls/story_09_cupula_radio.tres data/calls/story_09_cupula_radio_caiu.tres data/calls/story_14_policia_hotel.tres
+msgid "A delegacia."
+msgstr "La comisaría."
 
 #: data/calls/story_09_cupula_radio.tres
-msgid "Valadares. Alguém sabe por que a [place:rádio] mudou a programação?"
-msgstr "Valadares. ¿Alguien sabe por qué la [place:radio] cambió la programación?"
+msgid "Valadares, da Alta Cúpula. Alguém sabe por que a [place:rádio] mudou a programação?"
+msgstr "Valadares, de la Alta Cúpula. ¿Alguien sabe por qué la [place:radio] cambió la programación?"
 
 #: data/calls/story_09_cupula_radio.tres
 msgid "Ainda não. Estamos ligando pra lá e ninguém atende."
@@ -7896,8 +7892,8 @@ msgid "Henrique Valadares, da residência oficial."
 msgstr "Henrique Valadares, de la residencia oficial."
 
 #: data/calls/story_09_cupula_radio_caiu.tres
-msgid "Valadares. Como está a [place:rádio]?"
-msgstr "Valadares. ¿Cómo está la [place:radio]?"
+msgid "Valadares, da Alta Cúpula. Como está a [place:rádio]?"
+msgstr "Valadares, de la Alta Cúpula. ¿Cómo está la [place:radio]?"
 
 #: data/calls/story_09_cupula_radio_caiu.tres
 msgid "Quieta. A viatura pegou dois rapazes nos fundos, às dez."
@@ -8187,126 +8183,6 @@ msgstr "¿Y si me agarran en la calle después de las nueve?"
 msgid "Aí você vê o filme na delegacia. Vá direto pra casa."
 msgstr "Entonces ves la película en la comisaría. Vete derecho a casa."
 
-#: data/calls/noite_09_parente.tres
-msgid "Dona Odete"
-msgstr "Dona Odete"
-
-#: data/calls/noite_09_parente.tres
-msgid "Boa noite. O Hospital São Lucas, pelo amor de Deus."
-msgstr "Buenas noches. El Hospital São Lucas, por el amor de Dios."
-
-#: data/calls/noite_09_parente.tres
-msgid "Meu filho mora na Rua do Moinho. Teve tiro lá."
-msgstr "Mi hijo vive en la Rua do Moinho. Hubo tiros ahí."
-
-#: data/calls/noite_09_parente.tres
-msgid "O São Lucas, moça. Dois, um, três."
-msgstr "El São Lucas, señorita. Dos, uno, tres."
-
-#: data/calls/noite_09_parente.tres data/calls/story_16_generosa_hospital.tres data/calls/transfer_18_dona_rute_hospital_sao_lucas.tres
-msgid "Hospital São Lucas"
-msgstr "Hospital São Lucas"
-
-#: data/calls/noite_09_parente.tres data/calls/transfer_14_senhora_casa_paroquial.tres
-msgid "Obrigada, minha filha."
-msgstr "Gracias, hija."
-
-#: data/calls/noite_09_parente.tres
-msgid "Hospital? Chegou algum ferido da Rua do Moinho? Um rapaz, Sérgio Lins."
-msgstr "¿Hospital? ¿Llegó algún herido de la Rua do Moinho? Un muchacho, Sérgio Lins."
-
-#: data/calls/noite_09_parente.tres
-msgid "Chegaram dois, senhora. Mas vieram com a polícia, sem nome."
-msgstr "Llegaron dos, señora. Pero vinieron con la policía, sin nombre."
-
-#: data/calls/noite_09_parente.tres
-msgid "Um deles é magro, de bigode?"
-msgstr "¿Uno de ellos es flaco, de bigote?"
-
-#: data/calls/noite_09_parente.tres
-msgid "Não posso dizer, senhora. A ala está fechada."
-msgstr "No puedo decirle, señora. El pabellón está cerrado."
-
-#: data/calls/noite_09_parente.tres
-msgid "Fechada pra mãe?"
-msgstr "¿Cerrado para la madre?"
-
-#: data/calls/noite_09_parente.tres
-msgid "Fechada pra todo mundo. Sinto muito."
-msgstr "Cerrado para todo el mundo. Lo siento."
-
-#: data/calls/noite_09_irma.tres
-msgid "Boa noite, moça. Me liga com a Marta Costa, a minha irmã?"
-msgstr "Buenas noches, señorita. ¿Me comunica con Marta Costa, mi hermana?"
-
-#: data/calls/noite_09_irma.tres
-msgid "O meu filho saiu pra casa dela e ainda não chegou."
-msgstr "Mi hijo salió para su casa y todavía no llegó."
-
-#: data/calls/noite_09_irma.tres
-msgid "A Marta Costa, a minha irmã."
-msgstr "Marta Costa, mi hermana."
-
-#: data/calls/noite_09_irma.tres data/calls/transfer_20_dona_tereza_marta_costa.tres
-msgid "Marta Costa"
-msgstr "Marta Costa"
-
-#: data/calls/noite_09_irma.tres data/calls/noite_12_parente.tres data/calls/noite_14_parente.tres
-msgid "Obrigada, moça."
-msgstr "Gracias, joven."
-
-#: data/calls/noite_09_irma_tiros.tres
-msgid "Meu Deus, tiro! Atiraram lá fora... tem um rapaz caído na esquina... é o Dudu! É o meu filho, moça!"
-msgstr "¡Dios mío, disparos! Dispararon afuera... hay un muchacho tirado en la esquina... ¡es Dudu! ¡Es mi hijo, señorita!"
-
-#: data/calls/noite_09_irma_tiros.tres
-msgid "Rua Bela Vista, 230! Na esquina!"
-msgstr "¡Rua Bela Vista, 230! ¡En la esquina!"
-
-#: data/calls/noite_09_irma_tiros.tres
-msgid "Um carro passou atirando e sumiu... mas pode voltar!"
-msgstr "Un coche pasó disparando y desapareció... ¡pero puede volver!"
-
-#: data/calls/noite_09_irma_tiros.tres
-msgid "Tá gemendo... levou no braço, tá sangrando muito!"
-msgstr "Está gimiendo... le dieron en el brazo, ¡sangra mucho!"
-
-#: data/calls/noite_09_irma_tiros.tres
-msgid "Moça, esquece a minha irmã. Eu vou com ele pro hospital."
-msgstr "Señorita, olvide a mi hermana. Me voy con él al hospital."
-
-#: data/calls/noite_09_irma_tiros.tres
-msgid "Ele tá ficando branco, moça... o sangue não para!"
-msgstr "Se está poniendo pálido, señorita... ¡la sangre no para!"
-
-#: data/calls/noite_09_irma_tiros.tres
-msgid "Dá para apertar o ferimento com um pano?"
-msgstr "¿Puede apretar la herida con un trapo?"
-
-#: data/calls/noite_09_irma_tiros.tres
-msgid "Tô apertando! Tô apertando com a minha blusa!"
-msgstr "¡Estoy apretando! ¡Con mi blusa!"
-
-#: data/calls/noite_09_irma_tiros.tres
-msgid "Ele fechou os olhos! Dudu! Dudu, fala comigo!"
-msgstr "¡Cerró los ojos! ¡Dudu! ¡Dudu, háblame!"
-
-#: data/calls/noite_09_irma_tiros.tres data/calls/emergency_23_mal_subito_rua_das_acacias_450.tres
-msgid "Ele ainda respira?"
-msgstr "¿Todavía respira?"
-
-#: data/calls/noite_09_irma_tiros.tres
-msgid "Respira... devagarinho."
-msgstr "Respira... despacito."
-
-#: data/calls/noite_09_irma_tiros.tres
-msgid "Ele morreu, moça. Morreu no meu colo."
-msgstr "Se murió, señorita. Se murió en mis brazos."
-
-#: data/calls/noite_09_irma_tiros.tres
-msgid "Ninguém... só o meu filho."
-msgstr "Nadie... solo mi hijo."
-
 #: data/nights/night_09.tres
 msgid "Rua do Centro às nove e cinco."
 msgstr "Una calle del Centro a las nueve y cinco."
@@ -8332,8 +8208,8 @@ msgid "A barreira na Rua do Moinho."
 msgstr "La barrera en la Rua do Moinho."
 
 #: data/nights/night_10.tres
-msgid "O supervisor deixou um recado: \"Com os três setores, a noite fica mais cheia. Emergência vem primeiro.\""
-msgstr "El supervisor dejó un recado: \"Con los tres sectores, la noche se llena más. Las emergencias van primero.\""
+msgid "O supervisor deixou um recado: \"Último setor: a partir de hoje, o setor 2, o Alto da Serra, também fica com você. Os números que começam com 2 passam pela sua mesa. A cidade inteira está nas suas mãos.\""
+msgstr "El supervisor dejó una nota: \"Último sector: a partir de hoy, el sector 2, el Alto da Serra, también queda con usted. Los números que empiezan con 2 pasan por su mesa. La ciudad entera está en sus manos.\""
 
 #: data/calls/story_10_cecilia.tres
 msgid "Maria? É a Cecília. Não pergunte de onde estou ligando."
@@ -8566,6 +8442,126 @@ msgstr "Yo solo voy al médico."
 #: data/calls/noite_10_barreira.tres
 msgid "Então leve o papel do médico. Sem papel, voltam todo mundo."
 msgstr "Entonces lleve el papel del médico. Sin papel, mandan a todos de vuelta."
+
+#: data/calls/noite_10_parente.tres
+msgid "Dona Odete"
+msgstr "Dona Odete"
+
+#: data/calls/noite_10_parente.tres
+msgid "Boa noite. O Hospital São Lucas, pelo amor de Deus."
+msgstr "Buenas noches. El Hospital São Lucas, por el amor de Dios."
+
+#: data/calls/noite_10_parente.tres
+msgid "Meu filho mora na Rua do Moinho. Teve tiro lá."
+msgstr "Mi hijo vive en la Rua do Moinho. Hubo tiros ahí."
+
+#: data/calls/noite_10_parente.tres
+msgid "O São Lucas, moça. Dois, um, três."
+msgstr "El São Lucas, señorita. Dos, uno, tres."
+
+#: data/calls/noite_10_parente.tres data/calls/story_16_generosa_hospital.tres data/calls/transfer_18_dona_rute_hospital_sao_lucas.tres
+msgid "Hospital São Lucas"
+msgstr "Hospital São Lucas"
+
+#: data/calls/noite_10_parente.tres data/calls/transfer_14_senhora_casa_paroquial.tres
+msgid "Obrigada, minha filha."
+msgstr "Gracias, hija."
+
+#: data/calls/noite_10_parente.tres
+msgid "Hospital? Chegou algum ferido da Rua do Moinho? Um rapaz, Sérgio Lins."
+msgstr "¿Hospital? ¿Llegó algún herido de la Rua do Moinho? Un muchacho, Sérgio Lins."
+
+#: data/calls/noite_10_parente.tres
+msgid "Chegaram dois, senhora. Mas vieram com a polícia, sem nome."
+msgstr "Llegaron dos, señora. Pero vinieron con la policía, sin nombre."
+
+#: data/calls/noite_10_parente.tres
+msgid "Um deles é magro, de bigode?"
+msgstr "¿Uno de ellos es flaco, de bigote?"
+
+#: data/calls/noite_10_parente.tres
+msgid "Não posso dizer, senhora. A ala está fechada."
+msgstr "No puedo decirle, señora. El pabellón está cerrado."
+
+#: data/calls/noite_10_parente.tres
+msgid "Fechada pra mãe?"
+msgstr "¿Cerrado para la madre?"
+
+#: data/calls/noite_10_parente.tres
+msgid "Fechada pra todo mundo. Sinto muito."
+msgstr "Cerrado para todo el mundo. Lo siento."
+
+#: data/calls/noite_10_irma.tres
+msgid "Boa noite, moça. Me liga com a Marta Costa, a minha irmã?"
+msgstr "Buenas noches, señorita. ¿Me comunica con Marta Costa, mi hermana?"
+
+#: data/calls/noite_10_irma.tres
+msgid "O meu filho saiu pra casa dela e ainda não chegou."
+msgstr "Mi hijo salió para su casa y todavía no llegó."
+
+#: data/calls/noite_10_irma.tres
+msgid "A Marta Costa, a minha irmã."
+msgstr "Marta Costa, mi hermana."
+
+#: data/calls/noite_10_irma.tres data/calls/transfer_20_dona_tereza_marta_costa.tres
+msgid "Marta Costa"
+msgstr "Marta Costa"
+
+#: data/calls/noite_10_irma.tres data/calls/noite_12_parente.tres data/calls/noite_14_parente.tres
+msgid "Obrigada, moça."
+msgstr "Gracias, joven."
+
+#: data/calls/noite_10_irma_tiros.tres
+msgid "Meu Deus, tiro! Atiraram lá fora... tem um rapaz caído na esquina... é o Dudu! É o meu filho, moça!"
+msgstr "¡Dios mío, disparos! Dispararon afuera... hay un muchacho tirado en la esquina... ¡es Dudu! ¡Es mi hijo, señorita!"
+
+#: data/calls/noite_10_irma_tiros.tres
+msgid "Rua Bela Vista, 230! Na esquina!"
+msgstr "¡Rua Bela Vista, 230! ¡En la esquina!"
+
+#: data/calls/noite_10_irma_tiros.tres
+msgid "Um carro passou atirando e sumiu... mas pode voltar!"
+msgstr "Un coche pasó disparando y desapareció... ¡pero puede volver!"
+
+#: data/calls/noite_10_irma_tiros.tres
+msgid "Tá gemendo... levou no braço, tá sangrando muito!"
+msgstr "Está gimiendo... le dieron en el brazo, ¡sangra mucho!"
+
+#: data/calls/noite_10_irma_tiros.tres
+msgid "Moça, esquece a minha irmã. Eu vou com ele pro hospital."
+msgstr "Señorita, olvide a mi hermana. Me voy con él al hospital."
+
+#: data/calls/noite_10_irma_tiros.tres
+msgid "Ele tá ficando branco, moça... o sangue não para!"
+msgstr "Se está poniendo pálido, señorita... ¡la sangre no para!"
+
+#: data/calls/noite_10_irma_tiros.tres
+msgid "Dá para apertar o ferimento com um pano?"
+msgstr "¿Puede apretar la herida con un trapo?"
+
+#: data/calls/noite_10_irma_tiros.tres
+msgid "Tô apertando! Tô apertando com a minha blusa!"
+msgstr "¡Estoy apretando! ¡Con mi blusa!"
+
+#: data/calls/noite_10_irma_tiros.tres
+msgid "Ele fechou os olhos! Dudu! Dudu, fala comigo!"
+msgstr "¡Cerró los ojos! ¡Dudu! ¡Dudu, háblame!"
+
+#: data/calls/noite_10_irma_tiros.tres data/calls/emergency_23_mal_subito_rua_das_acacias_450.tres
+msgid "Ele ainda respira?"
+msgstr "¿Todavía respira?"
+
+#: data/calls/noite_10_irma_tiros.tres
+msgid "Respira... devagarinho."
+msgstr "Respira... despacito."
+
+#: data/calls/noite_10_irma_tiros.tres
+msgid "Ele morreu, moça. Morreu no meu colo."
+msgstr "Se murió, señorita. Se murió en mis brazos."
+
+#: data/calls/noite_10_irma_tiros.tres
+msgid "Ninguém... só o meu filho."
+msgstr "Nadie... solo mi hijo."
 
 #: data/nights/night_10.tres
 msgid "Rádio Serena fora do controle por três horas\nNa noite de ontem, a Rádio Serena transmitiu uma mensagem da resistência e tocou a \"Canção da Madrugada\", proibida há anos. A Alta Cúpula diz que os responsáveis já foram identificados."
@@ -8852,6 +8848,10 @@ msgid "A Alta Cúpula, por favor."
 msgstr "La Alta Cúpula, por favor."
 
 #: data/calls/story_12_cupula_telefonista.tres data/calls/story_12_cupula_telefonista_denuncia.tres data/calls/story_12_cupula_telefonista_homem.tres
+msgid "Alta Cúpula"
+msgstr "Alta Cúpula"
+
+#: data/calls/story_12_cupula_telefonista.tres data/calls/story_12_cupula_telefonista_denuncia.tres data/calls/story_12_cupula_telefonista_homem.tres
 msgid "Vilela, da investigação. É sobre a central da [place:Vila Serena]."
 msgstr "Vilela, de la investigación. Es sobre la central de [place:Vila Serena]."
 
@@ -8903,6 +8903,10 @@ msgstr "Fue ella. Un hombre que nadie encontró hasta hoy. O es ingenua, o está
 msgid "A Alta Cúpula. É da polícia."
 msgstr "La Alta Cúpula. Es la policía."
 
+#: data/calls/story_12_cupula_ronda.tres data/calls/story_14_cupula_aviao.tres data/calls/story_14_cupula_comandante.tres
+msgid "A Alta Cúpula."
+msgstr "La Alta Cúpula."
+
 #: data/calls/story_12_cupula_ronda.tres
 msgid "Bastos. O toque de recolher continua?"
 msgstr "Bastos. ¿Sigue el toque de queda?"
@@ -8928,8 +8932,8 @@ msgid "Maria? É o supervisor. Não vou tomar o seu tempo."
 msgstr "¿Maria? Es el supervisor. No le voy a quitar tiempo."
 
 #: data/calls/story_12_supervisor.tres
-msgid "Chegou uma reclamação da Alta Cúpula. Três noites atrás, ligações deles para a delegacia e para a Cúpula não passaram pela sua mesa."
-msgstr "Llegó una queja de la Alta Cúpula. Hace tres noches, sus llamadas a la comisaría y a la Cúpula no pasaron por su mesa."
+msgid "Chegou uma reclamação da Alta Cúpula. Três noites atrás, ligações deles para a delegacia não passaram pela sua mesa."
+msgstr "Llegó una queja de la Alta Cúpula. Hace tres noches, sus llamadas a la comisaría no pasaron por su mesa."
 
 #: data/calls/story_12_supervisor.tres
 msgid "Ligação das autoridades passa na frente de qualquer uma. Isso vai para a sua ficha."
@@ -9484,10 +9488,6 @@ msgid "A delegacia, por favor. Polícia."
 msgstr "La comisaría, por favor. Policía."
 
 #: data/calls/story_14_policia_hotel.tres
-msgid "A delegacia."
-msgstr "La comisaría."
-
-#: data/calls/story_14_policia_hotel.tres
 msgid "Plantão? Aqui é o Bastos. Estou na porta do hotel."
 msgstr "¿Guardia? Aquí Bastos. Estoy en la puerta del hotel."
 
@@ -9514,6 +9514,10 @@ msgstr "El [place:Bar do Zé] cierra mañana, a las [time:once]. Hasta entonces 
 #: data/calls/story_14_policia_hotel.tres
 msgid "Entendido. Fico aqui até a troca."
 msgstr "Entendido. Me quedo aquí hasta el relevo."
+
+#: data/calls/story_14_cupula_aviao.tres
+msgid "A Alta Cúpula. É urgente."
+msgstr "La Alta Cúpula. Es urgente."
 
 #: data/calls/story_14_cupula_aviao.tres
 msgid "Boa noite. Valadares falando, da residência."

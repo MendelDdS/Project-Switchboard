@@ -612,7 +612,7 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
 
 ## Setores (a cidade em três partes)
 - O setor de um número é o primeiro dígito (3xx, 1xx, 2xx; 12 em cada, 36 na mesa). O operador começa com o setor 3
-  e recebe o 1 na noite 5 e o 2 na noite 9 (`GameData.SECTOR_NIGHTS`; o bilhete das noites 5 e 9 avisa).
+  e recebe o 1 na noite 5 e o 2 na noite 10 (`GameData.SECTOR_NIGHTS`; o bilhete das noites 5 e 10 avisa).
   `GameData.sectors` (definido em `Main._load_night`, chamado no `_enter_tree` para valer antes do `_ready` dos filhos)
   filtra a mesa (`board_numbers`), a lista (`PhoneBook`), as transferências (`serves`, `transfers`, `template_transfer`,
   que devolve nulo quando acabam os lugares e a agenda troca por pedido de informação) e os pedidos de informação.

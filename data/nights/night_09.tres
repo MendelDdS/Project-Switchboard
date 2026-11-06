@@ -15,8 +15,6 @@
 [ext_resource type="Resource" path="res://data/calls/story_09_mae_atropelado.tres" id="x2_story_09_atropelada"]
 [ext_resource type="Resource" path="res://data/calls/story_09_briga.tres" id="x3_story_09_briga"]
 [ext_resource type="Resource" path="res://data/calls/noite_09_toque.tres" id="j_toque"]
-[ext_resource type="Resource" path="res://data/calls/noite_09_parente.tres" id="j_parente"]
-[ext_resource type="Resource" path="res://data/calls/noite_09_irma.tres" id="j_irma"]
 
 [sub_resource type="Resource" id="ev_0"]
 script = ExtResource("2_event")
@@ -127,22 +125,13 @@ again = false
 script = ExtResource("x1_story_call")
 call = ExtResource("j_toque")
 
-[sub_resource type="Resource" id="J_call_parente"]
-script = ExtResource("x1_story_call")
-call = ExtResource("j_parente")
-requires = PackedStringArray("fita_comandante_entregue")
-
-[sub_resource type="Resource" id="J_call_irma"]
-script = ExtResource("x1_story_call")
-call = ExtResource("j_irma")
-
 [resource]
 script = ExtResource("1_night")
-note = "O supervisor deixou um recado: \"Último setor: a partir de hoje, o setor 2, o Alto da Serra, também fica com você. Os números que começam com 2 passam pela sua mesa. A cidade inteira está nas suas mãos. A pedido das autoridades, grave toda ligação suspeita.\""
+note = "O supervisor deixou um recado: \"Com o toque de recolher, a noite promete: emergência vem primeiro.\""
 street_events = Array[ExtResource("2_event")]([SubResource("ev_0"), SubResource("ev_1")])
 news_if = Array[ExtResource("x0_story_text")]([SubResource("News_grupos"), SubResource("News_comandante")])
 story = Array[ExtResource("x1_story_call")]([SubResource("S_seb"), SubResource("S_aut0"), SubResource("S_aut1"), SubResource("S_aut1a"), SubResource("S_aut2"), SubResource("S_aut2a"), SubResource("E_car"), SubResource("E_bal"), SubResource("E_atr"), SubResource("E_bri")])
 news_stories = PackedStringArray("Toque de recolher às nove da noite\nA partir de hoje, ninguém fica na rua depois das 21h sem salvo-conduto, por ordem da Alta Cúpula. Bares e cinemas fecham às oito e meia. Quem for pego na rua responde na delegacia.")
-calls = Array[ExtResource("x1_story_call")]([SubResource("J_call_toque"), SubResource("J_call_parente"), SubResource("J_call_irma")])
+calls = Array[ExtResource("x1_story_call")]([SubResource("J_call_toque")])
 news_photo = "rua"
 news_caption = "Rua do Centro às nove e cinco."

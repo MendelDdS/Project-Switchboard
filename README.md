@@ -264,7 +264,7 @@ Ajuste em `main.gd` → `GAME_MIN_PER_SEC`.
   do operador e, na noite em que um setor é entregue, se abre para ele na primeira vez que aparece. A primeira
   ligação para o banco novo da mesa vem com uma dica de onde ele fica. Roda do
   mouse aproxima, arrastar move. As viaturas saem do Centro e demoram pela distância. O operador começa só com o setor 3
-  (10 números na mesa e na lista), recebe o setor 1 (o Centro, +12) na noite 5 e o setor 2 (+12) na noite 9
+  (10 números na mesa e na lista), recebe o setor 1 (o Centro, +12) na noite 5 e o setor 2 (+12) na noite 10
   (`SECTOR_NIGHTS` em `game_data.gd`). As ligações só pedem números dos setores dele. O jogo tem 15 noites; da 3 em
   diante, por enquanto, são genéricas (só o dia e o bilhete).
 - **Nada é fixo, exceto o roteiro da noite** (`story` em `data/nights/`). O resto é sorteado (`Schedule._random_calls`):
@@ -392,7 +392,7 @@ Para começar num ponto específico, combine com as opções de linha de comando
 - **Destinos:** um plug por número da lista (menos polícia, bombeiros e hospital, que vão pelo despacho).
 - **FONE** (cabo verde): sai do encaixe no canto do telefone e só entra nas entradas.
   A ligação da entrada onde o FONE está é a que aparece no telefone.
-- **Cabos de conexão** (vermelho, azul e amarelo; branco quando chega o Centro, na noite 5, e preto com o Alto da Serra, na noite 9;
+- **Cabos de conexão** (vermelho, azul e amarelo; branco quando chega o Centro, na noite 5, e preto com o Alto da Serra, na noite 10;
   `CORD_COLORS`, `patches` em `scripts/ui/switchboard_base.gd`), independentes, com um plug em cada ponta:
   uma ponta na SAÍDA da linha, a outra no destino.
 

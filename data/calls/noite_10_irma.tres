@@ -1,7 +1,7 @@
 [gd_resource type="Resource" script_class="TransferCall" format=3]
 
 [ext_resource type="Script" path="res://scripts/data/transfer_call.gd" id="1_call"]
-[ext_resource type="Resource" path="res://data/calls/noite_09_irma_tiros.tres" id="2_turns"]
+[ext_resource type="Resource" path="res://data/calls/noite_10_irma_tiros.tres" id="2_turns"]
 
 [resource]
 script = ExtResource("1_call")

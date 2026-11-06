@@ -1000,3 +1000,26 @@ Meça o vizinho de referência em px na captura (o plug guardado: 12 × 48 à mo
 Quem anda numa varanda acima dos olhos, atrás da beira da laje, tem os pés projetados abaixo dela: desenhada por
 inteiro, a pessoa "atravessa o chão" (item 551). Corte na beira de cima da laje (`_slab_clip`). E quem passa atrás
 de um poste, coluna ou objeto fino precisa dele desenhado de novo por cima (`_draw_pole`).
+
+## Música gerada: o gênero vem das palavras do pedido
+No ACE-Step, "MPB", "samba-canção", "uplifting", "beautiful" e bateria levaram o amanhecer e os finais para balada e
+pop, fora do clima do jogo (item 553). Peça o gênero pela trilha (filme noir, cinema de autor dos anos 70, conjunto
+de câmara), negue bateria, batida e pop no texto e no `lm_negative_prompt`. Ele não faz efeitos sonoros: pedido de
+"campainha" ou "chuva" sai música. E peça longa não segue um arco: gere as partes e emende.
+
+## Efeito gerado: olhe o espectrograma antes de mostrar
+Os efeitos do MOSS-SoundEffect saíram todos com ruído (item 553): faixa fixa de 16–18 kHz, chiado e ronco grave; a
+medida do piso (RMS) não acusou, o espectrograma (`showspectrumpic` do ffmpeg) mostrou na hora. Nem limpos agradaram
+e o modelo saiu. Ao testar outro gerador, confira um espectrograma de cada antes de mostrar.
+
+## Voz: o pitch_scale leva os formantes junto
+Subir a altura de uma sílaba pelo `pitch_scale` encolhe a boca de quem fala junto (os formantes sobem na mesma
+proporção). Na voz com muito sopro (o sussurro "w"), que quase não tem tom, as variações somadas (pessoa, nervoso,
+exclamação, pergunta) faziam o homem soar criança (item 555). Variação de altura nova numa voz: confira o produto de
+todas contra o `tract` das outras vozes (criança 1,25), não cada uma sozinha.
+
+## Setor novo não cai em noite de evento do golpe
+A noite em que um setor é entregue segura o ritmo (`Pace.next`) para o jogador aprender o bairro; as noites dos ataques
+(4 e 9) trocam as sorteadas por quatro emergências. O setor 2 na 9 juntava as duas coisas: alívio e aperto na mesma
+noite (item 556). Ao mexer em `SECTOR_NIGHTS` ou numa noite de evento, confira que não coincidem, e que o roteiro da
+noite não usa número de setor que ainda não chegou (o `test_content` só cobra as sorteadas, não as do roteiro).
