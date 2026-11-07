@@ -42,7 +42,7 @@ requires = PackedStringArray("cecilia_e_voce_10")
 
 [sub_resource type="Resource" id="Step_08"]
 script = ExtResource("2_step")
-text = "Obrigada, Maria. Por tudo."
+text = "Obrigada, Maria. Por tudo. A mesa fica em boas mãos."
 
 [sub_resource type="Resource" id="Step_09"]
 script = ExtResource("2_step")

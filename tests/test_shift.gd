@@ -44,8 +44,8 @@ var next_act := 0.0       ## instante (s, na velocidade do jogo) em que a "pesso
 const Tape := preload("res://scripts/bureaucracy/tape.gd")
 const REBEL := ["3:327", "4:305", "7:327", "8:213", "10:120", "15:120", "15:288", "15:291", "15:390", "15:327"]   ## o rebelde liga
 const PATHS := {
-	"sucesso": {"dial": REBEL, "cut": true, "deal": true, "record": {}},   # avisa o bar: nada a gravar dele
-	"amarga": {"dial": REBEL, "skip": "7:327", "cut": true, "deal": true, "record": {"story_07_bar_armas": Tape.To.AUTHORITIES}},
+	"sucesso": {"dial": REBEL, "cut": true, "deal": true, "record": {"story_15_sobretudo": Tape.To.SEBASTIAO}},   # avisa o bar: nada a gravar dele (na 15, ouve a armadilha e avisa)
+	"amarga": {"dial": REBEL, "skip": "7:327", "cut": true, "deal": true, "record": {"story_07_bar_armas": Tape.To.AUTHORITIES, "story_15_sobretudo": Tape.To.SEBASTIAO}},
 	"presa": {"dial": REBEL, "also": "4:184", "cut": true, "deal": true, "record": {}},   # denunciou o bar: sem a TV
 	"fracasso": {"dial": ["4:184", "15:184"], "cut": false, "deal": false, "record": "all"},
 }
@@ -371,7 +371,8 @@ func _initialize() -> void:
 						f.options[rule]["fn"].call()
 						_acted()
 						continue
-					if f.meta.get("b1", "") == "refused" or m.bureaucracy.code_of(f) == 0:
+					# (na última noite nenhuma advertência conta: quem recusa o nome é transferido mesmo assim, como o ferido da 15)
+					if f.meta.get("b1", "") == "refused" and m.night_no != GameData.CONTENT.nights.size() or m.bureaucracy.code_of(f) == 0:
 						m.hangup()
 						_acted()
 						continue

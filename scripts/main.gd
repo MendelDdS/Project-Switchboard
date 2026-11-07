@@ -26,8 +26,9 @@ const WARM_TINT := Color(1.0, 0.62, 0.36, 0.35)   # a luminária recém-acesa: o
 const Badges := preload("res://scripts/model/badges.gd")
 const Dialing := preload("res://scripts/dialing.gd")
 const Rebellion := preload("res://scripts/model/rebellion.gd")
-const SIGN_BACK := 8   # horas depois do início do turno em que o letreiro do hotel volta a acender no golpe vencido (2h)
-const MIDNIGHT := 360.0   # minutos depois do início do turno: na última noite, a conta do golpe (`_midnight`)
+const SIGN_AFTER := 30.0   # minutos de jogo depois do veredito em que o letreiro do hotel volta a acender no golpe vencido
+const MIDNIGHT := 360.0   # minutos depois do início do turno: na última noite, daqui o veredito pode sair antes da hora
+const VERDICT := 600.0    # ...e a hora dele (4h): a conta do golpe (`_coup_verdict`)
 const TAB_KEYS := {Tools.DIRECTORY: "tab_directory", Tools.DISPATCH: "tab_dispatch", Tools.LOGBOOK: "tab_logbook", Tools.CALL_LOG: "tab_call_log"}
 var C: GameContent = GameData.CONTENT
 
@@ -61,7 +62,7 @@ var live: Array[PhoneCall] = []    ## tocando ou em andamento (podem ser várias
 var emergencies: Array[PhoneCall] = []
 var _called_back: Array[StoryCall] = []   # as ligações cujo `callback` já entrou na agenda nesta noite (uma vez cada)
 var _street_waiting: Array = []    ## cenas da rua com `requires`: conferidas na hora delas (`_street_check`)
-var _verdict := false              ## a conta da meia-noite da última noite já foi feita (`_midnight`)
+var _verdict := false              ## a conta do golpe da última noite já foi feita (`_coup_verdict`)
 var ending := false
 var flick := false
 
@@ -137,7 +138,7 @@ func _ready() -> void:
 	if night.clears_at >= 0.0:
 		background.clears_at = SHIFT_START_HOUR * 60 + night.clears_at
 	background.night = night_no
-	if night_no == C.nights.size():   # a última noite: o letreiro do hotel apagado (acende às 2h com o golpe vencido, `_midnight`)
+	if night_no == C.nights.size():   # a última noite: o letreiro do hotel apagado (acende depois do veredito com o golpe vencido, `_coup_verdict`)
 		background.sign_from = INF
 	Rebellion.sync(flags, night_no)
 	for e in night.street_events:
@@ -281,22 +282,34 @@ func _street_check() -> void:
 			_street(e)
 
 
-## Meia-noite da última noite: o golpe vence (o turno segue até o amanhecer) ou falha, e o turno acaba ali.
-func _midnight() -> void:
+## O veredito do golpe na última noite, às 4h (`VERDICT`), ou antes, da meia-noite em diante, se nem com tudo o que
+## ainda dá para fazer ele vence (`Rebellion.hopeless`): o golpe vence (o turno segue até o amanhecer) ou falha, e
+## o turno acaba ali.
+func _coup_verdict() -> void:
 	if _verdict or night_no != C.nights.size() or minutes < MIDNIGHT:
+		return
+	if minutes < VERDICT and not Rebellion.hopeless(flags, night_no + 1, minutes):
 		return
 	_verdict = true
 	var won := Rebellion.won(flags, night_no + 1)   # (a conta como depois da noite: as ordens dela já valem)
 	flags.apply(Rebellion.WON if won else Rebellion.LOST)
+	if not flags.has(Rebellion.TRAP_WARNED):
+		flags.apply(Rebellion.SEBASTIAO_TAKEN)
 	if won:
-		background.sign_from = (SHIFT_START_HOUR + SIGN_BACK) * 60.0
+		background.sign_from = (SHIFT_START_HOUR * 60.0 + minutes + SIGN_AFTER)
 	flags.apply(Rebellion.FINALS[Rebellion.final(flags, night_no + 1)])   # (a ligação da cúpula na presa, o epílogo)
 	if won and Rebellion.costly(flags):
 		flags.apply(Rebellion.COST)
 	if not won:
-		shift_end = MIDNIGHT
-		last_call = minf(last_call, MIDNIGHT)
+		shift_end = minutes
+		last_call = minf(last_call, minutes)
 		report.end = shift_end
+		for c in sched.duplicate():   # a que espera o final (a da cúpula na presa, marcada para as 4h) toca agora; as
+			if Array(c.requires).any(func(r: String) -> bool: return r in Rebellion.FINALS):   # missões que faltavam, não
+				c.at = minutes
+			elif c.beat != null:
+				sched.erase(c)
+		sched.sort_custom(func(a: PhoneCall, b: PhoneCall): return a.at < b.at)
 
 
 ## `godot -- --seed=123` repete a mesma agenda de ligações (útil para reproduzir bugs).
@@ -410,7 +423,7 @@ func _process(delta: float) -> void:
 				get_tree().create_timer(Background.FLIP_SEC, false).timeout.connect(
 					func() -> void: Sfx.play_at("tick", _across(background.clock_x), -3.0))
 			_minute = int(minutes)
-		_midnight()   # (antes da agenda e das cenas da rua: a ligação da cúpula e a bandeira da meia-noite da 15 pedem o final)
+		_coup_verdict()   # (antes da agenda e das cenas da rua: a ligação da cúpula e a bandeira da 15 pedem o final)
 		_run_schedule()
 		_street_check()
 		_update_line_timers()
@@ -972,7 +985,8 @@ func on_mission() -> bool:
 ## hora, `Schedule.filler`). Não com uma do roteiro para tocar (elas pedem a mesa em silêncio) nem depois da última ligação.
 func _fill_quiet() -> void:
 	_quiet_from = minutes
-	if minutes >= last_call or sched.any(func(x: PhoneCall): return x.at < minutes + Schedule.STORY_GAP):
+	if minutes >= last_call or night.quiet_from >= 0.0 and minutes >= night.quiet_from \
+			or sched.any(func(x: PhoneCall): return x.at < minutes + Schedule.STORY_GAP):
 		return
 	var c := plan.filler()
 	c.at = minutes

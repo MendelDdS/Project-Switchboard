@@ -25,6 +25,9 @@ const StoryText := preload("res://scripts/data/story_text.gd")
 ## A chuva ou a névoa vão parando até esta hora (minutos depois do início) e a noite fica limpa (-1 = nunca): na
 ## última noite, para o dia nascer de céu aberto.
 @export var clears_at := -1.0
+## Daqui em diante (minutos depois do início) nenhuma ligação sorteada, nem a da mesa vazia: só as do roteiro (-1 =
+## nunca). A última noite, depois do veredito.
+@export var quiet_from := -1.0
 
 @export_group("Roteiro")
 ## Ligações do roteiro: sempre as mesmas, no horário marcado.

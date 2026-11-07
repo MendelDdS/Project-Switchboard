@@ -3454,3 +3454,28 @@ Chaves:
     a de lá para `FREE_FOR_STORY` (3 min de jogo; nunca no meio das falas escritas), `Main._free_dest_for`; o desfecho
     da primeira continua "conectada". O cache das imagens (item 558) esvazia uma ou duas vezes por noite, com um quadro
     de ~15 ms a mais (medido): fica como está.
+560. #roteiro "Há emoção no roteiro? A forma como a história está sendo contada, está envolvente?": a auditoria achou a
+    emoção nas vozes da cidade e pouca na de Maria, e três laços do final sem preparo (o pai, a Cecília, o Sebastião).
+    Os 14 consertos foram aprovados um a um numa página (2 com o texto do usuário): o pai ganha nome na 5 (Cristóvão,
+    os cartões telefônicos antes de serem banidos) e Maria pode dizer que não lembra do rosto dele (`rosto_5`); a
+    Cecília cuida do Alto da Serra há oito anos (a 0 e a 13 batem) e tem a mãe (o enterro); "boas mãos" e o casaco
+    plantados antes do epílogo; o irmão do Miguel escapa do porão do grupo C (8, com a fita entregue), é preso por isso
+    (14) e volta solto no epílogo do sucesso; um traço humano na Teresa e no Davi (a suspeita não chega a calá-los);
+    a Celeste liga à irmã às 23:05 da 15 com a canção tocando (`S_celeste`, a encomenda da Filomena passou para a
+    Mercearia Silva, que não disputa número); Maria fala da Cecília na 14 (`nome_14`) e à meia-noite
+    (`cecilia_ouvindo_15`); os slogans do Sebastião saíram.
+561. #roteiro #ligacoes "Expandir a noite 15 [...] o golpe pode se estender mais, com missões mais elaboradas até às
+    3h ou 4h da manhã, e aí o jogador pode esperar o amanhecer com sentido": depois da meia-noite só restavam
+    ligações comuns. Aprovado na página, cartão a cartão: veredito às 4h; contra-ataque, feridos (transferência ao
+    Dr. Augusto, não emergência), reforço pelo interurbano e a armadilha (a carta e o Zé dizem que dá para avisar o
+    bar); tudo soma; fim antecipado quando não há mais chance; das 4h às 6h só as ligações da vitória. Plano no item
+    13 do `PLANO_ROTEIRO.md`. Também: o irmão do Miguel volta "morto de cansaço e com o rosto machucado" (ficou poucos
+    dias preso, magro não fazia sentido) e, no fracasso com a fita do grupo C, continua preso.
+562. #roteiro #ligacoes #vista A madrugada da 15 no jogo (o item 561): o veredito às 4h (`Main.VERDICT`,
+    `_coup_verdict`; sai antes, da meia-noite em diante, quando nem com o aviso da armadilha o golpe chega ao médio,
+    `Rebellion.hopeless`, e a cúpula da presa toca na hora); a batalha até as 4h, a bandeira e o Zé da vitória às 4h,
+    o letreiro meia hora depois (`SIGN_AFTER`); sem sorteadas depois do veredito (`Night.quiet_from`). As missões:
+    o Zé à 0:05 (avisa que dá para ligar), a delegacia duas vezes pela residência (Valadares), o telhado e o muro na
+    Rua da Matriz (despacho), o ferido ao Dr. Augusto (perdido, `custou_gente`), o interurbano à Capital (vale o dobro,
+    `REINFORCEMENT`; derrubado, liga de novo) e a armadilha do homem de sobretudo (ouvida, o discador do bar das 2:20
+    às 3h; sem aviso, `sebastiao_preso_15`). Falas na página para aprovar, com as propostas da vitória e do epílogo.

@@ -14,6 +14,6 @@ destination = "Bar do Zé"
 thanks = "Obrigado."
 caller_name = "Teresa Lima"
 name_line = "Teresa Lima."
-overheard = PackedStringArray("Zé, é a Teresa. O grupo C quer saber onde é.", "Na [street:Rua das Acácias], número [number:quarenta], no porão.", "A que horas?", "Esta noite, às [time:três] da madrugada. Ninguém chega junto.", "Combinado.")
+overheard = PackedStringArray("Zé, é a Teresa. O grupo C quer saber onde é.", "Na [street:Rua das Acácias], número [number:quarenta], no porão.", "A que horas?", "Esta noite, às [time:três] da madrugada. Ninguém chega junto.", "Combinado.", "E passa na sua mãe antes. Ela esteve aqui perguntando de você.", "Amanhã eu passo. Prometo.")
 suspicious = true
 wary = 0.6

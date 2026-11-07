@@ -1639,13 +1639,15 @@ func _initialize() -> void:
 	m._street_check()
 	ok(m.background.scene_at.has("stone") and m.flags.has("rua_stone_%d" % m.night_no), "cena com condição que bate: acontece e fica marcada")
 	m.background.scene_at.erase("stone")
-	# a meia-noite da última noite: sem o fator sucesso, o turno acaba ali; com ele, segue até o amanhecer
+	# a madrugada da última noite: sem o fator sucesso nem como chegar lá, o turno acaba já à meia-noite; com ele, o
+	# veredito é às 4h e o turno segue até o amanhecer
 	var was_night: int = m.night_no
 	var was_end: float = m.shift_end
 	m.night_no = GameData.CONTENT.nights.size()
 	m.minutes = m.MIDNIGHT
-	m._midnight()
-	ok(m.flags.has(m.Rebellion.LOST) and m.shift_end == m.MIDNIGHT, "golpe falhou: o turno acaba à meia-noite")
+	m._coup_verdict()
+	ok(m.flags.has(m.Rebellion.LOST) and m.shift_end == m.MIDNIGHT, "golpe sem chance: o turno acaba à meia-noite")
+	ok(m.flags.has(m.Rebellion.SEBASTIAO_TAKEN), "sem o aviso da armadilha: Sebastião preso")
 	ok(m.flags.has(m.Rebellion.FINALS[m.Rebellion.Final.FAILURE]), "golpe falhou sem desobedecer: o fracasso")
 	var banner: Array = GameData.CONTENT.nights[-1].street_events.filter(func(e): return e.kind == "banner")
 	m._street_waiting = banner.duplicate()
@@ -1656,19 +1658,25 @@ func _initialize() -> void:
 	var was_last: float = m.last_call
 	for f in ["!" + m.Rebellion.LOST, "!" + m.Rebellion.FINALS[m.Rebellion.Final.FAILURE], m.Rebellion.DISOBEYED + "teste"]:
 		m.flags.apply(f)
-	m._verdict = false
-	m._midnight()
-	ok(m.flags.has(m.Rebellion.FINALS[m.Rebellion.Final.PRISON]), "golpe falhou depois de desobedecer: presa")
-	m.drop_all()
-	await frames(2)
 	var st: StoryCall = GameData.CONTENT.nights[-1].story.filter(func(x: StoryCall): return x.requires.has(m.Rebellion.FINALS[m.Rebellion.Final.PRISON]))[0]
 	var late := PhoneCall.from_script(st.call)
 	late.at = st.at
 	late.story = true
 	late.requires = st.requires
 	late.beat = st
+	m.drop_all()
+	await frames(2)
+	var mst: StoryCall = GameData.CONTENT.nights[-1].story.filter(func(x: StoryCall): return x.at > m.MIDNIGHT and x.requires.is_empty())[0]
+	var mission := PhoneCall.from_script(mst.call)
+	mission.at = mst.at
+	mission.story = true
+	mission.beat = mst
 	var was_sched: Array[PhoneCall] = m.sched
-	m.sched = [late]
+	m.sched = [mission, late]
+	m._verdict = false
+	m._coup_verdict()
+	ok(m.flags.has(m.Rebellion.FINALS[m.Rebellion.Final.PRISON]), "golpe falhou depois de desobedecer: presa")
+	ok(late.at == m.minutes and m.sched == [late], "presa: o veredito antecipado traz a ligação da cúpula para agora e tira as missões que faltavam")
 	ok(m._story_late() and st.authority, "presa: a ligação da cúpula ainda vai tocar (o turno espera)")
 	m._run_schedule()
 	ok(m.live.has(late), "presa: a cúpula liga à meia-noite, depois da última ligação")
@@ -1680,17 +1688,20 @@ func _initialize() -> void:
 	m._verdict = false
 	m.shift_end = was_end
 	m.last_call = was_last
-	for f in [m.Rebellion.HOTEL, m.Rebellion.HOSPITAL, m.Rebellion.IGNORED, m.Rebellion.PARISH, "sinal_centro_15", "sinal_serra_15", "musica_15"]:   # (e as ordens de Sebastião)
+	for f in ["!" + m.Rebellion.SEBASTIAO_TAKEN, m.Rebellion.HOTEL, m.Rebellion.HOSPITAL, m.Rebellion.IGNORED, m.Rebellion.PARISH, "sinal_centro_15", "sinal_serra_15", "musica_15"]:   # (e as ordens de Sebastião)
 		m.flags.apply(f)
-	m._midnight()
-	ok(m.flags.has(m.Rebellion.WON) and m.shift_end == was_end, "golpe venceu: o turno segue")
-	ok(m.background.sign_from == (Main.SHIFT_START_HOUR + Main.SIGN_BACK) * 60.0, "golpe venceu: o letreiro do hotel volta às 2h")
+	m._coup_verdict()
+	ok(not m._verdict, "golpe com chance: à meia-noite ainda não há veredito")
+	m.minutes = m.VERDICT
+	m._coup_verdict()
+	ok(m.flags.has(m.Rebellion.WON) and m.shift_end == was_end, "golpe venceu às 4h: o turno segue")
+	ok(m.background.sign_from == Main.SHIFT_START_HOUR * 60.0 + m.VERDICT + Main.SIGN_AFTER, "golpe venceu: o letreiro do hotel volta meia hora depois")
 	ok(m.flags.has(m.Rebellion.FINALS[m.Rebellion.Final.SUCCESS]) and not m.flags.has(m.Rebellion.COST), "golpe venceu com a paróquia e sem fitas caras: o sucesso")
 	var was_n: Night = m.night
 	m.night = GameData.CONTENT.nights[-1]   # (a que vai até o amanhecer: a cena da meia-noite cabe no turno)
 	m._street_waiting = banner.duplicate()
 	m._street_check()
-	ok(m.background.scene_at.has("banner"), "golpe venceu: a bandeira na varanda à meia-noite")
+	ok(m.background.scene_at.has("banner"), "golpe venceu: a bandeira na varanda às 4h")
 	m.background.scene_at.erase("banner")
 	m.night = was_n
 	m.night_no = was_night

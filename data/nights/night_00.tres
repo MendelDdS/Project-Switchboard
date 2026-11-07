@@ -35,7 +35,7 @@ text = "Você é quem começa na segunda, não é? Muito prazer!"
 
 [sub_resource type="Resource" id="Lesson_04"]
 script = ExtResource("2_lesson")
-text = "Eu cuido do Alto da Serra faz quinze anos."
+text = "Eu cuido do Alto da Serra faz oito anos."
 
 [sub_resource type="Resource" id="Lesson_05"]
 script = ExtResource("2_lesson")
@@ -499,7 +499,7 @@ text = "E se der meia-noite com a mesa vazia e tudo registrado, o turno fecha so
 
 [sub_resource type="Resource" id="Lesson_89"]
 script = ExtResource("2_lesson")
-text = "Por hoje é isso. A mesa é sua, e a noite é calma."
+text = "Por hoje é isso. A mesa é sua, e a noite é calma. Ah, e traz um casaco amanhã: central gela de madrugada. O meu mora pendurado na cadeira."
 
 [sub_resource type="Resource" id="Lesson_89a"]
 script = ExtResource("2_lesson")

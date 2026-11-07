@@ -13,4 +13,4 @@ repeat = "Laudelina Prado, moça."
 target = "280"
 destination = "Laudelina Prado"
 thanks = "Obrigada, moça. Se cuide você também."
-overheard = PackedStringArray("Laudelina? Você leu? A Cecília da central morreu.", "Li. Mal súbito, diz o jornal. Ela subia a serra a pé toda semana.", "Trinta anos atendendo a gente. Sabia a voz de cada um.", "Agora vão ouvir as telefonistas, dizem. Por causa de vazamento.", "Vazamento de quê?", "Não sei. E acho melhor a gente desligar.")
+overheard = PackedStringArray("Laudelina? Você leu? A Cecília da central morreu.", "Li. Mal súbito, diz o jornal. Ela subia a serra a pé toda semana.", "Oito anos atendendo a gente. Sabia a voz de cada um.", "Agora vão ouvir as telefonistas, dizem. Por causa de vazamento.", "Vazamento de quê?", "Não sei. E acho melhor a gente desligar.")

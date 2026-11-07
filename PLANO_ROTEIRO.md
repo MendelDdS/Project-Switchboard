@@ -111,6 +111,34 @@ motor (o que o roteiro precisa e o jogo ainda não faz), depois o conteúdo, com
       dela; epílogo: sucesso, a alta; fracasso, o hospital dá ocupado da primeira vez (`TransferCall.busy_line`).
     - Final com o gesso (`End_gesso`, `End_gesso_amarga`): de manhã Maria assina o gesso no São Lucas e encontra Sebastião.
 
+13. **A madrugada do golpe (noite 15), aprovada em 07/11/2026; no jogo, menos as ligações da vitória (falas na página para aprovar).** A meia-noite deixa de decidir: a Cúpula
+    resiste e a batalha atrás da igreja segue até o veredito, **às 4h** (`MIDNIGHT` vira a hora do veredito). As
+    missões da madrugada somam com o resto da noite (como as ordens de hoje; nenhuma decide sozinha):
+    - **0h–1h, o contra-ataque**: a Cúpula (296) pede a delegacia (184) duas vezes para retomar a rádio. Pedidos das
+      autoridades como os de hoje (`obedeceu_`/`desobedeceu_`).
+    - **Os feridos**: emergências da batalha na região da igreja (despacho) e, à parte, um rebelde ferido: quem liga
+      pede transferência para o Dr. Augusto Almeida (214), não ambulância (a polícia está no Municipal). Transferido,
+      ele se salva; sem a transferência, liga `custou_gente`.
+    - **1h–2h, o reforço**: a Cúpula pede um interurbano para a Capital (901) pedindo tropas. Completado e ouvido até o
+      fim, vale o dobro de uma ordem contra o golpe; derrubado, ela volta a ligar uma vez, desconfiada (`callback`).
+    - **2h–3h, a armadilha**: a escuta pega a Cúpula combinando com o homem de sobretudo onde esperar o Sebastião
+      (palavras-chave de lugar e hora). Maria disca para o bar (327) e avisa o Zé (`avisou_armadilha_15`). Para o
+      jogador saber que pode: a carta da 15 troca o "à meia-noite, ligue para o bar" por "se ouvir qualquer coisa
+      sobre mim, ligue para o bar (327)", e o Zé, no bar das 0h, repete.
+    - **Fim antecipado**: se, antes das 4h, nem cumprindo todas as missões que faltam o golpe chega ao nível médio,
+      o veredito sai na hora (fracasso ou presa, com as cenas de hoje; sem madrugada de repressão).
+    - **4h–6h, com o golpe vencido**: a bandeira e o letreiro logo depois do veredito; nenhuma ligação sorteada, só
+      as escritas da vitória: o Zé pelo discador (o recado de liberdade, que hoje é da meia-noite), e quem conta,
+      comemora e agradece. Falas a escrever e aprovar antes.
+    - O motor: a hora do veredito numa constante, a batalha e a bandeira por ela, `Rebellion` com o máximo possível
+      de pontos que faltam, `last_call` do vencido sem sorteadas depois do veredito; os 4 caminhos do robô e a
+      calibração refeitos.
+
 ## Dúvidas em aberto
+
+- (Respondida: quem liga pelo ferido não dá o nome; perguntado, responde com raiva, "transfere logo, pelo amor de
+  Deus".)
+- (Respondida: sem a armadilha avisada, o Sebastião é preso às 3h; com o golpe vencido, é solto de manhã e os
+  finais com ele ficam.)
 
 - (Respondida: a fita mínima conta só a dada às autoridades; uma dada a Sebastião não livra da advertência.)

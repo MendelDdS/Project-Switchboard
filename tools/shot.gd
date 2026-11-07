@@ -141,7 +141,7 @@ func _ready() -> void:
 	m._start_shift()
 	var hm: PackedStringArray = _args.get("hour", "20:00").split(":")
 	m.minutes = (posmod(int(hm[0]) - Main.SHIFT_START_HOUR, 24)) * 60.0 + (int(hm[1]) if hm.size() > 1 else 0)   # (05:30 é depois da meia-noite)
-	if m.minutes >= m.MIDNIGHT and not m.flags.has(m.Rebellion.LOST):   # depois da meia-noite da última noite: o golpe venceu (o amanhecer)
+	if m.minutes >= m.VERDICT and not m.flags.has(m.Rebellion.LOST):   # depois do veredito da última noite: o golpe venceu (o amanhecer)
 		m._verdict = true
 		m.flags.apply(m.Rebellion.WON)
 	if _args.has("news"):

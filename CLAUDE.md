@@ -183,7 +183,7 @@ detalhe no comentário do código, o porquê no `HISTORICO.md`. Atualize os `CLA
   vez com o socorro completo no lugar certo; cada estágio exige mais unidades (`Fleet.require`). Até duas emergências
   ao mesmo tempo (`Main.MAX_EMERGENCIES`); viatura de reserva só com duas (`Fleet.spare`).
 - Fim do turno: `Main.start_ending` → `Supervisor.shift_over` → `Ending.play(report, more, text, memo)` → `ReportView`.
-  **Finais** (`Rebellion.final`, à meia-noite da 15, `final_*`): três, sucesso, fracasso, presa (o golpe
+  **Finais** (`Rebellion.final`, no veredito da 15, `final_*`): três, sucesso, fracasso, presa (o golpe
   falhou e ela cortou mais pedidos das autoridades do que atendeu; a cena `Arrest` na rua e o fim); texto do fim por
   final em `Night.endings`. A vitória amarga é variação do sucesso no epílogo (`custou_gente`, `Rebellion.costly`). O fim do jogo (epílogo ou presa) não tem relatório: o fecho, "Fim", os créditos e o menu.
   **Epílogo**: a noite 16, `GameContent.epilogue`, fora de `nights` (a "última noite" continua a 15).
@@ -217,17 +217,18 @@ detalhe no comentário do código, o porquê no `HISTORICO.md`. Atualize os `CLA
   carro de som, panfletos, tinta, corrida, desfile e banca; 13: a batida no hotel às 20h, só com uma fita do hotel na polícia (`Raid`: camburão, viatura,
   cinco presos); 13 e 14: o homem de sobretudo embaixo do poste das 22h às 22h50 (`stranger`); 14: a fuga da família às 20h (`Moving`) e a pedra que trinca a janela às 23h, só sem chances altas (`Stone`, camada
   `_crack` na vista, o trincado fica para a 15); cena com `StreetEvent.requires` conferida na hora (`Main._street_check`,
-  liga `rua_<kind>_<noite>`); 14: o hotel lacrado, as janelas apagadas a noite toda (`closed`); 15: o letreiro do hotel apagado (aceso às 2h com o golpe vencido, `sign_from`), o
-  sinalizador vermelho às 21h (`Flare`, camada `_flare` entre o céu e a cidade), o incêndio e o combate longe, atrás da igreja, das 21:20 à meia-noite (`Battle`, camadas `_battle`/`_battle_add`; os estrondos e as rajadas chegam depois do clarão) e a bandeira na varanda à meia-noite, só
-  com `golpe_venceu` (`Banner`; o `_midnight` roda antes do `_street_check`); um script por cena em
+  liga `rua_<kind>_<noite>`); 14: o hotel lacrado, as janelas apagadas a noite toda (`closed`); 15: o letreiro do hotel apagado (aceso meia hora depois do veredito vencido, `sign_from`, `SIGN_AFTER`), o
+  sinalizador vermelho às 21h (`Flare`, camada `_flare` entre o céu e a cidade), o incêndio e o combate longe, atrás da igreja, das 21:20 às 4h (`Battle`, camadas `_battle`/`_battle_add`; os estrondos e as rajadas chegam depois do clarão) e a bandeira na varanda às 4h, só
+  com `golpe_venceu` (`Banner`; o `_coup_verdict` roda antes do `_street_check`); um script por cena em
   `scripts/ui/`, relógio `_scene_t`; pichação, tinta, banca e o apartamento vazio ficam nas noites seguintes, `left_behind`). Regra de qualidade: `PLANO_RUA.md`.
 - Marcadores do roteiro: `StoryFlags` (`flags.allows(requires)`, `flags.apply("nome" | "!nome")`), salvos no `Progress`.
   O desfecho de uma ligação do roteiro liga os dela (`StoryCall.if_connected`/`if_elsewhere`/`if_dropped`/`if_missed`/`if_hung_up`,
   `Main._story_outcome`; marcador `advertencia_*` ligado é advertência, `StoryFlags.FAULT`; a conectada só no fim da conversa, cortada antes vale `if_dropped`, `_story_talk_over`; `again` desligado: sem retorno automático; `if_delivered`, a fita entregue). O roteiro de Maria:
   `PLANO_ROTEIRO.md`. **Fator sucesso** (`scripts/model/rebellion.gd`, só dos marcadores e da noite; `test_story`): TV,
   rádio, pontos, nível (`chance_alta/media/baixa`, ligados por `Rebellion.sync`, que liga também `tomada_caiu`, a rádio já perdida na hora, para as falas da 9; ordens de Sebastião da noite 15 não cumpridas
-  são vacilos, `Rebellion.ORDERS`); à meia-noite da 15, `golpe_venceu` ou
-  `golpe_falhou` (o turno acaba ali, `Main._midnight`). Bilhete e jornal com versões por marcador (`Night.notes`,
+  são vacilos, `Rebellion.ORDERS`); às 4h da 15 (`Main.VERDICT`; da meia-noite em diante, antes, quando já não há chance,
+  `Rebellion.hopeless`), `golpe_venceu` ou `golpe_falhou` (o turno acaba ali e as missões que faltavam saem,
+  `Main._coup_verdict`); a madrugada (contra-ataque, feridos, reforço à Capital, a armadilha do Sebastião): `PLANO_ROTEIRO.md`, item 13; depois do veredito, nenhuma sorteada (`Night.quiet_from`). Bilhete e jornal com versões por marcador (`Night.notes`,
   `news_if`, `StoryText`); a primeira matéria do jornal é a manchete do dia (toda noite uma; as emergências descem); a foto e a legenda seguem a manchete (`Night.photo_for`, desenhadas em `NewsView._tone`). Carta da noite (`Night.letters`, `letter_for`): envelope lacrado em cima do jornal desde o
   começo (`Background.letter`, `_art_envelope`; aberta, sem o lacre, `letter_read`), aberta quando o jogador quiser
   (`Tools.LETTER`, `letter_view.gd`); a dica do começo avisa (`HINT_LETTER`).

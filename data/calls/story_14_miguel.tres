@@ -31,7 +31,7 @@ requires = PackedStringArray("!fita_grupo_c_entregue")
 
 [sub_resource type="Resource" id="Step_05"]
 script = ExtResource("2_step")
-text = "Mas o meu irmão não voltou pra casa. A polícia levou ele. Faz uma semana."
+text = "Mas o meu irmão não voltou pra casa. A polícia levou ele uns dias depois da praça. Disseram que alguém do porão falou o nome dele."
 requires = PackedStringArray("fita_grupo_c_entregue")
 
 [sub_resource type="Resource" id="Step_06"]

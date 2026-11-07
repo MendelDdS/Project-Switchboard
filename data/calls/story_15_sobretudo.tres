@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="TransferCall" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/transfer_call.gd" id="1_story"]
+
+[resource]
+script = ExtResource("1_story")
+voice = "m"
+caller = "Homem"
+opening = PackedStringArray("A Alta Cúpula.")
+repeat = "A Cúpula. Agora."
+target = "296"
+destination = "Alta Cúpula"
+thanks = "Hum."
+overheard = PackedStringArray("Sou eu, do prédio de tijolos. Ele vai sair da toca.", "Onde?", "Na [place:estação velha], às [time:três]. Vai encontrar o pessoal do Alto da Serra.", "E quem está lá?", "Os homens do Vilela, desde a meia-noite. Lá dentro, no escuro.", "Então deixa ele entrar.")
+overheard_flags = PackedStringArray("", "", "ouviu_armadilha_15", "", "", "")
+caller_name = "Silas Moura"
+identify = 1
+refuse_line = "Não interessa. A Cúpula, já."
+refuse_again_line = "Moça, não me faça repetir."
+code_line = "Autorização {code}."

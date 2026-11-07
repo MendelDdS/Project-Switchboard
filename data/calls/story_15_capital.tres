@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="TransferCall" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/transfer_call.gd" id="1_story"]
+
+[resource]
+script = ExtResource("1_story")
+group = 2
+voice = "m"
+caller = "Assessor"
+opening = PackedStringArray("Interurbano para a Capital! O Ministério da Defesa, número quarenta e um, zero oito.")
+repeat = "A Capital, moça! Quarenta e um, zero oito!"
+target = "901"
+destination = "41-08 (Capital)"
+thanks = "Obrigado."
+overheard = PackedStringArray("Ministério? Aqui é Valadares, de São Sotero. Preciso falar com o general.", "O general está ouvindo. Fale.", "A cidade caiu pela metade. A rádio e a TV estão com eles. Preciso de tropa.", "Quantos homens?", "Dois [number:batalhões], pela [other:estrada da serra], antes do sol.", "Saem em uma hora. Segure até lá.")
+far_number = "41-08"
+caller_name = "Henrique Valadares"
+name_line = "Henrique Valadares, da residência oficial."

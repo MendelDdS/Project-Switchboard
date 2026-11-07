@@ -1,0 +1,28 @@
+[gd_resource type="Resource" script_class="EmergencyCall" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/emergency_call.gd" id="1_em"]
+
+[resource]
+script = ExtResource("1_em")
+voice = "m"
+caller = "Senhor"
+opening = "Central! O muro da casa da esquina caiu com a explosão! Tem um rapaz embaixo!"
+questions = PackedStringArray("Qual é o endereço?", "Ele está acordado?", "Ainda tem tiroteio aí?")
+answers = PackedStringArray("Rua da Matriz, 260, na esquina!", "Tá, mas não sente as pernas!", "Parou. Por enquanto.")
+street = "matriz"
+block = 2
+address = "Rua da Matriz, 260"
+occurrence = "Outro"
+units = PackedStringArray("bomb", "amb")
+after = "A gente tá tirando os tijolos com a mão. Devagar."
+stage_sec = Vector3(50, 20, 20)
+worsening = "Ele tá ficando branco! Tá com frio!"
+worsening_question = "Ele está sangrando?"
+worsening_answer = "Na cabeça, um pouco. O pior é a perna."
+critical = "Ele tá apagando, moça! Fala comigo, rapaz!"
+critical_units = PackedStringArray("amb")
+critical_question = "Ele ainda respira?"
+critical_answer = "Respira! Fraco, mas respira!"
+lost = "Ele parou de responder. A gente tirou ele, mas ele não acorda."
+lost_answer = "Não sei se respira..."
+lost_units = PackedStringArray("amb")

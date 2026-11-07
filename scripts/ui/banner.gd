@@ -1,5 +1,5 @@
 extends RefCounted
-## A bandeira da noite 15 (`StreetEvent` "banner"), à meia-noite, só com o golpe vencido (`requires` "golpe_venceu"):
+## A bandeira da noite 15 (`StreetEvent` "banner"), no veredito das 4h, só com o golpe vencido (`requires` "golpe_venceu"):
 ## a luz da sala do apartamento vazio da varanda do prédio de tijolos (`Background.APT`) acende, a porta estala e um
 ## homem sai com a bandeira enrolada debaixo do braço; para no gradil, vira para a rua, ergue o rolo por cima do
 ## corrimão e o solta segurando a beira de cima: o pano desenrola caindo (`drop`), estala ao chegar no fim, quica e

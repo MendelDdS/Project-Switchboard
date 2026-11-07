@@ -31,8 +31,13 @@ text = "Amanhã é o dia. Hoje eu só preciso que você aguente firme."
 [sub_resource type="Resource" id="Step_06"]
 script = ExtResource("2_step")
 kind = 1
-options = PackedStringArray("Estou ouvindo.", "O que você precisa?")
-sets = PackedStringArray()
+options = PackedStringArray("Ela não falou o meu nome. Nem lá.", "O que você precisa?")
+sets = PackedStringArray("nome_14", "")
+
+[sub_resource type="Resource" id="Step_07"]
+script = ExtResource("2_step")
+text = "Nem lá. Por isso amanhã tem que dar certo."
+requires = PackedStringArray("nome_14")
 
 [sub_resource type="Resource" id="Step_09"]
 script = ExtResource("2_step")
@@ -51,7 +56,7 @@ sets = PackedStringArray("", "medo_14")
 
 [sub_resource type="Resource" id="Step_12"]
 script = ExtResource("2_step")
-text = "Ninguém pega quem faz tudo direito. Mais uma noite, Maria, e acaba."
+text = "Ninguém vai te pegar. E se pegarem, vão ouvir de você o mesmo que ouviram dela: nada. Mais uma noite, Maria, e acaba."
 requires = PackedStringArray("medo_14")
 
 [sub_resource type="Resource" id="Step_13"]
@@ -71,4 +76,4 @@ kind = 3
 script = ExtResource("1_call")
 voice = "m"
 caller = "Sebastião Falcão"
-steps = Array[ExtResource("2_step")]([SubResource("Step_00"), SubResource("Step_01"), SubResource("Step_02"), SubResource("Step_03"), SubResource("Step_04"), SubResource("Step_05"), SubResource("Step_06"), SubResource("Step_09"), SubResource("Step_10"), SubResource("Step_11"), SubResource("Step_12"), SubResource("Step_13"), SubResource("Step_14"), SubResource("Step_15")])
+steps = Array[ExtResource("2_step")]([SubResource("Step_00"), SubResource("Step_01"), SubResource("Step_02"), SubResource("Step_03"), SubResource("Step_04"), SubResource("Step_05"), SubResource("Step_06"), SubResource("Step_07"), SubResource("Step_09"), SubResource("Step_10"), SubResource("Step_11"), SubResource("Step_12"), SubResource("Step_13"), SubResource("Step_14"), SubResource("Step_15")])

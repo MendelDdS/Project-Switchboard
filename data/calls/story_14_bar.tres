@@ -16,4 +16,4 @@ caller_name = "Davi Correia"
 name_line = "Davi Correia."
 wary = 1.2
 suspicious = true
-overheard = PackedStringArray("Zé? É o Davi. Tudo certo pra amanhã?", "Fala baixo, rapaz. Tem gente ouvindo tudo.", "Só quero saber se o [other:material] chegou.", "Chegou. Está no fundo, embaixo das caixas de [other:cerveja].", "E a gente se encontra onde?", "Na [street:Rua das Acácias], às [time:oito]. Agora desliga.")
+overheard = PackedStringArray("Zé? É o Davi. Tudo certo pra amanhã?", "Fala baixo, rapaz. Tem gente ouvindo tudo.", "Só quero saber se o [other:material] chegou.", "Chegou. Está no fundo, embaixo das caixas de [other:cerveja].", "E a gente se encontra onde?", "Na [street:Rua das Acácias], às [time:oito]. Agora desliga.", "Zé... se der errado, fala pra minha filha que eu fui trabalhar.", "Vai dar certo. Agora desliga.")

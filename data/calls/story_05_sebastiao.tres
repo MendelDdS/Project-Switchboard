@@ -19,7 +19,7 @@ sets = PackedStringArray()
 
 [sub_resource type="Resource" id="Step_03"]
 script = ExtResource("2_step")
-text = "Eu conheci o seu pai, Maria. Eu era menino e ia com o meu pai às reuniões. O seu pai sempre levava pão doce pra mim."
+text = "Eu conheci o seu pai, Maria. O Cristóvão. Eu era menino e ia com o meu pai às reuniões, e o Cristóvão sempre levava cartão telefônico pra mim, antes de serem banidos."
 
 [sub_resource type="Resource" id="Step_04"]
 script = ExtResource("2_step")
@@ -33,8 +33,13 @@ seconds = 1.5
 [sub_resource type="Resource" id="Step_06"]
 script = ExtResource("2_step")
 kind = 1
-options = PackedStringArray("Eu tinha oito anos.", "Por que está me contando isso?")
-sets = PackedStringArray()
+options = PackedStringArray("Eu tinha oito anos.", "Por que está me contando isso?", "Eu não lembro do rosto dele.")
+sets = PackedStringArray("", "", "rosto_5")
+
+[sub_resource type="Resource" id="Step_06b"]
+script = ExtResource("2_step")
+text = "Eu lembro. Você tem o jeito dele: fica quieta antes de responder."
+requires = PackedStringArray("rosto_5")
 
 [sub_resource type="Resource" id="Step_07"]
 script = ExtResource("2_step")
@@ -42,7 +47,7 @@ text = "Porque você merece saber por quem está fazendo isso. Confie em mim, Ma
 
 [sub_resource type="Resource" id="Step_08"]
 script = ExtResource("2_step")
-text = "Eles tiraram os nossos pais de nós no escuro e chamaram isso de ordem. Eu vou fazer este país voltar a ser nosso, nem que seja a última coisa que eu faça."
+text = "Eles tiraram os nossos pais de nós no escuro e chamaram isso de ordem."
 
 [sub_resource type="Resource" id="Step_09"]
 script = ExtResource("2_step")
@@ -56,4 +61,4 @@ kind = 3
 script = ExtResource("1_call")
 voice = "m"
 caller = "Sebastião Falcão"
-steps = Array[ExtResource("2_step")]([SubResource("Step_00"), SubResource("Step_01"), SubResource("Step_02"), SubResource("Step_03"), SubResource("Step_04"), SubResource("Step_05"), SubResource("Step_06"), SubResource("Step_07"), SubResource("Step_08"), SubResource("Step_09"), SubResource("Step_10")])
+steps = Array[ExtResource("2_step")]([SubResource("Step_00"), SubResource("Step_01"), SubResource("Step_02"), SubResource("Step_03"), SubResource("Step_04"), SubResource("Step_05"), SubResource("Step_06"), SubResource("Step_06b"), SubResource("Step_07"), SubResource("Step_08"), SubResource("Step_09"), SubResource("Step_10")])

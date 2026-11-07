@@ -12,4 +12,4 @@ repeat = "A funerária, moça. Paz Eterna."
 target = "253"
 destination = "Funerária Paz Eterna"
 thanks = "Obrigado, moça. Meus sentimentos. Ela era das suas."
-overheard = PackedStringArray("Paz Eterna? O enterro da dona Cecília é a que horas?", "Às dez, no municipal. Mas o caixão vem fechado, senhor.", "Fechado? Por quê?", "Ordem da família. Foi o que nos disseram.", "Ela não tinha família. Só a central.", "Então foi ordem de quem tem. Boa noite, senhor.")
+overheard = PackedStringArray("Paz Eterna? O enterro da dona Cecília é a que horas?", "Às dez, no municipal. Mas o caixão vem fechado, senhor.", "Fechado? Por quê?", "Ordem da família. Foi o que nos disseram.", "Da família? Ela só tinha a mãe, já velhinha. Duvido que ela pediu isso.", "Então foi ordem de quem manda. Boa noite, senhor.")
