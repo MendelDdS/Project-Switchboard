@@ -1,5 +1,5 @@
 extends SceneTree
-## A medida do plano de pixel (`PLANO_PIXEL.md`): para cada captura de uma pasta (`tools/hibit_shots.sh`), quantas
+## A medida do plano de pixel (HISTORICO 392; as regras em `scripts/ui/CLAUDE.md`): para cada captura de uma pasta (`tools/hibit_shots.sh`), quantas
 ## cores distintas ela tem e quantos blocos de 8×8 são degradê contínuo (muitas cores, `MIN_COLORS` ou mais, com os
 ## vizinhos quase iguais, `MAX_STEP`: a luz lisa dos shaders, onde a pixel art pede degraus de paleta). Grava, numa
 ## pasta ao lado (`<pasta>_mapa`), cada captura escurecida com esses blocos em laranja. Com uma segunda pasta, compara:

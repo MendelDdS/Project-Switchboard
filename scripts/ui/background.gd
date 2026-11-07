@@ -49,6 +49,9 @@ const SET_SOUND := {Tools.DISPATCH: "set_metal", Tools.TOLL: "set_metal", TAPES_
 
 
 const TIP_SEC := 1.3   ## o bilhete subindo na fenda do calculógrafo da mesa: o tempo do som da impressora ("printer")
+const TIP_SWAY_SEC := 1.7   ## e, de todo para fora, o vaivém dele pendurado na fenda (a ponta encolhe 1 px e a serrilha anda)
+const NAG_PULSE_SEC := 1.6   ## o papel esquecido (a tira por registrar, o bilhete fora da caixinha) clareia e apaga devagar (`_nag_layer`)
+const SLIP_SEC := 0.6   ## a tira do registro novo subindo de trás do bloco de fichas (`_slip_layer`)
 const HUNG := Vector2(18, 24)   ## a prancheta do registro pendurada na lateral do painel: funda (z) e alta (y), na sala
 const HUNG_AT := 0.3   ## onde fica o alto dela, na altura do painel
 const HUNG_LIGHT := 0.4   ## a luz parada nela (`_still`): na lateral do painel, um degrau abaixo do tom de sempre (era o papel com 12% de preto por cima)
@@ -265,6 +268,13 @@ var _side_faces: Array = []  # a lateral da mesa comutadora (px da tela), virada
 var _panel_z := 0.0  # a frente do painel da mesa comutadora (z)
 var tickets := 0          ## bilhetes de tarifação esperando na fenda do calculógrafo (impressos com a ferramenta fechada): a ponta de um saindo dela
 var _tip_layer: Control   # a ponta do bilhete no calculógrafo da mesa (`_draw_tip`)
+var _nag_layer: Control   # os papéis esquecidos clareando, somados (`_draw_nags`): o desenho fica, a força no `modulate`
+var _nag_drawn := []      # o que ela desenhou (`_nag_look`)
+var _slip_layer: Control  # a tira do registro novo subindo (`_draw_slip`)
+var _slip_n := 0          # quantas tiras havia
+var _slip_t := SLIP_SEC   # desde que a nova começou a subir (s)
+var _slip_h := 0          # a altura dela acima do bloco, desenhada (px)
+var _tip_sway := 0        # a ponta do bilhete pendurada: 0 ou 1, o lado do vaivém
 var _beam: Control   # o feixe da luminária no ar, somado: desenhado com a sala; a força dela só no `modulate`
 var _umbrella := Rect2()  # a cobertura do guarda-chuva pendurado no armário, até a mesa (px da tela): a água escorre nela (`_draw_drips`)
 var _tip_n := 0           # quantos bilhetes ela mostrava
@@ -446,6 +456,19 @@ func _ready() -> void:
 	_tip_layer.set_anchors_preset(Control.PRESET_FULL_RECT)
 	_tip_layer.draw.connect(_draw_tip)
 	add_child(_tip_layer)
+	_nag_layer = Control.new()
+	_nag_layer.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_nag_layer.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_nag_layer.material = CanvasItemMaterial.new()
+	(_nag_layer.material as CanvasItemMaterial).blend_mode = CanvasItemMaterial.BLEND_MODE_ADD
+	_nag_layer.visible = false
+	_nag_layer.draw.connect(_draw_nags)
+	add_child(_nag_layer)
+	_slip_layer = Control.new()
+	_slip_layer.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_slip_layer.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_slip_layer.draw.connect(_draw_slip)
+	add_child(_slip_layer)
 	_beam = Control.new()
 	_beam.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_beam.set_anchors_preset(Control.PRESET_FULL_RECT)
@@ -510,6 +533,7 @@ func _process(delta: float) -> void:
 		_blind_layer.queue_redraw()
 		_bolt_layer.queue_redraw()
 		_tip_layer.queue_redraw()
+		_slip_layer.queue_redraw()
 		_beam.queue_redraw()
 		_show()
 	var beam := lamp_level * lerpf(0.35, 1.0, warm) * _wall_glow.modulate.a   # piscando, esquentando ou sumindo com o dia, sem redesenhar
@@ -521,10 +545,14 @@ func _process(delta: float) -> void:
 	_tip_n = tickets
 	_tip_t = minf(_tip_t + delta, TIP_SEC)
 	var tip := 0 if tickets == 0 else roundi(_tip.size.y * _tip_t / TIP_SEC)
-	if tip != _tip_h:
+	var sway := 1 if tip > 0 and _tip_t >= TIP_SEC and sin(TAU * PixelArt.ms() / 1000.0 / TIP_SWAY_SEC) > 0.0 else 0
+	if tip != _tip_h or sway != _tip_sway:
 		_tip_h = tip
+		_tip_sway = sway
 		_tip_layer.queue_redraw()
 		_show()
+	_nag_step()
+	_slip_step(delta)
 	var f := snappedf(_flash() * (1.0 - 0.85 * _shut), 0.02)   # (a persiana fechada tampa o clarão)
 	if f != _bolt_layer.modulate.a:   # o relâmpago: o desenho dele fica; só a força muda
 		_bolt_layer.modulate.a = f
@@ -701,6 +729,7 @@ func _lift_step(delta: float) -> void:
 	if at != _lifted.position:
 		_lifted.position = at
 		_tip_layer.position = at if _up_id == Tools.TOLL else Vector2.ZERO   # a ponta do bilhete sai da fenda dele
+		_slip_layer.position = at if _up_id == Tools.LOGBOOK else Vector2.ZERO
 		_lifted.queue_redraw()
 		_show()
 	if not moving and not _lift.held:
@@ -715,6 +744,7 @@ func _land() -> void:
 	_lift = Lift.new()
 	_lifted.position = Vector2.ZERO
 	_tip_layer.position = Vector2.ZERO
+	_slip_layer.position = Vector2.ZERO
 	_lifted.visible = false
 	queue_redraw()
 	_show()
@@ -850,7 +880,7 @@ func _show() -> void:
 func _state() -> Array:
 	return [size, board.get_global_rect() if board else Rect2(), desk.get_global_rect() if desk else Rect2(),
 		window.get_global_rect() if window else Rect2(), pending, unread, alert, card_out, news, counting, toll_desk, details, night, weather,
-		snappedf(_shut, 0.25), cab_open, sips, damp, written, news_read, letter, letter_read, tapes_out,   # (a luz da rua na mesa e o relâmpago acompanham a persiana em 4 passos)
+		snappedf(_shut, 0.25), cab_open, sips, damp, written, news_read, letter, letter_read, tapes_out, _rising,   # (a luz da rua na mesa e o relâmpago acompanham a persiana em 4 passos)
 		TranslationServer.get_locale(), _city_for]   # (a cidade montada: as janelas do prédio de tijolos que brilham, `_flats`)
 
 
@@ -1719,12 +1749,92 @@ func _draw_lifted() -> void:
 func _draw_tip() -> void:
 	if _tip_h <= 0:
 		return
-	var r := Rect2(_tip.position, Vector2(_tip.size.x, _tip_h))
+	var r := Rect2(_tip.position, Vector2(_tip.size.x, _tip_h - _tip_sway))   # (pendurado, encolhe 1 px no vaivém)
 	_tip_layer.draw_rect(r, _tip_tones[0])
-	for x in range(0, int(r.size.x), 2):
+	for x in range(_tip_sway, int(r.size.x), 2):   # (e a serrilha anda 1 px)
 		_tip_layer.draw_rect(Rect2(r.position.x + x, r.end.y - 1.0, 1, 1), _tip_tones[1])
 	if not _tip_cover.is_empty() and Rect2(_tip_cover[1] - _tip_cover[0].get_size() / 2.0, _tip_cover[0].get_size()).intersects(r):
 		PixelArt.sprite(_tip_layer, _tip_cover[0], _tip_cover[1], _tip_cover[2])   # o carimbo em pé na frente da fenda tampa a ponta
+
+
+## O que a camada dos papéis esquecidos mostra: as tiras do bloco de fichas, os bilhetes soltos na mesinha do calculógrafo
+## e a ponta na fenda (o quanto já saiu), menos os do objeto erguido (o jogador já está olhando para ele).
+func _nag_look() -> Array:
+	var out := []
+	for id: String in _nags:
+		if id != _up_id:
+			out.append_array(_nags[id])
+	if tickets > 0 and _tip_h > 0 and _up_id != Tools.TOLL:
+		var r := Rect2(_tip.position, Vector2(_tip.size.x, _tip_h - _tip_sway))
+		out.append(PackedVector2Array([r.position, Vector2(r.end.x, r.position.y), r.end, Vector2(r.position.x, r.end.y)]))
+	return out
+
+
+## O papel esquecido clareia e apaga devagar (`NAG_PULSE_SEC`), pelo `modulate` da camada, sem redesenhar a sala: a
+## pendência está no próprio papel, não numa lâmpada de máquina (a da linha serve à próxima ligação). Só redesenha
+## quando os papéis mudam.
+func _nag_step() -> void:
+	var look := _nag_look()
+	if look != _nag_drawn:
+		_nag_drawn = look
+		_nag_layer.queue_redraw()
+	var on := not look.is_empty()
+	var a := snappedf(0.5 - 0.5 * cos(TAU * PixelArt.ms() / 1000.0 / NAG_PULSE_SEC), 0.05) if on else 0.0
+	if on != _nag_layer.visible or a != _nag_layer.modulate.a:
+		_nag_layer.visible = on
+		_nag_layer.modulate.a = a
+		_show()
+
+
+## Cada papel clareado por igual e contornado 1 px para fora (o brilho passando da beira).
+func _draw_nags() -> void:
+	var fill := Color(Pal.PENDING_GLOW, 0.22)
+	for q: PackedVector2Array in _nag_drawn:
+		_nag_layer.draw_primitive(q, PackedColorArray([fill, fill, fill, fill]), PackedVector2Array())
+		var c := (q[0] + q[1] + q[2] + q[3]) / 4.0
+		var ring := PackedVector2Array()
+		for p in q:
+			ring.append(p + (p - c).sign() * Vector2(0.5, 0.5))   # (a linha de 1 px corre pelo meio do pixel de fora)
+		ring.append(ring[0])
+		_nag_layer.draw_polyline(ring, Color(Pal.PENDING_GLOW, 0.3))
+
+
+## A tira do registro novo (`pending` cresceu) sobe de trás do bloco de fichas em `SLIP_SEC`: enquanto isso a sala não a
+## desenha (`_rising`, no `_state`) e esta camada a desenha subindo; no fim, a sala volta a desenhá-la. Até seis tiras.
+func _slip_step(delta: float) -> void:
+	var n := pending.size()
+	if n > _slip_n and n <= 6:
+		_rising = n - 1
+		_slip = []   # (a sala a mede no próximo desenho)
+		_slip_t = 0.0
+		_slip_h = 0
+	elif n < _slip_n:
+		_rising = -1
+	_slip_n = n
+	if _rising == -1:
+		if _slip_h != 0:   # (um quadro depois de ela parar: a sala já a desenha de novo)
+			_slip_h = 0
+			_slip_layer.queue_redraw()
+		return
+	_slip_t = minf(_slip_t + delta, SLIP_SEC)
+	var h := roundi(float(_slip[1]) * ease(_slip_t / SLIP_SEC, 0.5)) if _slip.size() == 3 else 0
+	if h != _slip_h:
+		_slip_h = h
+		_slip_layer.queue_redraw()
+		_show()
+	if _slip_t >= SLIP_SEC:
+		_rising = -1
+
+
+func _draw_slip() -> void:
+	if _slip_h <= 0 or _slip.size() != 3:
+		return
+	var p: Vector2 = _slip[0]
+	var col: Color = _slip[2]
+	_slip_layer.draw_rect(Rect2(p.x, p.y - _slip_h, 6, _slip_h + 2), col)
+	_slip_layer.draw_rect(Rect2(p.x + 5, p.y - _slip_h, 1, _slip_h + 2), col.darkened(0.2))
+	_slip_layer.draw_rect(Rect2(p.x, p.y - _slip_h, 5, 1), col.lightened(0.12))
+	_slip_layer.draw_rect(Rect2(p.x, p.y + 1, 6, 1), Color(0, 0, 0, 0.3))
 
 
 ## O clarão do relâmpago (`_bolt_layer`, uma camada somada por cima de tudo: a força é o `modulate`, o desenho fica): o que

@@ -99,7 +99,7 @@ emergência perdida é Insuficiente em qualquer noite.
 o jogo volta para o treinamento. Depois de uma Insuficiente, o bilhete da noite seguinte lembra que ela decide. A
 denúncia da escuta conta na noite em que chega ao relatório. O treinamento não tem conceito. Calibrado com o robô
 do `test_shift`, cinco sementes em cinco noites: o atento fica entre 67% e 100% e o que deixa tocar 1 em 3, entre 47%
-e 77% (`PLANO_EFICIENCIA.md`).
+e 77%.
 
 ### Os broches
 

@@ -14,7 +14,7 @@ func _initialize() -> void:
 	# a vista no amanhecer desenha ~17 mil itens por quadro: acima do buffer do renderizador, ele às vezes trava
 	# (`project.godot`; o editor aberto pode regravá-lo sem a linha)
 	ok(int(ProjectSettings.get_setting("rendering/gl_compatibility/item_buffer_size")) >= 32768, "item_buffer_size abaixo de 32768")
-	# as beiras longas em inclinação limpa (`clean_slope`, `PLANO_PIXEL.md` etapa 2): a razão exata e o eixo preso parado
+	# as beiras longas em inclinação limpa (`clean_slope`, plano de pixel, etapa 2): a razão exata e o eixo preso parado
 	var bg_script := load("res://scripts/ui/background_base.gd")
 	for c: Array in [[Vector2(103, 10), Vector2.ONE, Vector2(105, 10)], [Vector2(35, -100), Vector2.ONE, Vector2(33, -99)],
 			[Vector2(35, -100), Vector2(0, 1), Vector2(35, -105)], [Vector2(70, 30), Vector2.ONE, Vector2(70, 28)], [Vector2(0, 40), Vector2.ONE, Vector2(0, 40)],

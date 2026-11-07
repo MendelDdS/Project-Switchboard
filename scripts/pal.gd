@@ -149,6 +149,7 @@ const JACK_METAL := {"face": [Color("f2f6f7"), Color("c9d0d2"), Color("9ea7aa"),
 	"wall": [Color("d3d9db"), Color("969fa2"), Color("677073"), Color("41484b"), Color("292e31")]}
 const JACK_HOLE := Color("070605")
 const BANK_PLATE := Color("4d5540")    ## a chapa sobre o banco que ainda não está em uso
+const PENDING_GLOW := Color("fff1c8")  ## o papel esquecido (a tira por registrar, o bilhete fora da caixinha) clareando e apagando (`Background._nag_layer`)
 const LAMP_GLASS := Color("6e7168")    ## o vidro leitoso da lâmpada apagada (escuro, parecia o furo de uma tomada)
 const ENGRAVED := Color("1d1a14")      ## o número gravado nas plaquinhas das linhas
 const NUMBER_PAINT := Color("d8c9a2")  ## os números pintados em cima dos destinos livres

@@ -32,6 +32,7 @@ extends Node
 ##   --patch=312,4          um cabo de conexão da saída da linha 4 (o padrão) ao destino dado, conectado (o aro aceso)
 ##   --plugs=3:296,4:162    outras pontas encaixadas nas tomadas dadas, sem ligação (os fios passando pelos plugs)
 ##   --lines=2:ring,4:conn  as lâmpadas dessas linhas no estado dado (`Exchange.Line`, em minúsculas), sem ligação
+##   --logs=3               tantos registros esperando no caderno (as tiras no bloco de fichas, pulsando)
 ##   --toll                 um interurbano contando no calculógrafo, dois bilhetes na mesa (um carimbado) e três na caixinha
 ##   --clues                palavras-chave ouvidas (uma marcada, uma riscada, uma ouvida duas vezes) e a lista nas anotações
 ##   --screen=id            uma tela por cima: intro (a de início), pause, settings, report (o relatório com advertências;
@@ -159,6 +160,12 @@ func _ready() -> void:
 			m.toll.file(t)
 		m.exchange.set_line(2, Exchange.Line.CONN, m.minutes + 60.0)   # senão a linha livre já imprime o bilhete
 		m.toll.start(2, GameData.trunk_city(902), "7-30", m.minutes - 2.0)
+	if _args.has("logs"):   # registros esperando no caderno: as tiras no bloco, pulsando
+		for i in int(_args["logs"]):
+			var r := PhoneCall.Record.new()
+			r.time = "20:00"
+			r.who = "Teste"
+			m.notebook.add(r)
 	if _args.has("listen"):
 		m.exchange.set_line(3, Exchange.Line.CONN, m.minutes + 60.0)
 		m.board.plugged(0, 3)

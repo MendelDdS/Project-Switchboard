@@ -121,7 +121,7 @@ detalhe no comentário do código, o porquê no `HISTORICO.md`. Atualize os `CLA
   `Godot --resolution 160x90 --position 0,0 --quit-after 1500 --path . tools/shot.tscn -- --hour=22:30 --weather=rain --out=build/x.png`.
   As opções estão no comentário do topo de `tools/shot.gd` (`--tool`, `--card`, `--hover`, `--screen=intro|pause|settings|report`,
   `--rating`, `--warned`, `--zoom`, `--still`...). Compare capturas com `tools/diff_shots.gd`; conjunto do plano
-  hi-bit: `tools/hibit_shots.sh build/hibit/<pasta>`; cores e degradês das capturas (`PLANO_PIXEL.md`): `tools/pixel_map.gd`. Degraus de uma beira: `tools/edge_steps.gd` (as consertadas, com os degraus aprovados, em `tools/beiras.txt`, que o `visual.sh` confere). **Regressão visual**: `tools/visual.sh [commit]` (~2 min, 12
+  hi-bit: `tools/hibit_shots.sh build/hibit/<pasta>`; cores e degradês das capturas: `tools/pixel_map.gd`. Degraus de uma beira: `tools/edge_steps.gd` (as consertadas, com os degraus aprovados, em `tools/beiras.txt`, que o `visual.sh` confere). **Regressão visual**: `tools/visual.sh [commit]` (~2 min, 12
   capturas do commit contra o disco, a tela inteira; sem a chuva, que ainda varia). Rode em mudança que
   não deveria mudar a tela (refatoração, desempenho) e confira que só mudou o esperado nas que deveriam.
 - Desempenho: sem tela, a vista da janela não é desenhada (`Background._headless`); a vista no amanhecer desenha ~17 mil
@@ -155,7 +155,9 @@ detalhe no comentário do código, o porquê no `HISTORICO.md`. Atualize os `CLA
   O ritmo da fala (`PACE`) e a suspeita andam juntos: mudou um, confira o outro.
 - **Interurbano**: troncos 901–906 (`GameData.TRUNKS`), a telefonista de lá (`Main._trunk`), o número de lá
   (`TransferCall.far_number`). **Calculógrafo** (`Toll`, `TollTicket`): conta a ligação interurbana, imprime o bilhete,
-  o jogador carimba e guarda na caixinha; esquecido ou sem carimbo é advertência leve.
+  o jogador carimba e guarda na caixinha; esquecido ou sem carimbo é advertência leve. Pendências chamam atenção
+  no próprio papel, pulsando (`Background._nag_layer`): a tira por registrar e o bilhete fora da caixinha; nunca numa
+  lâmpada de máquina, que não saberia (`LESSONS.md`).
 - Telefonistas das centrais (`GameContent.operators`: 001 Morgana até a 4, 002 Cecília até a 7; setor entregue é central fechada; 003 é a própria, `GameData.OWN`): só
   pelo discador, números no rodapé da lista (`PhoneBook._footer`); `DirectoryEntry.answers_until`/`gone_from`.
 - **Discador** (`Dialing`, nó do Main; `PhoneCall.Kind.OUTGOING`, `Conversation._outgoing`): o operador liga pelo
@@ -175,8 +177,7 @@ detalhe no comentário do código, o porquê no `HISTORICO.md`. Atualize os `CLA
   decisões, marcados pelo `Supervisor.credit`, nunca no treinamento), eficiência interna
   (`positives ÷ (positives + negatives × rigor da noite)`, `POINTS`, `RIGOR`), **conceito** (`grade()`: Ótimo, Bom, Regular, Insuficiente;
   `GRADE_MIN`; emergência perdida = Insuficiente). Duas noites seguidas abaixo de Regular demitem (`low_nights`,
-  `LOW_LIMIT`, `fired()`). Mudou um peso: recalibre com várias sementes (`tools/calibrar.sh [tabela anterior]`, ~4 min;
-  `PLANO_EFICIENCIA.md`, seção 6).
+  `LOW_LIMIT`, `fired()`). Mudou um peso: recalibre com várias sementes (`tools/calibrar.sh [tabela anterior]`, ~4 min).
 - O Main chama `supervisor.fault()` onde a falha acontece; `Supervisor.call_ended()` decide advertência e retorno
   (`call_again`, uma vez por motivo). Treinamento e trotes não geram advertência.
 - **Barra de agravamento** (`Urgency`, `PhoneCall.stage`): corre desde o atendimento, para em pergunta e resposta, com máquina do despacho trabalhando (`CardMachines.working`) e de

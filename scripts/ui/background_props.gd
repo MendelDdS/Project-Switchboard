@@ -170,6 +170,9 @@ var _side_x := 0.0     # a lateral da mesa comutadora na sala (x): os objetos da
 static var _cable_art := {}   # os fios já montados (das máquinas e da caixa na parede): [pontos, grossura, beira, tons, sombra] -> [canto, textura] (`_cable_at`)
 var _tip := Rect2()   # a ponta do bilhete saindo da fenda do calculógrafo, inteira (px da tela; a camada dela a desenha)
 var _tip_tones: Array = [Pal.TICKET, Pal.TICKET_EDGE]   # o bilhete e a beira dele na luz da fenda
+var _nags := {}   # objeto (`Tools`) -> os papéis esquecidos nele, cada um o quadrilátero dele na tela: a camada `_nag_layer` os faz pulsar
+var _rising := -1   # a tira do registro novo subindo do bloco de fichas (o índice dela; -1: nenhuma): a sala não a desenha...
+var _slip := []     # ...e a camada `_slip_layer` desenha, com isto: [onde ela entra embaixo do bloco, a altura toda, a cor]
 var _tip_cover: Array = []   # o carimbo em pé na mesinha [textura, meio, cor]: fica na frente da fenda, e a camada da ponta o desenha de novo por cima dela
 var _hom := Basis()          # a perspectiva do objeto chato sendo desenhado (`_flat`, `_homography`): o que vai por cima dele, na tela
 var _hom_sz := Vector2.ONE   # o tamanho do desenho de frente dele (px)
@@ -475,6 +478,7 @@ func _cable_image(pts: PackedVector2Array, w: int, edge: float, tones := [], sha
 ## tampa aberta, os bilhetes soltos com as marcas do carimbo, a caixinha com os guardados e o carimbo em pé.
 func _draw_calculograph(x0: float, zf: float) -> void:
 	_yaw = 0.0
+	_nags[Tools.TOLL] = []
 	_tip_cover = []
 	var w := CALC.x * PROP_K
 	var d := w * Toll.NOMINAL.y / Toll.NOMINAL.x
@@ -544,6 +548,7 @@ func _draw_calculograph(x0: float, zf: float) -> void:
 				sh.append(p + Vector2(1, 1))
 			_poly(sh, Lift.SHADOW)
 			_poly(q, Pal.lit(Pal.TICKET, paper))
+			_nags[Tools.TOLL].append(q)   # fora da caixinha: pulsa
 			_poly(quad.call(Rect2(r.position, Vector2(r.size.x, r.size.y * TollTicket.BAND / TollTicket.SIZE.y))), Pal.lit(Pal.TICKET_FORM, paper))
 			var half := TollTicket.MARK_SIZE / TollTicket.SIZE / 2.0
 			for m: Vector3 in toll_desk[i][1]:   # as marcas, cortadas no papel
@@ -1813,6 +1818,7 @@ func _pad_tape(sz: Vector2i) -> int:
 ## pela perspectiva, serrilhava), largado num lugar a cada ficha registrada (`PENCIL`).
 func _pad_marks(sz: Vector2i) -> void:
 	var t := _pad_tape(sz)
+	_nags[Tools.LOGBOOK] = []
 	var rows := _rows(t + 2.0, sz.y - 3.0, 3.0)
 	var mx := roundf(sz.x * 0.16)   # a margem, depois da coluna da hora (a da ficha aberta)
 	for row in rows.size():
@@ -1840,7 +1846,12 @@ func _pad_marks(sz: Vector2i) -> void:
 		var up := 6.0 + (i * 5) % 4
 		var spot := Vector2(5 + i * floorf((sz.x - 12) / 6.0), 0)
 		var col := _tone(pending[i], spot)
+		if i == _rising:   # subindo: é da camada dela (`_draw_slip`)
+			_slip = [p, up, col]
+			continue
 		_ci.draw_rect(Rect2(p.x, p.y - up, 6, up + 2), col)
+		var r := Rect2(p.x, p.y - up, 6, up + 1)   # por registrar: pulsa
+		_nags[Tools.LOGBOOK].append(PackedVector2Array([r.position, Vector2(r.end.x, r.position.y), r.end, Vector2(r.position.x, r.end.y)]))
 		_ci.draw_rect(Rect2(p.x + 5, p.y - up, 1, up + 2), col.darkened(0.2))   # o lado na sombra
 		_ci.draw_rect(Rect2(p.x, p.y - up, 5, 1), col.lightened(0.12))   # a beira de cima, na luz
 		_ci.draw_rect(Rect2(p.x, p.y + 1, 6, 1), Color(0, 0, 0, 0.3))   # onde ela entra embaixo do bloco

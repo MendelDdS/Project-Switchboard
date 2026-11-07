@@ -63,6 +63,7 @@ var emergencies: Array[PhoneCall] = []
 var _called_back: Array[StoryCall] = []   # as ligações cujo `callback` já entrou na agenda nesta noite (uma vez cada)
 var _street_waiting: Array = []    ## cenas da rua com `requires`: conferidas na hora delas (`_street_check`)
 var _verdict := false              ## a conta do golpe da última noite já foi feita (`_coup_verdict`)
+var _pending_n := 0                ## registros esperando no caderno, da última vez (a tira nova faz barulho)
 var ending := false
 var flick := false
 
@@ -186,6 +187,9 @@ func _ready() -> void:
 		var strips := notebook.pending_strips()
 		tools.set_pending(strips)
 		background.pending = strips
+		if n > _pending_n:   # a tira nova subindo do bloco (`Background._slip`)
+			Sfx.play_at("page", _across(background.prop_rect(Tools.LOGBOOK).get_center().x), -6.0)
+		_pending_n = n
 		if n > 0:
 			_teach(SAW_SLIPS, T.Key.HINT_DESK_SLIPS))
 	toll.unstamped.connect(func(t: TollTicket): supervisor.fault("toll_unstamped", t.detail()))

@@ -52,6 +52,10 @@ peça (medidas, cores, o que foi tentado e saiu) está em `docs/mapa-ui-detalhad
   homografia (`_project`, `_homography`), guardado até mudar; **risco fino vai na tela** (`_ink` nas alturas de
   `_rows`), não no papel (virava moiré). Cada objeto girado uns graus (`_turned`, `_faces`). Sombra em degraus
   (`_desk_shadow`).
+- Beiras (o plano de pixel, HISTORICO 392, concluído em 26/10/2026): degraus regulares numa beira reta (3-3-3,
+  2-3-2-3) e, nas longas à vista, inclinações limpas (1:1, 1:2, 2:1, 1:3...; `clean_slope`); vértice em pixel inteiro
+  (`_snap`), a beira e o brilho dela saem da mesma reta deslocada em px inteiros; linha fina sobre superfície em
+  perspectiva desenhada depois da projeção (`_tex_pt`, `_pixel_line`). Luz em degraus e pontilhado foram recusados.
 - Luz nos objetos: cada um escurece pela distância à poça (`_shade`, `_pool`, `FRONT_LIGHT`); **os papéis trocam de tom
   na rampa** (`_still`, `_paper_step`, `Pal.lit`, `PAPER_RAMPS`), não escurecem por cima; o metal pequeno fica num
   degrau só (`_lit_image`). A luminária piscando ou esquentando não redesenha: é o shader (`_noir`, `FLICK_DARK`).

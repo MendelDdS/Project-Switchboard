@@ -1029,3 +1029,10 @@ O `draw_texture` guarda só o RID da textura; esvaziar um cache libera as textur
 quando o estado muda passa a desenhar uma textura que não existe mais, um retângulo branco (item 558, as chapas dos
 bancos). Cache de textura que esvazia manda tudo se redesenhar (`PixelArt._evict`); e "esvaziar só custa remontar o
 que está na tela" só vale para o que se redesenha sozinho.
+
+## Aviso de pendência mora no objeto, não numa máquina que não saberia dela
+Propus e fiz a lâmpada da linha pulsando até a ficha ser registrada e o contador do calculógrafo pulsando até o
+bilhete ir para a caixinha (item 563). O usuário recusou: a mesa não sabe se o caderno foi preenchido nem se o bilhete
+foi carimbado, e a lâmpada da linha serve logo à próxima ligação na mesma entrada. Antes de pôr um aviso num aparelho,
+pergunte se aquele aparelho, de verdade, saberia daquilo e se o lugar dele fica livre; senão o aviso vai no próprio
+objeto esquecido (o papel clareando, `Background._nag_layer`).

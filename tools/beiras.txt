@@ -1,4 +1,4 @@
-# As beiras consertadas no plano de pixel (`PLANO_PIXEL.md`), conferidas pelo `tools/visual.sh` com o `tools/edge_steps.gd`:
+# As beiras consertadas no plano de pixel (HISTORICO 392), conferidas pelo `tools/visual.sh` com o `tools/edge_steps.gd`:
 # captura do visual.sh | o que é | x0,y0,x1,y1,lado do fundo (px da tela de 960) | degraus aprovados
 # Numa beira deitada o fundo fica em cima ou embaixo (u, d); numa em pé, dos lados (l, r). O relógio fica de fora: o
 # peitoril atrás dele e a sombra no tampo confundem a medida.

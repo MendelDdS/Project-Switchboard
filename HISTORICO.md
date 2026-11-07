@@ -3479,3 +3479,12 @@ Chaves:
     Rua da Matriz (despacho), o ferido ao Dr. Augusto (perdido, `custou_gente`), o interurbano à Capital (vale o dobro,
     `REINFORCEMENT`; derrubado, liga de novo) e a armadilha do homem de sobretudo (ouvida, o discador do bar das 2:20
     às 3h; sem aviso, `sebastiao_preso_15`). Falas na página para aprovar, com as propostas da vitória e do epílogo.
+563. #mesa-comutadora #caderno #calculografo #luz #som #saiu O jogador esquecia de registrar as ligações e de carimbar os
+    bilhetes porque nada chamava a atenção (o usuário escolheu, das quatro propostas, a luz e o movimento com som; a luz
+    **pulsante, não constante**, para não se misturar ao cenário). O próprio papel esquecido clareia e apaga devagar,
+    com um contorno de 1 px: as tiras do bloco de fichas, os bilhetes soltos na mesinha do calculógrafo e a ponta na
+    fenda (`Background._nag_layer`, `_nags`, `NAG_PULSE_SEC` 1,6 s, `Pal.PENDING_GLOW`; some com o objeto erguido). A
+    tira do registro novo sobe de trás do bloco com o som de papel (`_slip_layer`, `SLIP_SEC`, `_rising`); o bilhete na
+    fenda balança enquanto ninguém o pega (`TIP_SWAY_SEC`). Captura: `tools/shot.gd --logs=3`.
+    #saiu: a lâmpada da linha pulsando até a ficha ser registrada e o contador do calculógrafo pulsando até o bilhete
+    ir para a caixinha (a mesa não sabe do caderno nem do carimbo, e a lâmpada da linha serve à próxima ligação).
