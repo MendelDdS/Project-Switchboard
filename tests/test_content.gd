@@ -140,7 +140,7 @@ func _check_flags() -> void:
 			if f.ends_with(".gd"):
 				code += FileAccess.get_file_as_string(dir + f)
 	var by_night := []   # os prefixos dos marcadores da noite ("escutou_%d")
-	for m in RegEx.create_from_string("(?:flags\\.apply|_teach)\\(\"([a-z_]+?)(_%d)?\"").search_all(code):
+	for m in RegEx.create_from_string("(?:flags\\.apply|_teach|_opened)\\((?:Tools\\.[A-Z_]+, )?\"([a-z_]+?)(_%d)?\"").search_all(code):
 		if m.get_string(2) != "":
 			by_night.append(m.get_string(1))
 		else:
@@ -148,6 +148,9 @@ func _check_flags() -> void:
 	var rebellion := preload("res://scripts/model/rebellion.gd")   # as conclusões do fator sucesso (`Rebellion.sync`)
 	for d: String in rebellion.DERIVED + rebellion.FINALS + [rebellion.WON, rebellion.LOST, rebellion.COST]:
 		given[d] = true
+	for i in GameData.CONTENT.nights.size():   # as cenas da rua com `requires` ligam "rua_<kind>_<noite>" (`Main._street_check`)
+		for e in GameData.CONTENT.nights[i].street_events:
+			given["rua_%s_%d" % [e.kind, i + 1]] = true
 	for name: String in asked:
 		var nightly := RegEx.create_from_string("^(.+)_[0-9]+$").search(name)
 		ok(given.has(name) or nightly != null and nightly.get_string(1) in by_night,
@@ -164,7 +167,7 @@ func _walk_flags(r: Resource, src: String, seen: Dictionary, asked: Dictionary, 
 		if not (p["usage"] & PROPERTY_USAGE_STORAGE) or p["name"] == "script":
 			continue
 		var v = r.get(p["name"])
-		if p["name"] == "requires":
+		if p["name"] in ["requires", "done"]:   # (o `done` das tarefas do diário também pede marcador que exista)
 			for f: String in v:
 				asked[f.trim_prefix("!")] = src
 		elif p["name"] in ["sets", "overheard_sets", "overheard_flags"] or p["name"].begins_with("if_"):

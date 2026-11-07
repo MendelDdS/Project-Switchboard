@@ -37,5 +37,6 @@ active = true
 from_night = 7
 to_night = 15
 fault_text = "FAULT_TAPE_CAUGHT"
+task_text = "DIARY_B4"
 equipment = PackedStringArray("porta_fitas", "gravador")
 tests = Array[ExtResource("2_call")]([SubResource("Test_palavras"), SubResource("Test_nada")])

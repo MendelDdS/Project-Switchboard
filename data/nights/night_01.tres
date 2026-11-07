@@ -1,6 +1,7 @@
 [gd_resource type="Resource" script_class="Night" format=3]
 
 [ext_resource type="Script" path="res://scripts/data/night.gd" id="1_night"]
+[ext_resource type="Script" path="res://scripts/data/diary_line.gd" id="dl_diary_line"]
 [ext_resource type="Script" path="res://scripts/data/chat_topic.gd" id="8_chat"]
 [ext_resource type="Script" path="res://scripts/data/chat_reply.gd" id="9_reply"]
 [ext_resource type="Script" path="res://scripts/data/story_call.gd" id="x0_story_call"]
@@ -36,8 +37,31 @@ at = 80.0
 call = ExtResource("a_story_01_miguel_trote")
 again = false
 
+[sub_resource type="Resource" id="N_0"]
+script = ExtResource("dl_diary_line")
+text = "Um homem pediu o Bar do Zé e agradeceu: \"Obrigado, Maria.\" Eu nunca disse o meu nome."
+call = SubResource("S_homem")
+outcomes = PackedStringArray("connected")
+
+[sub_resource type="Resource" id="N_1"]
+script = ExtResource("dl_diary_line")
+text = "Um homem pediu o Bar do Zé. Não passei."
+call = SubResource("S_homem")
+outcomes = PackedStringArray("dropped", "elsewhere")
+
+[sub_resource type="Resource" id="N_2"]
+script = ExtResource("dl_diary_line")
+text = "Um menino perguntou se eu tinha geladeira. Caí feito uma boba."
+call = SubResource("A_story_01_miguel_trote")
+
+[sub_resource type="Resource" id="N_3"]
+script = ExtResource("dl_diary_line")
+text = "Primeira noite sozinha na mesa. As mãos tremeram no começo, depois passou."
+at_close = true
+
 [resource]
 script = ExtResource("1_night")
 note = "Seu turno termina à meia-noite. Atenda as chamadas, conecte-as corretamente e registre todas as ocorrências."
 smalltalk = Array[ExtResource("8_chat")]([SubResource("ChatTopic_00")])
 story = Array[ExtResource("x0_story_call")]([SubResource("S_homem"), SubResource("A_story_01_miguel_trote")])
+diary = Array[ExtResource("dl_diary_line")]([SubResource("N_0"), SubResource("N_1"), SubResource("N_2"), SubResource("N_3")])

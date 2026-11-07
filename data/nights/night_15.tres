@@ -1,6 +1,8 @@
 [gd_resource type="Resource" script_class="Night" format=3]
 
 [ext_resource type="Script" path="res://scripts/data/night.gd" id="1_night"]
+[ext_resource type="Script" path="res://scripts/data/diary_line.gd" id="dl_diary_line"]
+[ext_resource type="Script" path="res://scripts/data/diary_task.gd" id="dt_diary_task"]
 [ext_resource type="Script" path="res://scripts/data/prank_step.gd" id="2_step"]
 [ext_resource type="Script" path="res://scripts/data/street_event.gd" id="2_event"]
 [ext_resource type="Script" path="res://scripts/data/story_call.gd" id="3_story"]
@@ -528,6 +530,108 @@ script = ExtResource("3_story")
 call = ExtResource("j_parente")
 requires = PackedStringArray("obedeceu_bar_14")
 
+[sub_resource type="Resource" id="T_0"]
+script = ExtResource("dt_diary_task")
+text = "Não passar a polícia nem a Alta Cúpula"
+letter = true
+done = PackedStringArray("!obedeceu_ferrovia_15", "!obedeceu_avenida_15", "!obedeceu_palmeiras_15", "!obedeceu_tiradentes_15", "!obedeceu_matriz_15", "!obedeceu_retomada_radio_15", "!obedeceu_retomada_tv_15", "!obedeceu_capital_15")
+at_close = true
+
+[sub_resource type="Resource" id="T_1"]
+script = ExtResource("dt_diary_task")
+text = "21h: dizer \"Começou.\" ao 120 e ao 288"
+requires = PackedStringArray("!fita_armas_entregue")
+letter = true
+done = PackedStringArray("sinal_centro_15", "sinal_serra_15")
+until = 240.0
+
+[sub_resource type="Resource" id="T_2"]
+script = ExtResource("dt_diary_task")
+text = "21h: dizer \"Começou.\" ao 120 e ao 291"
+requires = PackedStringArray("fita_armas_entregue")
+letter = true
+done = PackedStringArray("sinal_centro_15", "sinal_serra_15")
+until = 240.0
+
+[sub_resource type="Resource" id="T_3"]
+script = ExtResource("dt_diary_task")
+text = "22h: pedir a \"Canção da Madrugada\" à rádio (390)"
+letter = true
+done = PackedStringArray("musica_15")
+until = 270.0
+
+[sub_resource type="Resource" id="T_4"]
+script = ExtResource("dt_diary_task")
+text = "Avisar o bar (327) sobre o Sebastião"
+requires = PackedStringArray("ouviu_armadilha_15")
+letter = true
+done = PackedStringArray("avisou_armadilha_15")
+until = 540.0
+
+[sub_resource type="Resource" id="T_5"]
+script = ExtResource("dt_diary_task")
+text = "Passar na hora a polícia e a Alta Cúpula"
+done = PackedStringArray("!desobedeceu_ferrovia_15", "!desobedeceu_avenida_15", "!desobedeceu_palmeiras_15", "!desobedeceu_tiradentes_15", "!desobedeceu_matriz_15", "!desobedeceu_retomada_radio_15", "!desobedeceu_retomada_tv_15", "!desobedeceu_capital_15")
+at_close = true
+
+[sub_resource type="Resource" id="T_6"]
+script = ExtResource("dt_diary_task")
+text = "Denunciar no 184 quem ligar ao bar ou ao hotel"
+requires = PackedStringArray("ligou_suspeito_15")
+done = PackedStringArray("obedeceu_denuncia_15")
+at_close = true
+
+[sub_resource type="Resource" id="N_0"]
+script = ExtResource("dl_diary_line")
+text = "A última carta do Sebastião. Hoje é o dia."
+letter = true
+
+[sub_resource type="Resource" id="N_1"]
+script = ExtResource("dl_diary_line")
+text = "Às nove, o sinal vermelho subiu atrás da igreja."
+requires = PackedStringArray("sinalizador_15")
+
+[sub_resource type="Resource" id="N_2"]
+script = ExtResource("dl_diary_line")
+text = "Pedi a Canção da Madrugada à rádio."
+requires = PackedStringArray("musica_15")
+
+[sub_resource type="Resource" id="N_3"]
+script = ExtResource("dl_diary_line")
+text = "O Zé ligou do bar: a rádio e a TV são nossas. Se segurar até as quatro, acabou."
+call = SubResource("M_ze")
+
+[sub_resource type="Resource" id="N_4"]
+script = ExtResource("dl_diary_line")
+text = "Avisei o bar: estão esperando o Sebastião na estação velha."
+requires = PackedStringArray("avisou_armadilha_15")
+
+[sub_resource type="Resource" id="N_5"]
+script = ExtResource("dl_diary_line")
+text = "Passei o rapaz ferido pro Dr. Augusto."
+requires = PackedStringArray("ferido_salvo_15")
+
+[sub_resource type="Resource" id="N_6"]
+script = ExtResource("dl_diary_line")
+text = "O rapaz ferido não chegou ao médico."
+requires = PackedStringArray("ferido_perdido_15")
+
+[sub_resource type="Resource" id="N_7"]
+script = ExtResource("dl_diary_line")
+text = "Quatro horas. A bandeira na varanda."
+requires = PackedStringArray("golpe_venceu")
+
+[sub_resource type="Resource" id="N_8"]
+script = ExtResource("dl_diary_line")
+text = "Acabou, e não do nosso jeito."
+requires = PackedStringArray("golpe_falhou")
+
+[sub_resource type="Resource" id="N_9"]
+script = ExtResource("dl_diary_line")
+text = "Tem um homem de sobretudo subindo a escada. Se alguém achar este caderno, eu não me arrependo de nada."
+requires = PackedStringArray("final_presa")
+at_close = true
+
 [resource]
 script = ExtResource("1_night")
 shift_end = 720.0
@@ -544,3 +648,5 @@ news_stories = PackedStringArray("Rádio e TV sob controle militar\nA Rádio Ser
 calls = Array[ExtResource("3_story")]([SubResource("J_call_padaria"), SubResource("J_call_parente")])
 news_photo = "torre"
 news_caption = "Soldados na porta da Rádio Serena."
+tasks = Array[ExtResource("dt_diary_task")]([SubResource("T_0"), SubResource("T_1"), SubResource("T_2"), SubResource("T_3"), SubResource("T_4"), SubResource("T_5"), SubResource("T_6")])
+diary = Array[ExtResource("dl_diary_line")]([SubResource("N_0"), SubResource("N_1"), SubResource("N_2"), SubResource("N_3"), SubResource("N_4"), SubResource("N_5"), SubResource("N_6"), SubResource("N_7"), SubResource("N_8"), SubResource("N_9")])

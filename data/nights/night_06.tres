@@ -1,6 +1,7 @@
 [gd_resource type="Resource" script_class="Night" format=3]
 
 [ext_resource type="Script" path="res://scripts/data/story_text.gd" id="j_story_text"]
+[ext_resource type="Script" path="res://scripts/data/diary_line.gd" id="dl_diary_line"]
 [ext_resource type="Script" path="res://scripts/data/night.gd" id="1_night"]
 [ext_resource type="Script" path="res://scripts/data/street_event.gd" id="2_event"]
 [ext_resource type="Script" path="res://scripts/data/story_call.gd" id="x0_story_call"]
@@ -86,6 +87,41 @@ call = ExtResource("j_febre")
 if_connected = PackedStringArray("febre_farmacia_6")
 callback = [SubResource("J_back_febre_baixou"), SubResource("J_back_febre_fechada")]
 
+[sub_resource type="Resource" id="N_0"]
+script = ExtResource("dl_diary_line")
+text = "O Sebastião: quem pedir o bar e estalar os dedos três vezes, eu passo pro hotel."
+call = SubResource("S_acordo")
+
+[sub_resource type="Resource" id="N_1"]
+script = ExtResource("dl_diary_line")
+text = "Ouvi os três estalos e passei pro hotel. Funcionou."
+call = SubResource("S_bar1")
+outcomes = PackedStringArray("elsewhere")
+
+[sub_resource type="Resource" id="N_2"]
+script = ExtResource("dl_diary_line")
+text = "O menino do trote se chama Miguel. Gosta de ligar aqui."
+call = SubResource("A_story_06_miguel")
+requires = PackedStringArray("miguel_amigo")
+
+[sub_resource type="Resource" id="N_3"]
+script = ExtResource("dl_diary_line")
+text = "A Generosa e o Otávio foram ao cinema. Nenhum dos dois viu o filme."
+call = SubResource("A_story_06_generosa")
+requires = PackedStringArray("otavio_numero")
+
+[sub_resource type="Resource" id="N_4"]
+script = ExtResource("dl_diary_line")
+text = "A Generosa perguntou do rapaz da rádio. Não tive coragem de contar."
+call = SubResource("A_story_06_generosa")
+requires = PackedStringArray("otavio_mentira")
+
+[sub_resource type="Resource" id="N_5"]
+script = ExtResource("dl_diary_line")
+text = "Estalo de dedo. Parece brincadeira de criança, mas não é."
+call = SubResource("S_acordo")
+at_close = true
+
 [resource]
 script = ExtResource("1_night")
 note = "O supervisor deixou um recado: \"Hoje o Centro tem baile e a praça cheia. Fique atenta. A linha do Bar do Zé continua bloqueada.\""
@@ -96,3 +132,4 @@ news_stories = PackedStringArray("Polícia corta telefones de \"pontos de agita�
 calls = Array[ExtResource("x0_story_call")]([SubResource("J_call_telefone"), SubResource("J_call_parente"), SubResource("J_call_febre")])
 news_photo = "rua"
 news_caption = "A rua do Bar do Zé, sem telefone desde ontem."
+diary = Array[ExtResource("dl_diary_line")]([SubResource("N_0"), SubResource("N_1"), SubResource("N_2"), SubResource("N_3"), SubResource("N_4"), SubResource("N_5")])

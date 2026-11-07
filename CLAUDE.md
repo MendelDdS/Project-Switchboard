@@ -32,7 +32,7 @@ detalhe no comentário do código, o porquê no `HISTORICO.md`. Atualize os `CLA
   `PaperPanel`, `MemoPanel`, `TapedNote`, `InkLabel`, `InkBoldLabel`, `TypedText`/`HandText`...): prefira variação de
   tema a override por nó. Papéis escritos: efeito de RichTextLabel (`scripts/ui/paper_ink.gd`, `[typed]` e `[hand]`).
 - Tela inicial (`scenes/title_screen.tscn`, posta pelo `GameView` antes do jogo, `GameView.playing`; a pausa volta a
-  ela, `%ToMenu`): a mesa de perto (`title_board.gd`, linha chamando, `ringing`) e o menu (`TitleButton`, setas e Enter). Telas fora do turno são papéis: o bilhete do supervisor na abertura (`Intro`), pausa e configurações num papel com
+  ela, `%ToMenu`): a mesa de perto (`title_board.gd`, linha chamando, `ringing`) e o menu (`TitleButton`, setas e Enter). Telas fora do turno são papéis: o bilhete do supervisor na abertura (`Intro` com o `SupervisorNote`, o papel timbrado do memorando; o mesmo, pregado no quadro de avisos, relido no turno, `Intro.reread`), pausa e configurações num papel com
   fita, o relatório num memorando (`ReportView`: timbre, serviços prestados, advertências com o carimbo da gravidade,
   parecer à mão, rubrica e o carimbo redondo do conceito, `_grade_stamp`, girado pixel a pixel e em lugar sorteado).
 - Botão de resposta (`ChoiceButton`): fala curta do operador (`CHOICE_*`; a frase inteira, `OP_*`, vai para a
@@ -92,8 +92,8 @@ detalhe no comentário do código, o porquê no `HISTORICO.md`. Atualize os `CLA
   hora, `save()` grava, `restore(snapshot)` desfaz. Testes não leem nem gravam o arquivo.
 - Entrada (Input Map): `cancel_plug` (Esc, botão direito), `pause` (Esc, P), `answer_call` (Espaço),
   `transfer_call` (Tab), `listen_call` (Z), `hang_up` (X), tratadas em `PhonePanel._input` antes da interface;
-  ferramentas 1–4 (`Main.TAB_KEYS`, `Tools.toggle`); ids das ferramentas sempre pelas constantes `Tools.DIRECTORY`,
-  `DISPATCH`, `LOGBOOK`, `CALL_LOG`, `NEWS`, `TOLL`.
+  ferramentas 1–5 (`Main.TAB_KEYS`, `Tools.toggle`); ids das ferramentas sempre pelas constantes `Tools.DIRECTORY`,
+  `DISPATCH`, `LOGBOOK`, `CALL_LOG`, `DIARY`, `NEWS`, `TOLL`.
 
 ## Rodar e testar
 - Godot: `/Applications/Godot.app/Contents/MacOS/Godot` (fora do PATH). Compilar: `Godot --headless --path . --quit-after 60`.
@@ -165,6 +165,15 @@ detalhe no comentário do código, o porquê no `HISTORICO.md`. Atualize os `CLA
   Enquanto dura, é o foco (a linha do FONE em HOLD) e a do lugar fica ocupada (`Exchange`, `seized`); fora do caderno. Atende a do
   roteiro (`DialCall`, `Night.dial`/`GameContent.dial`, passos de `PrankStep`; a senha do Dia 4 ao hotel 305, das 20:30 às 21h) ou o atendimento do lugar
   (`DirectoryEntry.answers`, `ChatTopic`, `closes`; todo número da cidade, menos os do despacho; palavras-chave nas respostas, `Eavesdrop.note`); a do roteiro atende também fora dos setores. Marcador `ligou_<número>_<noite>`. `PLANO_DISCADOR.md`.
+- **Diário de Maria** (`Diary`, nó do Main; `diary_view.gd`, `Tools.DIARY`, tecla 5; na frente da mesa, onde ficava o
+  jornal, que foi pregado no quadro de avisos): as tarefas da noite, só lidas do jogo, sem pontos (os pedidos do roteiro
+  em `Night.tasks`, `DiaryTask`, pelos marcadores, `done`, `until`, `at_close`, `letter`; normas pelo
+  `BureaucracyRule.task_text`, riscadas no turno encerrado sem advertência delas; rotina com quanto falta) e, à direita,
+  as anotações dela (`Night.diary`, `DiaryLine`: no fim da ligação do roteiro `call` com o desfecho, `Main.story_ends`;
+  pelos marcadores; o balanço `at_close`), tudo por demanda (nada antes de alguém avisar); a carta lida fica guardada
+  nele (o clique abre); o presente da Cecília no treinamento; a página de cada noite no save (`Progress.diary`, `Diary.page`), folheadas
+  pelas dobras nos cantos de baixo; no fim do turno abre sozinho antes do memorando (`Main.DIARY_WAIT`; no fim do jogo, a última página antes do "Fim", uma linha por final); tarefa nova
+  põe o lápis em cima dele (`Background.diary_new`). Plano em etapas no artefato "Diário de Maria" (`HISTORICO` 564).
 - Fim de ligação: `end_call(c, PhoneCall.End.*)` → `c.record` → `Notebook.add()`; o caderno registra com um clique no
   tipo (`register(T.Key.TYPE_*)`). A conversa do roteiro (`PrankCall` com `beat`) é ligação comum no caderno (com `prank`, trote). `TransferCall.busy_line`: o destino dá ocupado na primeira tentativa.
 - **Despacho** (`Dispatch`, `CityMap`, `CardMachines`, `PunchCard`): marcar o trecho no mapa imprime o cartão (dois cliques: o primeiro só datilografa, `CardMachines.draft`; o anel da moldura aproxima, `_knob`);
@@ -230,7 +239,7 @@ detalhe no comentário do código, o porquê no `HISTORICO.md`. Atualize os `CLA
   são vacilos, `Rebellion.ORDERS`); às 4h da 15 (`Main.VERDICT`; da meia-noite em diante, antes, quando já não há chance,
   `Rebellion.hopeless`), `golpe_venceu` ou `golpe_falhou` (o turno acaba ali e as missões que faltavam saem,
   `Main._coup_verdict`); a madrugada (contra-ataque, feridos, reforço à Capital, a armadilha do Sebastião): `PLANO_ROTEIRO.md`, item 13; depois do veredito, nenhuma sorteada (`Night.quiet_from`). Bilhete e jornal com versões por marcador (`Night.notes`,
-  `news_if`, `StoryText`); a primeira matéria do jornal é a manchete do dia (toda noite uma; as emergências descem); a foto e a legenda seguem a manchete (`Night.photo_for`, desenhadas em `NewsView._tone`). Carta da noite (`Night.letters`, `letter_for`): envelope lacrado em cima do jornal desde o
+  `news_if`, `StoryText`); a primeira matéria do jornal é a manchete do dia (toda noite uma; as emergências descem); a foto e a legenda seguem a manchete (`Night.photo_for`, desenhadas em `NewsView._tone`). Carta da noite (`Night.letters`, `letter_for`): envelope lacrado em cima do diário desde o
   começo (`Background.letter`, `_art_envelope`; aberta, sem o lacre, `letter_read`), aberta quando o jogador quiser
   (`Tools.LETTER`, `letter_view.gd`); a dica do começo avisa (`HINT_LETTER`).
 - `Progress` (`user://progress.cfg`): próxima noite, ritmo, `low_nights`, marcadores, jornal, palavras-chave,

@@ -2,7 +2,7 @@ extends "res://scripts/ui/background_view.gd"
 ## Os objetos da mesa do cenário (`Background`) e o tampo: listas, unidade de despacho, bloco de fichas, calculógrafo, jornal,
 ## caneca e o relógio de flip (e a prancheta, pendurada na lateral da mesa comutadora), cada um posto na sala e passado pela câmera (`_box`, `_flat`, `_project`).
 
-const DESK_T := 1.25    ## o fundo do tampo, Z0/DESK_T: a mesa fica afastada da parede (o armário cabe atrás)
+const DESK_T := 1.25    ## o fundo do tampo, Z0/DESK_T: a mesa fica afastada da parede (o gaveteiro cabe atrás)
 const PLANKS := 6       ## as tábuas do tampo, todas da mesma largura (a câmera as espaça)
 const POOL_R := 112.0   ## o raio da poça de luz da luminária no tampo
 const DESK_SPILL := 30.0   ## até onde as luzes acesas dos objetos (a unidade de despacho, o calculógrafo) iluminam o tampo em volta (px)
@@ -35,9 +35,12 @@ const PENCIL := [[Vector2(0.5, 0.88), Vector2(0.96, 0.18)], [Vector2(0.28, 0.82)
 ## tampo) e grossura; giradas um pouco, cada uma para um lado (`TAPE_YAW`).
 const TAPE := Vector3(9.2, 0.2, 1.7)
 const TAPE_YAW := [-5.0, 4.0, -2.0, 7.0]
-const LETTER_W := 19.0   ## a largura do envelope da carta (uns 12 cm), em cima do jornal...
+const LETTER_W := 19.0   ## a largura do envelope da carta (uns 12 cm), em cima do diário...
 const LETTER_D := 0.62   ## ...e o fundo dele, em fração do fundo do jornal dobrado
-const NEWS_W := 25.0   ## a largura do jornal dobrado (na escala dos objetos, uns 16 cm): com 32, o calculógrafo não cabia do lado
+const DIARY_W := 20.0   ## o diário de Maria, no lugar do jornal (que foi para o quadro de avisos): a largura (uns 13 cm, um caderno pequeno), o fundo (fração do tampo) e a grossura
+const DIARY_D := 0.12
+const DIARY_H := 1.5
+const NEWS_W := 25.0   ## o lugar do diário na fileira da frente, o do jornal dobrado que ficava ali (na escala dos objetos, uns 16 cm): com 32, o calculógrafo não cabia do lado
 const UNIT_TILT := 0.11
 const UNIT_D := 0.3
 const UNIT_AT := 0.76   ## a frente da unidade de despacho (fração do tampo): recuada, com folga da máquina do calculógrafo na frente dela (com 0,6, a de 34 tampava a base)
@@ -148,10 +151,10 @@ var pending := PackedColorArray()   ## registros esperando no bloco de fichas: u
 var unread := false  ## o registro das conversas tem fala nova: uma folha nova presa na prancheta
 var alert := false     ## há uma emergência em andamento: a luz vermelha da unidade de despacho (o Main atualiza)
 var card_out := false  ## há um cartão perfurado na mesa: ele sai da fenda da impressora da unidade, com a luz âmbar
-var news := false    ## o jornal da manhã está na mesa (da segunda noite em diante; `Main.set_news`)
-var news_read := false   ## o jornal já foi aberto: volta à mesa dobrado de outro jeito, a última página para cima
-var letter := false   ## há carta na noite (`Night.letter_for`, `Main`): um envelope lacrado em cima do jornal...
+var news := false    ## o jornal da manhã está pregado no quadro de avisos (da segunda noite em diante; `Main.set_news`)
+var letter := false   ## há carta na noite (`Night.letter_for`, `Main`): um envelope lacrado em cima do diário...
 var letter_read := false   ## ...que, aberta, volta sem o lacre
+var diary_new := false   ## Maria anotou tarefa nova: o lápis atravessado em cima do diário até ele abrir (`Main`, `Diary.added`)
 var written := 0     ## fichas registradas na noite: o lápis fica num lugar do bloco a cada uma (`PENCIL`)
 var tapes_out: Array = []   ## as fitas tiradas do gravador na noite (B4, posto pelo gravador), cada uma pelo destino (`Tape.To`: 0 a fita, 1 o pacote branco de Sebastião, 2 o amarelo das autoridades): empilhadas ao lado do bloco de fichas até o fim do turno
 var counting := 0    ## as entradas contando um interurbano, um bit cada (`Toll.counters`): os contadores acesos do calculógrafo
@@ -177,7 +180,7 @@ var _tip_cover: Array = []   # o carimbo em pé na mesinha [textura, meio, cor]:
 var _hom := Basis()          # a perspectiva do objeto chato sendo desenhado (`_flat`, `_homography`): o que vai por cima dele, na tela
 var _hom_sz := Vector2.ONE   # o tamanho do desenho de frente dele (px)
 var _hom_light := PackedFloat32Array()   # a luz parada nos cantos dele (`_still`; fundo-esq, fundo-dir, frente-dir, frente-esq), se for papel: cada pixel troca de tom por ela (`_lit_at`)
-var _occ: Array = []         # os objetos da mesa (px da tela, convexos): o que fica na frente da parede e do armário
+var _occ: Array = []         # os objetos da mesa (px da tela, convexos): o que fica na frente da parede e do gaveteiro
 var occ_ids := PackedStringArray()   # quem é cada um de `_occ` (o id da ferramenta, "relogio", "caneca"; o teste da mesa usa)
 var _mug_mouth := Vector2.ZERO   # o meio do café na caneca (px da tela), de onde sobe o vapor
 var _mug_w := 0.0               # a largura da caneca na tela (px; 0 = ainda não desenhada)
@@ -293,21 +296,49 @@ func _draw_desk_props() -> void:
 	if _here(Tools.TOLL):
 		_draw_calculograph(cx, _at(CALC_AT))
 	# papel tem 1 px de beira (mais grosso, parecia tábua)
-	if news and _here(Tools.NEWS):   # lido, volta dobrado mais uma vez, na metade da altura, e girado para o outro lado
-		var nd := _deep(0.19 * k) * (0.5 if news_read else 1.0)
-		_flat(Tools.NEWS, near[1], _at(0.07) + (_deep(0.19 * k) - nd) / 2.0, NEWS_W * k, nd, 0.5, Pal.NEWS_FOLD[1],
-			_art_newspaper.bind(news_read), [news_read], deg_to_rad(-9.0 if news_read else 6.0), _newspaper_print.bind(news_read))
-	if letter and (_up_id in [Tools.LETTER, Tools.NEWS]) == (_ci == _lifted):   # em cima do jornal: erguido o jornal, ela sobe junto
-		var on := 0.5 if news else 0.0   # (a espessura do jornal embaixo dela)
-		var ld := _deep(0.19 * k) * LETTER_D
+	var dx: float = near[1] + (NEWS_W - DIARY_W) * k / 2.0
+	if _here(Tools.DIARY):
+		_flat(Tools.DIARY, dx, _at(0.07), DIARY_W * k, _deep(DIARY_D * k), DIARY_H * k, Pal.BOOK_LEAVES.darkened(0.2), _art_diary, [],
+			deg_to_rad(-4.0), _diary_marks.bind(diary_new))
+	if letter and (_up_id in [Tools.LETTER, Tools.DIARY]) == (_ci == _lifted):   # em cima do diário: erguido o diário, ela sobe junto
+		var ld := _deep(DIARY_D * k) * LETTER_D
 		var yd := _yd
-		_yd -= on
-		_flat(Tools.LETTER, near[1] + (NEWS_W - LETTER_W) * k * 0.4, _at(0.07) + (_deep(0.19 * k) - ld) / 2.0, LETTER_W * k, ld, 0.5,
+		_yd -= DIARY_H * k   # (a grossura do diário embaixo dela)
+		_flat(Tools.LETTER, dx + (DIARY_W - LETTER_W) * k * 0.4, _at(0.07) + (_deep(DIARY_D * k) - ld) / 2.0, LETTER_W * k, ld, 0.5,
 			Pal.SHEET_NEW.darkened(0.25), _art_envelope.bind(letter_read), [letter_read], deg_to_rad(-3.0),
 			_envelope_seal.bind(letter_read))
 		_yd = yd
 	_snap = false
 	_ci.draw_set_transform(Vector2.ZERO, 0.0, Vector2(2, 2))
+
+
+## O diário de Maria fechado (`sz`, de frente): a capa de pano vinho com o grão, a lombada à esquerda, a etiqueta
+## colada e os cantos gastos.
+func _art_diary(sz: Vector2i) -> Image:
+	var img := Image.create(sz.x, sz.y, false, Image.FORMAT_RGBA8)
+	for y in sz.y:
+		for x in sz.x:
+			var g := (x * 73 + y * 151 + x * y * 7) % 97
+			img.set_pixel(x, y, Pal.DIARY_COVER[1].darkened(0.08) if g < 8 else Pal.DIARY_COVER[1])
+	var spine := maxi(2, sz.x / 9)
+	_fr(img, 0, 0, spine, sz.y, Pal.DIARY_COVER[2])   # a lombada, de pano mais escuro, e o vinco dela
+	_fr(img, spine, 0, 1, sz.y, Pal.DIARY_COVER[0])
+	_fr(img, 0, 0, sz.x, 1, Pal.DIARY_COVER[0])   # as beiras: a de trás na luz, as longe dela na sombra
+	_fr(img, sz.x - 1, 0, 1, sz.y, Pal.DIARY_COVER[2])
+	_fr(img, 0, sz.y - 1, sz.x, 1, Pal.DIARY_COVER[2])
+	var lab := Rect2i(spine + (sz.x - spine) / 3, sz.y / 4, (sz.x - spine) / 3, maxi(3, sz.y / 4))   # a etiqueta, amarelada
+	_fr(img, lab.position.x, lab.position.y, lab.size.x, lab.size.y, Pal.DIARY_PAGE.darkened(0.12))
+	_fr(img, lab.position.x, lab.end.y - 1, lab.size.x, 1, Pal.DIARY_PAGE.darkened(0.3))
+	_fr(img, lab.position.x + 2, lab.position.y + lab.size.y / 2, lab.size.x - 4, 1, Pal.DIARY_HAND)   # o nome dela, a lápis
+	for p: Vector2i in [Vector2i(sz.x - 1, 0), sz - Vector2i.ONE]:   # os cantos de fora, gastos
+		img.set_pixel(p.x, p.y, Pal.DIARY_COVER[0])
+	return img
+
+
+## Por cima do diário fechado: o lápis atravessado, enquanto há tarefa nova que Maria anotou e o jogador não viu (`new`).
+func _diary_marks(sz: Vector2i, new: bool) -> void:
+	if new:
+		_pencil(_tex_pt(Vector2(sz.x * 0.2, sz.y * 0.85)).round(), _tex_pt(Vector2(sz.x * 0.85, sz.y * 0.15)).round(), Vector2(sz) / 2.0)
 
 
 ## O envelope da carta (`sz`, de frente): papel claro com a aba fechada em V; aberta (`read`), a aba solta, um pouco
@@ -1858,10 +1889,12 @@ func _pad_marks(sz: Vector2i) -> void:
 	var at: Array = PENCIL[written % PENCIL.size()]
 	var page := func(f: Vector2) -> Vector2:   # a fração da folha abaixo da fita, na tela
 		return _tex_pt(Vector2(lerpf(4.0, sz.x - 4.0, f.x), lerpf(t + 3.0, sz.y - 3.0, f.y))).round()
-	var a: Vector2 = page.call(at[0])
-	var b: Vector2 = page.call(at[1])
+	_pencil(page.call(at[0]), page.call(at[1]), (at[0] + at[1]) / 2.0 * Vector2(sz))
+
+
+## O lápis largado num objeto chato, da ponta `a` à borracha `b` (px da tela), na luz do ponto `mid` do desenho dele.
+func _pencil(a: Vector2, b: Vector2, mid: Vector2) -> void:
 	var d := (b - a).normalized()
-	var mid: Vector2 = (at[0] + at[1]) / 2.0 * Vector2(sz)   # a luz do lápis: a do meio dele na folha
 	var lit := func(cols: Array) -> Array: return cols.map(func(c: Color) -> Color: return _tone(c, mid))
 	_pixel_line(a + Vector2(2, 2), b + d * 7 + Vector2(2, 2), [Color(0, 0, 0, 0.3), Color(0, 0, 0, 0.3)])
 	_pixel_line(a, b, lit.call(Pal.PENCIL_BODY))   # o corpo, amarelo de lápis gasto
@@ -1978,86 +2011,3 @@ func _clipboard_print(sz: Vector2i) -> void:
 	_pixel_line(_tex_pt(Vector2(a, 5.0)), _tex_pt(Vector2(c, 5.0)), [Pal.NICKEL[3]])
 	_pixel_line(_tex_pt(Vector2(sz.x * 0.35, -1.0)), _tex_pt(Vector2(sz.x * 0.65, -1.0)), [Pal.NICKEL[1], Pal.NICKEL[3]])
 	_poly(quad.call(sz.x * 0.45, sz.x * 0.55, -5.0, -3.0), Pal.NICKEL[3])
-
-
-## O jornal da manhã dobrado ao meio: papel-jornal amarelado com a foto da primeira página (o céu claro em cima, o
-## escuro embaixo). O que é risco (o nome, a data, a manchete, as colunas e o vinco) vai por cima, na tela
-## (`_newspaper_print`); a foto era um xadrez em retícula, que a perspectiva virava moiré. Lido (`read`), a última
-## página para cima, sem foto: os classificados e os anúncios em caixa.
-func _art_newspaper(sz: Vector2i, read := false) -> Image:
-	var img := Image.create(sz.x, sz.y, false, Image.FORMAT_RGBA8)
-	img.fill(Pal.NEWSPRINT)   # papel-jornal amarelado (cinza, longe da luz, sumia no escuro)
-	_fr(img, 0, 0, sz.x, 1, Pal.NEWS_FOLD[0])
-	_fr(img, sz.x - 1, 0, 1, sz.y, Pal.NEWS_FOLD[1])
-	_fr(img, 0, sz.y - 1, sz.x, 1, Pal.NEWS_FOLD[1])
-	if read:
-		return img
-	var photo := _news_photo(sz)
-	_fr(img, photo.position.x - 1, photo.position.y - 1, photo.size.x + 2, photo.size.y + 2, Pal.NEWS_PHOTO[0])
-	_fr(img, photo.position.x, photo.position.y, photo.size.x, photo.size.y, Pal.NEWS_PHOTO[1])
-	_fr(img, photo.position.x, photo.position.y + photo.size.y * 0.45, photo.size.x, photo.size.y * 0.55 + 1, Pal.NEWS_PHOTO[2])
-	return img
-
-
-## Onde fica a foto do jornal no desenho de frente dele (`sz`).
-func _news_photo(sz: Vector2i) -> Rect2i:
-	return Rect2i(sz.x - int(sz.x * 0.3) - 2, 13, int(sz.x * 0.3), int(sz.y * 0.45))
-
-
-## Por cima do jornal, na tela: o nome numa faixa escura, a linha da data, a manchete grossa em duas linhas, as
-## colunas de texto miúdo (a da direita embaixo da foto) e o vinco da dobra, cada risco com 1 px da tela (`_rows`).
-## Lido (`read`): o título da seção e os classificados em quatro colunas, com os anúncios em caixa.
-func _newspaper_print(sz: Vector2i, read := false) -> void:
-	if read:
-		_classifieds(sz)
-		return
-	var rows := _rows(2.0, sz.y - 2.0, 1.0)   # a altura no papel de cada px da tela, a partir do nome
-	if rows.size() < 16:
-		return
-	var ink := Pal.NEWS_TYPE[0]
-	var head := Pal.NEWS_TYPE[1]
-	_ink(2, sz.x - 2, rows[2], [ink, ink, ink])   # o nome do jornal (afastado da beira: colado, ela saía picotada)
-	_ink(2, sz.x - 2, rows[5], [Pal.NEWS_TYPE[2]])   # a data
-	_ink(2, 2 + sz.x * 0.72, rows[8], [head, head])   # a manchete
-	_ink(2, 2 + sz.x * 0.5, rows[11], [head, head])
-	var photo := _news_photo(sz)
-	var cw := (photo.position.x - 6) / 2.0
-	for k in range(14, rows.size() - 1, 2):   # as colunas de texto
-		var y: float = rows[k]
-		for col in 3:
-			var x0 := 2.0 + col * (cw + 2.0)
-			var w := cw - (k * 3 + col) % 4
-			if col == 2:
-				if y < photo.end.y + 2:
-					continue
-				x0 = photo.position.x
-				w = photo.size.x - (k * 3) % 4
-			_ink(x0, x0 + w - 1.0, y, [Pal.NEWS_INK])
-	_ink(0, sz.x - 1, sz.y / 2.0, [Pal.NEWS_FOLD[1], Pal.NEWS_FOLD[2]])   # o vinco
-
-
-## A última página do jornal lido (`_newspaper_print`): o título da seção, o fio e quatro colunas de classificados, em
-## linhas de 1 px da tela, uma sim, uma não; em duas delas, um anúncio em caixa.
-func _classifieds(sz: Vector2i) -> void:
-	var rows := _rows(2.0, sz.y - 2.0, 1.0)
-	if rows.size() < 8:
-		return
-	var ink := Pal.NEWS_TYPE[1]
-	_ink(2, 2 + sz.x * 0.45, rows[1], [ink, ink])   # o título da seção
-	_ink(2, sz.x - 3, rows[4], [ink])
-	var cw := (sz.x - 10) / 4.0
-	for col in 4:
-		var x0 := 2.0 + col * (cw + 2.0)
-		var box: Array = range(7 + col * 3, 11 + col * 3) if col % 2 == 1 else []   # o anúncio em caixa
-		for k in range(6, rows.size() - 1, 2):
-			if k in box:
-				continue
-			_ink(x0, x0 + cw - 1.0 - (k * 5 + col) % 3, rows[k], [Pal.NEWS_INK])
-		if not box.is_empty() and box[-1] < rows.size() - 1:
-			var y0: float = rows[box[0] - 1]
-			var y1: float = rows[box[-1]]
-			_ink(x0, x0 + cw - 1.0, y0, [ink])
-			_ink(x0, x0 + cw - 1.0, y1, [ink])
-			_pixel_line(_tex_pt(Vector2(x0, y0)), _tex_pt(Vector2(x0, y1)), [ink])
-			_pixel_line(_tex_pt(Vector2(x0 + cw - 1.0, y0)), _tex_pt(Vector2(x0 + cw - 1.0, y1)), [ink])
-			_ink(x0 + 2.0, x0 + cw - 3.0, (y0 + y1) / 2.0, [ink, ink])   # o nome do anúncio, em letra grossa

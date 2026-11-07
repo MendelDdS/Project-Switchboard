@@ -1,6 +1,8 @@
 [gd_resource type="Resource" script_class="Night" format=3]
 
 [ext_resource type="Script" path="res://scripts/data/night.gd" id="1_night"]
+[ext_resource type="Script" path="res://scripts/data/diary_line.gd" id="dl_diary_line"]
+[ext_resource type="Script" path="res://scripts/data/diary_task.gd" id="dt_diary_task"]
 [ext_resource type="Script" path="res://scripts/data/street_event.gd" id="2_event"]
 [ext_resource type="Script" path="res://scripts/data/story_text.gd" id="x0_story_text"]
 [ext_resource type="Script" path="res://scripts/data/story_call.gd" id="x1_story_call"]
@@ -125,6 +127,62 @@ again = false
 script = ExtResource("x1_story_call")
 call = ExtResource("j_toque")
 
+[sub_resource type="Resource" id="T_0"]
+script = ExtResource("dt_diary_task")
+text = "Não passar a delegacia nem a Alta Cúpula"
+requires = PackedStringArray("cumpriu_9")
+done = PackedStringArray("cumpriu_9")
+at_close = true
+
+[sub_resource type="Resource" id="T_1"]
+script = ExtResource("dt_diary_task")
+text = "Passar as autoridades, como manda o supervisor"
+requires = PackedStringArray("cumpriu_9")
+done = PackedStringArray("!cumpriu_9")
+at_close = true
+
+[sub_resource type="Resource" id="N_0"]
+script = ExtResource("dl_diary_line")
+text = "O Sebastião: hoje nenhuma ligação pra delegacia ou pra Alta Cúpula pode passar pela mesa."
+call = SubResource("S_seb")
+
+[sub_resource type="Resource" id="N_1"]
+script = ExtResource("dl_diary_line")
+text = "A polícia pediu a delegacia. Passei."
+call = SubResource("S_aut0")
+outcomes = PackedStringArray("connected")
+
+[sub_resource type="Resource" id="N_2"]
+script = ExtResource("dl_diary_line")
+text = "A polícia pediu a delegacia. Não passei."
+call = SubResource("S_aut0")
+outcomes = PackedStringArray("dropped", "elsewhere")
+
+[sub_resource type="Resource" id="N_3"]
+script = ExtResource("dl_diary_line")
+text = "A polícia chamou, e eu deixei tocar."
+call = SubResource("S_aut0")
+outcomes = PackedStringArray("missed")
+
+[sub_resource type="Resource" id="N_4"]
+script = ExtResource("dl_diary_line")
+text = "Briga na rua por causa da rádio. Uns gritavam viva, outros batiam."
+call = SubResource("E_bri")
+
+[sub_resource type="Resource" id="N_5"]
+script = ExtResource("dl_diary_line")
+text = "Fiz o que ele pediu. Espero que valha alguma coisa."
+call = SubResource("S_seb")
+requires = PackedStringArray("cumpriu_9")
+at_close = true
+
+[sub_resource type="Resource" id="N_6"]
+script = ExtResource("dl_diary_line")
+text = "Não fiz o que ele pediu. Não sei se quero ficar do lado deles."
+call = SubResource("S_seb")
+requires = PackedStringArray("!cumpriu_9")
+at_close = true
+
 [resource]
 script = ExtResource("1_night")
 note = "O supervisor deixou um recado: \"Com o toque de recolher, a noite promete: emergência vem primeiro.\""
@@ -135,3 +193,5 @@ news_stories = PackedStringArray("Toque de recolher às nove da noite\nA partir 
 calls = Array[ExtResource("x1_story_call")]([SubResource("J_call_toque")])
 news_photo = "rua"
 news_caption = "Rua do Centro às nove e cinco."
+tasks = Array[ExtResource("dt_diary_task")]([SubResource("T_0"), SubResource("T_1")])
+diary = Array[ExtResource("dl_diary_line")]([SubResource("N_0"), SubResource("N_1"), SubResource("N_2"), SubResource("N_3"), SubResource("N_4"), SubResource("N_5"), SubResource("N_6")])

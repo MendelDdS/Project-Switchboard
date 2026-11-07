@@ -1,6 +1,7 @@
 [gd_resource type="Resource" script_class="Night" format=3]
 
 [ext_resource type="Script" path="res://scripts/data/story_text.gd" id="j_story_text"]
+[ext_resource type="Script" path="res://scripts/data/diary_line.gd" id="dl_diary_line"]
 [ext_resource type="Script" path="res://scripts/data/story_call.gd" id="j_story_call"]
 [ext_resource type="Script" path="res://scripts/data/night.gd" id="1_night"]
 [ext_resource type="Script" path="res://scripts/data/street_event.gd" id="2_event"]
@@ -36,6 +37,15 @@ call = ExtResource("j_enterro")
 script = ExtResource("j_story_call")
 call = ExtResource("j_parente")
 
+[sub_resource type="Resource" id="N_0"]
+script = ExtResource("dl_diary_line")
+text = "A Cecília morreu. O supervisor diz que foi mal súbito."
+
+[sub_resource type="Resource" id="N_1"]
+script = ExtResource("dl_diary_line")
+text = "Policiais no prédio, \"pra minha proteção\". Não acredito em mal súbito."
+at_close = true
+
 [resource]
 script = ExtResource("1_night")
 note = "O supervisor deixou um recado: \"Recebemos uma notícia triste: a Cecília, telefonista do Alto da Serra, faleceu de um mal súbito. Não temos mais detalhes. Por segurança, há policiais no prédio esta noite, para a sua proteção. Não abra a porta para ninguém e siga trabalhando normalmente.\""
@@ -44,3 +54,4 @@ news_stories = PackedStringArray("Alta Cúpula investiga vazamento nas centrais 
 calls = Array[ExtResource("j_story_call")]([SubResource("J_call_cecilia"), SubResource("J_call_enterro"), SubResource("J_call_parente")])
 news_photo = "mulher"
 news_caption = "Cecília, telefonista do Alto da Serra."
+diary = Array[ExtResource("dl_diary_line")]([SubResource("N_0"), SubResource("N_1")])

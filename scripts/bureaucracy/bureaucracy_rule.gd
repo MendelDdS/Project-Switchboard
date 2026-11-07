@@ -41,6 +41,9 @@ class Verdict:
 ## como "FAULT_BUREAUCRACY").
 @export var severity := ShiftReport.Severity.MEDIUM
 @export var fault_text := "FAULT_BUREAUCRACY"
+## A tarefa dela no diário de Maria (o nome de uma chave `T.Key`, como "DIARY_B1"; vazio: nenhuma), riscada no turno
+## encerrado se a noite não teve advertência dela (`Diary`).
+@export var task_text := ""
 ## Os equipamentos que ela traz para a mesa (`scenes/ui/equipment/<id>.tscn`, na prateleira embaixo do interurbano ou,
 ## com `metadata/side` na cena, na coluna do lado do painel, `Switchboard.side_rect`):
 ## chegam na primeira vez que ela vale (`Bureaucracy.unlock_equipment`) e ficam, a não ser que `keep_equipment` seja

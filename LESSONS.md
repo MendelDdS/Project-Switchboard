@@ -1036,3 +1036,32 @@ bilhete ir para a caixinha (item 563). O usuário recusou: a mesa não sabe se o
 foi carimbado, e a lâmpada da linha serve logo à próxima ligação na mesma entrada. Antes de pôr um aviso num aparelho,
 pergunte se aquele aparelho, de verdade, saberia daquilo e se o lugar dele fica livre; senão o aviso vai no próprio
 objeto esquecido (o papel clareando, `Background._nag_layer`).
+
+## zsh não divide variável em palavras, e o `update_translations` regravava os `.po` vazios
+Num laço `for x in "a 1 4" ...; do set -- $x`, o zsh (o shell daqui) passou a string inteira como `$1`: os `.tres` saíram
+com o nome e o conteúdo errados, o `data/content.tres` não carregou e o `update_translations` regravou os `.po` sem
+nenhuma fala, apagando as 114 traduções desta branch ainda não commitadas (recuperadas das transcrições, item 566).
+Arquivos de dados se geram em Python, não em laço de shell; e a ferramenta agora para sem gravar quando o conteúdo
+não carrega.
+
+## Objeto da sala tem que ter motivo para estar ali
+Pus no quadro panfletos de rua (cachorro perdido, curso, vacinação); o usuário apontou que na central só entram Maria e
+o supervisor: ninguém pregaria aquilo ali. Antes de pôr algo na sala, pergunte quem o trouxe. No quadro, só o que a
+companhia ou as autoridades mandam, e o que a própria Maria traz (o cartaz da quermesse).
+
+## Efeito que saiu a pedido sai de todo lugar que o usa
+O contorno amarelo sob o mouse saiu dos objetos da mesa no item 174 (trocado pelo objeto que se ergue), mas o plug da
+mesa comutadora continuou com ele (`Pal.GLOW` na silhueta), e o usuário teve de pedir de novo (item 565). Ao trocar um
+efeito, procurar toda parte que faz o mesmo papel (`grep` pela cor e pelo nome do estado, `_hover`) e trocar junto.
+
+## "Deveria caber X" quer dizer "X fica nele", e o tamanho é o todo
+Fiz o quadro de avisos da etapa 4 só do tamanho do jornal; o usuário pediu maior, "para caber a folhinha e o
+panfleto". Aumentei só a altura e deixei os dois fora, para a etapa seguinte; ele repetiu irritado: o quadro contém os
+itens agora, não é de clicar (os itens nele, sim), e a largura também (item 564). Pedido sobre um objeto que guarda
+outros vale já para o conteúdo e para as duas medidas; não adiar parte dele para uma etapa do plano sem perguntar.
+
+## Efeito de clima que pega só uma parede lê como defeito
+Na névoa, o brilho da noite pela janela (`_draw_window_glow`) ficava 1,2× mais forte e espalhava na parede do fundo,
+enquanto a parede da janela continuava igual: o usuário viu "névoa na parede" e pediu para tirar (item 564). Luz ou
+névoa dentro da sala tem de cair igual em todas as superfícies que ela alcança, ou não entrar; o clima de lá fora
+fica no vidro e na vista.

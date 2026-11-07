@@ -1206,8 +1206,152 @@ func _initialize() -> void:
 	_key(KEY_4)
 	await frames(2)
 	ok(not m.tools.open, "a mesma tecla guarda a ferramenta (a janela aparece)")
+	# o diário de Maria: a rotina com quanto falta, riscada só no turno encerrado; tarefa nova deixa o lápis em cima dele
+	var task := func(id: String) -> Dictionary:
+		for t: Dictionary in m.diary.tasks:
+			if t.id == id:
+				return t
+		return {}
+	ok(not task.call("fichas").is_empty() and task.call("fichas").state == Main.Diary.State.OPEN, "o diário traz a tarefa das fichas, aberta")
+	ok(m.background.diary_new, "tarefa nova: o lápis atravessado no diário da mesa")
+	_key(KEY_5)
+	await frames(2)
+	ok(m.tools.tab == Tools.DIARY and m.tools.open and not m.background.diary_new, "tecla 5 abre o diário e o lápis sai de cima")
+	ok(m.tools.diary.tasks == m.diary.tasks, "o diário aberto mostra as tarefas da noite")
+	var clock_was := m.minutes
+	m.minutes = m.last_call + 1.0
+	await frames(2)
+	var left: int = m.notebook.pending_count()
+	ok(task.call("fichas").state == (Main.Diary.State.OPEN if left > 0 else Main.Diary.State.DONE) and task.call("fichas").left == left,
+		"no turno encerrado, as fichas se riscam só sem nada por registrar (faltam %d)" % left)
+	m.minutes = clock_was
+	await frames(2)
+	# os pedidos do roteiro (`Night.tasks`): entram pelo marcador, riscados pelo marcador, X no prazo; o de não fazer, no fim
+	var request := func(done: String, until: float, at_close: bool) -> Night.DiaryTask:
+		var dt := Night.DiaryTask.new()
+		dt.text = done
+		dt.requires = ["pediu_teste"]
+		dt.done = [done]
+		dt.until = until
+		dt.at_close = at_close
+		return dt
+	var night_tasks := m.night.tasks
+	m.minutes = 100.0
+	var story_asks: Array[Night.DiaryTask] = [request.call("fez_teste", -1.0, false), request.call("nunca_teste", m.minutes + 1.0, false), request.call("!fez_teste", -1.0, true)]
+	m.night.tasks = story_asks
+	await frames(2)
+	ok(task.call("roteiro_0").is_empty(), "o pedido só entra com o marcador de quem pediu")
+	m.flags.apply("pediu_teste")
+	await frames(2)
+	ok(task.call("roteiro_0").state == Main.Diary.State.OPEN and task.call("roteiro_2").state == Main.Diary.State.OPEN, "pedidos que se contradizem entram os dois")
+	ok(m.diary.tasks[0].id == "roteiro_0", "os pedidos do roteiro vêm antes das normas e da rotina")
+	m.flags.apply("fez_teste")
+	m.minutes += 2.0
+	await frames(2)
+	ok(task.call("roteiro_0").state == Main.Diary.State.DONE, "cumprido pelo marcador: riscado na hora")
+	ok(task.call("roteiro_1").state == Main.Diary.State.FAILED, "prazo vencido sem cumprir: X")
+	ok(task.call("roteiro_2").state == Main.Diary.State.OPEN, "o de não fazer espera o turno encerrado")
+	m.minutes = m.last_call + 1.0
+	await frames(2)
+	ok(task.call("roteiro_2").state == Main.Diary.State.FAILED, "no turno encerrado, o de não fazer descumprido leva X")
+	m.flags.apply("!fez_teste")
+	m.flags.apply("!pediu_teste")
+	m.night.tasks = night_tasks
+	m.diary._story.clear()
+	# as abas dos dias anteriores: a página guardada (`Diary.page`) sem o texto, que volta no idioma de agora
+	# as anotações (`Night.diary`): o fato no fim da ligação do roteiro, com o desfecho dela; o balanço só no fim
+	var note := func(text: String, call: Resource, outcomes: PackedStringArray, at_close: bool) -> Night.DiaryLine:
+		var l := Night.DiaryLine.new()
+		l.text = text
+		l.call = call
+		l.outcomes = outcomes
+		l.at_close = at_close
+		return l
+	var beat := StoryCall.new()
+	var night_notes := m.night.diary
+	var diary_lines: Array[Night.DiaryLine] = [note.call("passou_teste", beat, ["connected"], false), note.call("atendeu_teste", beat, [], false),
+		note.call("balanco_teste", null, [], true)]
+	m.night.diary = diary_lines
+	await frames(2)
+	ok(m.diary.notes.is_empty(), "sem a ligação acabar, nada anotado")
+	m.story_ends[beat] = "dropped"
+	await frames(2)
+	ok(m.diary.notes.size() == 1 and m.diary.notes[0].src == "atendeu_teste", "atendida e cortada: só a linha de qualquer desfecho")
+	ok(m.tools.diary.notes == m.diary.notes, "o diário aberto mostra as anotações")
+	m.ending = true
+	m.diary.refresh()
+	m.ending = false
+	ok(m.diary.notes.size() == 2 and m.diary.notes[1].src == "balanco_teste", "o balanço, com o turno fechando")
+	# a carta lida vai para dentro do diário e abre de lá
+	m.diary.letter = "Maria,\n\ncarta_teste"
+	m.background.letter = true
+	m.background.letter_read = true
+	await frames(2)
+	ok(m.background.letter, "com o diário aberto, a carta ainda não foi guardada")
+	m.tools.close()
+	await frames(2)
+	ok(not m.background.letter and m.tools.diary.letter == m.diary.letter, "lida a carta, ela sai da mesa e fica no diário")
+	var page := m.diary.page()
+	ok(not page.tasks.is_empty() and not page.tasks[0].has("text") and Main.Diary.text_of(page.tasks[0]) == m.diary.tasks[0].text,
+		"a página guardada volta pelo text_of")
+	ok(page.notes.size() == 2 and page.letter == m.diary.letter, "a página guarda as anotações e a carta")
+	m.night.diary = night_notes
+	m.diary.notes.clear()
+	m.diary._written.clear()
+	m.story_ends.erase(beat)
+	m.tools.diary.pages = {m.night_no - 1: page}
+	m.tools.set_tab(Tools.DIARY)
+	await frames(2)
+	var diary_view := m.tools.diary
+	var corner := func(side: int) -> Vector2:   # (o meio da dobra de voltar ou da de avançar)
+		return Vector2(4.0 if side == 0 else diary_view.size.x - 4.0, diary_view.size.y - 4.0)
+	ok(diary_view._corner_at(corner.call(0)) == 0 and diary_view._corner_at(corner.call(1)) == -1,
+		"na noite de hoje, só a dobra de voltar")
+	var hover := InputEventMouseMotion.new()
+	hover.position = corner.call(0)
+	diary_view._gui_input(hover)
+	await frames(30)
+	ok(diary_view._fold[0] == diary_view.FOLD_HOVER, "com o mouse em cima, a dobra dobra mais")
+	var fold_click := InputEventMouseButton.new()
+	fold_click.button_index = MOUSE_BUTTON_LEFT
+	fold_click.pressed = true
+	fold_click.position = corner.call(0)
+	diary_view._gui_input(fold_click)
+	ok(diary_view._at == m.night_no - 1, "a dobra da esquerda volta para a noite anterior")
+	ok(diary_view._corner_at(corner.call(0)) == -1 and diary_view._corner_at(corner.call(1)) == 1, "na primeira, só a de avançar")
+	fold_click.position = corner.call(1)
+	diary_view._gui_input(fold_click)
+	ok(diary_view._at == -1, "a da direita avança até a de hoje")
+	diary_view._gui_input(fold_click)   # (já na de hoje, não há mais para onde avançar)
+	ok(diary_view._at == -1, "na noite de hoje, a de avançar não faz nada")
+	var letter_click := InputEventMouseButton.new()
+	letter_click.button_index = MOUSE_BUTTON_LEFT
+	letter_click.pressed = true
+	letter_click.position = diary_view._letter_rect().get_center()
+	diary_view._gui_input(letter_click)
+	await frames(2)
+	ok(m.tools.tab == Tools.LETTER and m.tools.letter._text == m.diary.letter, "a carta guardada no diário abre no papel de carta")
+	m.tools.letter.today = ""
+	m.tools.close()
+	await frames(20)
+	ok(m.tools.letter._text == "", "fechada, a carta volta a ser a desta noite")
+	m.tools.diary.letter = ""
+	m.tools.set_tab(Tools.DIARY)
+	await frames(2)
+	diary_view._at = m.night_no - 1
+	m.tools.close()
+	await frames(12)
+	m.tools.set_tab(Tools.DIARY)
+	await frames(2)
+	ok(m.tools.diary._at == -1, "o diário reabre na noite de hoje")
+	m.tools.close()
+	m.tools.diary.pages = {}
+	await frames(12)
+	m.minutes = clock_was
+	await frames(2)
+	m.tools.close()
 	await frames(2)   # o cenário se redesenha e guarda onde ficou cada objeto
-	for id in [Tools.DIRECTORY, Tools.DISPATCH, Tools.LOGBOOK, Tools.CALL_LOG]:   # objetos da cena abrem as ferramentas
+	for id in [Tools.DIRECTORY, Tools.DISPATCH, Tools.LOGBOOK, Tools.CALL_LOG, Tools.DIARY]:   # objetos da cena abrem as ferramentas
 		m.tools.close()
 		await frames(12)
 		var pe := InputEventMouseButton.new()
@@ -1217,16 +1361,46 @@ func _initialize() -> void:
 		m.background.pointer(pe)
 		ok(m.tools.open and m.tools.tab == id, "o objeto da cena abre " + id)
 	m.tools.close()
-	# o jornal da manhã na mesa (da segunda noite em diante), com as manchetes da noite anterior
+	# o jornal da manhã pregado no quadro de avisos (da segunda noite em diante, com as manchetes da noite anterior):
+	# sob o mouse ele se ergue, como os objetos da mesa; o clique nele o abre, e o quadro em si não é de clicar
 	m.set_news([{"outcome": 0, "template": GameData.CONTENT.news_ok[0], "occurrence": "Outro", "address": "Rua do Sol, 10"}])
 	await frames(3)
-	var pj := InputEventMouseButton.new()
-	pj.button_index = MOUSE_BUTTON_LEFT
-	pj.pressed = false
+	var pj := InputEventMouseMotion.new()
 	pj.position = (m.background._props[Tools.NEWS] as Rect2).get_center()
 	m.background.pointer(pj)
-	ok(m.tools.open and m.tools.tab == Tools.NEWS, "o jornal na mesa abre")
-	ok(m.background.news_read, "lido, ele volta à mesa dobrado de outro jeito")
+	await frames(3)
+	ok(m.background._up_id == Tools.NEWS, "o jornal, pregado no quadro, se ergue sob o mouse")
+	var pn := InputEventMouseButton.new()
+	pn.button_index = MOUSE_BUTTON_LEFT
+	pn.pressed = false
+	pn.position = pj.position
+	ok(m.background.prop_at(pn.position) == Tools.NEWS and m.background.pointer(pn), "o clique no jornal pregado")
+	ok(m.tools.open and m.tools.tab == Tools.NEWS, "abre o jornal")
+	var board_r: Rect2 = m.background._board
+	var empty := board_r.position + Vector2(board_r.size.x / 2.0, board_r.size.y - Background.BOARD_FRAME - 3.0)   # (a cortiça entre a beira de baixo e os papéis)
+	ok(m.background.prop_at(empty) == "", "a cortiça do quadro não é de clicar")
+	# o recado do supervisor pregado: clicado, vem de perto sem os botões (`Intro.reread`); o Esc o devolve ao quadro.
+	# Um panfleto: sob o mouse se ergue, com o nome na etiqueta, e não abre nada
+	m.tools.close()
+	pn.position = (m.background._props[Background.NOTE_ID] as Rect2).get_center()
+	ok(m.background.prop_at(pn.position) == Background.NOTE_ID and m.background.pointer(pn), "o clique no recado do supervisor")
+	ok(m._intro.reading and m._intro.visible and not m._intro.get_node("%Bottom").visible, "o recado vem de perto, sem os botões")
+	var ke := InputEventKey.new()
+	ke.keycode = KEY_ESCAPE
+	ke.physical_keycode = KEY_ESCAPE
+	ke.pressed = true
+	m._unhandled_input(ke)
+	await frames(30)
+	ok(not m._intro.reading and not m._intro.visible and not get_tree().paused, "o Esc devolve o recado ao quadro (sem pausar)")
+	m.background.details = PackedStringArray(["aviso_184"])
+	await frames(3)
+	pj.position = (m.background._props["aviso_184"] as Rect2).get_center()
+	m.background.pointer(pj)
+	await frames(3)
+	ok(m.background._up_id == "aviso_184" and not m.background.pointing(), "o panfleto se ergue e não abre nada")
+	pj.position = empty
+	m.background.pointer(pj)
+	m.tools.set_tab(Tools.NEWS)
 	var text_of := func(): return m.tools.news.get_node("Page/Text/Lead").text + m.tools.news.get_node("Page/Text/Headlines").text
 	ok(text_of.call().contains("Rua do Sol"), "o jornal traz as manchetes da noite anterior")
 	var paper: Night = GameData.CONTENT.nights[8]   # (a noite 9: o toque de recolher sai sempre)
@@ -1248,16 +1422,11 @@ func _initialize() -> void:
 	room.pointer(pb)
 	await wait_until(func() -> bool: return room._shut == 0.0, 10.0)
 	ok(not room._glass.is_empty(), "clicada de novo, ela sobe")
-	# a caneca: cada clique, um gole, até acabar o café; o armário: o clique abre e fecha a porta
+	# a caneca: cada clique, um gole, até acabar o café
 	pb.position = (room._props[Background.MUG_ID] as Rect2).get_center()
 	for i in Background.MUG_SIPS + 2:
 		room.pointer(pb)
 	ok(room.sips == Background.MUG_SIPS, "a caneca dá %d goles e acaba" % Background.MUG_SIPS)
-	var cab := room._props[Background.CABINET_ID] as Rect2
-	pb.position = cab.position + Vector2(cab.size.x / 2.0, 30.0)
-	ok(room.prop_at(pb.position) == Background.CABINET_ID and room.pointer(pb) and room.cab_open, "o clique no armário abre a porta")
-	room.pointer(pb)
-	ok(not room.cab_open, "e outro a fecha")
 	# a sala muda pelos marcadores do roteiro, a partir da noite de cada mudança
 	for r in GameData.CONTENT.room:
 		ok(r.detail in Background.DETAILS, "detalhe da sala conhecido: " + r.detail)
@@ -1705,6 +1874,13 @@ func _initialize() -> void:
 	m.background.scene_at.erase("banner")
 	m.night = was_n
 	m.night_no = was_night
+	# o fim do turno: o diário abre sozinho, acaba de riscar e fecha antes do memorando
+	m.minutes = m.last_call + 1.0
+	m.tools.close()
+	m.start_ending()
+	ok(await wait_until(func(): return m.tools.open and m.tools.tab == Tools.DIARY, 5.0), "no fim do turno, o diário abre sozinho")
+	ok(m.diary.tasks.all(func(t: Dictionary) -> bool: return t.state != Main.Diary.State.OPEN), "turno encerrado: nenhuma tarefa ficou aberta")
+	ok(await wait_until(func(): return not m.tools.open, Main.DIARY_WAIT + Main.DIARY_HOLD + 2.0), "e fecha antes do memorando")
 	finish("fluxo da central")
 
 

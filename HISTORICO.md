@@ -25,7 +25,7 @@ Chaves:
 - `#conteudo` roteiros e moldes · `#conversa` conversa fiada e o andamento das falas · `#voz` vozes · `#som`
 - `#idiomas` · `#desempenho` · `#debug` · `#testes` · `#codigo` estrutura do código
 - `#burocracias` as normas do supervisor e das autoridades (identificação, bloqueios, códigos, fitas)
-- `#recompensas` os broches ganhos pelas noites
+- `#recompensas` os broches ganhos pelas noites · `#diario` o diário de Maria e o quadro de avisos
 - `#saiu` algo testado ou feito que saiu a pedido: confira antes de propor de novo
 
 1. #mesa-comutadora #cabos
@@ -3488,3 +3488,75 @@ Chaves:
     fenda balança enquanto ninguém o pega (`TIP_SWAY_SEC`). Captura: `tools/shot.gd --logs=3`.
     #saiu: a lâmpada da linha pulsando até a ficha ser registrada e o contador do calculógrafo pulsando até o bilhete
     ir para a caixinha (a mesa não sabe do caderno nem do carimbo, e a lâmpada da linha serve à próxima ligação).
+564. #diario #objetos #ferramentas #caderno #jornal #sala Mesmo com o papel pulsando (o item 563), o jogador ia esquecer:
+    o usuário propôs o **diário de Maria**, que reúne tudo o que pede ação na noite (pedidos de Sebastião e das
+    autoridades, normas, missões, registros, bilhetes, fitas), e um **quadro de avisos** no lugar do armário (o plano,
+    com as respostas, no artefato "Diário de Maria"). Página dupla, como a lista: à esquerda as tarefas, riscadas a
+    lápis quando cumpridas (as normas e a rotina só no turno encerrado, quando aparece o botão Encerrar turno: até lá
+    pode chegar mais uma), com X a que não dá mais; à direita as anotações de Maria sobre as decisões dela. O diário
+    fica no lugar do jornal; o armário vira um gaveteiro baixo decorativo, com o guarda-chuva encostado, e o quadro
+    preso na parede com a folhinha, o jornal, o bilhete do supervisor (o mesmo da abertura, que ganha o visual do jogo)
+    e os panfletos (o da quermesse e outros eventos). Das sugestões, aprovadas: a rotina com quanto falta, a lápis; o
+    lápis atravessado no diário da mesa quando entra tarefa nova; o diário abre sozinho no fim, antes do memorando; a
+    Cecília dá o diário de presente no treinamento; a tecla 5; a carta lida guardada entre as páginas; X sem pontos (o
+    diário só ajuda a contar a história). A última página antes do "Fim" ficou para o usuário decidir com exemplos.
+    Etapa 1 (`Diary`, `diary_view.gd`, `Tools.DIARY`, `BureaucracyRule.task_text`): o objeto no lugar do jornal, um
+    caderno de capa de pano vinho menor que ele, com o jornal embaixo aparecendo atrás até o quadro existir
+    (`NEWS_UNDER`); a página dupla; as normas e a rotina (fichas, bilhetes depois do primeiro, fitas com a B4).
+    Etapa 2 (`Night.tasks`, `DiaryTask`, `Diary._story_tasks`): os pedidos do roteiro, das noites 3, 4, 8, 9, 10, 12
+    e 15, entram pelo marcador de quem pediu (os da carta, depois de lida) e ficam; riscados na hora pelo marcador,
+    com X no prazo vencido; os de não fazer (`at_close`) só no turno encerrado; os que se contradizem entram os dois
+    (na 9, o de Sebastião e o do supervisor; na 15, a carta e o bilhete). A 7 não tem pedido de ninguém (avisar o bar
+    é ideia de Maria); a das fitas é a norma B4. As frases curtas, de anotação; as que não cabem seguem na página da
+    direita, e as anotações descem.
+    O usuário lembrou: tarefas e anotações entram por demanda, nada no diário antes de alguém avisar (a das fichas
+    passou a entrar com a primeira ligação por registrar, como os bilhetes). Etapa 3a: a página de cada noite fica no
+    save (`Progress.diary`, `Diary.page`, sem o texto traduzido: `Diary.text_of`), com uma aba por noite que passou na
+    borda do diário (o dia do mês; o diário reabre sempre na de hoje; saíram, veja abaixo), e no fim do turno o diário abre sozinho, acaba de
+    escrever e riscar e fecha antes do memorando (`Main.DIARY_WAIT`, `DIARY_HOLD`; não no fim do jogo).
+    #saiu As abas dos dias saíram a pedido: no lugar, os cantos de baixo dobrados (`_draw_fold`, pixel a pixel: a ponta
+    virada e a folha de baixo), o da esquerda volta e o da direita avança, cada um só quando há página para o lado
+    dele, e dobram mais com o mouse em cima (`FOLD`, `FOLD_HOVER`).
+    A pedido, a dobra parada maior (16 px, 24 com o mouse) e mais realista: a ponta em degradê, clara na ponta, com a beira
+    da folha em tom de papel (em tinta, fechava um quadrado), a folha de baixo escura junto do vinco e a sombra macia.
+    Etapa 3b: as anotações de Maria na página da direita (`Night.diary`, `DiaryLine`), na primeira pessoa, escritas quando
+    acontece o fato: o fim de uma ligação do roteiro com o desfecho dela (`call`, `outcomes`; `Main.story_ends`), os
+    marcadores, a carta lida; o balanço da noite com o turno fechando (`at_close`). Treinamento e noites 1 a 15, pt, en e
+    es (o epílogo não tem). Cada anotação é um parágrafo (só a primeira linha recuada). A carta lida sai da mesa e fica
+    guardada no diário, a ponta para fora no alto da página da direita; o clique abre (as das noites que passaram também,
+    no save). No treinamento, a Cecília dá o diário de presente e pede para abrir (`LessonStep.until` "diary",
+    `diario_cecilia`, a primeira anotação).
+    A sugestão 7 do plano, aprovada com melhora: no fim do jogo (o epílogo, e a presa depois da cena da prisão), o diário
+    abre sozinho na última página antes do "Fim", segurado mais tempo (`DIARY_HOLD` × 3), com uma linha por final
+    (`at_close` no `night_16`, a da presa no `night_15`). A vitória amarga pela causa, de algo que o jogador viu: as
+    crianças do Alto (a paróquia esquecida), a fita que levou gente presa, ou a página de nomes do jornal; o rapaz ferido
+    da 15 saiu a pedido (sem roteiro, ninguém lembra dele). `shot.gd --ending`.
+    Etapa 4 (gaveteiro e quadro): o armário alto de aço virou um gaveteiro baixo, decorativo, da mesma largura (três
+    gavetas de arquivo com o ano no porta-etiqueta; não abre: o clique, o som da porta e os detalhes `numero_anotado` e
+    `armario_entreaberto`, sem uso, saíram), com o guarda-chuva encostado na quina (na frente, a unidade de despacho o
+    tapava todo; a poça fica atrás da mesa); em cima, na parede, o quadro de avisos de cortiça com moldura de madeira
+    (`Tools.BOARD`, "Quadro de avisos"), que não se ergue e abre de perto (`board_view.gd`) com o jornal da manhã
+    pregado: o clique no jornal o abre, e ele volta para o quadro. O jornal saiu da mesa. A folhinha e o cartaz ficam
+    onde estavam (vão para o quadro na etapa 5).
+    Correções do usuário: o quadro contém o jornal, a folhinha e o cartaz da quermesse (saíram da parede), mais largo
+    (da beira do gaveteiro até perto da quina, `BOARD_W`, `CORNER_GAP`) e mais alto (`BOARD_TOP`/`BOTTOM`); o quadro
+    não é de clicar, os itens nele sim (o jornal abre direto; a vista de perto do quadro, `Tools.BOARD`, saiu); a
+    etiqueta do que está no alto dele vai embaixo do item; e, na névoa, a parede
+    do fundo ficava enevoada e a da janela não: o brilho da noite pela janela (`_draw_window_glow`) não entra mais na
+    névoa (era 1,2× o do céu limpo).
+565. #objetos #cabos #jornal #saiu Sob o mouse, o jornal pregado no quadro de avisos se ergue 2 px como os objetos da
+    mesa (a sombra fica na cortiça; `_news_at`, desenhado de novo na camada `_lifted`); e o plug sob o mouse também: sai
+    2 px do buraco ou da tomada no tempo do `Lift` (`Switchboard._rise`, `_rise_e`) e assenta quando o mouse sai. O
+    contorno amarelo dele (`Pal.GLOW` na silhueta), que tinha ficado de fora do item 174, saiu. Captura: `shot.gd --plug=N`.
+566. #diario #sala #objetos #interface #jornal Etapa 5 do plano do diário, o quadro completo (respostas do usuário no
+    artefato: o bilhete "nos dois", na abertura e no quadro, com a mesma interface, renovada no visual do jogo; o
+    panfleto é o da quermesse, e outros eventos podem surgir no mural). O recado do supervisor virou um bilhete no papel
+    timbrado do memorando (`SupervisorNote`: o fone e o nome em vermelho, o fio duplo, a noite datilografada, o recado à
+    mão, a rubrica, as fibras, `ReportView.fibers`, e a tachinha no alto), o mesmo na abertura (com os botões) e pregado
+    no quadro, de onde o clique o traz de perto sem os botões (`Intro.reread`; o clique ou o Esc o devolvem,
+    `put_back`). Avisos que entram e saem pelas noites (`RoomChange.to_night`, `data/room/`), só os que a companhia ou
+    as autoridades mandariam (na central só entram Maria e o supervisor; o cachorro perdido, o curso de datilografia e
+    a vacinação saíram a pedido, por não fazerem sentido ali): a circular do sigilo das ligações (1–3), as tarifas
+    interurbanas novas (3–8), o aviso da delegacia, conversa suspeita ao 184 (4–10, o recado da noite 4) e o edital do
+    toque de recolher (9–14, o 21H), até dois por noite embaixo do jornal; sob o mouse se erguem com o nome na etiqueta, sem
+    abrir nada. A folhinha segue com a orelha na rajada. Captura: `shot.gd --screen=note`.

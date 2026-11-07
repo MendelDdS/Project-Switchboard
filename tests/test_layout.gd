@@ -7,7 +7,7 @@ extends "res://tests/test_base.gd"
 
 const WIDTHS := [960, 1125, 1281]   # o jogo é sempre 960 (`GameView`); as outras, o `main.tscn` sozinho numa janela larga
 const TOGETHER := [["relogio", "caneca"]]   # os que se encostam de propósito
-const WANT := [Tools.DIRECTORY, Tools.DISPATCH, Tools.LOGBOOK, Tools.CALL_LOG, Tools.NEWS, Tools.TOLL, "relogio", "caneca"]
+const WANT := [Tools.DIRECTORY, Tools.DISPATCH, Tools.LOGBOOK, Tools.CALL_LOG, Tools.DIARY, Tools.TOLL, "relogio", "caneca"]
 
 
 func _initialize() -> void:
@@ -48,6 +48,23 @@ func _initialize() -> void:
 					for p in q:
 						where = where.expand(p)
 				ok(area < 1.0, "%d px: %s e %s se sobrepõem na tela (%.0f px², em %s)" % [w, a, b, area, where])
+		# na parede, o quadro de avisos com folga da quina (a janela), do gaveteiro embaixo e da mesa comutadora; o que está
+		# pregado nele (o jornal, o recado, o cartaz, os panfletos, no máximo dois) e a folhinha dentro dele, sem um tapar o outro
+		var qb: Rect2 = bg._board
+		ok(qb.end.x + 4.0 <= bg._qx * 2.0 and qb.end.y + 4.0 <= bg._cab[0].position.y * 2.0
+			and qb.position.x >= (m.board.global_position.x + m.board.size.x - bg.global_position.x) + 4.0,
+			"%d px: o quadro de avisos encosta na quina, no gaveteiro ou na mesa comutadora (%s)" % [w, qb])
+		bg.details = PackedStringArray(Background.DETAILS)
+		await frames(3)
+		var pinned: Array[Rect2] = [bg._props[Background.CALENDAR]]
+		for id: String in bg._pinned:
+			pinned.append(bg._pinned[id])
+		ok(bg._pinned.size() == 5 and bg._pinned.has(Tools.NEWS) and bg._pinned.has(Background.NOTE_ID),
+			"%d px: no quadro, o jornal, o recado, o cartaz e dois panfletos (%s)" % [w, bg._pinned.keys()])
+		for i in pinned.size():
+			ok(qb.grow(-Background.BOARD_FRAME).encloses(pinned[i]), "%d px: o papel %d sai do quadro (%s em %s)" % [w, i, pinned[i], qb])
+			for j in range(i + 1, pinned.size()):
+				ok(not pinned[i].grow(1).intersects(pinned[j]), "%d px: os papéis %d e %d se tapam no quadro" % [w, i, j])
 		# os broches (`badges.gd`) e o discador (`dialer.gd`) na prateleira: a almofada folgada do tampo dos equipamentos e
 		# do discador, e o discador do fim dela
 		var sb: Switchboard = m.board

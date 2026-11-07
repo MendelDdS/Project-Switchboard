@@ -5252,6 +5252,22 @@ msgid "Hahaha!"
 msgstr "Hahaha!"
 
 #: data/nights/night_01.tres
+msgid "Um homem pediu o Bar do Zé e agradeceu: \"Obrigado, Maria.\" Eu nunca disse o meu nome."
+msgstr "A man asked for the Bar do Zé and said: \"Thank you, Maria.\" I never told him my name."
+
+#: data/nights/night_01.tres
+msgid "Um homem pediu o Bar do Zé. Não passei."
+msgstr "A man asked for the Bar do Zé. I didn't put him through."
+
+#: data/nights/night_01.tres
+msgid "Um menino perguntou se eu tinha geladeira. Caí feito uma boba."
+msgstr "A boy asked if I had a fridge. I fell for it like a fool."
+
+#: data/nights/night_01.tres
+msgid "Primeira noite sozinha na mesa. As mãos tremeram no começo, depois passou."
+msgstr "First night alone at the board. My hands shook at first, then it passed."
+
+#: data/nights/night_01.tres
 msgid "Amanhã tem quermesse na praça, a senhora vai?"
 msgstr "There's a church fair on the square tomorrow, are you going?"
 
@@ -5434,6 +5450,26 @@ msgstr "And what did you tell them?"
 #: data/calls/noite_02_panfleto.tres
 msgid "Que aqui só dorme caixeiro-viajante. E é verdade."
 msgstr "That only travelling salesmen sleep here. And it's true."
+
+#: data/nights/night_02.tres
+msgid "O homem do bar de novo. Me chamou de Maria. Passei."
+msgstr "The bar man again. He called me Maria. I put him through."
+
+#: data/nights/night_02.tres
+msgid "Ele pediu o bar três vezes. Nas três, não passei."
+msgstr "He asked for the bar three times. All three times, I didn't put him through."
+
+#: data/nights/night_02.tres
+msgid "Um rapaz ofereceu uma música na rádio pra moça de fita amarela. Nem o nome dela ele sabe."
+msgstr "A young man dedicated a song on the radio to the girl with the yellow ribbon. He doesn't even know her name."
+
+#: data/nights/night_02.tres
+msgid "Não sei quem é esse homem. Ele sabe quem eu sou."
+msgstr "I don't know who this man is. He knows who I am."
+
+#: data/nights/night_02.tres
+msgid "Ele disse que era urgente. Fiz bem em não passar? Não sei."
+msgstr "He said it was urgent. Was I right not to put him through? I don't know."
 
 #: data/nights/night_02.tres
 msgid "Disseram que a senhora ia na quermesse hoje à tarde e não apareceu, hein!"
@@ -5694,6 +5730,46 @@ msgstr "The bit where the sheriff arrests the governor. Now it makes no sense at
 #: data/calls/noite_03_nome.tres
 msgid "Jair Monteiro. Anota aí, já que agora é obrigado."
 msgstr "Jair Monteiro. Write it down, since it's compulsory now."
+
+#: data/nights/night_03.tres
+msgid "Ligar para o Bar do Zé (327) pelo discador"
+msgstr "Call Bar do Zé (327) on the dialer"
+
+#: data/nights/night_03.tres
+msgid "A Cecília ligou: prenderam gente no Centro. Pediu cuidado com o que eu escuto e repito."
+msgstr "Cecília called: people were arrested in the Centro. She told me to be careful with what I hear and repeat."
+
+#: data/nights/night_03.tres
+msgid "A moça da fita amarela se chama Generosa. Deixou o número pro rapaz da rádio: 384."
+msgstr "The girl with the yellow ribbon is called Generosa. She left her number for the radio boy: 384."
+
+#: data/nights/night_03.tres
+msgid "O rapaz da rádio é o Otávio. Dei o número da Generosa, e ele escreveu na mão."
+msgstr "The radio boy is Otávio. I gave him Generosa's number, and he wrote it on his hand."
+
+#: data/nights/night_03.tres
+msgid "O rapaz da rádio perguntou se tinha recado. Disse que não."
+msgstr "The radio boy asked if there was a message. I said no."
+
+#: data/nights/night_03.tres
+msgid "O menino do trote de novo. Agora eu sou a Rainha da Inglaterra."
+msgstr "The prank boy again. Now I'm the Queen of England."
+
+#: data/nights/night_03.tres
+msgid "A Cecília de novo: alguém no Bar do Zé quer falar comigo. Pelo discador, não pela mesa."
+msgstr "Cecília again: someone at the Bar do Zé wants to talk to me. On the dialer, not through the board."
+
+#: data/nights/night_03.tres
+msgid "Liguei pro bar. Amanhã, às oito e meia, digo ao hotel: \"A semente brotou.\""
+msgstr "I called the bar. Tomorrow at half past eight, I tell the hotel: \"The seed has sprouted.\""
+
+#: data/nights/night_03.tres
+msgid "Alguém que me conhece desde criança. Quem?"
+msgstr "Someone who has known me since I was a child. Who?"
+
+#: data/nights/night_03.tres
+msgid "A cidade está nervosa. Eu também."
+msgstr "The city is on edge. So am I."
 
 #: data/nights/night_03.tres
 msgid "Telefônica vai exigir o nome de quem liga\nA partir de hoje, a Companhia Telefônica de São Sotero só completa a ligação de quem disser nome e sobrenome à telefonista. A diretoria fala em \"segurança de todos\" e pede a compreensão dos assinantes."
@@ -6160,6 +6236,46 @@ msgid "Já estou fechando. Aqui só tem graxa e parafuso."
 msgstr "I'm closing already. All I've got here is grease and screws."
 
 #: data/nights/night_04.tres
+msgid "Dizer a senha ao Hotel Serena (305) às 20:30"
+msgstr "Give the password to Hotel Serena (305) at 8:30"
+
+#: data/nights/night_04.tres
+msgid "Comunicar à delegacia (184) conversa suspeita"
+msgstr "Report suspicious talk to the police (184)"
+
+#: data/nights/night_04.tres
+msgid "Às oito e meia, disse a senha ao hotel."
+msgstr "At half past eight, I gave the hotel the password."
+
+#: data/nights/night_04.tres
+msgid "Contei à delegacia a conversa do bar."
+msgstr "I told the police station about the bar conversation."
+
+#: data/nights/night_04.tres
+msgid "Atiraram num homem no meio da rua."
+msgstr "They shot a man in the middle of the street."
+
+#: data/nights/night_04.tres
+msgid "Jogaram uma bomba numa loja de tecidos."
+msgstr "Someone threw a bomb into a fabric shop."
+
+#: data/nights/night_04.tres
+msgid "Um senhor perguntou à rádio o que explodiu. Nem a rádio pode dizer."
+msgstr "A man asked the radio what blew up. Not even the radio is allowed to say."
+
+#: data/nights/night_04.tres
+msgid "Bomba, tiro, e eu dizendo senha pra hotel. Que noite."
+msgstr "Bombs, gunshots, and me giving passwords to a hotel. What a night."
+
+#: data/nights/night_04.tres
+msgid "Fiz o que a regra manda. Por que não me sinto melhor?"
+msgstr "I did what the rules say. Why don't I feel better?"
+
+#: data/nights/night_04.tres
+msgid "Bomba e tiro a noite inteira. E eu aqui, passando ligação."
+msgstr "Bombs and gunshots all night. And me here, putting calls through."
+
+#: data/nights/night_04.tres
 msgid "Caixas como as que sumiram do paiol."
 msgstr "Crates like the ones missing from the store."
 
@@ -6454,6 +6570,22 @@ msgstr "Then where is he?"
 #: data/calls/noite_05_parente.tres
 msgid "Procure amanhã de dia. De noite não damos informação."
 msgstr "Come back tomorrow in daylight. We give no information at night."
+
+#: data/nights/night_05.tres
+msgid "A Cecília contou: o homem do bar se chama Sebastião. Diz que posso confiar nele."
+msgstr "Cecília told me: the bar man is called Sebastião. She says I can trust him."
+
+#: data/nights/night_05.tres
+msgid "O Sebastião conheceu o meu pai. Levaram o pai dele na mesma noite."
+msgstr "Sebastião knew my father. They took his father the same night."
+
+#: data/nights/night_05.tres
+msgid "O Otávio e a Generosa conversaram até a ficha acabar. Agora ele quer levar ela ao cinema."
+msgstr "Otávio and Generosa talked until the token ran out. Now he wants to take her to the movies."
+
+#: data/nights/night_05.tres
+msgid "Eu tinha oito anos. Hoje alguém falou o nome do meu pai em voz alta."
+msgstr "I was eight. Today someone said my father's name out loud."
 
 #: data/nights/night_05.tres
 msgid "Viatura no Centro, na manhã de ontem."
@@ -6920,6 +7052,30 @@ msgid "E não passe pela praça."
 msgstr "And don't go through the square."
 
 #: data/nights/night_06.tres
+msgid "O Sebastião: quem pedir o bar e estalar os dedos três vezes, eu passo pro hotel."
+msgstr "Sebastião: whoever asks for the bar and snaps their fingers three times, I put through to the hotel."
+
+#: data/nights/night_06.tres
+msgid "Ouvi os três estalos e passei pro hotel. Funcionou."
+msgstr "I heard the three snaps and put him through to the hotel. It worked."
+
+#: data/nights/night_06.tres
+msgid "O menino do trote se chama Miguel. Gosta de ligar aqui."
+msgstr "The prank boy is called Miguel. He likes calling here."
+
+#: data/nights/night_06.tres
+msgid "A Generosa e o Otávio foram ao cinema. Nenhum dos dois viu o filme."
+msgstr "Generosa and Otávio went to the movies. Neither of them watched the film."
+
+#: data/nights/night_06.tres
+msgid "A Generosa perguntou do rapaz da rádio. Não tive coragem de contar."
+msgstr "Generosa asked about the radio boy. I didn't have the heart to tell her."
+
+#: data/nights/night_06.tres
+msgid "Estalo de dedo. Parece brincadeira de criança, mas não é."
+msgstr "Finger snaps. It sounds like a children's game, but it isn't."
+
+#: data/nights/night_06.tres
 msgid "A rua do Bar do Zé, sem telefone desde ontem."
 msgstr "Bar do Zé's street, without a phone since yesterday."
 
@@ -7340,6 +7496,22 @@ msgid "Ninguém mais. Só ele, no chão."
 msgstr "No one else. Just him, on the ground."
 
 #: data/nights/night_07.tres
+msgid "Liguei pro bar e avisei: agora a mesa grava as conversas."
+msgstr "I called the bar and warned them: the board records the calls now."
+
+#: data/nights/night_07.tres
+msgid "A professora leu a redação do Miguel pra turma. O irmão dele anda estranho."
+msgstr "The teacher read Miguel's essay to the class. His brother has been acting strange."
+
+#: data/nights/night_07.tres
+msgid "Ninguém me pediu. Avisei o bar por minha conta."
+msgstr "Nobody asked me to. I warned the bar on my own."
+
+#: data/nights/night_07.tres
+msgid "A fita roda, e eu fico pensando em quem vai ouvir."
+msgstr "The tape turns, and I keep wondering who will listen to it."
+
+#: data/nights/night_07.tres
 msgid "A barreira na saída da praça."
 msgstr "The barrier at the edge of the square."
 
@@ -7750,6 +7922,38 @@ msgstr "Can I bring a blanket? Some food?"
 #: data/calls/noite_08_parente.tres
 msgid "Não. E não ligue mais pra cá, senhora."
 msgstr "No. And don't call here again, ma'am."
+
+#: data/nights/night_08.tres
+msgid "Ligar para o São Lucas (213): Enfermeira Joana"
+msgstr "Call São Lucas (213): Nurse Joana"
+
+#: data/nights/night_08.tres
+msgid "O Sebastião pediu: ligar pro São Lucas e dizer à Enfermeira Joana que a ala 3C precisa de suprimentos."
+msgstr "Sebastião asked me: call São Lucas and tell Nurse Joana that ward 3C needs supplies."
+
+#: data/nights/night_08.tres
+msgid "Dei o recado à Joana."
+msgstr "I gave Joana the message."
+
+#: data/nights/night_08.tres
+msgid "Liguei pro hotel e avisei que as autoridades estão de olho."
+msgstr "I called the hotel and warned them the authorities are watching."
+
+#: data/nights/night_08.tres
+msgid "O Miguel me contou um segredo: o irmão dele está com os rebeldes."
+msgstr "Miguel told me a secret: his brother is with the rebels."
+
+#: data/nights/night_08.tres
+msgid "O Otávio deu um beijo na Generosa. Amanhã ele vai à praça."
+msgstr "Otávio kissed Generosa. Tomorrow he's going to the square."
+
+#: data/nights/night_08.tres
+msgid "Tem gente que vai dormir melhor hoje. Foi o que ele disse."
+msgstr "Some people will sleep better tonight. That's what he said."
+
+#: data/nights/night_08.tres
+msgid "O recado da Joana ficou sem dar. Penso na ala 3C."
+msgstr "Joana never got the message. I keep thinking about ward 3C."
 
 #: data/nights/night_08.tres
 msgid "Polícia apreende armas em armazém\nDoze caixas de armas foram encontradas nesta madrugada no fundo de um armazém do Alto da Serra, escondidas sob sacos de café. A polícia agradece a colaboração de cidadãos."
@@ -8204,6 +8408,42 @@ msgid "Aí você vê o filme na delegacia. Vá direto pra casa."
 msgstr "Then you'll be watching the film at the police station. Go straight home."
 
 #: data/nights/night_09.tres
+msgid "Não passar a delegacia nem a Alta Cúpula"
+msgstr "Don't put through the police or the High Command"
+
+#: data/nights/night_09.tres
+msgid "Passar as autoridades, como manda o supervisor"
+msgstr "Put the authorities through, as the supervisor says"
+
+#: data/nights/night_09.tres
+msgid "O Sebastião: hoje nenhuma ligação pra delegacia ou pra Alta Cúpula pode passar pela mesa."
+msgstr "Sebastião: tonight no call to the police station or to the High Command can go through the board."
+
+#: data/nights/night_09.tres
+msgid "A polícia pediu a delegacia. Passei."
+msgstr "The police asked for the station. I put them through."
+
+#: data/nights/night_09.tres
+msgid "A polícia pediu a delegacia. Não passei."
+msgstr "The police asked for the station. I didn't put them through."
+
+#: data/nights/night_09.tres
+msgid "A polícia chamou, e eu deixei tocar."
+msgstr "The police called, and I let it ring."
+
+#: data/nights/night_09.tres
+msgid "Briga na rua por causa da rádio. Uns gritavam viva, outros batiam."
+msgstr "A fight in the street over the radio. Some cheered, others threw punches."
+
+#: data/nights/night_09.tres
+msgid "Fiz o que ele pediu. Espero que valha alguma coisa."
+msgstr "I did what he asked. I hope it's worth something."
+
+#: data/nights/night_09.tres
+msgid "Não fiz o que ele pediu. Não sei se quero ficar do lado deles."
+msgstr "I didn't do what he asked. I don't know if I want to be on their side."
+
+#: data/nights/night_09.tres
 msgid "Rua do Centro às nove e cinco."
 msgstr "A downtown street at five past nine."
 
@@ -8584,6 +8824,34 @@ msgid "Ninguém... só o meu filho."
 msgstr "No one... just my son."
 
 #: data/nights/night_10.tres
+msgid "Pedir à Casa Paroquial (120) abrigo para as famílias"
+msgstr "Ask the Parish House (120) to shelter the families"
+
+#: data/nights/night_10.tres
+msgid "Descobrir onde está o Otávio, para a Generosa"
+msgstr "Find out where Otávio is, for Generosa"
+
+#: data/nights/night_10.tres
+msgid "A Cecília vai embora de São Sotero. Pediu abrigo na Casa Paroquial pras famílias do Alto."
+msgstr "Cecília is leaving São Sotero. She asked me to get the Casa Paroquial to shelter the families from the Alto."
+
+#: data/nights/night_10.tres
+msgid "Liguei pro 120 e pedi abrigo pelas famílias do Alto."
+msgstr "I called 120 and asked for shelter for the families from the Alto."
+
+#: data/nights/night_10.tres
+msgid "O Otávio sumiu desde a praça. A Generosa não sabe mais pra quem ligar."
+msgstr "Otávio has been missing since the square. Generosa doesn't know who else to call."
+
+#: data/nights/night_10.tres
+msgid "O Otávio está no São Lucas, na ala 3C. Machucado, mas vivo."
+msgstr "Otávio is at São Lucas, in ward 3C. Hurt, but alive."
+
+#: data/nights/night_10.tres
+msgid "A Cecília disse que a mesa fica em boas mãos. Tomara que esteja certa."
+msgstr "Cecília said the board is in good hands. I hope she's right."
+
+#: data/nights/night_10.tres
 msgid "Rádio Serena fora do controle por três horas\nNa noite de ontem, a Rádio Serena transmitiu uma mensagem da resistência e tocou a \"Canção da Madrugada\", proibida há anos. A Alta Cúpula diz que os responsáveis já foram identificados."
 msgstr "Rádio Serena out of control for three hours\nLast night, Rádio Serena broadcast a message from the resistance and played the \"Canção da Madrugada\", banned for years. The High Command says those responsible have already been identified."
 
@@ -8806,6 +9074,22 @@ msgstr "I've got their birth certificates. I'm their grandmother!"
 #: data/calls/noite_11_parente.tres
 msgid "Venha amanhã cedo. Eu escrevo ao bispo."
 msgstr "Come early tomorrow. I'll write to the bishop."
+
+#: data/nights/night_11.tres
+msgid "Carta do Sebastião. Diz que o telefone já não é seguro."
+msgstr "A letter from Sebastião. He says the telephone isn't safe anymore."
+
+#: data/nights/night_11.tres
+msgid "O Sebastião viu o jornal. Levaram as crianças. Era uma ligação só, ele disse."
+msgstr "Sebastião saw the paper. They took the children. It was just one call, he said."
+
+#: data/nights/night_11.tres
+msgid "Não consigo tirar as crianças da cabeça."
+msgstr "I can't get the children out of my head."
+
+#: data/nights/night_11.tres
+msgid "As famílias saíram a tempo. O jornal diz que a paróquia nega tudo."
+msgstr "The families got out in time. The paper says the parish denies everything."
 
 #: data/nights/night_11.tres
 msgid "Famílias inteiras presas no Alto da Serra\nEntre os detidos na batida de ontem há mulheres, idosos e crianças. A polícia diz que são parentes de rebeldes e que \"ninguém está acima da lei\"."
@@ -9208,6 +9492,30 @@ msgid "Guardo. Mas às oito e meia eu fecho, por causa do toque."
 msgstr "I will. But I close at half past eight, because of the curfew."
 
 #: data/nights/night_12.tres
+msgid "Gravar a Alta Cúpula e dar as fitas ao Sebastião"
+msgstr "Record the High Command, tapes to Sebastião"
+
+#: data/nights/night_12.tres
+msgid "O supervisor ligou: reclamação da Alta Cúpula pela noite nove. Vai ficar de olho em mim."
+msgstr "The supervisor called: a complaint from the High Command about night nine. He'll be keeping an eye on me."
+
+#: data/nights/night_12.tres
+msgid "O Sebastião: gravar a polícia com a Alta Cúpula e mandar as fitas pra ele, no pacote de carta."
+msgstr "Sebastião: record the police talking to the High Command and send him the tapes, in the letter parcel."
+
+#: data/nights/night_12.tres
+msgid "O Miguel está no São Lucas, de perna quebrada. Foi à praça escondido."
+msgstr "Miguel is at São Lucas with a broken leg. He sneaked off to the square."
+
+#: data/nights/night_12.tres
+msgid "A Generosa ofereceu Luar da Serra pro Otávio, na rádio."
+msgstr "Generosa dedicated Luar da Serra to Otávio, on the radio."
+
+#: data/nights/night_12.tres
+msgid "Eles sabem que alguém nesta mesa ajuda. Esse alguém sou eu."
+msgstr "They know someone at this board is helping. That someone is me."
+
+#: data/nights/night_12.tres
 msgid "Cartazes da recompensa na estação."
 msgstr "Reward posters at the station."
 
@@ -9358,6 +9666,14 @@ msgstr "Heading where?"
 #: data/calls/noite_13_parente.tres
 msgid "Não disseram. Venha buscar o caminhão de dia, rapaz."
 msgstr "They didn't say. Come for the lorry in daylight, lad."
+
+#: data/nights/night_13.tres
+msgid "A Cecília morreu. O supervisor diz que foi mal súbito."
+msgstr "Cecília is dead. The supervisor says it was a sudden illness."
+
+#: data/nights/night_13.tres
+msgid "Policiais no prédio, \"pra minha proteção\". Não acredito em mal súbito."
+msgstr "Police in the building, \"for my protection\". I don't believe in sudden illness."
 
 #: data/nights/night_13.tres
 msgid "Cecília, telefonista do Alto da Serra."
@@ -9802,6 +10118,26 @@ msgstr "What do I do, Father?"
 #: data/calls/noite_14_parente.tres
 msgid "Fique em casa. E amanhã, principalmente, não saia de casa."
 msgstr "Stay at home. And tomorrow above all, don't leave the house."
+
+#: data/nights/night_14.tres
+msgid "O Sebastião: a Cecília não morreu de doença. E não disse o meu nome, nem lá."
+msgstr "Sebastião: Cecília didn't die of any illness. And she didn't say my name, not even there."
+
+#: data/nights/night_14.tres
+msgid "Amanhã é o dia. Às autoridades, uma fita qualquer; a do bar e a do hotel, não."
+msgstr "Tomorrow is the day. Any old tape for the authorities; not the bar's, not the hotel's."
+
+#: data/nights/night_14.tres
+msgid "O Miguel já está em casa, de muleta."
+msgstr "Miguel is home now, on crutches."
+
+#: data/nights/night_14.tres
+msgid "Jogaram uma pedra na janela da central. O vidro trincou."
+msgstr "Someone threw a stone at the exchange window. The glass cracked."
+
+#: data/nights/night_14.tres
+msgid "Os policiais no prédio não estão aqui pra me proteger. Amanhã acaba."
+msgstr "The police in the building aren't here to protect me. Tomorrow it ends."
 
 #: data/nights/night_14.tres
 msgid "Batida no Hotel Serena: cinco presos\nNa noite de ontem, um camburão e uma viatura pararam na porta do Hotel Serena, e a polícia saiu com cinco homens algemados. O hotel foi lacrado. A delegacia fala em \"ninho de agitadores\"."
@@ -10520,6 +10856,74 @@ msgid "Então desliga. Desliga agora, Marlene."
 msgstr "Then hang up. Hang up now, Marlene."
 
 #: data/nights/night_15.tres
+msgid "Não passar a polícia nem a Alta Cúpula"
+msgstr "Don't put through the police or the High Command"
+
+#: data/nights/night_15.tres
+msgid "21h: dizer \"Começou.\" ao 120 e ao 288"
+msgstr "9 pm: say \"It's begun.\" to 120 and 288"
+
+#: data/nights/night_15.tres
+msgid "21h: dizer \"Começou.\" ao 120 e ao 291"
+msgstr "9 pm: say \"It's begun.\" to 120 and 291"
+
+#: data/nights/night_15.tres
+msgid "22h: pedir a \"Canção da Madrugada\" à rádio (390)"
+msgstr "10 pm: request the \"Canção da Madrugada\" (390)"
+
+#: data/nights/night_15.tres
+msgid "Avisar o bar (327) sobre o Sebastião"
+msgstr "Warn the bar (327) about Sebastião"
+
+#: data/nights/night_15.tres
+msgid "Passar na hora a polícia e a Alta Cúpula"
+msgstr "Put the police and High Command through at once"
+
+#: data/nights/night_15.tres
+msgid "Denunciar no 184 quem ligar ao bar ou ao hotel"
+msgstr "Report to 184 whoever calls the bar or the hotel"
+
+#: data/nights/night_15.tres
+msgid "A última carta do Sebastião. Hoje é o dia."
+msgstr "Sebastião's last letter. Today is the day."
+
+#: data/nights/night_15.tres
+msgid "Às nove, o sinal vermelho subiu atrás da igreja."
+msgstr "At nine, the red flare went up behind the church."
+
+#: data/nights/night_15.tres
+msgid "Pedi a Canção da Madrugada à rádio."
+msgstr "I asked the radio for the Canção da Madrugada."
+
+#: data/nights/night_15.tres
+msgid "O Zé ligou do bar: a rádio e a TV são nossas. Se segurar até as quatro, acabou."
+msgstr "Zé called from the bar: the radio and the TV are ours. If we hold until four, it's over."
+
+#: data/nights/night_15.tres
+msgid "Avisei o bar: estão esperando o Sebastião na estação velha."
+msgstr "I warned the bar: they're waiting for Sebastião at the old station."
+
+#: data/nights/night_15.tres
+msgid "Passei o rapaz ferido pro Dr. Augusto."
+msgstr "I put the wounded boy through to Dr. Augusto."
+
+#: data/nights/night_15.tres
+msgid "O rapaz ferido não chegou ao médico."
+msgstr "The wounded boy never reached the doctor."
+
+#: data/nights/night_15.tres
+msgid "Quatro horas. A bandeira na varanda."
+msgstr "Four o'clock. The flag on the balcony."
+
+#: data/nights/night_15.tres
+msgid "Acabou, e não do nosso jeito."
+msgstr "It's over, and not our way."
+
+#: data/nights/night_15.tres
+msgid "Tem um homem de sobretudo subindo a escada. Se alguém achar este caderno, eu não me arrependo de nada."
+msgstr "There's a man in an overcoat coming up the stairs. If anyone finds this notebook, I regret nothing."
+
+#: data/nights/night_15.tres
 msgid "Soldados na porta da Rádio Serena."
 msgstr "Soldiers at the door of Rádio Serena."
 
@@ -10638,6 +11042,14 @@ msgstr "When your shift ends, come have a coffee here. It's on the house."
 #: data/nights/night_00.tres
 msgid "Sexta-feira. Seu primeiro turno de verdade é na segunda. Hoje a Cecília, telefonista do Alto da Serra, vai ligar para lhe mostrar o serviço. O fone já está na entrada 1."
 msgstr "Friday. Your first real shift is on Monday. Tonight Cecília, the Alto da Serra operator, will call to show you the job. The headset is already on input 1."
+
+#: data/nights/night_00.tres
+msgid "A Cecília me deu este diário. Disse pra anotar tudo, que a cabeça esquece."
+msgstr "Cecília gave me this diary. She said to write everything down, because the head forgets."
+
+#: data/nights/night_00.tres
+msgid "Primeira noite na mesa, e de mentirinha. A Cecília tem paciência de santa."
+msgstr "First night at the board, and just pretend. Cecília has the patience of a saint."
 
 #: data/nights/night_00.tres
 msgid "A [b]entrada 1[/b] está chamando. Ponha o [b]FONE[/b] (o cabo verde) na tomada dela."
@@ -11112,6 +11524,30 @@ msgid "E se der meia-noite com a mesa vazia e tudo registrado, o turno fecha soz
 msgstr "And if it hits midnight with the board empty and everything logged, the shift closes by itself."
 
 #: data/nights/night_00.tres
+msgid "Ah, e eu deixei um presente pra você na mesa: aquele caderninho de capa vinho."
+msgstr "Oh, and I left you a present on the desk: that little burgundy notebook."
+
+#: data/nights/night_00.tres
+msgid "É um diário. Anota tudo, minha filha, que a cabeça esquece. Abre ele."
+msgstr "It's a diary. Write everything down, dear, because the head forgets. Open it."
+
+#: data/nights/night_00.tres
+msgid "Clique no [b]diário[/b], o caderninho de capa vinho na mesa (ou aperte 5)."
+msgstr "Click the [b]diary[/b], the little burgundy notebook on the desk (or press 5)."
+
+#: data/nights/night_00.tres
+msgid "É o caderninho vinho, ali na mesa. Ou aperta o 5."
+msgstr "It's the burgundy notebook, there on the desk. Or press 5."
+
+#: data/nights/night_00.tres
+msgid "Na página da esquerda vão as tarefas: o que te pedirem, você escreve ali e risca quando fizer."
+msgstr "The left page is for tasks: whatever they ask you, you write it there and cross it out when it's done."
+
+#: data/nights/night_00.tres
+msgid "Na da direita, o que acontecer na noite. Escreve pra você mesma, que ninguém mais lê."
+msgstr "The right one is for whatever happens during the night. Write it for yourself, nobody else reads it."
+
+#: data/nights/night_00.tres
 msgid "Por hoje é isso. A mesa é sua, e a noite é calma. Ah, e traz um casaco amanhã: central gela de madrugada. O meu mora pendurado na cadeira."
 msgstr "That's it for today. The board is yours, and the night is quiet. Oh, and bring a coat tomorrow: the exchange gets freezing late at night. Mine lives on the back of the chair."
 
@@ -11470,6 +11906,26 @@ msgstr "Then bring an ID."
 #: data/calls/story_16_generosa_hospital.tres
 msgid "Ocupado? ...Tenta de novo, por favor."
 msgstr "Busy? ...Try again, please."
+
+#: data/nights/night_16.tres
+msgid "Meia-noite. Desliguei a mesa e fiquei olhando a bandeira na varanda. Ninguém vai saber o que passou por estes fios. Eu sei."
+msgstr "Midnight. I shut down the board and sat looking at the flag on the balcony. Nobody will ever know what went through these wires. I know."
+
+#: data/nights/night_16.tres
+msgid "Ganhamos. As crianças do Alto não voltaram, e eu não liguei pra paróquia naquela noite. Vou lembrar delas mais do que de qualquer bandeira."
+msgstr "We won. The children from the Alto never came back, and I didn't call the parish that night. I'll remember them longer than any flag."
+
+#: data/nights/night_16.tres
+msgid "Ganhamos. Mas a polícia ouviu fita minha, e teve gente presa por causa dela. Vou lembrar disso mais do que de qualquer bandeira."
+msgstr "We won. But the police heard a tape of mine, and people were arrested because of it. I'll remember that longer than any flag."
+
+#: data/nights/night_16.tres
+msgid "Ganhamos. A segunda página do jornal é só de nomes. Li um por um, até o fim."
+msgstr "We won. The second page of the paper is nothing but names. I read them one by one, to the end."
+
+#: data/nights/night_16.tres
+msgid "A rádio voltou a tocar o hino. A mesa continua igual, a central também. Eu não."
+msgstr "The radio is playing the anthem again. The board is the same, and so is the exchange. I am not."
 
 #: data/nights/night_16.tres
 msgid "São Sotero amanhece livre: a emissora e a rádio nas mãos do povo; a praça cheia desde cedo"

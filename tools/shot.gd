@@ -6,7 +6,7 @@ extends Node
 ##   --out=build/shot.png   onde gravar (o recorte vai em <nome>_zoom.png)
 ##   --width=960            a largura do `main.tscn` (540 de altura; o jogo, no `GameView`, é sempre 960)
 ##   --hour=20:00           a hora do turno no relógio e lá fora
-##   --tool=id              abre a ferramenta (os ids de `Tools`: lista, despacho, caderno, registro, jornal, calculografo, discador)
+##   --tool=id              abre a ferramenta (os ids de `Tools`: lista, despacho, caderno, registro, jornal, calculografo, diario, discador)
 ##   --dial=390[,call][,talk][,open]  o discador (`Dialing`): o número digitado; com call, discado; com talk, depois de
 ##                          atenderem; com open, o de perto aberto por cima do painel
 ##   --debug=N              abre o painel de debug na aba N (0 = Jogo, 1 = Vozes)
@@ -16,7 +16,7 @@ extends Node
 ##   --busy                 todos os cabos de conexão em uso e uma transferência esperando: o [Todas as linhas ocupadas]
 ##   --badges=all           os broches na almofada da prateleira (all ou ids com vírgulas, `Badges.ALL`); --badgehover=id:
 ##                          o mouse num deles (a etiqueta); --badgenote=id: o papel da descrição aberto
-##   --news                 o jornal da manhã na mesa · --read: já lido, dobrado de outro jeito
+##   --news                 o jornal da manhã pregado no quadro de avisos
 ##   --listen               a linha 3 conectada, com o FONE nela e a chave de escuta levantada
 ##   --tapes                a B4 ligada: o gravador e o compartimento de fitas na coluna do lado do painel, com uma fita no
 ##                          gravador (--tapes=empty: sem, com a tampinha da fenda fechada; --tapes=rec: com --listen,
@@ -32,10 +32,15 @@ extends Node
 ##   --patch=312,4          um cabo de conexão da saída da linha 4 (o padrão) ao destino dado, conectado (o aro aceso)
 ##   --plugs=3:296,4:162    outras pontas encaixadas nas tomadas dadas, sem ligação (os fios passando pelos plugs)
 ##   --lines=2:ring,4:conn  as lâmpadas dessas linhas no estado dado (`Exchange.Line`, em minúsculas), sem ligação
+##   --days[=4]             páginas do diário nas noites que passaram (com --tool=diario); =4: aberta a da noite 4;
+##                          --fold=0|1: o mouse na dobra de voltar ou na de avançar
+##   --letter               a carta da noite já lida (aberta, sem o lacre; os pedidos dela entram no diário)
+##   --ending               encerra o turno (o diário abre sozinho; no fim do jogo, a última página)
 ##   --logs=3               tantos registros esperando no caderno (as tiras no bloco de fichas, pulsando)
 ##   --toll                 um interurbano contando no calculógrafo, dois bilhetes na mesa (um carimbado) e três na caixinha
 ##   --clues                palavras-chave ouvidas (uma marcada, uma riscada, uma ouvida duas vezes) e a lista nas anotações
-##   --screen=id            uma tela por cima: intro (a de início), pause, settings, report (o relatório com advertências;
+##   --screen=id            uma tela por cima: intro (a de início), note (o recado relido pelo quadro), pause, settings,
+##                          report (o relatório com advertências;
 ##                          --rating=great|good|fair|poor o conceito, padrão poor, a segunda noite seguida;
 ##                          --warned, com intro, o bilhete depois de uma noite Insuficiente; --tapenote, com o resumo das
 ##                          fitas da noite anterior, da B4; --aside, o aviso do save que não deu para ler, `Progress.aside`)
@@ -44,6 +49,7 @@ extends Node
 ##   --mapzoom=1.44         com --tool=despacho: o mapa aproximado por esse fator (o anel girado)
 ##   --spot=Posto           com --tool=despacho: o mouse no lugar de referência com esse nome (a etiqueta dele)
 ##   --hover=id             o mouse em cima do objeto da mesa (os ids de `Tools`): ele erguido e a etiqueta com o nome
+##   --plug=N               o mouse em cima do plug da ponta N da mesa: ele erguido
 ##   --zoom=x,y,w,h         o recorte, em px do jogo, ampliado `ZOOM` vezes
 ##   --car=fusca            um carro de cada modelo dado (vírgulas) parado na rua lá fora, um em cada mão (--car_t=0.45: onde, de 0 a 1; --rack: com o bagageiro)
 ##   --walk=2,-4            gente parada na calçada de lá, em cada x dado (m ao longo da rua; o 1º poste fica em 1,6)
@@ -82,7 +88,7 @@ extends Node
 ##                          com --police, a viatura da noite 7 (os policiais descem de 3,8 a 8,0, entram, saem de 73,2 a 77,7)
 ##   --damp=4               a mancha de umidade de 4 noites de chuva
 ##   --phones=2,1           os telefones da vista (hotel, bar): 1 tocando, 2 na linha
-##   --sips=3               goles tomados do café · --cabinet: a porta do armário aberta
+##   --sips=3               goles tomados do café
 ##   --keys                 as teclas do painel do operador todas ativas (a cor acesa delas), sem ligação
 ##   --written=2            fichas registradas (o lugar do lápis no bloco)
 ##   --bolt                 um relâmpago caindo na hora da captura (o primeiro clarão)
@@ -302,8 +308,26 @@ func _ready() -> void:
 		m.eavesdrop.clues[2].struck = true
 		m.tools.set_tab(Tools.DIRECTORY)
 		m.tools.book.turn(99)
+	if _args.has("days"):   # páginas do diário nas noites que passaram (as abas); --days=4: aberta a da noite 4
+		for n in range(1, m.night_no):
+			m.tools.diary.pages[n] = {"tasks": [{"src": "DIARY_B1", "ui": true, "left": -1, "state": 1},
+				{"src": "Ligar para o Bar do Zé (327) pelo discador", "ui": false, "left": -1, "state": 2},
+				{"src": "DIARY_LOGS", "ui": true, "left": 2, "state": 2}],
+				"notes": [{"src": "A Cecília ligou: prenderam gente no Centro. Pediu cuidado com o que eu escuto e repito.", "ui": false, "left": -1, "state": 0},
+				{"src": "A cidade está nervosa. Eu também.", "ui": false, "left": -1, "state": 0}],
+				"letter": "Maria,\n\nCarta de teste." if n % 2 == 0 else ""}
+	if _args.has("letter"):   # a carta da noite já lida (os pedidos dela no diário) e guardada nele
+		m.background.letter_read = true
+	if _args.has("ending"):
+		m.start_ending()
 	if _args.has("tool"):
 		m.tools.set_tab(_args["tool"])
+		if str(_args.get("days", "")).is_valid_int():
+			m.tools.diary._at = int(_args["days"])
+		if _args.has("fold"):   # o mouse na dobra (0 a de voltar, 1 a de avançar): ela dobrada a mais
+			m.tools.diary._hover = int(_args["fold"])
+			m.tools.diary._fold[int(_args["fold"])] = m.tools.diary.FOLD_HOVER
+		m.tools.diary.queue_redraw()
 	if _args.has("dial"):   # o discador: o número digitado e, com ",call", discado (espera atender com ",talk")
 		var dv: Array = str(_args["dial"]).split(",")
 		for ch in str(dv[0]):
@@ -320,6 +344,14 @@ func _ready() -> void:
 	if _args.has("hover"):
 		m.background._hot = _args["hover"]
 		m.get_node("Scene").queue_redraw()
+	if _args.has("plug"):   # o mouse em cima do plug da ponta N (--plug=N): ele erguido
+		var b: Control = m.board   # (a janela pequena da captura não alcança a mesa com o mouse: o estado dele, à mão)
+		b.set_process(false)
+		b._hover = int(_args["plug"])
+		b._rise_e = b._hover
+		b._rise.held = true
+		b._rise.height = 1.0
+		b._layers[3].queue_redraw()
 	if _args.has("street"):   # o mouse numa rua do mapa aberto (--street=id,trecho), ou num lugar (--spot=nome)
 		var at: PackedStringArray = String(_args["street"]).split(",")
 		var st := GameData.street(at[0])
@@ -353,6 +385,10 @@ func _ready() -> void:
 		if _args["card"] == "closed":   # o cartão na mesa e o despacho guardado: a unidade da mesa com o cartão saindo
 			m.tools.close()
 	match _args.get("screen", ""):
+		"note":   # o recado do supervisor relido pelo quadro de avisos
+			m._intro.reread(m.background.prop_rect(Background.NOTE_ID))
+			for i in 30:
+				await get_tree().process_frame
 		"pause":
 			m.pause()
 		"settings":
@@ -394,9 +430,6 @@ func _ready() -> void:
 		room.sips = int(_args["sips"])
 	if _args.has("written"):
 		room.written = int(_args["written"])
-	room.news_read = _args.has("read")
-	if _args.has("cabinet"):
-		room.cab_open = true
 	if _args.has("cat"):
 		room.cat_here = true
 	if _args.has("phones"):

@@ -18,9 +18,10 @@ peça (medidas, cores, o que foi tentado e saiu) está em `docs/mapa-ui-detalhad
   miniatura do painel, `ConsoleMini`); à direita a sala e as ferramentas (`Tools`, o papel sai do objeto dele na mesa,
   `Tools.origin` = `Background.prop_rect`; sem abas); embaixo de tudo, o painel do operador (`PhonePanel`, 150 px, fora
   da luz da sala). A dica do manual (`HintSlot`) está escondida, a pedido.
-- **A sala se distribui na largura que tiver**: armário (`CAB_W`, `CAB_AT`), conduíte, folhinha e cartaz; os objetos
+- **A sala se distribui na largura que tiver**: gaveteiro (`CAB_W`, `CAB_AT`) com o quadro de avisos em cima, da beira
+  dele até perto da quina (`BOARD_W`, `CORNER_GAP`), e conduíte; os objetos
   da mesa em duas fileiras (`_row`, `WALL_PAD`, `EDGE_PX`): atrás, o que é alto (unidade de despacho, listas, relógio
-  com a caneca na frente); na frente, o que é baixo (calculógrafo, bloco de fichas, jornal). A prancheta fica
+  com a caneca na frente); na frente, o que é baixo (calculógrafo, bloco de fichas, diário). A prancheta fica
   pendurada na lateral da mesa comutadora (`_draw_hung_clipboard`). `test_layout` confere que nada se sobrepõe.
 - Fio da unidade de despacho (o do calculógrafo saiu a pedido): sai da traseira dela e vai, rente ao console, para o fundo da mesa
   (`_draw_cable`, imagem guardada em `_cable_art` por `_cable_at`, que monta também os fios da caixa na parede), desenhado antes da máquina; sem plugue (a pedido). A mesa é
@@ -63,12 +64,18 @@ peça (medidas, cores, o que foi tentado e saiu) está em `docs/mapa-ui-detalhad
   surgia sob o mouse e a soltura se perdia: a cena ficava com o mouse); sob o mouse o objeto sobe 2 px (`LIFT_PX`) e a
   etiqueta é uma fita crepe (`draw_hover`). O estado do jogo aparece nos objetos (`pending`, `unread`, `alert`,
   `card_out`, `counting`, `tickets`, `toll_desk`, `news`, `letter`, `written`, `sips`).
-- A sala muda pelas noites (`GameContent.room`, `RoomChange`, `Background.details`); a folhinha é a data do jogo
+- A sala muda pelas noites (`GameContent.room`, `RoomChange` entre `from_night` e `to_night`, `Background.details`); a folhinha é a data do jogo
   (`GameData.date_of`).
 
 ### A sala
-- Parede num tom só (`Pal.WALL_PAINT`) com manchas leves (`_stain_art`) e marcas de uso (`_draw_wall_marks`); armário
-  de aço que abre (`CABINET_ID`, `cab_open`), conduíte, mancha de umidade (`damp`, de `Progress.rains`).
+- Parede num tom só (`Pal.WALL_PAINT`) com manchas leves (`_stain_art`) e marcas de uso (`_draw_wall_marks`); gaveteiro
+  de aço baixo, decorativo (`_draw_drawers`, `CAB_TOP` abaixo dos olhos: o tampo aparece), com o guarda-chuva encostado
+  na quina (`_draw_umbrella`, `UMBRELLA_LEAN`); em cima, na parede, o quadro de avisos de cortiça (`_draw_cork_board`,
+  `BOARD_TOP`/`BOTTOM`, `_board`), que não é de clicar; os itens pregados nele (`_pinned`, `_draw_pinned`: erguidos
+  sob o mouse como os da mesa, a sombra na cortiça), sim: o jornal da manhã (`news`, `Tools.NEWS`), o recado do
+  supervisor (`NOTE_ID`, `_draw_pinned_note`; clicado, `Intro.reread`), o cartaz da quermesse (que Maria trouxe) e os avisos que a
+  companhia e as autoridades mandam, entrando e saindo pelas noites (só Maria e o supervisor entram ali) (`PINNED`, `_draw_flyer`, `Pal.FLYERS`; até dois; `RoomChange.to_night`), com o nome na etiqueta; a
+  folhinha (`CALENDAR`, a data, a orelha na rajada); conduíte, mancha de umidade (`damp`, de `Progress.rains`).
 - Janela na parede da direita (`_draw_side_wall`): persiana que fecha e abre (`toggle_blind`, `BLIND_ID`, `_blind_shape`),
   peitoril (`_sill_lit`), vão com espessura (`WALL_D`), sem montante nem travessa. O vidro reflete a sala
   (`_draw_reflection`) e embaça (`_draw_mist`).

@@ -5251,6 +5251,22 @@ msgid "Hahaha!"
 msgstr ""
 
 #: data/nights/night_01.tres
+msgid "Um homem pediu o Bar do Zé e agradeceu: \"Obrigado, Maria.\" Eu nunca disse o meu nome."
+msgstr ""
+
+#: data/nights/night_01.tres
+msgid "Um homem pediu o Bar do Zé. Não passei."
+msgstr ""
+
+#: data/nights/night_01.tres
+msgid "Um menino perguntou se eu tinha geladeira. Caí feito uma boba."
+msgstr ""
+
+#: data/nights/night_01.tres
+msgid "Primeira noite sozinha na mesa. As mãos tremeram no começo, depois passou."
+msgstr ""
+
+#: data/nights/night_01.tres
 msgid "Amanhã tem quermesse na praça, a senhora vai?"
 msgstr ""
 
@@ -5432,6 +5448,26 @@ msgstr ""
 
 #: data/calls/noite_02_panfleto.tres
 msgid "Que aqui só dorme caixeiro-viajante. E é verdade."
+msgstr ""
+
+#: data/nights/night_02.tres
+msgid "O homem do bar de novo. Me chamou de Maria. Passei."
+msgstr ""
+
+#: data/nights/night_02.tres
+msgid "Ele pediu o bar três vezes. Nas três, não passei."
+msgstr ""
+
+#: data/nights/night_02.tres
+msgid "Um rapaz ofereceu uma música na rádio pra moça de fita amarela. Nem o nome dela ele sabe."
+msgstr ""
+
+#: data/nights/night_02.tres
+msgid "Não sei quem é esse homem. Ele sabe quem eu sou."
+msgstr ""
+
+#: data/nights/night_02.tres
+msgid "Ele disse que era urgente. Fiz bem em não passar? Não sei."
 msgstr ""
 
 #: data/nights/night_02.tres
@@ -5692,6 +5728,46 @@ msgstr ""
 
 #: data/calls/noite_03_nome.tres
 msgid "Jair Monteiro. Anota aí, já que agora é obrigado."
+msgstr ""
+
+#: data/nights/night_03.tres
+msgid "Ligar para o Bar do Zé (327) pelo discador"
+msgstr ""
+
+#: data/nights/night_03.tres
+msgid "A Cecília ligou: prenderam gente no Centro. Pediu cuidado com o que eu escuto e repito."
+msgstr ""
+
+#: data/nights/night_03.tres
+msgid "A moça da fita amarela se chama Generosa. Deixou o número pro rapaz da rádio: 384."
+msgstr ""
+
+#: data/nights/night_03.tres
+msgid "O rapaz da rádio é o Otávio. Dei o número da Generosa, e ele escreveu na mão."
+msgstr ""
+
+#: data/nights/night_03.tres
+msgid "O rapaz da rádio perguntou se tinha recado. Disse que não."
+msgstr ""
+
+#: data/nights/night_03.tres
+msgid "O menino do trote de novo. Agora eu sou a Rainha da Inglaterra."
+msgstr ""
+
+#: data/nights/night_03.tres
+msgid "A Cecília de novo: alguém no Bar do Zé quer falar comigo. Pelo discador, não pela mesa."
+msgstr ""
+
+#: data/nights/night_03.tres
+msgid "Liguei pro bar. Amanhã, às oito e meia, digo ao hotel: \"A semente brotou.\""
+msgstr ""
+
+#: data/nights/night_03.tres
+msgid "Alguém que me conhece desde criança. Quem?"
+msgstr ""
+
+#: data/nights/night_03.tres
+msgid "A cidade está nervosa. Eu também."
 msgstr ""
 
 #: data/nights/night_03.tres
@@ -6159,6 +6235,46 @@ msgid "Já estou fechando. Aqui só tem graxa e parafuso."
 msgstr ""
 
 #: data/nights/night_04.tres
+msgid "Dizer a senha ao Hotel Serena (305) às 20:30"
+msgstr ""
+
+#: data/nights/night_04.tres
+msgid "Comunicar à delegacia (184) conversa suspeita"
+msgstr ""
+
+#: data/nights/night_04.tres
+msgid "Às oito e meia, disse a senha ao hotel."
+msgstr ""
+
+#: data/nights/night_04.tres
+msgid "Contei à delegacia a conversa do bar."
+msgstr ""
+
+#: data/nights/night_04.tres
+msgid "Atiraram num homem no meio da rua."
+msgstr ""
+
+#: data/nights/night_04.tres
+msgid "Jogaram uma bomba numa loja de tecidos."
+msgstr ""
+
+#: data/nights/night_04.tres
+msgid "Um senhor perguntou à rádio o que explodiu. Nem a rádio pode dizer."
+msgstr ""
+
+#: data/nights/night_04.tres
+msgid "Bomba, tiro, e eu dizendo senha pra hotel. Que noite."
+msgstr ""
+
+#: data/nights/night_04.tres
+msgid "Fiz o que a regra manda. Por que não me sinto melhor?"
+msgstr ""
+
+#: data/nights/night_04.tres
+msgid "Bomba e tiro a noite inteira. E eu aqui, passando ligação."
+msgstr ""
+
+#: data/nights/night_04.tres
 msgid "Caixas como as que sumiram do paiol."
 msgstr ""
 
@@ -6452,6 +6568,22 @@ msgstr ""
 
 #: data/calls/noite_05_parente.tres
 msgid "Procure amanhã de dia. De noite não damos informação."
+msgstr ""
+
+#: data/nights/night_05.tres
+msgid "A Cecília contou: o homem do bar se chama Sebastião. Diz que posso confiar nele."
+msgstr ""
+
+#: data/nights/night_05.tres
+msgid "O Sebastião conheceu o meu pai. Levaram o pai dele na mesma noite."
+msgstr ""
+
+#: data/nights/night_05.tres
+msgid "O Otávio e a Generosa conversaram até a ficha acabar. Agora ele quer levar ela ao cinema."
+msgstr ""
+
+#: data/nights/night_05.tres
+msgid "Eu tinha oito anos. Hoje alguém falou o nome do meu pai em voz alta."
 msgstr ""
 
 #: data/nights/night_05.tres
@@ -6919,6 +7051,30 @@ msgid "E não passe pela praça."
 msgstr ""
 
 #: data/nights/night_06.tres
+msgid "O Sebastião: quem pedir o bar e estalar os dedos três vezes, eu passo pro hotel."
+msgstr ""
+
+#: data/nights/night_06.tres
+msgid "Ouvi os três estalos e passei pro hotel. Funcionou."
+msgstr ""
+
+#: data/nights/night_06.tres
+msgid "O menino do trote se chama Miguel. Gosta de ligar aqui."
+msgstr ""
+
+#: data/nights/night_06.tres
+msgid "A Generosa e o Otávio foram ao cinema. Nenhum dos dois viu o filme."
+msgstr ""
+
+#: data/nights/night_06.tres
+msgid "A Generosa perguntou do rapaz da rádio. Não tive coragem de contar."
+msgstr ""
+
+#: data/nights/night_06.tres
+msgid "Estalo de dedo. Parece brincadeira de criança, mas não é."
+msgstr ""
+
+#: data/nights/night_06.tres
 msgid "A rua do Bar do Zé, sem telefone desde ontem."
 msgstr ""
 
@@ -7339,6 +7495,22 @@ msgid "Ninguém mais. Só ele, no chão."
 msgstr ""
 
 #: data/nights/night_07.tres
+msgid "Liguei pro bar e avisei: agora a mesa grava as conversas."
+msgstr ""
+
+#: data/nights/night_07.tres
+msgid "A professora leu a redação do Miguel pra turma. O irmão dele anda estranho."
+msgstr ""
+
+#: data/nights/night_07.tres
+msgid "Ninguém me pediu. Avisei o bar por minha conta."
+msgstr ""
+
+#: data/nights/night_07.tres
+msgid "A fita roda, e eu fico pensando em quem vai ouvir."
+msgstr ""
+
+#: data/nights/night_07.tres
 msgid "A barreira na saída da praça."
 msgstr ""
 
@@ -7748,6 +7920,38 @@ msgstr ""
 
 #: data/calls/noite_08_parente.tres
 msgid "Não. E não ligue mais pra cá, senhora."
+msgstr ""
+
+#: data/nights/night_08.tres
+msgid "Ligar para o São Lucas (213): Enfermeira Joana"
+msgstr ""
+
+#: data/nights/night_08.tres
+msgid "O Sebastião pediu: ligar pro São Lucas e dizer à Enfermeira Joana que a ala 3C precisa de suprimentos."
+msgstr ""
+
+#: data/nights/night_08.tres
+msgid "Dei o recado à Joana."
+msgstr ""
+
+#: data/nights/night_08.tres
+msgid "Liguei pro hotel e avisei que as autoridades estão de olho."
+msgstr ""
+
+#: data/nights/night_08.tres
+msgid "O Miguel me contou um segredo: o irmão dele está com os rebeldes."
+msgstr ""
+
+#: data/nights/night_08.tres
+msgid "O Otávio deu um beijo na Generosa. Amanhã ele vai à praça."
+msgstr ""
+
+#: data/nights/night_08.tres
+msgid "Tem gente que vai dormir melhor hoje. Foi o que ele disse."
+msgstr ""
+
+#: data/nights/night_08.tres
+msgid "O recado da Joana ficou sem dar. Penso na ala 3C."
 msgstr ""
 
 #: data/nights/night_08.tres
@@ -8203,6 +8407,42 @@ msgid "Aí você vê o filme na delegacia. Vá direto pra casa."
 msgstr ""
 
 #: data/nights/night_09.tres
+msgid "Não passar a delegacia nem a Alta Cúpula"
+msgstr ""
+
+#: data/nights/night_09.tres
+msgid "Passar as autoridades, como manda o supervisor"
+msgstr ""
+
+#: data/nights/night_09.tres
+msgid "O Sebastião: hoje nenhuma ligação pra delegacia ou pra Alta Cúpula pode passar pela mesa."
+msgstr ""
+
+#: data/nights/night_09.tres
+msgid "A polícia pediu a delegacia. Passei."
+msgstr ""
+
+#: data/nights/night_09.tres
+msgid "A polícia pediu a delegacia. Não passei."
+msgstr ""
+
+#: data/nights/night_09.tres
+msgid "A polícia chamou, e eu deixei tocar."
+msgstr ""
+
+#: data/nights/night_09.tres
+msgid "Briga na rua por causa da rádio. Uns gritavam viva, outros batiam."
+msgstr ""
+
+#: data/nights/night_09.tres
+msgid "Fiz o que ele pediu. Espero que valha alguma coisa."
+msgstr ""
+
+#: data/nights/night_09.tres
+msgid "Não fiz o que ele pediu. Não sei se quero ficar do lado deles."
+msgstr ""
+
+#: data/nights/night_09.tres
 msgid "Rua do Centro às nove e cinco."
 msgstr ""
 
@@ -8583,6 +8823,34 @@ msgid "Ninguém... só o meu filho."
 msgstr ""
 
 #: data/nights/night_10.tres
+msgid "Pedir à Casa Paroquial (120) abrigo para as famílias"
+msgstr ""
+
+#: data/nights/night_10.tres
+msgid "Descobrir onde está o Otávio, para a Generosa"
+msgstr ""
+
+#: data/nights/night_10.tres
+msgid "A Cecília vai embora de São Sotero. Pediu abrigo na Casa Paroquial pras famílias do Alto."
+msgstr ""
+
+#: data/nights/night_10.tres
+msgid "Liguei pro 120 e pedi abrigo pelas famílias do Alto."
+msgstr ""
+
+#: data/nights/night_10.tres
+msgid "O Otávio sumiu desde a praça. A Generosa não sabe mais pra quem ligar."
+msgstr ""
+
+#: data/nights/night_10.tres
+msgid "O Otávio está no São Lucas, na ala 3C. Machucado, mas vivo."
+msgstr ""
+
+#: data/nights/night_10.tres
+msgid "A Cecília disse que a mesa fica em boas mãos. Tomara que esteja certa."
+msgstr ""
+
+#: data/nights/night_10.tres
 msgid "Rádio Serena fora do controle por três horas\nNa noite de ontem, a Rádio Serena transmitiu uma mensagem da resistência e tocou a \"Canção da Madrugada\", proibida há anos. A Alta Cúpula diz que os responsáveis já foram identificados."
 msgstr ""
 
@@ -8804,6 +9072,22 @@ msgstr ""
 
 #: data/calls/noite_11_parente.tres
 msgid "Venha amanhã cedo. Eu escrevo ao bispo."
+msgstr ""
+
+#: data/nights/night_11.tres
+msgid "Carta do Sebastião. Diz que o telefone já não é seguro."
+msgstr ""
+
+#: data/nights/night_11.tres
+msgid "O Sebastião viu o jornal. Levaram as crianças. Era uma ligação só, ele disse."
+msgstr ""
+
+#: data/nights/night_11.tres
+msgid "Não consigo tirar as crianças da cabeça."
+msgstr ""
+
+#: data/nights/night_11.tres
+msgid "As famílias saíram a tempo. O jornal diz que a paróquia nega tudo."
 msgstr ""
 
 #: data/nights/night_11.tres
@@ -9207,6 +9491,30 @@ msgid "Guardo. Mas às oito e meia eu fecho, por causa do toque."
 msgstr ""
 
 #: data/nights/night_12.tres
+msgid "Gravar a Alta Cúpula e dar as fitas ao Sebastião"
+msgstr ""
+
+#: data/nights/night_12.tres
+msgid "O supervisor ligou: reclamação da Alta Cúpula pela noite nove. Vai ficar de olho em mim."
+msgstr ""
+
+#: data/nights/night_12.tres
+msgid "O Sebastião: gravar a polícia com a Alta Cúpula e mandar as fitas pra ele, no pacote de carta."
+msgstr ""
+
+#: data/nights/night_12.tres
+msgid "O Miguel está no São Lucas, de perna quebrada. Foi à praça escondido."
+msgstr ""
+
+#: data/nights/night_12.tres
+msgid "A Generosa ofereceu Luar da Serra pro Otávio, na rádio."
+msgstr ""
+
+#: data/nights/night_12.tres
+msgid "Eles sabem que alguém nesta mesa ajuda. Esse alguém sou eu."
+msgstr ""
+
+#: data/nights/night_12.tres
 msgid "Cartazes da recompensa na estação."
 msgstr ""
 
@@ -9356,6 +9664,14 @@ msgstr ""
 
 #: data/calls/noite_13_parente.tres
 msgid "Não disseram. Venha buscar o caminhão de dia, rapaz."
+msgstr ""
+
+#: data/nights/night_13.tres
+msgid "A Cecília morreu. O supervisor diz que foi mal súbito."
+msgstr ""
+
+#: data/nights/night_13.tres
+msgid "Policiais no prédio, \"pra minha proteção\". Não acredito em mal súbito."
 msgstr ""
 
 #: data/nights/night_13.tres
@@ -9800,6 +10116,26 @@ msgstr ""
 
 #: data/calls/noite_14_parente.tres
 msgid "Fique em casa. E amanhã, principalmente, não saia de casa."
+msgstr ""
+
+#: data/nights/night_14.tres
+msgid "O Sebastião: a Cecília não morreu de doença. E não disse o meu nome, nem lá."
+msgstr ""
+
+#: data/nights/night_14.tres
+msgid "Amanhã é o dia. Às autoridades, uma fita qualquer; a do bar e a do hotel, não."
+msgstr ""
+
+#: data/nights/night_14.tres
+msgid "O Miguel já está em casa, de muleta."
+msgstr ""
+
+#: data/nights/night_14.tres
+msgid "Jogaram uma pedra na janela da central. O vidro trincou."
+msgstr ""
+
+#: data/nights/night_14.tres
+msgid "Os policiais no prédio não estão aqui pra me proteger. Amanhã acaba."
 msgstr ""
 
 #: data/nights/night_14.tres
@@ -10519,6 +10855,74 @@ msgid "Então desliga. Desliga agora, Marlene."
 msgstr ""
 
 #: data/nights/night_15.tres
+msgid "Não passar a polícia nem a Alta Cúpula"
+msgstr ""
+
+#: data/nights/night_15.tres
+msgid "21h: dizer \"Começou.\" ao 120 e ao 288"
+msgstr ""
+
+#: data/nights/night_15.tres
+msgid "21h: dizer \"Começou.\" ao 120 e ao 291"
+msgstr ""
+
+#: data/nights/night_15.tres
+msgid "22h: pedir a \"Canção da Madrugada\" à rádio (390)"
+msgstr ""
+
+#: data/nights/night_15.tres
+msgid "Avisar o bar (327) sobre o Sebastião"
+msgstr ""
+
+#: data/nights/night_15.tres
+msgid "Passar na hora a polícia e a Alta Cúpula"
+msgstr ""
+
+#: data/nights/night_15.tres
+msgid "Denunciar no 184 quem ligar ao bar ou ao hotel"
+msgstr ""
+
+#: data/nights/night_15.tres
+msgid "A última carta do Sebastião. Hoje é o dia."
+msgstr ""
+
+#: data/nights/night_15.tres
+msgid "Às nove, o sinal vermelho subiu atrás da igreja."
+msgstr ""
+
+#: data/nights/night_15.tres
+msgid "Pedi a Canção da Madrugada à rádio."
+msgstr ""
+
+#: data/nights/night_15.tres
+msgid "O Zé ligou do bar: a rádio e a TV são nossas. Se segurar até as quatro, acabou."
+msgstr ""
+
+#: data/nights/night_15.tres
+msgid "Avisei o bar: estão esperando o Sebastião na estação velha."
+msgstr ""
+
+#: data/nights/night_15.tres
+msgid "Passei o rapaz ferido pro Dr. Augusto."
+msgstr ""
+
+#: data/nights/night_15.tres
+msgid "O rapaz ferido não chegou ao médico."
+msgstr ""
+
+#: data/nights/night_15.tres
+msgid "Quatro horas. A bandeira na varanda."
+msgstr ""
+
+#: data/nights/night_15.tres
+msgid "Acabou, e não do nosso jeito."
+msgstr ""
+
+#: data/nights/night_15.tres
+msgid "Tem um homem de sobretudo subindo a escada. Se alguém achar este caderno, eu não me arrependo de nada."
+msgstr ""
+
+#: data/nights/night_15.tres
 msgid "Soldados na porta da Rádio Serena."
 msgstr ""
 
@@ -10636,6 +11040,14 @@ msgstr ""
 
 #: data/nights/night_00.tres
 msgid "Sexta-feira. Seu primeiro turno de verdade é na segunda. Hoje a Cecília, telefonista do Alto da Serra, vai ligar para lhe mostrar o serviço. O fone já está na entrada 1."
+msgstr ""
+
+#: data/nights/night_00.tres
+msgid "A Cecília me deu este diário. Disse pra anotar tudo, que a cabeça esquece."
+msgstr ""
+
+#: data/nights/night_00.tres
+msgid "Primeira noite na mesa, e de mentirinha. A Cecília tem paciência de santa."
 msgstr ""
 
 #: data/nights/night_00.tres
@@ -11111,6 +11523,30 @@ msgid "E se der meia-noite com a mesa vazia e tudo registrado, o turno fecha soz
 msgstr ""
 
 #: data/nights/night_00.tres
+msgid "Ah, e eu deixei um presente pra você na mesa: aquele caderninho de capa vinho."
+msgstr ""
+
+#: data/nights/night_00.tres
+msgid "É um diário. Anota tudo, minha filha, que a cabeça esquece. Abre ele."
+msgstr ""
+
+#: data/nights/night_00.tres
+msgid "Clique no [b]diário[/b], o caderninho de capa vinho na mesa (ou aperte 5)."
+msgstr ""
+
+#: data/nights/night_00.tres
+msgid "É o caderninho vinho, ali na mesa. Ou aperta o 5."
+msgstr ""
+
+#: data/nights/night_00.tres
+msgid "Na página da esquerda vão as tarefas: o que te pedirem, você escreve ali e risca quando fizer."
+msgstr ""
+
+#: data/nights/night_00.tres
+msgid "Na da direita, o que acontecer na noite. Escreve pra você mesma, que ninguém mais lê."
+msgstr ""
+
+#: data/nights/night_00.tres
 msgid "Por hoje é isso. A mesa é sua, e a noite é calma. Ah, e traz um casaco amanhã: central gela de madrugada. O meu mora pendurado na cadeira."
 msgstr ""
 
@@ -11468,6 +11904,26 @@ msgstr ""
 
 #: data/calls/story_16_generosa_hospital.tres
 msgid "Ocupado? ...Tenta de novo, por favor."
+msgstr ""
+
+#: data/nights/night_16.tres
+msgid "Meia-noite. Desliguei a mesa e fiquei olhando a bandeira na varanda. Ninguém vai saber o que passou por estes fios. Eu sei."
+msgstr ""
+
+#: data/nights/night_16.tres
+msgid "Ganhamos. As crianças do Alto não voltaram, e eu não liguei pra paróquia naquela noite. Vou lembrar delas mais do que de qualquer bandeira."
+msgstr ""
+
+#: data/nights/night_16.tres
+msgid "Ganhamos. Mas a polícia ouviu fita minha, e teve gente presa por causa dela. Vou lembrar disso mais do que de qualquer bandeira."
+msgstr ""
+
+#: data/nights/night_16.tres
+msgid "Ganhamos. A segunda página do jornal é só de nomes. Li um por um, até o fim."
+msgstr ""
+
+#: data/nights/night_16.tres
+msgid "A rádio voltou a tocar o hino. A mesa continua igual, a central também. Eu não."
 msgstr ""
 
 #: data/nights/night_16.tres

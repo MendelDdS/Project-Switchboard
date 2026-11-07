@@ -1,7 +1,9 @@
 [gd_resource type="Resource" script_class="Night" format=3]
 
 [ext_resource type="Script" path="res://scripts/data/story_text.gd" id="j_story_text"]
+[ext_resource type="Script" path="res://scripts/data/diary_line.gd" id="dl_diary_line"]
 [ext_resource type="Script" path="res://scripts/data/night.gd" id="1_night"]
+[ext_resource type="Script" path="res://scripts/data/diary_task.gd" id="dt_diary_task"]
 [ext_resource type="Script" path="res://scripts/data/street_event.gd" id="2_event"]
 [ext_resource type="Script" path="res://scripts/data/dial_call.gd" id="3_dial"]
 [ext_resource type="Script" path="res://scripts/data/prank_step.gd" id="4_step"]
@@ -152,6 +154,63 @@ again = false
 script = ExtResource("x0_story_call")
 call = ExtResource("j_dinamite")
 
+[sub_resource type="Resource" id="T_0"]
+script = ExtResource("dt_diary_task")
+text = "Dizer a senha ao Hotel Serena (305) às 20:30"
+requires = PackedStringArray("sabe_senha_3")
+done = PackedStringArray("senha_hotel_4")
+until = 180.0
+
+[sub_resource type="Resource" id="T_1"]
+script = ExtResource("dt_diary_task")
+text = "Comunicar à delegacia (184) conversa suspeita"
+requires = PackedStringArray("sabe_senha_3")
+done = PackedStringArray("denunciou_bar_4")
+at_close = true
+
+[sub_resource type="Resource" id="N_0"]
+script = ExtResource("dl_diary_line")
+text = "Às oito e meia, disse a senha ao hotel."
+requires = PackedStringArray("senha_hotel_4")
+
+[sub_resource type="Resource" id="N_1"]
+script = ExtResource("dl_diary_line")
+text = "Contei à delegacia a conversa do bar."
+requires = PackedStringArray("denunciou_bar_4")
+
+[sub_resource type="Resource" id="N_2"]
+script = ExtResource("dl_diary_line")
+text = "Atiraram num homem no meio da rua."
+call = SubResource("E_bal")
+
+[sub_resource type="Resource" id="N_3"]
+script = ExtResource("dl_diary_line")
+text = "Jogaram uma bomba numa loja de tecidos."
+call = SubResource("E_bom")
+
+[sub_resource type="Resource" id="N_4"]
+script = ExtResource("dl_diary_line")
+text = "Um senhor perguntou à rádio o que explodiu. Nem a rádio pode dizer."
+call = SubResource("S_radio")
+
+[sub_resource type="Resource" id="N_5"]
+script = ExtResource("dl_diary_line")
+text = "Bomba, tiro, e eu dizendo senha pra hotel. Que noite."
+requires = PackedStringArray("senha_hotel_4", "!denunciou_bar_4")
+at_close = true
+
+[sub_resource type="Resource" id="N_6"]
+script = ExtResource("dl_diary_line")
+text = "Fiz o que a regra manda. Por que não me sinto melhor?"
+requires = PackedStringArray("denunciou_bar_4")
+at_close = true
+
+[sub_resource type="Resource" id="N_7"]
+script = ExtResource("dl_diary_line")
+text = "Bomba e tiro a noite inteira. E eu aqui, passando ligação."
+requires = PackedStringArray("!senha_hotel_4", "!denunciou_bar_4")
+at_close = true
+
 [resource]
 script = ExtResource("1_night")
 note = "O supervisor deixou um recado: \"Houve explosões em vários pontos da cidade esta tarde, e há protesto marcado na praça. A noite vai ser pesada: emergência primeiro, e nada de conversa na linha. A delegacia pede que qualquer conversa suspeita na linha seja comunicada pelo 184.\""
@@ -162,3 +221,5 @@ news_stories = PackedStringArray("Somem doze caixas de dinamite de pedreira\nO p
 calls = Array[ExtResource("x0_story_call")]([SubResource("J_call_dinamite")])
 news_photo = "armas"
 news_caption = "Caixas como as que sumiram do paiol."
+tasks = Array[ExtResource("dt_diary_task")]([SubResource("T_0"), SubResource("T_1")])
+diary = Array[ExtResource("dl_diary_line")]([SubResource("N_0"), SubResource("N_1"), SubResource("N_2"), SubResource("N_3"), SubResource("N_4"), SubResource("N_5"), SubResource("N_6"), SubResource("N_7")])

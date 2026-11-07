@@ -133,6 +133,13 @@ func _initialize() -> void:
 	for fin in [[sucesso, R.WON], [sucesso, R.WON, R.COST], [R.FINALS[R.Final.FAILURE], R.LOST]]:
 		var fl := _f(fin)
 		ok(epi.ending_for(fl) != null and epi.story.any(func(x: StoryCall): return fl.allows(x.requires)), "epílogo: fecho e ligação no final " + str(fin))
+	# a última página do diário antes do "Fim": uma, e só uma, por final (a vitória amarga pela causa)
+	var last_page := func(n: Night, fl: Array) -> int:
+		return n.diary.filter(func(l: Night.DiaryLine) -> bool: return l.at_close and l.due(_f(fl), {}, false, true)).size()
+	for fin in [[sucesso, R.PARISH], [sucesso, R.COST], [sucesso, R.COST, R.PARISH, R.TAPE_GUNS], [sucesso, R.COST, R.PARISH, R.TAPE_GROUPS, R.TAPE_GROUP_C],
+			[sucesso, R.COST, R.PARISH, R.WOUNDED_LOST], [R.FINALS[R.Final.FAILURE]]]:
+		ok(last_page.call(epi, fin) == 1, "epílogo: uma última página no final " + str(fin))
+	ok(last_page.call(C.nights[14], [R.FINALS[R.Final.PRISON]]) == 1 and last_page.call(C.nights[14], [sucesso]) == 0, "presa: a última página na 15, só nela")
 	ok(epi.letter_for(_f([R.FINALS[R.Final.FAILURE]])) != "" and epi.letter_for(_f([R.FINALS[R.Final.SUCCESS]])) == "", "epílogo: a carta do supervisor só no fracasso")
 	ok(C.nights[14].ending_for(_f([R.FINALS[R.Final.SUCCESS]])).title != "" and C.nights[14].ending_for(_f([R.FINALS[R.Final.FAILURE]])) == null,
 		"noite 15: o encontro com Sebastião só no sucesso")

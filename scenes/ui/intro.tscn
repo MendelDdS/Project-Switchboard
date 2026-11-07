@@ -1,6 +1,7 @@
 [gd_scene format=3]
 
 [ext_resource type="Script" path="res://scripts/ui/intro.gd" id="1_intro"]
+[ext_resource type="PackedScene" path="res://scenes/ui/supervisor_note.tscn" id="2_note"]
 
 [node name="Intro" type="ColorRect"]
 anchors_preset = 15
@@ -11,51 +12,9 @@ grow_vertical = 2
 color = Color(0.01961, 0.02353, 0.02745, 0.66)
 script = ExtResource("1_intro")
 
-[node name="Note" type="PanelContainer" parent="."]
+[node name="Note" parent="." instance=ExtResource("2_note")]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(384, 0)
 layout_mode = 0
-theme_type_variation = &"TapedNote"
-
-[node name="Margin" type="MarginContainer" parent="Note"]
-layout_mode = 2
-theme_override_constants/margin_left = 6
-theme_override_constants/margin_top = 8
-theme_override_constants/margin_right = 6
-theme_override_constants/margin_bottom = 6
-
-[node name="VBox" type="VBoxContainer" parent="Note/Margin"]
-layout_mode = 2
-theme_override_constants/separation = 4
-
-[node name="Title" type="Label" parent="Note/Margin/VBox"]
-layout_mode = 2
-text = "GAME_TITLE"
-theme_type_variation = &"LetterheadLabel"
-
-[node name="Date" type="RichTextLabel" parent="Note/Margin/VBox"]
-unique_name_in_owner = true
-layout_mode = 2
-bbcode_enabled = true
-fit_content = true
-auto_translate_mode = 2
-theme_type_variation = &"TypedText"
-
-[node name="Rule" type="ColorRect" parent="Note/Margin/VBox"]
-custom_minimum_size = Vector2(0, 1)
-layout_mode = 2
-mouse_filter = 2
-color = Color(0.43137255, 0.101960786, 0.07058824, 0.5)
-
-[node name="Text" type="RichTextLabel" parent="Note/Margin/VBox"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(360, 0)
-layout_mode = 2
-bbcode_enabled = true
-fit_content = true
-auto_translate_mode = 2
-theme_type_variation = &"HandText"
-theme_override_constants/line_separation = 3
 
 [node name="Bottom" type="VBoxContainer" parent="."]
 unique_name_in_owner = true
@@ -95,7 +54,7 @@ text = "SKIP_TRAINING"
 
 [node name="Info" type="RichTextLabel" parent="Bottom"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(384, 0)
+custom_minimum_size = Vector2(400, 0)
 layout_mode = 2
 mouse_filter = 2
 theme_type_variation = &"TapedLabel"

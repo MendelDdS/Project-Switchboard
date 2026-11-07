@@ -42,6 +42,13 @@ const PENCIL_BODY: Array[Color] = [Color("c4a042"), Color("957622"), Color("6752
 const PENCIL_WOOD: Array[Color] = [Color("c8aa80"), Color("b0926a"), Color("8a7050")]
 const PENCIL_ERASER: Array[Color] = [Color("c08a80"), Color("a86a62"), Color("7a4a44")]
 const PENCIL_LEAD := Color("2a2620")
+## O diário de Maria (`Tools.DIARY`): a capa de pano vinho (luz, meio, sombra), a página e a letra dela a lápis.
+const DIARY_COVER: Array[Color] = [Color("8a4440"), Color("66302d"), Color("43201e")]
+const DIARY_PAGE := Color("e6dbbb")
+const DIARY_FLAP := Color("f5eed8")    ## o canto dobrado do diário: a ponta virada, na ponta que pega a luz...
+const DIARY_EDGE := Color("b8aa84")    ## ...a beira da folha nela...
+const DIARY_UNDER := Color("ab9b72")   ## ...e a folha de baixo junto do vinco, na sombra da ponta
+const DIARY_HAND := Color("4a4650")
 ## Os carimbos do caderno (`Notebook.STAMPS`): Comum (tinta azul), Emergência (vermelho), Trote (sépia) e a não atendida
 ## (grafite: registrada sozinha).
 const LOG_STAMPS: Array[Color] = [Color("3a4f7a"), Color("8a2a1c"), Color("7a5214"), Color("5c5a55")]
@@ -179,7 +186,7 @@ const RED_PEN := Color("b03a2e")   ## a caneta vermelha: os dias riscados da fol
 const CONDUIT: Array[Color] = [Color("282f37"), Color("313940"), Color("4a5256"), Color("545c60"), Color("6f7672"),
 	Color("7e8380"), Color("8e8e84")]
 const CONDUIT_CABLES: Array[Color] = [Color("4a3a2c"), Color("5a3428"), Color("37403f"), Color("524430")]   ## os cabos de pano do painel até ela
-const STEEL := Color("566052")   ## o aço pintado do armário...
+const STEEL := Color("566052")   ## o aço pintado do gaveteiro...
 ## ...e a rampa dele (`STEEL_TONES[3]` é o `STEEL`): as faces e as beiras na sombra mais frias, as que pegam a luz mais
 ## quentes, no lugar dele escurecido e clareado.
 const STEEL_TONES: Array[Color] = [Color("2a3433"), Color("394341"), Color("464f48"), STEEL, Color("6a705e"),
@@ -192,8 +199,7 @@ const STEEL_DARK: Array[Color] = [Color("0d110d"), Color("151a14"), Color("1c211
 ## da sombra ao brilho.
 const CHROME: Array[Color] = [Color("3a3d33"), Color("4a4840"), Color("5a574e"), Color("8e897c"), Color("b8b2a2"),
 	Color("c9c4b5"), Color("ece7da")]
-const FOLDERS: Array[Color] = [Color("6e5a3a"), Color("8a7a5a"), Color("4a5a6a"), Color("7a3a2a")]   ## as pastas nas prateleiras do armário
-const LABEL_PAPER := Color("e3d6b2")   ## o cartão do porta-etiqueta do armário e as etiquetas das pastas...
+const LABEL_PAPER := Color("e3d6b2")   ## o cartão do porta-etiqueta das gavetas do gaveteiro e as etiquetas das fitas...
 const LABEL_INK := Color("4a4438")     ## ...e a letra datilografada no cartão
 ## Os pacotes das fitas gravadas (B4): o de carta, branco, para Sebastião; o oficial, amarelo com um risco azul de
 ## ponta a ponta, para as autoridades (`Cassette.parcel`, `Background._art_tape`).
@@ -209,6 +215,19 @@ const POSTER_INK := Color("5a4d3a")  ## ...o barbante e as linhas do convite...
 const POSTER_FLAGS: Array[Color] = [Color("b03a2e"), Color("e0b040"), Color("3a6aa0"), Color("4a8a4a")]   ## ...as bandeirinhas...
 const POSTER_FIRE: Array[Color] = [Color("e07a2a"), Color("f0c040"), Color("6b4529"), Color("4a2f1c"), Color("8a5a36")]   ## ...a fogueira: o fogo, a chama de dentro, as toras e a luz nelas...
 const POSTER_TACK: Array[Color] = [Color("e07060"), Color("b03a2e"), Color("7a2418")]   ## ...e a tachinha
+## O quadro de avisos de cortiça (`Background._draw_cork_board`): a cortiça, do grão escuro ao claro (o
+## meio é o fundo); a moldura é a madeira da guarnição (`CABINET_WOOD`)...
+const CORK: Array[Color] = [Color("4a3420"), Color("5c4128"), Color("6b4c2f"), Color("7a5836"), Color("8a663f"), Color("9a7449")]
+## ...e as tachinhas que sobraram nele, sem nada pregado: a de latão e a verde (a vermelha é a do cartaz, `POSTER_TACK`).
+const BOARD_TACKS: Array[Color] = [Color("d8b860"), Color("a08030"), Color("5a4418"), Color("6aa070"), Color("3a7048"), Color("1e3c26")]
+## Os panfletos do quadro de avisos (`Background._draw_flyer`): o papel, a tinta, o destaque (o título, a faixa) e o
+## do desenho de cada um.
+const FLYERS := {
+	"circular_sigilo": [Color("e4dcc6"), Color("3a352e"), Color("8a2a1c"), Color("9a9080")],   # o papel timbrado da companhia, o timbre vermelho
+	"tarifas_interurbano": [Color("d6dcc4"), Color("343a2c"), Color("3c5a40"), Color("a8ae96")],   # o papel verde-claro, a faixa verde, a grade
+	"aviso_184": [Color("dcdad2"), Color("24262a"), Color("9a2018"), Color("2c3a5a")],   # o papel da delegacia, a faixa preta, o 184 vermelho, o carimbo azul
+	"toque_recolher": [Color("e2d9bf"), Color("2a2620"), Color("8a1e18"), Color("2a2620")],   # o papel do edital, a tinta preta, o 21H e o carimbo vermelhos
+}
 ## A vista da janela (`Background`, `background_view.gd`): o céu, a cidade de longe, os prédios de lá, a rua e o arbusto.
 const SKY := {"rain": Color("0b141c"), "fog": Color("1b252b"), "clear": Color("0a1422")}   ## o céu de cada clima
 const FLASH := Color("a2acbc")   ## o céu e as nuvens clareados pelo relâmpago

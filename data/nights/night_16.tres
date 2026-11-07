@@ -1,6 +1,7 @@
 [gd_resource type="Resource" script_class="Night" format=3]
 
 [ext_resource type="Script" path="res://scripts/data/night.gd" id="1_night"]
+[ext_resource type="Script" path="res://scripts/data/diary_line.gd" id="dl_diary_line"]
 [ext_resource type="Script" path="res://scripts/data/story_call.gd" id="3_story"]
 [ext_resource type="Resource" path="res://data/calls/story_16_sebastiao.tres" id="4_sebastiao"]
 [ext_resource type="Resource" path="res://data/calls/story_16_mae_cecilia.tres" id="5_mae"]
@@ -110,6 +111,48 @@ text = "Maria atende até o fim do turno. Sebastião não liga. No jornal, a vit
 De manhã, ela passa no Hospital São Lucas para assinar um gesso na ala 3C. No corredor, Sebastião está sentado num banco, de chapéu na mão. Ele se levanta quando a vê e não diz nada."
 requires = PackedStringArray("final_sucesso", "custou_gente", "miguel_gesso")
 
+[sub_resource type="Resource" id="N_0"]
+script = ExtResource("dl_diary_line")
+text = "Meia-noite. Desliguei a mesa e fiquei olhando a bandeira na varanda. Ninguém vai saber o que passou por estes fios. Eu sei."
+requires = PackedStringArray("final_sucesso", "!custou_gente")
+at_close = true
+
+[sub_resource type="Resource" id="N_1"]
+script = ExtResource("dl_diary_line")
+text = "Ganhamos. As crianças do Alto não voltaram, e eu não liguei pra paróquia naquela noite. Vou lembrar delas mais do que de qualquer bandeira."
+requires = PackedStringArray("final_sucesso", "custou_gente", "!paroquia_10")
+at_close = true
+
+[sub_resource type="Resource" id="N_2"]
+script = ExtResource("dl_diary_line")
+text = "Ganhamos. Mas a polícia ouviu fita minha, e teve gente presa por causa dela. Vou lembrar disso mais do que de qualquer bandeira."
+requires = PackedStringArray("final_sucesso", "custou_gente", "paroquia_10", "fita_grupos_entregue")
+at_close = true
+
+[sub_resource type="Resource" id="N_3"]
+script = ExtResource("dl_diary_line")
+text = "Ganhamos. Mas a polícia ouviu fita minha, e teve gente presa por causa dela. Vou lembrar disso mais do que de qualquer bandeira."
+requires = PackedStringArray("final_sucesso", "custou_gente", "paroquia_10", "!fita_grupos_entregue", "fita_grupo_c_entregue")
+at_close = true
+
+[sub_resource type="Resource" id="N_4"]
+script = ExtResource("dl_diary_line")
+text = "Ganhamos. Mas a polícia ouviu fita minha, e teve gente presa por causa dela. Vou lembrar disso mais do que de qualquer bandeira."
+requires = PackedStringArray("final_sucesso", "custou_gente", "paroquia_10", "!fita_grupos_entregue", "!fita_grupo_c_entregue", "fita_armas_entregue")
+at_close = true
+
+[sub_resource type="Resource" id="N_5"]
+script = ExtResource("dl_diary_line")
+text = "Ganhamos. A segunda página do jornal é só de nomes. Li um por um, até o fim."
+requires = PackedStringArray("final_sucesso", "custou_gente", "paroquia_10", "!fita_grupos_entregue", "!fita_grupo_c_entregue", "!fita_armas_entregue")
+at_close = true
+
+[sub_resource type="Resource" id="N_6"]
+script = ExtResource("dl_diary_line")
+text = "A rádio voltou a tocar o hino. A mesa continua igual, a central também. Eu não."
+requires = PackedStringArray("final_fracasso")
+at_close = true
+
 [resource]
 script = ExtResource("1_night")
 weather = "clear"
@@ -119,3 +162,4 @@ letters = Array[ExtResource("5_text")]([SubResource("Letter_fracasso")])
 endings = Array[ExtResource("5_text")]([SubResource("End_gesso"), SubResource("End_gesso_amarga"), SubResource("End_sucesso"), SubResource("End_amarga"), SubResource("End_fracasso")])
 story = Array[ExtResource("3_story")]([SubResource("Story_sebastiao"), SubResource("Story_mae"), SubResource("Story_cupula"), SubResource("A_story_16_miguel"), SubResource("A_story_16_generosa"), SubResource("A_story_16_generosa_hospital")])
 news_if = Array[ExtResource("5_text")]([SubResource("News_sucesso"), SubResource("News_amarga"), SubResource("News_amarga2"), SubResource("News_fracasso")])
+diary = Array[ExtResource("dl_diary_line")]([SubResource("N_0"), SubResource("N_1"), SubResource("N_2"), SubResource("N_3"), SubResource("N_4"), SubResource("N_5"), SubResource("N_6")])

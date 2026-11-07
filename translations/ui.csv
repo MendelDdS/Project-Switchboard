@@ -189,11 +189,22 @@ TAB_LOGBOOK,Fichas,Log sheets,Fichas
 TAB_CALL_LOG,Registro,Call log,Registro
 TAB_NEWS,Jornal da manhã,Morning paper,Diario de la mañana
 TAB_LETTER,Carta,Letter,Carta
+TAB_DIARY,Diário,Diary,Diario
+DIARY_DATE,"%s, %d de outubro","%s, October %d","%s, %d de octubre"
+DIARY_TASKS,Tarefas,To do,Tareas
+DIARY_NOTES,Anotações,Notes,Notas
+DIARY_LEFT,(faltam %d),(%d left),(faltan %d)
+DIARY_LOGS,Registrar as ligações na ficha,Log the calls on the sheet,Registrar las llamadas en la ficha
+DIARY_TICKETS,Carimbar e guardar os bilhetes,Stamp and file the toll tickets,Sellar y guardar los boletos
+DIARY_TAPES,Entregar as fitas,Hand over the tapes,Entregar las cintas
+DIARY_B1,Pedir nome e sobrenome de quem liga,Ask callers for their full name,Pedir nombre y apellido a quien llama
+DIARY_B2_BAR,Não passar ligações para o Bar do Zé,No calls through to the Bar do Zé,No pasar llamadas al Bar do Zé
+DIARY_B2_RADIO_TV,Não passar ligações para a rádio nem para a TV,No calls through to the radio or the TV,No pasar llamadas a la radio ni a la TV
+DIARY_B3,Pedir o código das autoridades,Ask the authorities for the code,Pedir el código a las autoridades
+DIARY_B4,Gravar as conversas marcadas,Record the flagged calls,Grabar las conversaciones marcadas
 TAB_TOLL,Calculógrafo,Toll timer,Tarificador
 BLIND_CLOSE,Fechar a persiana,Close the blind,Bajar la persiana
 BLIND_OPEN,Abrir a persiana,Open the blind,Subir la persiana
-CABINET_OPEN,Abrir o armário,Open the locker,Abrir el armario
-CABINET_CLOSE,Fechar o armário,Close the locker,Cerrar el armario
 MUG_SIP,Tomar um gole,Take a sip,Tomar un sorbo
 MUG_EMPTY,O café acabou,The coffee is gone,Se acabó el café
 NEWS_MASTHEAD,Gazeta de São Sotero,Gazeta de São Sotero,Gazeta de São Sotero
@@ -509,3 +520,13 @@ CREDITS_TEXT,"Criação, roteiro e programação\nMendelssohn Dantas de Sá\n\nF
 TITLE_WHERE,Noite %d · %s,Night %d · %s,Noche %d · %s
 TITLE_WHERE_TRAINING,Treinamento · %s,Training · %s,Entrenamiento · %s
 PAUSE_TO_MENU,Voltar ao menu,Back to the menu,Volver al menú
+NOTE_PINNED,Recado do supervisor,Supervisor's note,Recado del supervisor
+POSTER_FAIR,Quermesse na praça,Church fair in the square,Kermés en la plaza
+FLYER_CURFEW,Toque de recolher às 21h,Curfew at 9 p.m.,Toque de queda a las 21 h
+FLYER_CURFEW_HEAD,AVISO,NOTICE,AVISO
+FLYER_SECRECY,Circular: sigilo das ligações,Company memo: call secrecy,Circular: secreto de las llamadas
+FLYER_SECRECY_HEAD,CIRCULAR,MEMO,CIRCULAR
+FLYER_RATES,Novas tarifas interurbanas,New long-distance rates,Nuevas tarifas interurbanas
+FLYER_RATES_HEAD,TARIFAS,RATES,TARIFAS
+FLYER_POLICE,Aviso da delegacia: conversa suspeita ao 184,Police notice: report suspicious calls to 184,Aviso de la comisaría: conversación sospechosa al 184
+FLYER_POLICE_HEAD,AVISO,NOTICE,AVISO

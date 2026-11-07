@@ -69,6 +69,7 @@ id = "b3_codigo"
 title = "B3 · Código de autorização"
 severity = 3
 fault_text = "FAULT_AUTH_CODE"
+task_text = "DIARY_B3"
 tests = Array[ExtResource("2_call")]([SubResource("Test_certo"), SubResource("Test_errado"), SubResource("Test_sem"), SubResource("Test_proximo"), SubResource("Test_lembra")])
 active = true
 from_night = 10

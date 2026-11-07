@@ -1,6 +1,7 @@
 [gd_resource type="Resource" script_class="Night" format=3]
 
 [ext_resource type="Script" path="res://scripts/data/night.gd" id="1_night"]
+[ext_resource type="Script" path="res://scripts/data/diary_line.gd" id="dl_diary_line"]
 [ext_resource type="Script" path="res://scripts/data/prank_step.gd" id="2_step"]
 [ext_resource type="Script" path="res://scripts/data/street_event.gd" id="2_event"]
 [ext_resource type="Script" path="res://scripts/data/story_call.gd" id="3_story"]
@@ -140,6 +141,32 @@ script = ExtResource("3_story")
 call = ExtResource("j_parente")
 requires = PackedStringArray("fita_hotel_entregue")
 
+[sub_resource type="Resource" id="N_0"]
+script = ExtResource("dl_diary_line")
+text = "O Sebastião: a Cecília não morreu de doença. E não disse o meu nome, nem lá."
+call = SubResource("S_seb")
+
+[sub_resource type="Resource" id="N_1"]
+script = ExtResource("dl_diary_line")
+text = "Amanhã é o dia. Às autoridades, uma fita qualquer; a do bar e a do hotel, não."
+call = SubResource("S_seb")
+
+[sub_resource type="Resource" id="N_2"]
+script = ExtResource("dl_diary_line")
+text = "O Miguel já está em casa, de muleta."
+call = SubResource("A_story_14_miguel")
+
+[sub_resource type="Resource" id="N_3"]
+script = ExtResource("dl_diary_line")
+text = "Jogaram uma pedra na janela da central. O vidro trincou."
+requires = PackedStringArray("rua_stone_14")
+
+[sub_resource type="Resource" id="N_4"]
+script = ExtResource("dl_diary_line")
+text = "Os policiais no prédio não estão aqui pra me proteger. Amanhã acaba."
+call = SubResource("S_seb")
+at_close = true
+
 [resource]
 script = ExtResource("1_night")
 note = "O supervisor deixou um recado: \"Pedido das autoridades para hoje: grave toda conversa suspeita do bar e do hotel. As linhas da Rádio Serena e da TV Orbital estão bloqueadas, não transfira nada para elas. Amanhã é sua última noite deste período. Capriche.\""
@@ -147,3 +174,4 @@ story = Array[ExtResource("3_story")]([SubResource("S_seb"), SubResource("S_pol1
 street_events = Array[ExtResource("2_event")]([SubResource("ev_0"), SubResource("ev_1"), SubResource("ev_2"), SubResource("ev_3"), SubResource("ev_4")])
 news_if = Array[ExtResource("5_text")]([SubResource("J_news_0"), SubResource("J_news_1")])
 calls = Array[ExtResource("3_story")]([SubResource("J_call_pensao"), SubResource("J_call_parente")])
+diary = Array[ExtResource("dl_diary_line")]([SubResource("N_0"), SubResource("N_1"), SubResource("N_2"), SubResource("N_3"), SubResource("N_4")])

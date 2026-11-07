@@ -1,6 +1,8 @@
 [gd_resource type="Resource" script_class="Night" format=3]
 
 [ext_resource type="Script" path="res://scripts/data/night.gd" id="1_night"]
+[ext_resource type="Script" path="res://scripts/data/diary_line.gd" id="dl_diary_line"]
+[ext_resource type="Script" path="res://scripts/data/diary_task.gd" id="dt_diary_task"]
 [ext_resource type="Script" path="res://scripts/data/street_event.gd" id="2_event"]
 [ext_resource type="Script" path="res://scripts/data/story_text.gd" id="x0_story_text"]
 [ext_resource type="Script" path="res://scripts/data/story_call.gd" id="x1_story_call"]
@@ -199,6 +201,46 @@ requires = PackedStringArray("fita_comandante_entregue")
 script = ExtResource("x1_story_call")
 call = ExtResource("j_irma")
 
+[sub_resource type="Resource" id="T_0"]
+script = ExtResource("dt_diary_task")
+text = "Pedir à Casa Paroquial (120) abrigo para as famílias"
+requires = PackedStringArray("cecilia_pediu_10")
+done = PackedStringArray("paroquia_10")
+until = 359.0
+
+[sub_resource type="Resource" id="T_1"]
+script = ExtResource("dt_diary_task")
+text = "Descobrir onde está o Otávio, para a Generosa"
+requires = PackedStringArray("generosa_10")
+done = PackedStringArray("otavio_achado")
+until = 330.0
+
+[sub_resource type="Resource" id="N_0"]
+script = ExtResource("dl_diary_line")
+text = "A Cecília vai embora de São Sotero. Pediu abrigo na Casa Paroquial pras famílias do Alto."
+call = SubResource("S_cec")
+
+[sub_resource type="Resource" id="N_1"]
+script = ExtResource("dl_diary_line")
+text = "Liguei pro 120 e pedi abrigo pelas famílias do Alto."
+requires = PackedStringArray("paroquia_10")
+
+[sub_resource type="Resource" id="N_2"]
+script = ExtResource("dl_diary_line")
+text = "O Otávio sumiu desde a praça. A Generosa não sabe mais pra quem ligar."
+call = SubResource("A_story_10_generosa")
+
+[sub_resource type="Resource" id="N_3"]
+script = ExtResource("dl_diary_line")
+text = "O Otávio está no São Lucas, na ala 3C. Machucado, mas vivo."
+requires = PackedStringArray("otavio_achado")
+
+[sub_resource type="Resource" id="N_4"]
+script = ExtResource("dl_diary_line")
+text = "A Cecília disse que a mesa fica em boas mãos. Tomara que esteja certa."
+call = SubResource("S_cec")
+at_close = true
+
 [resource]
 script = ExtResource("1_night")
 note = "O supervisor deixou um recado: \"Último setor: a partir de hoje, o setor 2, o Alto da Serra, também fica com você. Os números que começam com 2 passam pela sua mesa. A cidade inteira está nas suas mãos.\""
@@ -207,3 +249,5 @@ news_if = Array[ExtResource("x0_story_text")]([SubResource("News_radio"), SubRes
 story = Array[ExtResource("x1_story_call")]([SubResource("S_cec"), SubResource("A_story_10_generosa"), SubResource("A_story_10_generosa_volta")])
 dial = Array[ExtResource("x4_dial_call")]([SubResource("D_par"), SubResource("D_otavio")])
 calls = Array[ExtResource("x1_story_call")]([SubResource("J_call_cancao"), SubResource("J_call_tiros"), SubResource("J_call_barreira"), SubResource("J_call_parente"), SubResource("J_call_irma")])
+tasks = Array[ExtResource("dt_diary_task")]([SubResource("T_0"), SubResource("T_1")])
+diary = Array[ExtResource("dl_diary_line")]([SubResource("N_0"), SubResource("N_1"), SubResource("N_2"), SubResource("N_3"), SubResource("N_4")])

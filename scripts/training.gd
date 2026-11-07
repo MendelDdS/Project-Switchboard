@@ -222,6 +222,8 @@ func _done(until: String) -> bool:
 			return main.notebook.pending_count() == 0
 		"call_log":
 			return _opened(Tools.CALL_LOG, Main.SAW_SHEET)
+		"diary":
+			return _opened(Tools.DIARY, "diario_cecilia")
 	push_error("Training: passo com until desconhecido: \"%s\"" % until)
 	return true   # (não trava o treinamento)
 

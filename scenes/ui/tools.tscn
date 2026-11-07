@@ -9,6 +9,7 @@
 [ext_resource type="Script" path="res://scripts/ui/paper_deco.gd" id="8_deco"]
 [ext_resource type="PackedScene" path="res://scenes/ui/toll.tscn" id="9_toll"]
 [ext_resource type="Script" path="res://scripts/ui/letter_view.gd" id="10_letter"]
+[ext_resource type="Script" path="res://scripts/ui/diary_view.gd" id="11_diary"]
 
 [node name="Tools" type="VBoxContainer"]
 custom_minimum_size = Vector2(465, 0)
@@ -138,3 +139,9 @@ unique_name_in_owner = true
 layout_mode = 2
 mouse_filter = 2
 script = ExtResource("8_deco")
+
+[node name="Diary" type="Control" parent="Body/Paper/Margin"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+script = ExtResource("11_diary")

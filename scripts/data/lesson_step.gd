@@ -33,9 +33,10 @@ enum Kind {
 ## `street`/`block`; vazio = o da emergência de treino), "shred" (o cartão foi para a trituradora), "punched" (o cartão
 ## do lugar da emergência de treino perfurado com o tipo e as unidades dela), "sent" (um cartão entrou no
 ## transmissor), "arrived" (as unidades chegaram à emergência de treino e o rádio falou), "hold" (o FONE saiu da
-## entrada dela: ela ficou em espera), "resume" (o FONE voltou para a entrada dela).
+## entrada dela: ela ficou em espera), "resume" (o FONE voltou para a entrada dela), "diary" (abriu o diário, o
+## presente dela: liga o marcador `diario_cecilia`).
 @export_enum("directory", "cord_out", "cord_dest", "transfer", "connected", "line_done", "line_free", "logbook",
-		"registered", "call_log", "dispatch", "card", "shred", "punched", "sent", "arrived", "hold", "resume") var until := "directory"
+		"registered", "call_log", "dispatch", "card", "shred", "punched", "sent", "arrived", "hold", "resume", "diary") var until := "directory"
 ## WAIT "card": o lugar do cartão (`id` da rua e trecho, como em `EmergencyCall`); vazio = o da emergência de treino.
 @export var street := ""
 @export_range(0, 5) var block := 0

@@ -4,6 +4,8 @@ extends Resource
 const StreetEvent := preload("res://scripts/data/street_event.gd")
 const DialCall := preload("res://scripts/data/dial_call.gd")
 const StoryText := preload("res://scripts/data/story_text.gd")
+const DiaryTask := preload("res://scripts/data/diary_task.gd")
+const DiaryLine := preload("res://scripts/data/diary_line.gd")
 ## Uma noite do jogo: o bilhete do começo e o roteiro fixo (ligações da história). Fica em
 ## res://data/nights/, na ordem de GameContent.nights. Só o roteiro é fixo; o resto do turno (quem liga, quando, de que
 ## tipo) é sorteado no ritmo do nível em que o jogador está (`Pace`, que não depende da noite).
@@ -37,6 +39,10 @@ const StoryText := preload("res://scripts/data/story_text.gd")
 ## só `call` e `requires` (conferido na hora de tocar: as versões de um mesmo assunto com marcadores opostos); não são
 ## missão do roteiro, não têm horário nem desfecho.
 @export var calls: Array[StoryCall] = []
+## O que pedem a Maria nesta noite, como ela anota no diário (`Diary`): as missões e os pedidos de cada lado.
+@export var tasks: Array[DiaryTask] = []
+## As anotações de Maria no diário (`DiaryLine`): o fato quando acontece e o balanço no fim do turno.
+@export var diary: Array[DiaryLine] = []
 ## Novidades da cidade nesta noite (conversa fiada): contadas antes dos assuntos gerais, uma vez por noite.
 @export var smalltalk: Array[ChatTopic] = []
 

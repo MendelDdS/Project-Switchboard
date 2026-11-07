@@ -5,7 +5,7 @@ extends Control
 ## com o grão e o friso, como a da mesa, e a sombra da lombada), o caderno é o bloco de fichas de ocorrência (a fita de
 ## pano da colagem no alto, a beira das folhas de baixo e o papelão em volta), com as tiras dos registros pendentes
 ## saindo de cima (`pending`), o registro fica preso na prancheta (a tábua, o prendedor
-## niquelado e o cabeçalho datilografado com o fio vermelho, como as folhas da mesa), o jornal tem o vinco do meio e o
+## niquelado e o cabeçalho datilografado com o fio vermelho, como as folhas da mesa), o diário tem a capa de pano vinho, o jornal tem o vinco do meio e o
 ## despacho é a unidade de despacho de perto (a moldura do vidro e a base com as máquinas são do `CardMachines`, por baixo
 ## do cartão, que pode passar por cima delas). Por cima de tudo, a luz da luminária (`light`, `_draw_light`).
 
@@ -72,6 +72,8 @@ func _draw() -> void:
 			var at := Vector2(floorf((size.x - CLIP.x) / 2.0), 1)
 			draw_texture(_skin("prendedor", CLIP), at + Vector2(2, 3), Color(0, 0, 0, 0.35))   # a sombra dele na folha
 			draw_texture(_skin("prendedor", CLIP), at)
+		Tools.DIARY:   # a capa de pano em volta; a sombra da costura fica na página (`diary_view.gd`)
+			draw_texture(_skin(kind, sz), Vector2.ZERO)
 		Tools.NEWS:
 			crease(self, Vector2(0, size.y / 2.0), Vector2(size.x, size.y / 2.0))
 		Tools.LETTER:   # dobrada em três para caber no envelope
@@ -119,9 +121,9 @@ static func _skin(k: String, sz: Vector2i) -> ImageTexture:
 static func _cover(k: String, sz: Vector2i) -> Image:
 	var img := Image.create(sz.x, sz.y, false, Image.FORMAT_RGBA8)
 	var w := BOARD_W if k == Tools.CALL_LOG else COVER
-	var c: Color = {Tools.DIRECTORY: Pal.BOOK.darkened(0.15), Tools.LOGBOOK: Pal.PAD_BACK[1], Tools.CALL_LOG: Pal.BOARD[1]}[k]
-	var hi: Color = {Tools.DIRECTORY: c.lightened(0.22), Tools.LOGBOOK: Pal.PAD_BACK[0], Tools.CALL_LOG: Pal.BOARD[0]}[k]
-	var lo: Color = {Tools.DIRECTORY: c.darkened(0.25), Tools.LOGBOOK: Pal.PAD_BACK[2], Tools.CALL_LOG: Pal.BOARD[2]}[k]
+	var c: Color = {Tools.DIRECTORY: Pal.BOOK.darkened(0.15), Tools.LOGBOOK: Pal.PAD_BACK[1], Tools.CALL_LOG: Pal.BOARD[1], Tools.DIARY: Pal.DIARY_COVER[1]}[k]
+	var hi: Color = {Tools.DIRECTORY: c.lightened(0.22), Tools.LOGBOOK: Pal.PAD_BACK[0], Tools.CALL_LOG: Pal.BOARD[0], Tools.DIARY: Pal.DIARY_COVER[0]}[k]
+	var lo: Color = {Tools.DIRECTORY: c.darkened(0.25), Tools.LOGBOOK: Pal.PAD_BACK[2], Tools.CALL_LOG: Pal.BOARD[2], Tools.DIARY: Pal.DIARY_COVER[2]}[k]
 	for y in sz.y:
 		var band := y < w or y >= sz.y - w
 		for x in (range(sz.x) if band else range(w) + range(sz.x - w, sz.x)):
@@ -156,7 +158,7 @@ static func _cover(k: String, sz: Vector2i) -> Image:
 		var d := Vector2i(1 if p.x == 0 else -1, 1 if p.y == 0 else -1)
 		if k == Tools.CALL_LOG:   # o canto cortado
 			img.set_pixel(p.x, p.y, Color(0, 0, 0, 0))
-		elif k == Tools.DIRECTORY:   # gasto: mais claro
+		elif k in [Tools.DIRECTORY, Tools.DIARY]:   # gasto: mais claro
 			for i in 3:
 				for j in 3 - i:
 					img.set_pixel(p.x + d.x * i, p.y + d.y * j, c.lightened(0.3))
@@ -167,7 +169,7 @@ static func _cover(k: String, sz: Vector2i) -> Image:
 ## fichas) com pontos mais escuros e mais claros e a tábua, quase lisa, com fibras ao comprido.
 static func _grain(k: String, c: Color, x: int, y: int) -> Color:
 	match k:
-		Tools.DIRECTORY, Tools.LOGBOOK:
+		Tools.DIRECTORY, Tools.LOGBOOK, Tools.DIARY:
 			var g := (x * 73 + y * 151 + x * y * 7) % 97
 			return c.darkened(0.07) if g < 6 else (c.lightened(0.05) if g > 92 else c)
 		_:
