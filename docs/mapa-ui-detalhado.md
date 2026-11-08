@@ -2,6 +2,15 @@
 
 Versão completa do `scripts/ui/CLAUDE.md` até 20/10/2026. Não é carregada sozinha: consulte com `grep`. Pode estar desatualizada; o código vale mais.
 
+**Mudou depois (11/2026, plano do diário, `HISTORICO` 562–568):** o armário virou um gaveteiro baixo, decorativo
+(`_draw_drawers`), com o guarda-chuva na quina; em cima, o quadro de avisos de cortiça (`_draw_cork_board`, `_board`),
+que não é de clicar, com o jornal, o recado do supervisor (`NOTE_ID`, `Intro.reread`), a folhinha, o cartaz da
+quermesse e os avisos da companhia e das autoridades (`PINNED`, `_draw_flyer`, `RoomChange.to_night`), erguidos sob o
+mouse; o jornal saiu da mesa para o quadro e o diário de Maria (`Tools.DIARY`, `diary_view.gd`) ficou no lugar dele;
+os plugues se erguem sob o mouse, sem o contorno amarelo; a letra de mão é a `HandFont` (`Pal.hand`); o lápis tem
+uns 14 cm (`PENCIL_LEN`, `_lay_pencil`). Onde o texto abaixo falar do armário, do cartaz na parede ou da letra
+ondulando, vale isto.
+
 
 Complemento do `CLAUDE.md` da raiz, lido ao mexer nos arquivos desta pasta.
 

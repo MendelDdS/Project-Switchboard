@@ -26,10 +26,11 @@ const UNIT := Vector3(47, 7.5, 0.17)   # (era 39 × 6 × 16 de painel: do tamanh
 const BOOKS_SPAN := 40.0   ## o lugar das listas na fileira (na escala dos objetos): os 31 delas mais os volumes desencontrados e a lombada
 const UNIT_PANEL := 20.0
 const PAD_W := 26.0    ## a largura do bloco de fichas (na escala dos objetos, uns 18 cm; o caderno aberto, com 46, tomava a fileira da frente)
-## Onde o lápis fica largado no bloco de fichas, um lugar a cada ficha registrada (`written`): [a ponta, a borracha],
-## em fração da folha abaixo da fita (x da largura, y da altura dela).
-const PENCIL := [[Vector2(0.5, 0.88), Vector2(0.96, 0.18)], [Vector2(0.28, 0.82), Vector2(0.8, 0.5)],
-	[Vector2(0.9, 0.86), Vector2(0.44, 0.2)], [Vector2(0.14, 0.3), Vector2(0.64, 0.9)]]
+## Onde o lápis fica largado no bloco de fichas, um lugar a cada ficha registrada (`written`): [o meio, em fração da
+## folha abaixo da fita, e o ângulo da ponta para a borracha, em graus, visto de cima]; rasos, que ele quase não cabe.
+const PENCIL := [[Vector2(0.5, 0.55), -12.0], [Vector2(0.47, 0.6), 9.0], [Vector2(0.53, 0.5), 194.0], [Vector2(0.5, 0.58), 168.0]]
+const PENCIL_LEN := 20.0   ## o lápis, na escala dos objetos (uns 14 cm, um lápis já usado; com uns 7 cm, ficava de brinquedo ao lado do bloco)
+const PENCIL_FS := 0.5   ## o quanto o tampo visto daqui encurta o fundo: o lápis inclinado, sem isso, cresceria de pé
 ## A fita cassete deitada na mesa (as entregues, `tapes_out`, na escala dos objetos, `PROP_K`), de comprido para o fundo
 ## (de frente, com 10 cm de largura, não cabia ao lado do bloco de fichas): largura (6,4 cm), fundo (10 cm, fração do
 ## tampo) e grossura; giradas um pouco, cada uma para um lado (`TAPE_YAW`).
@@ -338,7 +339,7 @@ func _art_diary(sz: Vector2i) -> Image:
 ## Por cima do diário fechado: o lápis atravessado, enquanto há tarefa nova que Maria anotou e o jogador não viu (`new`).
 func _diary_marks(sz: Vector2i, new: bool) -> void:
 	if new:
-		_pencil(_tex_pt(Vector2(sz.x * 0.2, sz.y * 0.85)).round(), _tex_pt(Vector2(sz.x * 0.85, sz.y * 0.15)).round(), Vector2(sz) / 2.0)
+		_lay_pencil(Vector2(sz) / 2.0, -28.0, PENCIL_LEN / DIARY_W * sz.x)
 
 
 ## O envelope da carta (`sz`, de frente): papel claro com a aba fechada em V; aberta (`read`), a aba solta, um pouco
@@ -1887,21 +1888,54 @@ func _pad_marks(sz: Vector2i) -> void:
 		_ci.draw_rect(Rect2(p.x, p.y - up, 5, 1), col.lightened(0.12))   # a beira de cima, na luz
 		_ci.draw_rect(Rect2(p.x, p.y + 1, 6, 1), Color(0, 0, 0, 0.3))   # onde ela entra embaixo do bloco
 	var at: Array = PENCIL[written % PENCIL.size()]
-	var page := func(f: Vector2) -> Vector2:   # a fração da folha abaixo da fita, na tela
-		return _tex_pt(Vector2(lerpf(4.0, sz.x - 4.0, f.x), lerpf(t + 3.0, sz.y - 3.0, f.y))).round()
-	_pencil(page.call(at[0]), page.call(at[1]), (at[0] + at[1]) / 2.0 * Vector2(sz))
+	var f: Vector2 = at[0]
+	_lay_pencil(Vector2(lerpf(4.0, sz.x - 4.0, f.x), lerpf(t + 3.0, sz.y - 3.0, f.y)), at[1], PENCIL_LEN / PAD_W * sz.x)
 
 
-## O lápis largado num objeto chato, da ponta `a` à borracha `b` (px da tela), na luz do ponto `mid` do desenho dele.
+## O lápis deitado no objeto chato sendo desenhado: o meio `mid` no desenho de frente dele, o ângulo `deg` da ponta
+## para a borracha visto de cima e o comprimento `len` (px do desenho, na largura).
+func _lay_pencil(mid: Vector2, deg: float, len: float) -> void:
+	var half := Vector2(cos(deg_to_rad(deg)), sin(deg_to_rad(deg)) * PENCIL_FS) * len / 2.0
+	_pencil(_tex_pt(mid - half).round(), _tex_pt(mid + half).round(), mid)
+
+
+## O lápis largado num objeto chato, da ponta do grafite `a` à da borracha `b` (px da tela), na luz do ponto `mid` do
+## desenho dele: num traço só (em partes, cada uma começava o degrau num ponto e a ponta saía torta), todas as larguras
+## ímpares em volta do mesmo meio: o grafite e a madeira apontada com 1 px, a madeira com 3, o corpo, a ponteira de
+## níquel e a borracha com 3, e a sombra na mesa.
 func _pencil(a: Vector2, b: Vector2, mid: Vector2) -> void:
-	var d := (b - a).normalized()
-	var lit := func(cols: Array) -> Array: return cols.map(func(c: Color) -> Color: return _tone(c, mid))
-	_pixel_line(a + Vector2(2, 2), b + d * 7 + Vector2(2, 2), [Color(0, 0, 0, 0.3), Color(0, 0, 0, 0.3)])
-	_pixel_line(a, b, lit.call(Pal.PENCIL_BODY))   # o corpo, amarelo de lápis gasto
-	_pixel_line(a - d * 4, a, lit.call(Pal.PENCIL_WOOD))   # a madeira apontada
-	_pixel_line(a - d * 6, a - d * 4, lit.call([Pal.PENCIL_LEAD]))   # o grafite
-	_pixel_line(b, b + d * 4, Pal.NICKEL.slice(1))   # a ponteira, no níquel da mesa
-	_pixel_line(b + d * 4, b + d * 7, lit.call(Pal.PENCIL_ERASER))   # a borracha
+	_ci.draw_set_transform(Vector2.ZERO)
+	a = a.floor()
+	var d := b.floor() - a
+	var n := maxi(1, int(maxf(absf(d.x), absf(d.y))))
+	var across := Vector2(0, 1) if absf(d.x) >= absf(d.y) else Vector2(1, 0)
+	var tone := func(c: Color) -> Color: return _tone(c, mid)
+	var body: Array = Pal.PENCIL_BODY.map(tone)
+	var wood: Array = Pal.PENCIL_WOOD.map(tone)
+	var eraser: Array = Pal.PENCIL_ERASER.map(tone)
+	var shade := Color(0, 0, 0, 0.3)
+	for i in range(3, n + 1):   # a sombra, embaixo e para o lado da luz
+		var p := (a + d * i / n + Vector2(0.5, 0.5)).floor()
+		_ci.draw_rect(Rect2(p + Vector2(1, 2), Vector2(1, 2) if across.y else Vector2(2, 1)), shade)
+	for i in n + 1:
+		var p := (a + d * i / n + Vector2(0.5, 0.5)).floor()
+		var cols: Array
+		if i < 2:
+			cols = [_tone(Pal.PENCIL_LEAD, mid)]   # o grafite
+		elif i < 4:
+			cols = [wood[1]]   # a madeira afinando
+		elif i < 8:
+			cols = wood
+		elif i < n - 9:
+			cols = body   # o corpo, amarelo de lápis gasto
+		elif i < n - 3:
+			cols = Pal.NICKEL.slice(1)   # a ponteira, no níquel da mesa
+		else:
+			cols = eraser
+		var o := floori(cols.size() / 2.0)
+		for k in cols.size():
+			_ci.draw_rect(Rect2(p + across * (k - o), Vector2.ONE), cols[k])
+	_ci.draw_set_transform_matrix(Transform2D.IDENTITY)
 
 
 const SHEET_TURN := 3.5   ## graus que a folha nova da prancheta fica girada (reta, lia como um risco no meio da de baixo)

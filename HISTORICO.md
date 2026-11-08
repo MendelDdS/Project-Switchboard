@@ -3564,4 +3564,18 @@ Chaves:
     em pixel desenhada letra a letra (`scripts/ui/hand_font.gd`, `Pal.hand`, uma `FontFile` de bitmap montada em código,
     nas medidas da Departure no 11; acentos do pt e do es montados por cima; o que falta vem da Departure), no diário,
     na carta, no recado e no parecer do supervisor (`HandText`, o `[hand]` do `paper_ink.gd`, que agora só aperta a
-    caneta). Reta; a inclinada (itálico de pixel) ficou como alternativa a escolher.
+    caneta). Reta, a escolhida: a inclinada (as fileiras andando um pixel a cada quatro) tinha vãos nas letras; com um
+    pixel de ponte em cada degrau e o acento andando inteiro ficou sem vãos, para o usuário rever
+    (`build/quadro/reta_inclinada.png`).
+568. #objetos #mesa O lápis (no bloco de fichas e em cima do diário) no tamanho de verdade: uns 14 cm na escala dos
+    objetos (`PENCIL_LEN`; com uns 7 cm parecia de brinquedo), a madeira apontada afinando, a ponteira e a borracha
+    proporcionais; a ponta saía torta (pedido seguinte): as partes eram traços separados, cada um começando o degrau
+    num ponto, e as larguras pares e ímpares não tinham o mesmo meio; agora é um traço só, todas ímpares (3 px o
+    corpo, 1 a ponta) em volta do mesmo meio; posto pelo meio e pelo ângulo visto de cima (`_lay_pencil`, o fundo encurtado por
+    `PENCIL_FS`), em ângulos rasos, que ele quase não cabe no bloco. Captura: `shot.gd --pencil --written=N`.
+569. #diario #testes Fechamento do plano do diário: a suíte inteira, os quatro caminhos do robô (`tools/caminhos.sh`) e a
+    regressão visual contra o commit de antes do plano (as 12 capturas mudaram, como esperado). Das 10 beiras de
+    `tools/beiras.txt` fora do aprovado, 9 já estavam assim antes do plano (as medidas ficaram para trás quando os
+    objetos andaram); a do lado direito do bloco mudou só porque o lápis, maior, não passa mais por cima dela. O grafo
+    (`graphify update`) renomeou os nós de arquivo e de função; as ligações dos documentos, que caíram de 442 para
+    221, foram refeitas pelos nomes novos (492); o `docs/mapa-ui-detalhado.md` ganhou o resumo do que mudou.

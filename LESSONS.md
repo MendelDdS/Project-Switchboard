@@ -1044,6 +1044,15 @@ nenhuma fala, apagando as 114 traduções desta branch ainda não commitadas (re
 Arquivos de dados se geram em Python, não em laço de shell; e a ferramenta agora para sem gravar quando o conteúdo
 não carrega.
 
+## `graphify update` pode renomear os nós e deixar os documentos soltos
+Numa atualização o extrator passou a pôr a extensão nos nós de arquivo (`..._story_flags` virou `..._story_flags_gd`) e
+o nome da classe nos de função; as ligações dos documentos apontavam para os nomes antigos e sumiram (442 para 221).
+Antes de atualizar, guarde o `graph.json`; depois, conte as arestas dos `.md` e refaça as que caíram pelos nomes novos.
+
+## Objeto pequeno se mede em centímetros contra o vizinho
+O lápis tinha uns 7 cm ao lado de um bloco de 18 cm: desenhado em px "que parecessem bons", não na escala dos objetos.
+Todo objeto, por menor que seja, tem o tamanho de verdade dele na escala da mesa (`PROP_K`, as constantes em cm).
+
 ## Objeto da sala tem que ter motivo para estar ali
 Pus no quadro panfletos de rua (cachorro perdido, curso, vacinação); o usuário apontou que na central só entram Maria e
 o supervisor: ninguém pregaria aquilo ali. Antes de pôr algo na sala, pergunte quem o trouxe. No quadro, só o que a

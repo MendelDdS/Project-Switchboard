@@ -91,6 +91,7 @@ extends Node
 ##   --sips=3               goles tomados do café
 ##   --keys                 as teclas do painel do operador todas ativas (a cor acesa delas), sem ligação
 ##   --written=2            fichas registradas (o lugar do lápis no bloco)
+##   --pencil               o lápis em cima do diário (tarefa nova)
 ##   --bolt                 um relâmpago caindo na hora da captura (o primeiro clarão)
 ##   --wait=5               segundos antes de capturar (a luminária esquenta em 4)
 ##   --dim=N                a luminária presa no nível N (0 a 1), como no meio de uma piscada
@@ -430,6 +431,8 @@ func _ready() -> void:
 		room.sips = int(_args["sips"])
 	if _args.has("written"):
 		room.written = int(_args["written"])
+	if _args.has("pencil"):   # o lápis atravessado em cima do diário (tarefa nova que o jogador não viu)
+		room.diary_new = true
 	if _args.has("cat"):
 		room.cat_here = true
 	if _args.has("phones"):
