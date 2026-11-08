@@ -45,7 +45,9 @@ func _texts() -> void:
 	if _n == 0:
 		date = T.text(T.Key.INTRO_TRAINING) % [GameData.date_text(_n), Main.fmt(0.0)]
 	else:
-		date = T.text(T.Key.INTRO_NIGHT) % [_n, GameData.date_text(_n), Main.fmt(0.0)]
+		var of := GameData.CONTENT.nights.size()   # "Noite 7 de 15" (sem a hora, que cabe no cartão de ponto); o epílogo, sem o "de"
+		date = T.text(T.Key.INTRO_NIGHT_OF) % [_n, of, GameData.date_text(_n)] if _n <= of \
+			else T.text(T.Key.INTRO_NIGHT) % [_n, GameData.date_text(_n), Main.fmt(0.0)]
 	%Date.text = "[typed]%s[/typed]" % date
 	var note := tr(_night.note_for(_flags))
 	for p in _extra:

@@ -92,6 +92,7 @@ extends Node
 ##   --keys                 as teclas do painel do operador todas ativas (a cor acesa delas), sem ligação
 ##   --written=2            fichas registradas (o lugar do lápis no bloco)
 ##   --pencil               o lápis em cima do diário (tarefa nova)
+##   --punch=S              com --screen=intro: bate o ponto e captura S segundos depois (o cartão na fenda, o recado indo ao quadro)
 ##   --bolt                 um relâmpago caindo na hora da captura (o primeiro clarão)
 ##   --wait=5               segundos antes de capturar (a luminária esquenta em 4)
 ##   --dim=N                a luminária presa no nível N (0 a 1), como no meio de uma piscada
@@ -143,6 +144,9 @@ func _ready() -> void:
 			m._intro.setup(m.night_no, m.night, false, _args.has("warned"), tapes if _args.has("tapenote") else {},
 				"user://progress.v2-1761600000.cfg" if _args.has("aside") else "")
 		await get_tree().create_timer(float(_args.get("wait", "5")), false).timeout
+		if _args.has("punch"):
+			m._intro.get_node("%Clock").punch()
+			await get_tree().create_timer(float(_args["punch"]), false).timeout
 		_save(out)
 		return
 	m._intro.visible = false

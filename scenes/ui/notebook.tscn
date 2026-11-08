@@ -31,7 +31,6 @@ unique_name_in_owner = true
 layout_mode = 2
 auto_translate_mode = 2
 theme_type_variation = &"InkSoftLabel"
-theme_override_font_sizes/font_size = 11
 
 [node name="Columns" type="HBoxContainer" parent="Content"]
 layout_mode = 2
@@ -42,28 +41,24 @@ custom_minimum_size = Vector2(56, 0)
 layout_mode = 2
 text = "COL_TIME"
 theme_type_variation = &"InkSoftLabel"
-theme_override_font_sizes/font_size = 11
 
 [node name="Caller" type="Label" parent="Content/Columns"]
 custom_minimum_size = Vector2(136, 0)
 layout_mode = 2
 text = "COL_CALLER"
 theme_type_variation = &"InkSoftLabel"
-theme_override_font_sizes/font_size = 11
 
 [node name="Place" type="Label" parent="Content/Columns"]
 custom_minimum_size = Vector2(138, 0)
 layout_mode = 2
 text = "COL_PLACE"
 theme_type_variation = &"InkSoftLabel"
-theme_override_font_sizes/font_size = 11
 
 [node name="Type" type="Label" parent="Content/Columns"]
 layout_mode = 2
 size_flags_horizontal = 3
 text = "COL_TYPE"
 theme_type_variation = &"InkSoftLabel"
-theme_override_font_sizes/font_size = 11
 
 [node name="Scroll" type="ScrollContainer" parent="Content"]
 unique_name_in_owner = true
@@ -96,33 +91,28 @@ unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 theme_type_variation = &"InkLabel"
-theme_override_font_sizes/font_size = 11
 
 [node name="Queue" type="Label" parent="Content/Form/VBox/Top"]
 unique_name_in_owner = true
 layout_mode = 2
 theme_type_variation = &"InkSoftLabel"
-theme_override_font_sizes/font_size = 11
 
 [node name="Who" type="Label" parent="Content/Form/VBox"]
 unique_name_in_owner = true
 layout_mode = 2
 theme_type_variation = &"InkMonoLabel"
-theme_override_font_sizes/font_size = 11
 text_overrun_behavior = 3
 
 [node name="Where" type="Label" parent="Content/Form/VBox"]
 unique_name_in_owner = true
 layout_mode = 2
 theme_type_variation = &"InkMonoLabel"
-theme_override_font_sizes/font_size = 11
 text_overrun_behavior = 3
 
 [node name="Obs" type="Label" parent="Content/Form/VBox"]
 unique_name_in_owner = true
 layout_mode = 2
 theme_type_variation = &"InkSoftLabel"
-theme_override_font_sizes/font_size = 11
 autowrap_mode = 3
 
 [node name="Actions" type="HBoxContainer" parent="Content/Form/VBox"]
@@ -134,7 +124,6 @@ layout_mode = 2
 size_flags_horizontal = 3
 text = "NOTEBOOK_REGISTER_AS"
 theme_type_variation = &"InkSoftLabel"
-theme_override_font_sizes/font_size = 11
 
 [node name="Common" type="Button" parent="Content/Form/VBox/Actions"]
 unique_name_in_owner = true

@@ -13,7 +13,7 @@ const CLEAR_SEC := 40.0                 # o som e a cor indo para a noite limpa 
 const DIARY_WAIT := 15                  # no fim do turno, o diário aberto escrevendo e riscando, até tantos segundos...
 const DIARY_HOLD := 2.5                 # ...e depois aberto mais estes, para ler, antes do memorando
 const WEATHERS := ["rain", "fog", "clear"]   # clima sorteado no começo do turno (`-- --weather=fog` força um)
-const QUIET_SHARE := 0.6               # mesa vazia por tanto do maior intervalo do ritmo (`Pace.call_gap`): toca uma a mais
+const QUIET_SHARE := 0.35              # mesa vazia por tanto do maior intervalo do ritmo (`Pace.call_gap`): toca uma a mais
 const GIVE_UP_SEC := 60.0               # quem liga desiste se ninguém atende (as do roteiro aguentam 1,5x; retornos, 0,75x)
 const FREE_FOR_STORY := 3.0            # min de jogo até a conversa num destino que uma ligação do roteiro vai pedir terminar (`_free_dest_for`)
 const SMALLTALK_AFTER := 10.0           # segundos de silêncio esperando a transferência até puxar conversa fiada...
@@ -221,10 +221,14 @@ func _ready() -> void:
 	background.prop_clicked.connect(func(id: String): if running and not ending: tools.set_tab(id))   # objetos da cena
 	background.note_clicked.connect(func(): if running and not ending: _intro.reread(background.prop_rect(Background.NOTE_ID)))   # o recado do supervisor, de perto
 	background.flare_lit.connect(func(): flags.apply("sinalizador_%d" % night_no))   # o sinal do roteiro na noite 15
-	_intro.over = board   # o bilhete do supervisor fica preso no painel da mesa comutadora
+	_intro.over = tools   # o bilhete do supervisor de perto, na metade direita, onde abrem as ferramentas
+	_intro.pinned = func(): return background.prop_rect(Background.NOTE_ID)   # começando o turno, ele vai para o quadro
 	var b3 := bureaucracy.rule("b3_codigo")
 	_intro.setup(night_no, night, progress != null, report.low_before > 0, bureaucracy.tapes.last,
-		progress.aside if progress else "", flags, bureaucracy.codes.code(night_no) if b3 in bureaucracy.live() else "")
+		progress.aside if progress else "", flags, bureaucracy.codes.code(night_no) if b3 in bureaucracy.live() else "",
+		_tonight())
+	for n: CanvasItem in [_shift_hours.get_parent().get_parent(), phone]:   # o turno aparece com o ponto batido
+		n.modulate.a = 0.0
 	if is_training():   # o treinamento começa com o FONE já na entrada 1
 		board.plugged(0, 1)
 	if progress != null and night_no > 1:   # o jornal da manhã, com o que aconteceu na noite anterior
@@ -399,9 +403,27 @@ func set_weather(w: String, sec := 2.0) -> void:
 		Sfx.set_weather(w, sec)
 
 
+## O que a noite traz de novo, para o papel da abertura (`Intro.setup`): o banco novo da mesa, as normas que começam e
+## a carta; cada item, [chave, valores] (nome de chave `T.Key` entre os valores: traduzido ao mostrar).
+func _tonight() -> Array:
+	var out := []
+	if night_no > 1:
+		for s in GameData.sectors_for(night_no):
+			if s not in GameData.sectors_for(night_no - 1):
+				out.append([T.Key.INTRO_NEW_BANK, ["ABC"[Switchboard.SECTOR_ORDER.find(s)], s]])
+	for r in bureaucracy.live():
+		if r.from_night == night_no and r.task_text != "":
+			out.append([T.Key.INTRO_NEW_RULE, [r.task_text]])   # a tarefa do diário, traduzida ao mostrar
+	if night.letter_for(flags) != "":
+		out.append([T.Key.INTRO_LETTER, []])
+	return out
+
+
 # ================================================================ laço principal
 
 func _start_shift() -> void:
+	for n: CanvasItem in [_shift_hours.get_parent().get_parent(), phone]:
+		create_tween().tween_property(n, "modulate:a", 1.0, _intro.FADE_SEC)
 	Sfx.start_ambience(weather)
 	background.warm_up()
 	running = true
@@ -522,7 +544,7 @@ func _nag() -> void:
 		if turns and quiet > SMALLTALK_AFTER and in_progress().size() < MAX_EMERGENCIES:
 			f.last_talk = talk_clock
 			conversation.turn(f)
-		elif not turns and not f.chatted and quiet > SMALLTALK_AFTER:
+		elif not turns and not f.story and not f.chatted and quiet > SMALLTALK_AFTER:   # (a do roteiro não fala de quermesse)
 			f.chatted = true
 			if randf() < SMALLTALK_CHANCE:
 				f.last_talk = talk_clock

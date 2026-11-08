@@ -3820,17 +3820,20 @@ func _draw_banner(g: Rect2) -> void:
 		_fill(PackedVector2Array([at.call(u0, top), at.call(u1, top), at.call(u1, low), at.call(u0, low)]),
 			PackedColorArray([tone.call(Pal.BANNER[0], u0, top), tone.call(Pal.BANNER[0], u1, top), tone.call(Pal.BANNER[0], u1, low),
 				tone.call(Pal.BANNER[0], u0, low)]))
-	var hc := top - len_m / 2.0   # o círculo, fileira a fileira (px da tela), seguindo o pano
+	var hc := top - len_m / 2.0   # o símbolo, fileira a fileira (px da tela), seguindo o pano
 	var k := OUT_F / z * 2.0
-	var rad := 0.3 * k
 	var c0: Vector2 = at.call(0.5, hc) * 2.0
-	for dy in range(-ceili(rad), ceili(rad) + 1):
+	var rows: int = Banner.SYMBOL.size()
+	for r in rows:
+		var dy := r - rows / 2
 		var h := hc - dy / k
-		var half := roundf(sqrt(maxf(0.0, rad * rad - dy * dy)))
-		if h < low or half < 1.0:
+		if h < low:
 			continue
-		var cx: float = roundf((at.call(0.5, h) as Vector2).x * 2.0)
-		_p(cx - half, roundf(c0.y) + dy, 2.0 * half, 1, tone.call(Pal.BANNER[1], 0.5, h))
+		var cx: float = roundf((at.call(0.5, h) as Vector2).x * 2.0) - (Banner.SYMBOL[r] as String).length() / 2
+		var col: Color = tone.call(Pal.BANNER[1], 0.5, h)
+		for i in (Banner.SYMBOL[r] as String).length():
+			if Banner.SYMBOL[r][i] == "X":
+				_p(cx + i, roundf(c0.y) + dy, 1, 1, col)
 	_poly(PackedVector2Array([_o(g, x0, z, top + 0.05), _o(g, x0 + Banner.SIZE.x, z, top + 0.05), _o(g, x0 + Banner.SIZE.x, z, top),
 		_o(g, x0, z, top)]), Pal.BANNER[0].lightened(0.12))   # a dobra por cima do corrimão
 	var thick := lerpf(0.12, 0.04, d)   # o rolo afinando até virar a bainha

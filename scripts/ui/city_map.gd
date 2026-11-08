@@ -420,7 +420,7 @@ func _draw() -> void:
 	draw_rect(seal.grow(-4), Pal.SEAL, false, 1.0)
 	var cp := seal.position + Vector2(18, 0)
 	_t(cp + Vector2(0, 16), "N", 11)
-	draw_colored_polygon(PackedVector2Array([cp + Vector2(0, 18), cp + Vector2(-6, 28), cp + Vector2(6, 28)]), LINE)
+	draw_primitive(PackedVector2Array([cp + Vector2(0, 18), cp + Vector2(-6, 28), cp + Vector2(6, 28)]), PackedColorArray([LINE]), PackedVector2Array())
 	_t(seal.position + Vector2(72, 22), CITY, 11)
 	_use(xf)
 	if not hover.is_empty():

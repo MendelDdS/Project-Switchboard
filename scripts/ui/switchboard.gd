@@ -151,6 +151,7 @@ func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_STOP
 	_ci = self
 	_layers.append(self)
+	Settings.changed.connect(_redraw_all)   # (as cores para daltonismo: a legenda)
 	patches = SHELF_SLOTS - SECTOR_ORDER.size() + GameData.sectors.size()   # um lugar tampado por setor que ainda não é do operador
 	for f: Callable in [_draw_lamps, _draw_top, _draw_cords]:   # por cima do painel, nesta ordem (`_draw`)
 		var layer := Control.new()

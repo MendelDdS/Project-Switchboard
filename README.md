@@ -299,8 +299,8 @@ Ajuste em `main.gd` → `GAME_MIN_PER_SEC`.
 - As ligações tocam no horário mesmo com o operador ocupado; uma emergência espera a anterior desligar e as unidades
   chegarem. Quem ninguém atende desiste (`GIVE_UP_SEC`: 60 s; as do roteiro aguentam 90 s, os retornos 45 s; as do
   treinamento não desistem). As do roteiro esperam a mesa ficar em silêncio, por no máximo 30 minutos de jogo.
-- Alguns números não atendem à noite (`closed_at_night` no contato). Roteiros com `alt_target` deixam o operador
-  sugerir outro lugar.
+- Às vezes o destino não atende (sorteado, `PhoneCall.away`); roteiros com `alt_target` deixam o operador sugerir
+  outro lugar do mesmo ramo. No discador, o lugar fechado não atende (`closes`, `answers_until`, `gone_from` no contato).
 - Conexões completadas duram 34–68 minutos de jogo, cerca de 45–90 s reais (`talk_len` do nível de ritmo; mais longas do nível 6 em diante); depois as lâmpadas ficam vermelhas
   até o operador desmontar. Conversas mais longas prendem os cabos de conexão por mais tempo: em turnos
   movimentados, às vezes é preciso esperar uma conversa acabar (ou cortá-la) para ter um cabo livre. Sem cabo livre,

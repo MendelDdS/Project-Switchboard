@@ -17,6 +17,12 @@ DIGIT_7,sete,seven,siete
 DIGIT_8,oito,eight,ocho
 DIGIT_9,nove,nine,nueve
 INTRO_NIGHT,Noite %d · %s · %s,Night %d · %s · %s,Noche %d · %s · %s
+INTRO_NIGHT_OF,Noite %d de %d · %s,Night %d of %d · %s,Noche %d de %d · %s
+INTRO_TODAY,HOJE,TONIGHT,HOY
+INTRO_NEW_BANK,A mesa ganhou o banco %s: os números que começam com %d agora são seus.,"The board has a new bank, %s: numbers starting with %d are yours now.",La mesa ganó el banco %s: los números que empiezan con %d ahora son suyos.
+INTRO_NEW_RULE,Norma nova: %s.,New rule: %s.,Norma nueva: %s.
+INTRO_LETTER,Há uma carta lacrada para você em cima do diário.,There is a sealed letter for you on the diary.,Hay una carta sellada para usted encima del diario.
+TIME_CARD,Cartão de ponto,Time card,Tarjeta de reloj
 INTRO_TRAINING,Treinamento · %s · %s,Training · %s · %s,Entrenamiento · %s · %s
 INTRO_INFO,"Tudo acontece na sua mesa. Use o mouse para levar os plugues até as tomadas e para consultar a lista, o mapa e a ficha de ocorrências. Mais de uma linha pode tocar ao mesmo tempo. Use fones de ouvido.","Everything happens at your desk. Use the mouse to move the plugs to the jacks and to check the directory, the map and the log sheet. More than one line can ring at the same time. Use headphones.","Todo sucede en su mesa. Use el mouse para llevar los conectores a las tomas y para consultar la guía, el mapa y la ficha de llamadas. Puede sonar más de una línea a la vez. Use audífonos."
 SAVE_ASIDE_BADGE,ATENÇÃO,WARNING,ATENCIÓN
@@ -134,7 +140,7 @@ SYS_YOU_ENDED,(Você encerrou a ligação.),(You ended the call.),(Usted termin�
 SYS_NOBODY_ANSWERED,(Ninguém atendeu. A pessoa desistiu.),(Nobody answered. The caller gave up.),(Nadie contestó. La persona desistió.)
 SYS_TIRED_WAITING,(Cansou de esperar e desligou.),(Got tired of waiting and hung up.),(Se cansó de esperar y colgó.)
 HINT_WAIT_CALLS,"Aguarde as chamadas. A lista, o mapa e despacho, as fichas e o registro abrem pelos objetos na mesa (ou teclas 1 a 4).","Wait for calls. The directory, map & dispatch, the log sheets and the call log open from the desk (or keys 1 to 4).","Espere las llamadas. La guía, el mapa y despacho, las fichas y el registro se abren desde la mesa (o teclas 1 a 4)."
-HINT_LETTER,Deixaram uma carta para você em cima do jornal.,Someone left you a letter on top of the newspaper.,Le dejaron una carta encima del periódico.
+HINT_LETTER,Deixaram uma carta para você em cima do diário.,Someone left you a letter on top of the diary.,Le dejaron una carta encima del diario.
 HINT_INFO,Pedido de informação: confira a lista telefônica antes de responder.,Information request: check the phone directory before answering.,Pedido de información: revise la guía telefónica antes de responder.
 HINT_EMERGENCY,"A barra mostra a situação piorando e só para com o socorro completo a caminho (fora da linha, o rádio avisa). Mande o que as respostas pedirem: protocolo no despacho.","The bar shows the situation getting worse and only stops once full help is on the way (off the line, the radio warns you). Send what the answers call for: protocol in dispatch.","La barra muestra la situación empeorando y solo se detiene con toda la ayuda en camino (fuera de la línea, la radio avisa). Envíe lo que pidan las respuestas: protocolo en el despacho."
 HINT_WRONG_DEST,Tire a ponta do cabo desse destino. Confira o nome e o endereço na lista: há nomes parecidos.,Pull the cord out of that destination. Check the name and address in the directory: some names are similar.,Quite el cable de ese destino. Revise el nombre y la dirección en la guía: hay nombres parecidos.
@@ -416,6 +422,10 @@ SETTINGS_VOL_EFFECTS,Efeitos,Effects,Efectos
 SETTINGS_DISPLAY,Tela,Display,Pantalla
 DISPLAY_FULLSCREEN,Tela cheia,Fullscreen,Pantalla completa
 DISPLAY_WINDOW,Janela,Windowed,Ventana
+SETTINGS_COLORS,Cores,Colors,Colores
+COLORS_NORMAL,Normais,Default,Normales
+COLORS_RED_GREEN,Daltonismo (vermelho e verde),Red-green colorblind,Daltonismo (rojo y verde)
+KEYS_PRESS,Aperte uma tecla,Press a key,Pulse una tecla
 APPLY,Aplicar,Apply,Aplicar
 END_SHIFT,"Encerrar
 turno","End

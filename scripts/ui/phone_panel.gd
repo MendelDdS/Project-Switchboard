@@ -46,6 +46,16 @@ func _ready() -> void:
 	_glass.idle = T.Key.CONSOLE_IDLE   # sem ligação, a tela espera com o cursor piscando
 	_glass.off = true
 	_transcript.resized.connect(_fit)   # as opções e os avisos ganham ou perdem fileiras: cabe mais ou menos conversa
+	Settings.changed.connect(_key_names)
+	_key_names()
+
+
+## A tecla de cada botão na etiqueta dele (trocada nas configurações, `Settings.keys`).
+func _key_names() -> void:
+	for pair in [["answer_call", _answer], ["transfer_call", _transfer], ["listen_call", _listen], ["hang_up", _hangup]]:
+		var l: Label = (pair[1] as Button).get_node("Key")
+		l.auto_translate_mode = Node.AUTO_TRANSLATE_MODE_DISABLED
+		l.text = Settings.key_name(Settings.key_of(pair[0]))
 
 
 ## Atalhos (Input Map): tratados aqui, antes da interface, porque Espaço e Tab também servem para apertar o botão

@@ -8,8 +8,8 @@ extends Control
 const SHELL := [Pal.SHELL[5], Pal.SHELL[3], Pal.SHELL[2]]   # a moldura dela, no esmalte do console (luz, meio, sombra)
 const SCREEN := Pal.BOARD_INSET   # o fundo das telas (`HudPanel`), no oliva escuro do painel da mesa
 const BORDER := Pal.BOARD_SIDE
-const INK := {"op": Color("8dbb6c"), "sys": Color("9a917a")}   # a cor de quem fala, como na tela
-const TEXT := Color("e6dbbd")
+const INK := {"op": Pal.GREEN, "sys": Pal.DIM}   # a cor de quem fala, como na tela
+const TEXT := Pal.TEXT
 
 var phone: PhonePanel
 
@@ -65,8 +65,8 @@ func _screen(r: Rect2) -> void:
 		if fmod(PixelArt.ms() / 1000.0, ScreenGlass.BLINK * 2.0) < ScreenGlass.BLINK:
 			draw_rect(Rect2(inner.position + Vector2(3 + w, 2), Vector2(1, 2)), ScreenGlass.IDLE_INK)
 	var x := inner.position.x + inner.size.x * 0.62   # o reflexo do vidro
-	draw_colored_polygon(PackedVector2Array([Vector2(x, inner.position.y), Vector2(x + 4, inner.position.y),
-		Vector2(x + 1, inner.end.y), Vector2(x - 3, inner.end.y)]), Color(1, 1, 1, 0.05))
+	draw_primitive(PackedVector2Array([Vector2(x, inner.position.y), Vector2(x + 4, inner.position.y),
+		Vector2(x + 1, inner.end.y), Vector2(x - 3, inner.end.y)]), PackedColorArray([Color(1, 1, 1, 0.05)]), PackedVector2Array())
 
 
 ## Uma tecla como a do painel (`KeyCapStyle`): a chapa oliva, a etiqueta creme no alto e, no meio do espaço embaixo

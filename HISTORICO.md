@@ -3579,3 +3579,35 @@ Chaves:
     objetos andaram); a do lado direito do bloco mudou só porque o lápis, maior, não passa mais por cima dela. O grafo
     (`graphify update`) renomeou os nós de arquivo e de função; as ligações dos documentos, que caíram de 442 para
     221, foram refeitas pelos nomes novos (492); o `docs/mapa-ui-detalhado.md` ganhou o resumo do que mudou.
+570. #interface #turno #noites A abertura do turno como parte da mesa: o bilhete do supervisor na metade direita, onde
+   abrem as ferramentas (não mais sobre a mesa comutadora); embaixo, à esquerda, o relógio de ponto (`time_clock.gd`)
+   com o cartão de Maria da quinzena (o dia de cada noite, o domingo em vermelho, a entrada e a saída das noites que
+   passaram carimbadas) e, ao lado, o botão Começar turno (pedido depois de testar só o relógio: o botão é mais
+   intuitivo); o botão, o Enter ou o clique no relógio batem o ponto: o cartão desce na fenda, o furador bate e o
+   turno começa; o bilhete vai então para o quadro de avisos. O papel "MANUAL" de como se joga só no treinamento e na
+   noite 1; nas outras, "HOJE": o banco novo, a norma que começa e a carta (`Main._tonight`). A interface do turno
+   (horário e painel de baixo) escondida até o ponto batido; "Noite 7 de 15" no bilhete (sem a hora, que está no
+   cartão); as configurações num canto. A dica da carta corrigida: ela fica em cima do diário, não do jornal.
+571. #testes #codigo #desempenho Varredura do jogo inteiro (artefato "Inspeção da central", respondido item a item
+   pelo usuário): a suíte, o robô em cinco modos, a medição com tela, as verificações da `revisar-mudancas` em todo o
+   código, os marcadores do roteiro, os planos abertos e os documentos. Decisões: a letra de mão inclinada não entra
+   (o degrau da inclinação risca as minúsculas; só desenhada letra a letra) e as aspas na letra de mão também não;
+   aprovados o roteiro (itens 8 a 13 do `PLANO_ROTEIRO`) e a prisão de Maria; a bandeira com o símbolo da
+   resistência (um arco com um risco vertical no meio e dois traços menores dos lados, em cima: a cúpula riscada);
+   daltonismo com cores próprias e opção nas configurações; trocar as teclas, mas nada de velocidade das falas (mexe
+   no jogo); mais movimento nos silêncios do turno, sem nada tocar durante as ligações do roteiro.
+   Feito: a opção Cores (Normal, Daltonismo vermelho e verde: o verde das lâmpadas em conversa, da legenda, da barra
+   de agravamento e do rádio vira azul, `Pal.ok()`) e a troca das quatro teclas da ligação nas configurações; a mesa
+   vazia chama uma a mais com 35% do maior intervalo do ritmo, não 60% (`Main.QUIET_SHARE`: a maior mesa vazia do
+   robô caiu de ~30 para ~20 min de jogo; a missão do roteiro continua sem nada tocar, `on_mission`); a bandeira com
+   o símbolo (`Banner.SYMBOL`, com a base, que sem ela lia como "M"); 46 overrides de tema que repetiam o tema
+   saíram das cenas e a tinta do jornal e do registro virou a variação `InkText`; cores escritas direto passaram ao
+   `Pal`; polígonos de área cheia viraram `draw_primitive`; `test_rua` (as cenas da rua, a pausa, a tela inicial e o
+   fim da presa) e o robô atento grava as fitas das autoridades sem caminho. Fica de fora: dividir o
+   `background_view.gd` em mais uma camada (as cenas da rua e a rua se chamam nos dois sentidos).
+572. #roteiro #conversa Na noite 2, o homem do bar (Sebastião, urgente e misterioso) puxou a conversa fiada da quermesse
+   esperando a transferência e agradeceu com "você não vai se arrepender", sem nada a que se arrepender. Ligação do
+   roteiro não puxa conversa fiada nem oferece "[Puxar assunto]" (`PhoneCall.story` no `Main._nag` e no
+   `Conversation.transfer_choices`; ela só cobra a demora) e o agradecimento virou "Obrigado, Maria. Boa noite." (en,
+   es). Saíram a pedido "Isso fica entre nós" (Maria não sabe de nada para guardar) e "Deu tempo" (soa como se
+   faltassem segundos): o agradecimento simples não promete nem insinua nada.

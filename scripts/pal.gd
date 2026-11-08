@@ -18,10 +18,15 @@ const INK_RED := Color("6e1a12")
 const PEN := Color("2b3f78")       ## a caneta azul do supervisor: o parecer do relatório e o bilhete da noite (`PaperInk`, `[hand]`)
 const AMBER := Color("f3a83c")
 const GREEN := Color("8dbb6c")
+const BLUE := Color("56b4e9")   ## o verde para quem não distingue vermelho e verde (`ok`, `Settings.colorblind`)
 const RED := Color("d4553f")
 const TEXT := Color("e6dbbd")
 const DIM := Color("9a917a")
 const GLOW := Color("ffd183")
+const CURSOR: Array[Color] = [Color("0e0c08"), Color("e8dcbe"), Color("b2a078")]   ## os cursores (`Cursors`): o contorno, o miolo e a sombra
+const LED_OFF := Color("3a1a12")     ## o led vermelho apagado do rádio
+const ALERT_OFF := Color("1a1712")   ## a lâmpada de alerta apagada do rádio
+const CLIP_EDGE := Color("2a2620")   ## a beira escura do prendedor da prancheta
 
 ## Os materiais dos objetos da mesa, os mesmos no objeto (`Background._art_*`) e no papel aberto dele (`PaperDeco` e as
 ## ferramentas): o que muda numa ponta muda na outra.
@@ -309,7 +314,7 @@ const BALCONY_ROOM := Color("0b1018")   ## ...a sala escura atrás do vidro, com
 const BALCONY_IRON := Color("15191c")   ## ...o gradil de ferro...
 const BALCONY_SLAB := Color("2a1a14")   ## ...a beira da laje...
 const LAUNDRY: Array[Color] = [Color("9a948a"), Color("6a2e2c"), Color("3a4e66")]   ## ...e a roupa no varal
-const BANNER: Array[Color] = [Color("121214"), Color("d9b23a")]   ## ...a bandeira da rebelião (noite 15): o pano preto e o círculo amarelo (o símbolo, por ora)...
+const BANNER: Array[Color] = [Color("121214"), Color("d9b23a")]   ## ...a bandeira da rebelião (noite 15): o pano preto e o símbolo amarelo (a cúpula riscada, `Banner.SYMBOL`)...
 const STRANGER: Array[Color] = [Color("141316"), Color("0e0e11")]   ## o homem de sobretudo (embaixo do poste e de perto, `Arrest`): o sobretudo e o chapéu pretos e a calça
 const REBEL: Array[Color] = [Color("5a4232"), Color("2a2e36"), Color("8c8676"), Color("1c1c20")]   ## ...e quem a estende: a jaqueta de couro, a calça, a camisa e a boina
 const SHUTTER: Array[Color] = [Color("18211c"), Color("2a372e")]   ## as venezianas de madeira, verdes, na lateral do prédio de tijolos: as frestas e as lâminas
@@ -565,3 +570,12 @@ static var ui: Font = preload("res://fonts/DepartureMono-Regular.otf")
 static var mono: Font = ui
 ## A letra de mão (`hand_font.gd`, montada em código), a única exceção à fonte única: tudo o que é escrito à mão.
 static var hand: Font = preload("res://scripts/ui/hand_font.gd").font()
+
+
+static var colorblind := false   ## as cores para daltonismo vermelho-verde (posto pelo `Settings`, de `Settings.colorblind`)
+
+
+## A cor do que deu certo (a lâmpada da ligação conectada, o primeiro estágio da barra de agravamento): o verde, ou o
+## azul com as cores para daltonismo vermelho-verde nas configurações (`colorblind`).
+static func ok() -> Color:
+	return BLUE if colorblind else GREEN

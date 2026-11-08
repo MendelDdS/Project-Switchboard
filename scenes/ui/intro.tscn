@@ -2,6 +2,7 @@
 
 [ext_resource type="Script" path="res://scripts/ui/intro.gd" id="1_intro"]
 [ext_resource type="PackedScene" path="res://scenes/ui/supervisor_note.tscn" id="2_note"]
+[ext_resource type="Script" path="res://scripts/ui/time_clock.gd" id="3_clock"]
 
 [node name="Intro" type="ColorRect"]
 anchors_preset = 15
@@ -16,16 +17,23 @@ script = ExtResource("1_intro")
 unique_name_in_owner = true
 layout_mode = 0
 
-[node name="Bottom" type="VBoxContainer" parent="."]
+[node name="Bottom" type="HBoxContainer" parent="."]
 unique_name_in_owner = true
 layout_mode = 0
+theme_override_constants/separation = 14
+
+[node name="Clock" type="Control" parent="Bottom"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 0
+script = ExtResource("3_clock")
+
+[node name="Side" type="VBoxContainer" parent="Bottom"]
+layout_mode = 2
+size_flags_horizontal = 3
 theme_override_constants/separation = 10
 
-[node name="Buttons" type="HBoxContainer" parent="Bottom"]
-layout_mode = 2
-theme_override_constants/separation = 12
-
-[node name="Start" type="Button" parent="Bottom/Buttons"]
+[node name="Start" type="Button" parent="Bottom/Side"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(135, 33)
 layout_mode = 2
@@ -34,7 +42,32 @@ theme_type_variation = &"AmberButton"
 theme_override_font_sizes/font_size = 22
 text = "START_SHIFT"
 
-[node name="Settings" type="Button" parent="Bottom/Buttons"]
+[node name="Info" type="RichTextLabel" parent="Bottom/Side"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(300, 0)
+layout_mode = 2
+size_flags_vertical = 0
+mouse_filter = 2
+theme_type_variation = &"TapedLabel"
+bbcode_enabled = true
+fit_content = true
+scroll_active = false
+auto_translate_mode = 2
+
+[node name="Buttons" type="HBoxContainer" parent="."]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = 8.0
+offset_top = -32.0
+offset_right = 300.0
+offset_bottom = -8.0
+grow_vertical = 0
+theme_override_constants/separation = 8
+
+[node name="Settings" type="Button" parent="Buttons"]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 0
@@ -42,7 +75,7 @@ focus_mode = 0
 theme_type_variation = &"DarkButton"
 text = "SETTINGS"
 
-[node name="Skip" type="Button" parent="Bottom/Buttons"]
+[node name="Skip" type="Button" parent="Buttons"]
 unique_name_in_owner = true
 visible = false
 layout_mode = 2
@@ -50,18 +83,6 @@ size_flags_horizontal = 0
 focus_mode = 0
 theme_type_variation = &"DarkButton"
 text = "SKIP_TRAINING"
-
-
-[node name="Info" type="RichTextLabel" parent="Bottom"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(400, 0)
-layout_mode = 2
-mouse_filter = 2
-theme_type_variation = &"TapedLabel"
-bbcode_enabled = true
-fit_content = true
-scroll_active = false
-auto_translate_mode = 2
 
 [node name="Version" type="Label" parent="."]
 layout_mode = 1

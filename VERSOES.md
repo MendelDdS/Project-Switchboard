@@ -6,8 +6,7 @@ commit de onde saiu (marcado no git com a tag da versão), os sistemas e o que m
 **Formato: `0.MENOR.CORREÇÃO-fase`.**
 - **MENOR** sobe quando a build traz coisa nova (mecânica, conteúdo, visual, som); a CORREÇÃO volta a 0.
 - **CORREÇÃO** sobe quando ela só conserta problemas.
-- **Fase**: `alpha` enquanto entram mecânicas e conteúdo (hoje: as noites 3 a 15 sem roteiro e o mistério sem
-  fim); `beta` quando tudo estiver no jogo e só restar ajuste e correção; `rc` antes do lançamento; a 1.0 sai sem fase.
+- **Fase**: `alpha` enquanto entravam mecânicas e conteúdo (até a v0.8.0); `beta` quando tudo estiver no jogo e só restar ajuste e correção; `rc` antes do lançamento; a 1.0 sai sem fase.
 - O número fica em `application/config/version` e a fase em `application/config/stage` (`project.godot`); a
   exportação do macOS e a tela inicial e a pausa (`Settings.version_text`) leem dali.
 

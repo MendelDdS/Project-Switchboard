@@ -1074,3 +1074,22 @@ Na névoa, o brilho da noite pela janela (`_draw_window_glow`) ficava 1,2× mais
 enquanto a parede da janela continuava igual: o usuário viu "névoa na parede" e pediu para tirar (item 564). Luz ou
 névoa dentro da sala tem de cair igual em todas as superfícies que ela alcança, ou não entrar; o clima de lá fora
 fica no vidro e na vista.
+
+## No zsh, `$var` sem aspas não se divide em palavras
+Medindo o robô curioso, `a="--nosy"; ... $a` passava a opção inteira como um argumento só e, vazia, um argumento
+vazio: o modo parecia "sem efeito" e quase virou apontamento falso na varredura (item 571). No zsh, use `${=a}` (ou
+um array) para dividir; antes de concluir que uma opção não faz nada, confira na saída que ela chegou.
+
+## Mesa vazia no fim do turno não é silêncio
+A métrica `mesa_vazia` do robô contava o fim do turno, depois da última ligação (`last_call`), quando a mesa esvazia
+de propósito, e apontava 36 min onde o pior silêncio no meio do turno era de 20. Medida de ritmo exclui o trecho em
+que a agenda já parou.
+
+## Conversa fiada não cabe em ligação do roteiro
+O sistema de conversa fiada sorteava assunto para qualquer um esperando a transferência, e o homem urgente e
+misterioso da noite 2 comentou a quermesse (item 572). Sistema genérico de falas exclui as ligações do roteiro
+(`PhoneCall.story`), que têm tom e intenção escritos. Fala do roteiro tem de se explicar pelo que a ligação já
+disse: "você não vai se arrepender" sem pedido nenhum antes não se entende, e "isso fica entre nós" também não,
+porque Maria ainda não sabe de nada. Antes de escrever, liste o que o personagem que ouve já sabe naquele ponto; nem
+"deu tempo", que exagera a urgência. Na dúvida, a fala simples e comum vence a de efeito.
+

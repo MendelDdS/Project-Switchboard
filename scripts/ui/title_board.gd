@@ -52,6 +52,7 @@ var ringing := 0   ## a linha tocando (0 = nenhuma)
 
 
 func _ready() -> void:
+	Settings.changed.connect(queue_redraw)   # (as cores para daltonismo: a legenda)
 	_shell = _shell_art()
 	_fone = _fone_art()
 	_shade = _light_art()
@@ -110,7 +111,7 @@ func _draw_header(inner: Rect2) -> void:
 	var y := r.get_center().y
 	var x := r.position.x + 15.0
 	x += _text(T.text(T.Key.BOARD_INPUTS), x, y, Pal.BOARD_INK) + 36.0
-	for item in [[Pal.AMBER, T.Key.LEGEND_RING], [Pal.GREEN, T.Key.LEGEND_CONN]]:
+	for item in [[Pal.AMBER, T.Key.LEGEND_RING], [Pal.ok(), T.Key.LEGEND_CONN]]:
 		var c := Vector2(x, y)
 		PixelArt.sprite(self, PixelArt.disc(19, [[6.0, Color.WHITE], [9.5, Pal.SHELL[6], Pal.SHELL[4], Pal.SHELL[2]]], LIGHT), c)
 		PixelArt.sprite(self, PixelArt.disc(19, [[3.0, Color.WHITE], [6.0, Color(1, 1, 1, 0.82)]], LIGHT), c, item[0])

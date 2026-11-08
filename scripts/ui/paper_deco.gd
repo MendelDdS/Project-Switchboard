@@ -181,7 +181,7 @@ static func _grain(k: String, c: Color, x: int, y: int) -> Color:
 ## de frente): a alavanca em arco por cima e o corpo com a luz no alto, a sombra embaixo e os rebites nas pontas.
 static func _clip(sz: Vector2i) -> Image:
 	var img := Image.create(sz.x, sz.y, false, Image.FORMAT_RGBA8)
-	var edge := Color("2a2620")
+	var edge := Pal.CLIP_EDGE
 	var top := sz.y / 2 - 2   # onde o corpo começa
 	for y in top:   # a alavanca: um arco de 3 px, abrindo para baixo
 		var inset := 12 - (y * 4) / maxi(1, top)   # as pernas descem abrindo
@@ -207,7 +207,7 @@ static func _clip(sz: Vector2i) -> Image:
 	img.fill_rect(Rect2i(sz.x - 2, top + 1, 1, sz.y - top - 2), Pal.NICKEL[3])
 	for x in [4, sz.x - 8]:   # os rebites
 		var r := Rect2i(x, top + 4, 4, 4)
-		img.fill_rect(r, Color("ece7da"))
+		img.fill_rect(r, Pal.CHROME[6])
 		img.fill_rect(Rect2i(r.position.x + 1, r.end.y - 1, 3, 1), Pal.NICKEL[3])
 		img.fill_rect(Rect2i(r.end.x - 1, r.position.y + 1, 1, 3), Pal.NICKEL[3])
 	img.set_pixel(0, top, Color(0, 0, 0, 0))

@@ -213,7 +213,7 @@ func transfer_choices(c: PhoneCall) -> void:
 	if c.chat != null:
 		for r in c.chat.replies:
 			list.append({"label": tr(r.text), "fn": _chat.bind(c, r)})
-	elif not c.chat_asked and not c.chatting and c.chats.size() < SMALLTALK_MAX:
+	elif not c.story and not c.chat_asked and not c.chatting and c.chats.size() < SMALLTALK_MAX:
 		list.append({"label": T.text(T.Key.CHOICE_SMALLTALK), "fn": _ask_chat.bind(c)})
 	c.set_options(list)
 

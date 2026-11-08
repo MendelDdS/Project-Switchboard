@@ -7,7 +7,7 @@ extends Node
 ## Na tela, cada pixel do desenho tem o tamanho de um pixel do jogo: o `GameView` passa a ampliação dele (`zoom`,
 ## sempre inteira). Sozinho (o `main.tscn`, os testes), 2.
 var scale := 2.0
-const COLORS := {"k": Color("0e0c08"), "w": Color("e8dcbe"), "s": Color("b2a078"), "r": Color("d4553f")}
+const COLORS := {"k": Pal.CURSOR[0], "w": Pal.CURSOR[1], "s": Pal.CURSOR[2], "r": Pal.RED}
 
 const ARROW := [
 	"k...............",

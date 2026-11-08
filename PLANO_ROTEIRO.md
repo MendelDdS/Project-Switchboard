@@ -56,10 +56,10 @@ motor (o que o roteiro precisa e o jogo ainda não faz), depois o conteúdo, com
    da sala que dependiam dela). Dar a Sebastião só na noite em que ele pediu (`Tapes.ASKED` + a noite, que a ligação
    dele liga). A senha do Dia 4: ligar pelo discador para o Hotel Serena (305) das 20:30 às 21h e dizer "A semente
    brotou" liga `senha_hotel_4` (`Night.dial`, `DialCall`); fora disso, o hotel de sempre.
-8. **Feito, falta a aprovação.** Na rua: o homem de sobretudo nas noites 13 e 14, das 22h às 22h50, embaixo do poste da
+8. **Feito e aprovado (08/11/2026).** Na rua: o homem de sobretudo nas noites 13 e 14, das 22h às 22h50, embaixo do poste da
    esquina do prédio de tijolos, fumando (`StreetEvent` "stranger"); a bandeira na varanda do apartamento vazio à
    meia-noite da noite 15, só com `golpe_venceu` (`Banner`; o veredito da meia-noite agora vem antes das cenas da rua).
-9. **Feito, falta a aprovação.** Os finais (`Rebellion.final`, à meia-noite da 15, `final_*`): sucesso (o encontro
+9. **Feito e aprovado (08/11/2026).** Os finais (`Rebellion.final`, à meia-noite da 15, `final_*`): sucesso (o encontro
    com Sebastião num texto na tela preta, `Night.endings`), fracasso e presa. Três finais só: a vitória amarga é uma
    variação do sucesso no epílogo (`custou_gente`, `Rebellion.costly`: venceu com a fita das armas, do grupo C ou dos
    grupos entregue, ou com a paróquia esquecida; muda quem liga, o jornal e o fecho), e a esquecida, se vier, será uma
@@ -71,7 +71,7 @@ motor (o que o roteiro precisa e o jogo ainda não faz), depois o conteúdo, com
    conversa por final. Presa: o golpe falhou e ela cortou mais pedidos das autoridades do que atendeu. Ligações do
    roteiro depois das 23:40 ainda tocam (`Main._story_late`); as conversas do roteiro são ligação comum no caderno.
    Burocracias até a 15.
-10. **Noites 14 e 15 feitas, falta testar.** Na 14: Sebastião às 18:20 conta a versão dele (não pede mais fitas: o
+10. **Noites 14 e 15 feitas e aprovadas (08/11/2026); os quatro caminhos no robô.** Na 14: Sebastião às 18:20 conta a versão dele (não pede mais fitas: o
     pedido é só o do Dia 12, que não se repete); a polícia (184) fala do cerco ao aeroporto e à ferrovia e do hotel lacrado e do bar
     fechado amanhã; a Cúpula (296), do ministro levado ao Centro e tirado de avião e do armazém do comandante; bar e hotel marcados para gravar (entregues: `obedeceu_*_14`);
     rádio e TV bloqueadas (`b2_radio_tv.tres`, 14 e 15); o hotel apagado a noite toda (`StreetEvent` "closed"). Na
@@ -81,7 +81,7 @@ motor (o que o roteiro precisa e o jogo ainda não faz), depois o conteúdo, com
     22h, "Começou." à Casa Paroquial (120) e ao Armazém Ferreira (288); das 22h às 22:30, a "Canção da Madrugada" à
     rádio (390); com o golpe vencido, o bar à meia-noite com a mensagem de liberdade. Ordem de Sebastião não cumprida:
     um vacilo (`Rebellion.ORDERS`; as da 15 contam à meia-noite).
-11. **Noites 1 a 13 feitas, falta testar.** Ligações do roteiro (`data/calls/story_0*`, `story_1[0-3]_*`), discador e
+11. **Noites 1 a 13 feitas e aprovadas (08/11/2026); os quatro caminhos no robô.** Ligações do roteiro (`data/calls/story_0*`, `story_1[0-3]_*`), discador e
     jornal por marcador, geradas fiéis ao documento: 1 o homem sério pede o bar e agradece pelo nome; 2 três tentativas
     (`bar_2`; o "se perguntado" é a fala do repetir); 3 a Cecília avisa e, às 21h, manda ligar para o bar, onde ele dá
     a senha (`sabe_senha_3`, que o hotel do Dia 4 exige); 4 a denúncia pelo discador na delegacia (a ligação do roteiro
@@ -111,7 +111,7 @@ motor (o que o roteiro precisa e o jogo ainda não faz), depois o conteúdo, com
       dela; epílogo: sucesso, a alta; fracasso, o hospital dá ocupado da primeira vez (`TransferCall.busy_line`).
     - Final com o gesso (`End_gesso`, `End_gesso_amarga`): de manhã Maria assina o gesso no São Lucas e encontra Sebastião.
 
-13. **A madrugada do golpe (noite 15), aprovada em 07/11/2026; no jogo, menos as ligações da vitória (falas na página para aprovar).** A meia-noite deixa de decidir: a Cúpula
+13. **A madrugada do golpe (noite 15), aprovada em 07/11/2026; no jogo o Zé pelo discador às 4h; faltam as ligações de quem conta, comemora e agradece (08/11/2026: o plano aprovado; as falas, a escrever).** A meia-noite deixa de decidir: a Cúpula
     resiste e a batalha atrás da igreja segue até o veredito, **às 4h** (`MIDNIGHT` vira a hora do veredito). As
     missões da madrugada somam com o resto da noite (como as ordens de hoje; nenhuma decide sozinha):
     - **0h–1h, o contra-ataque**: a Cúpula (296) pede a delegacia (184) duas vezes para retomar a rádio. Pedidos das

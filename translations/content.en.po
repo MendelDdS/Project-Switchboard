@@ -5300,8 +5300,8 @@ msgid "O bar, o do Zé. Quem eu sou não importa. Eu conheci o seu pai, Maria. A
 msgstr "The bar, Zé's. Who I am doesn't matter. I knew your father, Maria. Now, please: the bar."
 
 #: data/calls/story_02_homem_bar_1.tres
-msgid "Obrigado. Você não vai se arrepender."
-msgstr "Thank you. You won't regret it."
+msgid "Obrigado, Maria. Boa noite."
+msgstr "Thank you, Maria. Good night."
 
 #: data/calls/story_02_homem_bar_1.tres data/calls/story_02_homem_bar_2.tres data/calls/story_02_homem_bar_3.tres
 msgid "Zé, sou eu. Não dava pra esperar até amanhã."

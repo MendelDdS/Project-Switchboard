@@ -9,6 +9,17 @@ extends RefCounted
 
 const Beating := preload("res://scripts/ui/beating.gd")
 const SIZE := Vector2(1.3, 1.1)   ## a bandeira (m): a largura e quanto desce do corrimão
+## O símbolo da resistência no meio do pano (px da tela, "X" pintado): a cúpula riscada, o arco na base com um risco
+## no meio e dois menores dos lados, em cima (sem a base, lia-se um "M").
+const SYMBOL: Array[String] = [
+	"....X....",
+	"..X.X.X..",
+	"..XXXXX..",
+	".XX.X.XX.",
+	".X..X..X.",
+	".X..X..X.",
+	"XXXXXXXXX",
+]
 const DOOR := -1.2     ## a porta do apartamento, a partir de onde ele para no gradil (m; o meio da porta de `APT`, `Background._banner_x`)
 const OUT_AT := 0.6    ## quando ele aparece na porta (s depois da luz)
 const WALK := 1.0      ## m/s, sem pressa

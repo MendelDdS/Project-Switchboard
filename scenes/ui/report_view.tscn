@@ -25,7 +25,6 @@ theme_override_constants/margin_bottom = 14
 
 [node name="VBox" type="VBoxContainer" parent="Paper/Margin"]
 layout_mode = 2
-theme_override_constants/separation = 4
 
 [node name="Head" type="HBoxContainer" parent="Paper/Margin/VBox"]
 layout_mode = 2

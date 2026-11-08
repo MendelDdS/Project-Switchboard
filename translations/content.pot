@@ -5299,7 +5299,7 @@ msgid "O bar, o do Zé. Quem eu sou não importa. Eu conheci o seu pai, Maria. A
 msgstr ""
 
 #: data/calls/story_02_homem_bar_1.tres
-msgid "Obrigado. Você não vai se arrepender."
+msgid "Obrigado, Maria. Boa noite."
 msgstr ""
 
 #: data/calls/story_02_homem_bar_1.tres data/calls/story_02_homem_bar_2.tres data/calls/story_02_homem_bar_3.tres
