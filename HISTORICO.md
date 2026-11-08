@@ -3560,3 +3560,8 @@ Chaves:
     interurbanas novas (3–8), o aviso da delegacia, conversa suspeita ao 184 (4–10, o recado da noite 4) e o edital do
     toque de recolher (9–14, o 21H), até dois por noite embaixo do jornal; sob o mouse se erguem com o nome na etiqueta, sem
     abrir nada. A folhinha segue com a orelha na rajada. Captura: `shot.gd --screen=note`.
+567. #diario #fonte #papel Etapa 6 do plano do diário, a letra de mão: no lugar de ondular a Departure Mono, uma fonte
+    em pixel desenhada letra a letra (`scripts/ui/hand_font.gd`, `Pal.hand`, uma `FontFile` de bitmap montada em código,
+    nas medidas da Departure no 11; acentos do pt e do es montados por cima; o que falta vem da Departure), no diário,
+    na carta, no recado e no parecer do supervisor (`HandText`, o `[hand]` do `paper_ink.gd`, que agora só aperta a
+    caneta). Reta; a inclinada (itálico de pixel) ficou como alternativa a escolher.

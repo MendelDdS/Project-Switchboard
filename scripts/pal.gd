@@ -563,3 +563,5 @@ static func panel_step(lit: float) -> int:
 ## hinting e sem sub-pixel (para os pixels caírem inteiros na tela). `ui` e `mono` continuam separadas pelo papel.
 static var ui: Font = preload("res://fonts/DepartureMono-Regular.otf")
 static var mono: Font = ui
+## A letra de mão (`hand_font.gd`, montada em código), a única exceção à fonte única: tudo o que é escrito à mão.
+static var hand: Font = preload("res://scripts/ui/hand_font.gd").font()

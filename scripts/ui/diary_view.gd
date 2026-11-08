@@ -250,7 +250,7 @@ func _draw() -> void:
 func _head(x0: float, y: float, key: T.Key) -> void:
 	var head := T.text(key)
 	_hand(Vector2(x0, y - ROW - 1), head, -1)
-	draw_rect(Rect2(x0, y - ROW + 2, _adv() * head.length(), 1), Pal.DIARY_HAND)
+	draw_rect(Rect2(x0, y - ROW + 2, _w(head), 1), Pal.DIARY_HAND)
 
 
 ## O texto da tarefa (com quanto falta, já escrito) nas linhas da página.
@@ -318,20 +318,19 @@ func _task(x0: float, y: float, t: Dictionary, mark := true) -> float:
 		_hand(Vector2(at, y), l, shown)
 		if strike > 0.0:   # o risco anda pelas linhas na ordem, como a mão
 			var part := clampf((strike * total - done) / maxf(1.0, l.length()), 0.0, 1.0)
-			_scribble(Vector2(at - 1, y - 4), (_adv() * l.length() + 2) * part)
+			_scribble(Vector2(at - 1, y - 4), (_w(l) + 2) * part)
 		done += l.length()
 		y += ROW
 	return y
 
 
-## Texto `s` à mão, as primeiras `n` letras (-1: todas), a partir da linha de base `at`: cada letra sobe e desce
-## devagar e aperta mais ou menos o lápis, sempre do mesmo jeito (o `[hand]` do `paper_ink.gd`).
+## Texto `s` na letra de mão (`Pal.hand`), as primeiras `n` letras (-1: todas), a partir da linha de base `at`: cada
+## letra aperta mais ou menos o lápis, sempre do mesmo jeito (o `[hand]` do `paper_ink.gd`).
 func _hand(at: Vector2, s: String, n: int) -> void:
-	var adv := _adv()
+	var x := at.x
 	for i in (s.length() if n < 0 else mini(n, s.length())):
 		var h := fposmod(sin(i * 12.9898 + 4.1) * 43758.5453, 1.0)
-		var col := Color(Pal.DIARY_HAND, 0.78 + 0.22 * h)
-		draw_char(Pal.mono, at + Vector2(i * adv, roundf(sin(i * 0.33) * 1.2)), s[i], 11, col)
+		x += Pal.hand.draw_char(get_canvas_item(), Vector2(x, at.y), s.unicode_at(i), 11, Color(Pal.DIARY_HAND, 0.78 + 0.22 * h))
 
 
 ## O risco a lápis por cima da linha, `w` px, subindo e descendo um pixel.
@@ -350,17 +349,17 @@ func _cross(at: Vector2, part: float) -> void:
 			draw_rect(Rect2(at.x + (i if leg == 0 else 6 - i), at.y + i, 1, 1), Pal.DIARY_HAND)
 
 
-func _adv() -> float:
-	return Pal.mono.get_char_size(77, 11).x   # (a fonte é mono: a largura do M serve para todas)
+## A largura de `s` na letra de mão.
+func _w(s: String) -> float:
+	return Pal.hand.get_string_size(s, HORIZONTAL_ALIGNMENT_LEFT, -1, 11).x
 
 
 ## Quebra `s` em linhas de até `w` px, nas palavras.
 func _wrap(s: String, w: float) -> PackedStringArray:
-	var per := maxi(1, floori(w / _adv()))
 	var out := PackedStringArray()
 	var line := ""
 	for word in s.split(" "):
-		if line != "" and line.length() + 1 + word.length() > per:
+		if line != "" and _w(line + " " + word) > w:
 			out.append(line)
 			line = word
 		else:

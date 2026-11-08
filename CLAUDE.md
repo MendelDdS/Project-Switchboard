@@ -60,7 +60,8 @@ detalhe no comentário do código, o porquê no `HISTORICO.md`. Atualize os `CLA
   "nearest", ampliado só em múltiplos inteiros, `_fit`; o que sobra é borda escura). Nada de girar ou esticar pixel
   art pela transformação do desenho: gire pixel a pixel (`PixelArt.turned`, RotSprite) ou desenhe na tela. Gradação de
   cor no `Box` (`grade.gdshader`, `GameView.GRADES` por clima).
-- **Fonte**: uma só, Departure Mono (`Pal.ui`/`Pal.mono`), **só em múltiplos de 11**. Em objeto da sala, nada acima
+- **Fonte**: uma só, Departure Mono (`Pal.ui`/`Pal.mono`), **só em múltiplos de 11**; a única exceção é a letra de mão
+  (`Pal.hand`, desenhada em `hand_font.gd`, posta no tema `HandText` pelo `Settings`), só no 11, em tudo o que é escrito à mão. Em objeto da sala, nada acima
   de 11: use 11 em negrito (sombra de 1 px), `PixelArt.big`/`relief` ou letra desenhada à mão. Gravado no painel:
   `PixelArt.tiny` (maiúsculas 3×5 com acentos).
 - **Cores e materiais no `Pal`** (rampas `Array[Color]` escolhidas por `Pal.ramp`/`Pal.lit`), usados pelo objeto da
