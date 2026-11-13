@@ -153,8 +153,8 @@ O operador liga pelo discador da prateleira (clicado, ele abre de perto): digita
 (Discar com o visor vazio liga de novo para o último). Quem estava com o FONE fica em espera enquanto isso.
 - **O atendimento de cada lugar** fica no contato dele em `data/directory/` (`answers`): cada um é um assunto de
   conversa fiada (`ChatTopic`), com a fala de atendimento (`line`) e as perguntas do operador (`replies`: `text` a
-  pergunta, `follow` a resposta, `sets` os marcadores). Pode ter `requires` (só depois de um marcador) e `weather`.
-  Sorteia um entre os que valem; o operador vê até duas perguntas e [Encerrar ligação]. `bye` é a despedida (vazio:
+  pergunta, `follow` a resposta, `sets` os marcadores). Pode ter `requires` (só depois de um marcador), `weather` e as noites em que vale (`from_night`, `to_night`).
+  Sorteia um entre os que valem, e o da ocasião (com marcador ou noite) vem no lugar dos de todo dia; o operador vê até duas perguntas e [Encerrar ligação]. `bye` é a despedida (vazio:
   uma de `dial_byes`, no `content.tres`). Sem atendimento, ninguém atende. Todo número da cidade atende, menos os do despacho (o `test_content` cobra).
   `closes`: a hora em que o lugar fecha (minutos depois das 18h) e ninguém mais atende. As respostas podem ter
   palavras-chave (`[person:Benedito Souza]`, como na escuta), que vão para as anotações da lista.

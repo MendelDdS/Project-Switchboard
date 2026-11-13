@@ -943,6 +943,22 @@ msgid "Um guarda-chuva preto e uma luva. Está tudo aqui na bilheteria."
 msgstr ""
 
 #: data/directory/344_cine_odeon.tres
+msgid "E quem atende a esta hora?"
+msgstr ""
+
+#: data/directory/344_cine_odeon.tres
+msgid "O porteiro. Durmo aqui desde que o toque começou: não dá tempo de chegar em casa."
+msgstr ""
+
+#: data/directory/344_cine_odeon.tres
+msgid "Ainda tem sessão hoje?"
+msgstr ""
+
+#: data/directory/344_cine_odeon.tres
+msgid "Não tem mais: com o toque de recolher, a última acaba às oito. E é o mesmo faroeste há duas semanas."
+msgstr ""
+
+#: data/directory/344_cine_odeon.tres
 msgid "do Cine Odeon"
 msgstr ""
 
@@ -992,6 +1008,18 @@ msgstr ""
 
 #: data/directory/213_hospital_sao_lucas.tres
 msgid "Só para a família, e só se o médico deixar."
+msgstr ""
+
+#: data/directory/213_hospital_sao_lucas.tres
+msgid "Dá para visitar um paciente hoje?"
+msgstr ""
+
+#: data/directory/213_hospital_sao_lucas.tres
+msgid "Visita hoje não tem: estamos lotados desde ontem. Não posso dar número; só digo que tem maca no corredor."
+msgstr ""
+
+#: data/directory/213_hospital_sao_lucas.tres
+msgid "Todos. Ninguém foi para casa desde ontem à noite."
 msgstr ""
 
 #: data/directory/155_tv_orbital.tres
@@ -1144,6 +1172,22 @@ msgstr ""
 
 #: data/directory/155_tv_orbital.tres
 msgid "O de sempre. Lê o que mandam ler, como todo mundo."
+msgstr ""
+
+#: data/directory/155_tv_orbital.tres
+msgid "O que aconteceu ontem?"
+msgstr ""
+
+#: data/directory/155_tv_orbital.tres
+msgid "Entraram no estúdio e ficaram quase duas horas no ar. De madrugada a polícia retomou. O resto a senhora leu no jornal."
+msgstr ""
+
+#: data/directory/155_tv_orbital.tres
+msgid "A programação voltou ao normal?"
+msgstr ""
+
+#: data/directory/155_tv_orbital.tres
+msgid "Voltou. Só que agora tem um guarda sentado ao lado do operador de câmera."
 msgstr ""
 
 #: data/directory/155_tv_orbital.tres
@@ -1603,6 +1647,22 @@ msgid "O seu Aurélio. Faz trinta anos que é ele."
 msgstr ""
 
 #: data/directory/118_farmacia_central.tres
+msgid "Tem gaze e esparadrapo aí?"
+msgstr ""
+
+#: data/directory/118_farmacia_central.tres
+msgid "Acabou ontem, moça. Depois das explosões e do protesto na praça, veio gente a noite inteira, com medo de aparecer no hospital."
+msgstr ""
+
+#: data/directory/118_farmacia_central.tres data/directory/390_radio_serena_am.tres
+msgid "Vocês estão bem?"
+msgstr ""
+
+#: data/directory/118_farmacia_central.tres
+msgid "Estamos. O estrago ficou para os lados da delegacia; aqui foi só o susto."
+msgstr ""
+
+#: data/directory/118_farmacia_central.tres
 msgid "Boa noite. Melhoras para quem precisa."
 msgstr ""
 
@@ -2007,6 +2067,22 @@ msgid "Tem um, de um senhor da Vila. A família pediu silêncio."
 msgstr ""
 
 #: data/directory/253_funeraria_paz_eterna.tres
+msgid "É sobre a Cecília, da central do Alto da Serra."
+msgstr ""
+
+#: data/directory/253_funeraria_paz_eterna.tres
+msgid "A telefonista? O enterro foi hoje às dez, no municipal. Veio pouca gente: a mãe e duas colegas."
+msgstr ""
+
+#: data/directory/253_funeraria_paz_eterna.tres
+msgid "O serviço anda muito?"
+msgstr ""
+
+#: data/directory/253_funeraria_paz_eterna.tres
+msgid "Nunca trabalhei tanto, moça. E quase nunca me dizem do que foi."
+msgstr ""
+
+#: data/directory/253_funeraria_paz_eterna.tres
 msgid "Boa noite. Que Deus lhe guarde."
 msgstr ""
 
@@ -2184,6 +2260,34 @@ msgstr ""
 
 #: data/directory/305_hotel_estrela.tres
 msgid "Tudo calmo. Só o letreiro da fachada que anda piscando."
+msgstr ""
+
+#: data/directory/305_hotel_estrela.tres
+msgid "Aconteceu alguma coisa?"
+msgstr ""
+
+#: data/directory/305_hotel_estrela.tres
+msgid "A polícia esteve aqui às oito. Levaram cinco hóspedes. Não me pergunte mais nada, moça."
+msgstr ""
+
+#: data/directory/305_hotel_estrela.tres data/directory/312_pensao_dona_cota.tres
+msgid "Tem quarto vago?"
+msgstr ""
+
+#: data/directory/305_hotel_estrela.tres
+msgid "Vago tem, e mais do que eu queria. Mas hoje não estamos recebendo ninguém, desculpe."
+msgstr ""
+
+#: data/directory/305_hotel_estrela.tres
+msgid "O hotel está fechado, moça. A polícia lacrou."
+msgstr ""
+
+#: data/directory/305_hotel_estrela.tres
+msgid "Quem está falando?"
+msgstr ""
+
+#: data/directory/305_hotel_estrela.tres
+msgid "O vigia. Só tem eu aqui até liberarem o hotel de novo."
 msgstr ""
 
 #: data/directory/305_hotel_estrela.tres
@@ -3407,6 +3511,22 @@ msgid "Só caminhão passando para a Capital. Carro de passeio, quase nenhum."
 msgstr ""
 
 #: data/directory/347_posto_sao_cristovao.tres
+msgid "Vocês vendem gasolina em galão?"
+msgstr ""
+
+#: data/directory/347_posto_sao_cristovao.tres
+msgid "Não vendo mais, é ordem da polícia. Depois das bombas, o que pega fogo só sai daqui dentro do tanque."
+msgstr ""
+
+#: data/directory/347_posto_sao_cristovao.tres
+msgid "O posto fica aberto a noite toda?"
+msgstr ""
+
+#: data/directory/347_posto_sao_cristovao.tres
+msgid "Fica. Com o que anda acontecendo, prefiro não pregar o olho."
+msgstr ""
+
+#: data/directory/347_posto_sao_cristovao.tres
 msgid "do Posto São Cristóvão"
 msgstr ""
 
@@ -3564,6 +3684,22 @@ msgstr ""
 
 #: data/directory/101_gazeta_de_sao_sotero.tres
 msgid "Mande uma carta. A errata sai na quinta, num cantinho."
+msgstr ""
+
+#: data/directory/101_gazeta_de_sao_sotero.tres
+msgid "É sobre o tal comandante."
+msgstr ""
+
+#: data/directory/101_gazeta_de_sao_sotero.tres
+msgid "Então o número é o da delegacia, não o nosso. Ligaram o dia inteiro: metade jura que viu o homem, cada um num bairro diferente."
+msgstr ""
+
+#: data/directory/101_gazeta_de_sao_sotero.tres
+msgid "Vocês sabem quem ele é?"
+msgstr ""
+
+#: data/directory/101_gazeta_de_sao_sotero.tres
+msgid "Se soubéssemos, o jornal dava o nome, e não o apelido."
 msgstr ""
 
 #: data/directory/101_gazeta_de_sao_sotero.tres
@@ -3736,6 +3872,34 @@ msgstr ""
 
 #: data/directory/390_radio_serena_am.tres
 msgid "Recebe, sim. Vai ao ar no quadro dos recados, depois das notícias."
+msgstr ""
+
+#: data/directory/390_radio_serena_am.tres
+msgid "A transmissão de ontem era de vocês?"
+msgstr ""
+
+#: data/directory/390_radio_serena_am.tres
+msgid "Não era o nosso locutor, é só o que eu digo. O resto saiu no jornal."
+msgstr ""
+
+#: data/directory/390_radio_serena_am.tres
+msgid "Estamos no ar. Com gente de farda no corredor, mas no ar."
+msgstr ""
+
+#: data/directory/390_radio_serena_am.tres
+msgid "O que houve ontem?"
+msgstr ""
+
+#: data/directory/390_radio_serena_am.tres
+msgid "Tentaram entrar aqui à força, e a guarda respondeu a tiros. Levaram três presos."
+msgstr ""
+
+#: data/directory/390_radio_serena_am.tres
+msgid "Ninguém se feriu aí?"
+msgstr ""
+
+#: data/directory/390_radio_serena_am.tres
+msgid "Um vidro quebrado e o susto. Do estúdio, ninguém se feriu."
 msgstr ""
 
 #: data/directory/390_radio_serena_am.tres
@@ -4415,6 +4579,22 @@ msgid "Então desliga, moça, que pode ter freguês tentando ligar."
 msgstr ""
 
 #: data/directory/176_ponto_de_taxi_da_rodoviaria.tres
+msgid "Tem carro para agora?"
+msgstr ""
+
+#: data/directory/176_ponto_de_taxi_da_rodoviaria.tres
+msgid "Depois das nove eu só rodo com salvo-conduto, e isso eu não tenho. Um colega levou uma parteira depois da hora e dormiu na delegacia."
+msgstr ""
+
+#: data/directory/176_ponto_de_taxi_da_rodoviaria.tres
+msgid "De dia tem movimento?"
+msgstr ""
+
+#: data/directory/176_ponto_de_taxi_da_rodoviaria.tres
+msgid "Tem, e todo mundo com mala. A rodoviária nunca vendeu tanta passagem."
+msgstr ""
+
+#: data/directory/176_ponto_de_taxi_da_rodoviaria.tres
 msgid "Precisando de carro, é só chamar."
 msgstr ""
 
@@ -4856,6 +5036,18 @@ msgstr ""
 
 #: data/directory/312_pensao_dona_cota.tres
 msgid "Tudo, graças a Deus. Só a goteira da cozinha que não para."
+msgstr ""
+
+#: data/directory/312_pensao_dona_cota.tres
+msgid "Não tenho mais: com o hotel lacrado, veio todo mundo bater aqui. Pregaram um papel na porta de lá e levaram a chave."
+msgstr ""
+
+#: data/directory/312_pensao_dona_cota.tres
+msgid "Tem muita gente indo embora?"
+msgstr ""
+
+#: data/directory/312_pensao_dona_cota.tres
+msgid "Quem tem parente fora já foi. Eu fico: pensão não se leva nas costas."
 msgstr ""
 
 #: data/directory/312_pensao_dona_cota.tres
@@ -11671,6 +11863,26 @@ msgid "Precisando de mim, é só discar 002 no discador, ali na prateleira."
 msgstr ""
 
 #: data/nights/night_00.tres
+msgid "Aliás, testa agora: eu desligo e você me liga. Zero, zero, dois e Discar."
+msgstr ""
+
+#: data/nights/night_00.tres
+msgid "No [b]discador[/b], na prateleira da mesa, aperte [b]0[/b], [b]0[/b], [b]2[/b] e [b]Discar[/b]."
+msgstr ""
+
+#: data/nights/night_00.tres
+msgid "Ué, a ligação caiu! Deixa eu terminar o que eu ia dizer."
+msgstr ""
+
+#: data/nights/night_00.tres
+msgid "E dá pra ligar pra qualquer número da lista: às vezes é o jeito de avisar alguém. Boa noite, e boa sorte!"
+msgstr ""
+
+#: data/nights/night_00.tres
+msgid "Alto da Serra, Cecília falando. Viu? É assim que você me acha."
+msgstr ""
+
+#: data/nights/night_00.tres
 msgid "Valeu, Cecília!"
 msgstr ""
 
@@ -11680,10 +11892,6 @@ msgstr ""
 
 #: data/nights/night_00.tres
 msgid "Até a próxima!"
-msgstr ""
-
-#: data/nights/night_00.tres
-msgid "Boa noite, e boa sorte!"
 msgstr ""
 
 #: data/nights/night_16.tres

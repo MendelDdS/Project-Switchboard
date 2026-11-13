@@ -35,9 +35,9 @@ script = ExtResource("2_board")
 unique_name_in_owner = true
 layout_mode = 0
 offset_left = 64.0
-offset_top = 132.0
+offset_top = 100.0
 offset_right = 420.0
-offset_bottom = 164.0
+offset_bottom = 174.0
 mouse_filter = 2
 stretch_mode = 2
 

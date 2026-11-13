@@ -168,7 +168,7 @@ detalhe no comentário do código, o porquê no `HISTORICO.md`. Atualize os `CLA
   próprio fone (sem o FONE); na prateleira (`Dialer`, `dialer.gd`) e de perto num pop-up em cima dele (`DialView`), só clique.
   Enquanto dura, é o foco (a linha do FONE em HOLD) e a do lugar fica ocupada (`Exchange`, `seized`); fora do caderno. Atende a do
   roteiro (`DialCall`, `Night.dial`/`GameContent.dial`, passos de `PrankStep`; a senha do Dia 4 ao hotel 305, das 20:30 às 21h) ou o atendimento do lugar
-  (`DirectoryEntry.answers`, `ChatTopic`, `closes`; todo número da cidade, menos os do despacho; palavras-chave nas respostas, `Eavesdrop.note`); a do roteiro atende também fora dos setores. Marcador `ligou_<número>_<noite>`. `PLANO_DISCADOR.md`.
+  (`DirectoryEntry.answers`, `ChatTopic`, `closes`; o da ocasião, com `requires` ou `from_night`/`to_night`, vem no lugar dos de todo dia; todo número da cidade, menos os do despacho; palavras-chave nas respostas, `Eavesdrop.note`); a do roteiro atende também fora dos setores. Marcador `ligou_<número>_<noite>`. `PLANO_DISCADOR.md`.
 - **Diário de Maria** (`Diary`, nó do Main; `diary_view.gd`, `Tools.DIARY`, tecla 5; na frente da mesa, onde ficava o
   jornal, que foi pregado no quadro de avisos): as tarefas da noite, só lidas do jogo, sem pontos (os pedidos do roteiro
   em `Night.tasks`, `DiaryTask`, pelos marcadores, `done`, `until`, `at_close`, `letter`; normas pelo

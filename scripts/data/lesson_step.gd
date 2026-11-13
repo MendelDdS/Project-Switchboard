@@ -13,6 +13,8 @@ enum Kind {
 }
 
 @export var kind := Kind.SAY
+## O passo só acontece se os marcadores baterem (StoryFlags.allows): ela liga de novo se a ligação feita caiu.
+@export var requires: PackedStringArray = []
 @export_multiline var text := ""
 @export var options: PackedStringArray = []
 @export var seconds := 0.0
@@ -34,9 +36,10 @@ enum Kind {
 ## do lugar da emergência de treino perfurado com o tipo e as unidades dela), "sent" (um cartão entrou no
 ## transmissor), "arrived" (as unidades chegaram à emergência de treino e o rádio falou), "hold" (o FONE saiu da
 ## entrada dela: ela ficou em espera), "resume" (o FONE voltou para a entrada dela), "diary" (abriu o diário, o
-## presente dela: liga o marcador `diario_cecilia`).
+## presente dela: liga o marcador `diario_cecilia`), "dialed" (ligou pelo discador para ela, ela atendeu e a ligação acabou; ela
+## já desligou: quem atende é a `DialCall` da noite, `Night.dial`).
 @export_enum("directory", "cord_out", "cord_dest", "transfer", "connected", "line_done", "line_free", "logbook",
-		"registered", "call_log", "dispatch", "card", "shred", "punched", "sent", "arrived", "hold", "resume", "diary") var until := "directory"
+		"registered", "call_log", "dispatch", "card", "shred", "punched", "sent", "arrived", "hold", "resume", "diary", "dialed") var until := "directory"
 ## WAIT "card": o lugar do cartão (`id` da rua e trecho, como em `EmergencyCall`); vazio = o da emergência de treino.
 @export var street := ""
 @export_range(0, 5) var block := 0

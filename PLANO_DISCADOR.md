@@ -262,7 +262,7 @@ roteiro ficam com você: o plano só prepara o formato e confere.
 ## 8. Sugestões de melhoria
 
 **Feitas em 29/10/2026:** 1 (rediscar), 2 (horário), 3 (palavras-chave nas respostas) e 5 (o retorno, pelo
-marcador `ligou_<número>_N`, receita no `README`); 4 e 8 ficam com o usuário (as falas); 6 e 7 em aberto. Também: a espera de quem está com o FONE e o cabo solto na linha chamada.
+marcador `ligou_<número>_N`, receita no `README`); em 13/11/2026: 4 (atendimentos da ocasião em 11 lugares, `ChatTopic.from_night`/`to_night`, falas sugeridas a revisar), 6 (a seta "↗" no registro) e 8 (o passo "dialed" no treinamento); a 7 não entra (o tempo perdido já pune). Também: a espera de quem está com o FONE e o cabo solto na linha chamada.
 
 Conferidas com o `CLAUDE.md` e o `HISTORICO.md`, incluindo o que já saiu.
 

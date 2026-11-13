@@ -50,6 +50,42 @@ script = ExtResource("8_chat")
 line = "Serena AM, estúdio. Fala rápido, que estamos no ar."
 replies = Array[ExtResource("9_reply")]([SubResource("Answer_1_0"), SubResource("Answer_1_1")])
 
+[sub_resource type="Resource" id="Ans_radio_tomada_0"]
+script = ExtResource("9_reply")
+text = "A transmissão de ontem era de vocês?"
+follow = "Não era o nosso locutor, é só o que eu digo. O resto saiu no jornal."
+
+[sub_resource type="Resource" id="Ans_radio_tomada_1"]
+script = ExtResource("9_reply")
+text = "Vocês estão bem?"
+follow = "Estamos no ar. Com gente de farda no corredor, mas no ar."
+
+[sub_resource type="Resource" id="Ans_radio_tomada"]
+script = ExtResource("8_chat")
+requires = PackedStringArray("radio_conquistada")
+from_night = 10
+to_night = 10
+line = "Rádio Serena, boa noite! O que deseja?"
+replies = Array[ExtResource("9_reply")]([SubResource("Ans_radio_tomada_0"), SubResource("Ans_radio_tomada_1")])
+
+[sub_resource type="Resource" id="Ans_radio_resistiu_0"]
+script = ExtResource("9_reply")
+text = "O que houve ontem?"
+follow = "Tentaram entrar aqui à força, e a guarda respondeu a tiros. Levaram três presos."
+
+[sub_resource type="Resource" id="Ans_radio_resistiu_1"]
+script = ExtResource("9_reply")
+text = "Ninguém se feriu aí?"
+follow = "Um vidro quebrado e o susto. Do estúdio, ninguém se feriu."
+
+[sub_resource type="Resource" id="Ans_radio_resistiu"]
+script = ExtResource("8_chat")
+requires = PackedStringArray("!radio_conquistada")
+from_night = 10
+to_night = 10
+line = "Rádio Serena, boa noite! O que deseja?"
+replies = Array[ExtResource("9_reply")]([SubResource("Ans_radio_resistiu_0"), SubResource("Ans_radio_resistiu_1")])
+
 [resource]
 script = ExtResource("1_entry")
 wary = 1.3
@@ -59,6 +95,6 @@ number = "390"
 hello = "Rádio Serena. Quem fala, e do que se trata?"
 spoken = "a Rádio Serena"
 motives = Array[ExtResource("2_motive")]([SubResource("Motive_45"), SubResource("Motive_46")])
-answers = Array[ExtResource("8_chat")]([SubResource("Answer_0"), SubResource("Answer_1")])
+answers = Array[ExtResource("8_chat")]([SubResource("Answer_0"), SubResource("Answer_1"), SubResource("Ans_radio_tomada"), SubResource("Ans_radio_resistiu")])
 bye = "Obrigado por ouvir a Serena. Boa noite!"
 closes = 360.0

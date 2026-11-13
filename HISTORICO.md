@@ -3639,3 +3639,34 @@ Chaves:
    agradaram; das três novas (a sala antes do turno, a central vista da rua, o console de perto), escolhida a sala
    antes do turno: a sala do jogo às 17:55 com a luminária apagada, o nome em letras douradas no vidro da janela e as
    opções nas quatro teclas do painel do operador (`PLANO_MENUS.md` 3.3).
+577. #interface #saiu #vista #discador #prancheta #noites #conteudo Conferência do que falta (13/11/2026). "Não curti a
+    tela inicial, prefiro a atual com melhorias": a sala antes do turno (prévia só na captura, com o nome dourado no
+    vidro e as opções nas quatro teclas) saiu; a tela inicial fica a de hoje (a mesa de perto e o menu), a melhorar.
+    Das etapas dos menus, a pausa e as configurações de metal também não foram pedidas. A bandeira da noite 15 maior,
+    "para dar mais visibilidade": quase a varanda inteira (`Banner.SIZE` 2,2 × 2,0 m, da beira esquerda até onde o
+    batente da janela a cortaria, `_banner_x`) e o símbolo, que em dobro ficou grande ("Símbolo menor"), redesenhado em 13 × 10 px (`Banner.SYMBOL`). Do discador: a cidade que
+    lembra (atendimentos da ocasião, por noite e marcador, `ChatTopic.from_night`/`to_night`, que vêm no lugar dos de
+    todo dia: o posto e a farmácia depois das bombas, a TV ocupada, o cinema e o táxi no toque de recolher, a rádio e
+    o São Lucas depois da noite 9, a Gazeta e a recompensa, o hotel depois da batida, a funerária e a Cecília, a pensão
+    com o hotel lacrado; falas sugeridas por mim a pedido, a revisar pelo usuário); a seta "↗" na prancheta nas
+    ligações feitas; o passo de discar no treinamento (a Cecília desliga e o jogador liga 002: `LessonStep` "dialed",
+    `Night.dial` da noite 0, onde ela se despede). O uso da linha (advertência por ligação particular longa) não entra.
+    O ritmo (medir de novo) e o número das casas ficam como estão; os setores já vêm da história.
+    A tela inicial de hoje, melhorada: o nome em duas linhas com a cidade em letra de 4× (`TitleScreen.CITY`), a luz
+    da sala na parede atrás da mesa no lugar do preto chapado (`TitleBoard._wall`, `Pal.TITLE_WALL`) e a legenda das
+    saídas depois do fio do FONE, que caía por cima das letras.
+    Depois, das dúvidas: a barra escura à esquerda da mesa na tela inicial (a sombra da mesa caía também na parede:
+    agora só em cima da mesa, `TitleBoard._draw_shade`); os atendimentos da ocasião atendiam já dando a novidade, sem
+    saudação ("está muito ruim"): atendem como todo dia (a saudação do lugar) e a novidade vem na resposta à pergunta
+    de Maria; o hotel lacrado (14 e 15) não tem quem atenda: uma gravação da companhia que se repete a cada segundo
+    até o jogador encerrar (`ChatTopic.recording`); no treinamento, quem desliga a ligação feita antes da despedida
+    recebe a Cecília de novo ("a ligação caiu"), que termina o que ia dizer (`LessonStep.requires`, marcador
+    `despediu_cecilia`; o passo "dialed" só vale com ela atendendo).
+    E o bloqueio do hotel vale também para a transferência ("O vigia não atende"): nas noites 14 e 15, o cabo no 305
+    toca a mesma gravação e quem pediu o hotel desliga, sem advertência (`Conversation.recording`, `Main._ring_dest`);
+    as conversas da Irene Barbosa com o vigia (14 e 15) deixam de acontecer e a fita do hotel da 14
+    (`obedeceu_hotel_14`) fica sem como ser gravada; a ligação dela na 15 ainda marca `ligou_suspeito_15`.
+    Desfeito em seguida ("o roteiro prevalece"): o hotel da 14 e da 15 está lacrado, mas o telefone não, de
+    propósito (o Bastos, na 14: "Ficou só o vigia pra atender o telefone"; a polícia quer saber quem liga). A
+    gravação e o bloqueio da transferência saíram (`ChatTopic.recording` também); pelo discador, quem atende nessas
+    noites é o vigia. Lição: conferir o roteiro (as conversas escutadas) antes de perguntar se um lugar atende.

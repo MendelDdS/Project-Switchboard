@@ -174,6 +174,7 @@ Ordem sugerida: das que reaproveitam mais (o rig, a viatura, a passada) para as 
   desenrolando (o rolo da cor da faixa que vem, afinando), estala (`unfurl`), quica e balança até assentar; ele
   amarra as pontas, se endireita, ergue o punho e volta. A bandeira (preta com um círculo amarelo no meio, o símbolo ainda por escolher, `Pal.BANNER`; ele de jaqueta aberta e boina, no detalhe de quem passa na calçada) fica com as
   pregas mexendo no vento e a luz do poste embaixo, mais escura e pesada na chuva, até o amanhecer.
+- [x] Maior, a pedido (13/11/2026): 2,2 × 2,0 m, quase a varanda inteira, e o símbolo redesenhado em 13 × 10 px (em dobro ficou grande).
 - [ ] Aprovação do usuário: o símbolo pedido em 08/11/2026 (um arco com um risco vertical no meio e dois traços menores dos lados, em cima: a cúpula riscada), a conferir na captura.
 
 ### M. A presa (o fim do jogo, posto pelo `Main.start_ending`)

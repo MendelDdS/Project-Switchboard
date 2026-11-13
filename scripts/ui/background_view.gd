@@ -3762,10 +3762,10 @@ func _balcony_glass(wa: Vector2, we: Vector2, glass: Color) -> void:
 	_r(wa.x, wa.y, we.x - wa.x, maxf(PX, 0.15 * OUT_F / STREET["far"]), glass.darkened(0.5))   # a sombra da verga
 
 
-## O centro da bandeira da noite 15 no gradil (x, m): entre a porta e o batente da janela da sala (mais para a direita,
-## o batente da janela da central a cortava; no meio da varanda, tapava o pé da porta).
+## O centro da bandeira da noite 15 no gradil (x, m): ela toma a varanda da beira esquerda até onde o batente da
+## janela da central a cortaria (9,0 m); grande para ser vista de lá, cobre o pé da porta.
 func _banner_x() -> float:
-	return ((APT["door"] as Vector2).y + (APT["win"] as Vector2).y) / 2.0
+	return 9.0 - Banner.SIZE.x / 2.0 - 0.05
 
 
 ## Quem estende a bandeira (`Banner.man`), pelo rig (`_rig_pixels`, com o rolo nas mãos): sai pela porta do

@@ -63,7 +63,8 @@ func _render() -> void:
 		if c.transcript.is_empty():
 			continue
 		var head := T.text(T.Key.LOG_DIALED) % c.target if c.kind == PhoneCall.Kind.OUTGOING else T.text(T.Key.STATUS_LINE) % c.line   # (a feita pelo operador não tem entrada)
-		s += "[color=#5a4d3a]— %s · %s —[/color]\n" % [head, c.time]
+		var out := "[color=#3f6a2c]↗[/color] " if c.kind == PhoneCall.Kind.OUTGOING else ""   # a marca da ligação feita: a seta saindo, na tinta do operador
+		s += "%s[color=#5a4d3a]— %s · %s —[/color]\n" % [out, head, c.time]
 		for l in c.transcript:
 			var text := String(l["text"]).replace("[", "(")
 			match l["cls"]:

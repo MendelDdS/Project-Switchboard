@@ -46,6 +46,8 @@ func start(night: Night) -> void:
 
 
 func _play(s: LessonStep) -> void:
+	if not main.flags.allows(s.requires):
+		return
 	match s.kind:
 		LessonStep.Kind.RING:
 			await _ring(s)
@@ -224,6 +226,8 @@ func _done(until: String) -> bool:
 			return _opened(Tools.CALL_LOG, Main.SAW_SHEET)
 		"diary":
 			return _opened(Tools.DIARY, "diario_cecilia")
+		"dialed":
+			return main.dialing.call == null and main.flags.allows(["ligou_%s_%d" % [_night.dial[0].number, main.night_no]])
 	push_error("Training: passo com until desconhecido: \"%s\"" % until)
 	return true   # (não trava o treinamento)
 

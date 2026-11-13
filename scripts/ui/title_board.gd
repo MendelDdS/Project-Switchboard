@@ -44,6 +44,7 @@ const CORD_R := 5.5   ## a metade da largura do fio (um pouco mais que no jogo, 
 var _shell: ImageTexture
 var _fone: ImageTexture
 var _shade: GradientTexture2D
+var _wall: GradientTexture2D
 var _glow: GradientTexture2D
 var _notice := {}   ## o aviso da chapa em 3×, pelo texto (o idioma)
 var _lit := {}   ## linha -> a camada da cúpula acesa (quanto está acesa, 0..1, no `modulate`)
@@ -56,6 +57,15 @@ func _ready() -> void:
 	_shell = _shell_art()
 	_fone = _fone_art()
 	_shade = _light_art()
+	_wall = GradientTexture2D.new()   # a parede atrás da mesa: a luz da sala caindo do alto e sumindo no escuro à esquerda
+	_wall.width = 240   # (um quarto da tela: liso, sem peso)
+	_wall.height = 135
+	_wall.fill = GradientTexture2D.FILL_RADIAL
+	_wall.fill_from = Vector2(0.62, -0.15)
+	_wall.fill_to = Vector2(0.0, 0.95)
+	_wall.gradient = Gradient.new()
+	_wall.gradient.set_color(0, Pal.TITLE_WALL)
+	_wall.gradient.set_color(1, Color(Pal.TITLE_WALL, 0.0))
 	_glow = GradientTexture2D.new()   # (feita aqui: criada no `_draw`, ainda não estava pronta e saía um quadrado branco)
 	_glow.fill = GradientTexture2D.FILL_RADIAL
 	_glow.fill_from = Vector2(0.5, 0.5)
@@ -86,6 +96,7 @@ func _notification(what: int) -> void:
 
 
 func _draw() -> void:
+	draw_texture_rect(_wall, Rect2(-position, get_viewport_rect().size), false)   # (a tela inteira, atrás da mesa)
 	var inner := OUTER.grow(-FRAME)
 	draw_rect(inner, Pal.BOARD_FACE)
 	draw_rect(Rect2(inner.position, Vector2(inner.size.x, 3)), Pal.BOARD_METAL[1])   # rebaixado: a sombra em cima e à esquerda
@@ -100,7 +111,18 @@ func _draw() -> void:
 	for i in 2:   # as chapas dos bancos A e B (a do B cortada na beira da tela)
 		_draw_bank_plate(Rect2(inner.position.x + 22 + (BANK_W + BANK_GAP) * i, Y["bank"] + 10, BANK_W, size.y), "AB"[i])
 	draw_texture(_fone, Vector2.ZERO)
-	draw_texture_rect(_shade, Rect2(Vector2.ZERO, size), false)
+	# a sombra só em cima da mesa (na parede ao lado dela, era uma barra escura): o canto redondo linha a linha
+	var top := int(OUTER.position.y)
+	for y in range(top, top + int(SHELL_R)):
+		var x := int(OUTER.position.x)
+		while _round_dist(Vector2(x + 0.5, y + 0.5), OUTER, SHELL_R) >= 0.0:
+			x += 1
+		_draw_shade(Rect2(x, y, size.x - x, 1))
+	_draw_shade(Rect2(OUTER.position.x, top + SHELL_R, size.x - OUTER.position.x, size.y - top - SHELL_R))
+
+
+func _draw_shade(r: Rect2) -> void:
+	draw_texture_rect_region(_shade, r, r)
 
 
 ## A faixa escura do alto, com o nome das entradas e a legenda das lâmpadas (cortada na beira da tela, como o resto).
@@ -300,7 +322,7 @@ func _draw_rule(inner: Rect2, y: float, caption: String) -> void:
 	draw_rect(Rect2(inner.position.x + 15, y, size.x, 1), Pal.BOARD_METAL[1])
 	draw_rect(Rect2(inner.position.x + 15, y + 1, size.x, 1), Pal.BOARD_METAL[5])
 	var w := PixelArt.art(PixelArt.big(caption.to_upper(), 1), {"*": Pal.BOARD_INK}).get_width()
-	var tab := Rect2(inner.position.x + 9, y - 15, w + 30, 32)
+	var tab := Rect2(COL0 + PITCH * (LIT_LINE - 1) + 34, y - 15, w + 30, 32)   # (depois do fio do FONE, que caía por cima das letras)
 	_rounded(tab, 5.0, Pal.BOARD_STRIP)
 	draw_rect(Rect2(tab.position.x + 4, tab.end.y, tab.size.x - 8, 1), Pal.BOARD_METAL[5])
 	_text(caption, tab.position.x + 15, tab.get_center().y, Pal.BOARD_INK)

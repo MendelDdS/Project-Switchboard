@@ -31,6 +31,7 @@ const CLIP_EDGE := Color("2a2620")   ## a beira escura do prendedor da prancheta
 ## Os materiais dos objetos da mesa, os mesmos no objeto (`Background._art_*`) e no papel aberto dele (`PaperDeco` e as
 ## ferramentas): o que muda numa ponta muda na outra.
 const BOOK := Color("b48c1c")   ## a capa da lista telefônica de cima (mostarda; as outras duas, vermelha e azul)
+const TITLE_WALL := Color("17212e")   ## a parede da sala na tela inicial, onde a luz bate (`TitleBoard._wall`)
 const GOLD := Color("e0c07a")   ## o dourado das letras e dos filetes das listas
 const BOOK_BLUE := Color("1d5a72")     ## a capa azul-petróleo da lista do meio (o ciano escuro das teclas, `KEY_CAP[1]`)
 const BOOK_LEAVES := Color("c6b994")   ## o miolo das listas visto de lado, na mesa...

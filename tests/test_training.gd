@@ -160,10 +160,19 @@ func _initialize() -> void:
 	ok(await wait_until(func(): return m.diary.notes.any(func(n: Dictionary) -> bool: return n.id == "nota_0")),
 		"aberto o presente, a primeira anotação dela")
 	m.tools.close()
-	ok(await _choose(), "o operador se despede")
+	ok(await wait_until(_waiting("dialed")), "ela desliga e pede para ligar pelo discador")
+	ok(m.training.call.ended, "a ligação dela acabou")
+	for digit in "002":
+		m.dialing.press(digit)
+	m.dialing.dial()
+	ok(await wait_until(func(): return m.dialing.call != null and not m.dialing.call.options.is_empty(), 30.0), "ela atende a ligação feita")
+	m.dialing.hang_up()   # desligou antes da despedida: ela liga de novo para terminar
+	ok(await wait_until(_ringing(3), 30.0), "a ligação caiu: ela liga de novo")
+	m.answer()
+	ok(await wait_until(func(): return m.training.call.ended, 60.0), "ela se despede e desliga")
 	ok(m.flags.has(Main.SAW_SHEET), "ensinou a folha nova")
 	ok(await wait_until(func(): return not m.training.active), "o treinamento termina")
-	ok(m.notebook.pending_count() == 2, "as duas últimas ligações dela vão para o caderno")
+	ok(m.notebook.pending_count() == 3, "as três últimas ligações dela vão para o caderno")
 	var recs: Array = m.notebook.queue + [m.notebook.pending]
 	ok(recs.all(func(x: PhoneCall.Record): return x.obs == T.text(T.Key.OBS_TRAINING)), "as fichas dela dizem que é treinamento")
 	ok(recs.any(func(x: PhoneCall.Record): return x.card > 0 and "Acácias" in x.where), "a da emergência de treino leva o local e o cartão")

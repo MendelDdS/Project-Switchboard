@@ -55,6 +55,41 @@ script = ExtResource("8_chat")
 line = "Serena, recepção. Pois não?"
 replies = Array[ExtResource("9_reply")]([SubResource("Answer_1_0"), SubResource("Answer_1_1"), SubResource("Answer_1_2")])
 
+[sub_resource type="Resource" id="Ans_hotel_batida_0"]
+script = ExtResource("9_reply")
+text = "Aconteceu alguma coisa?"
+follow = "A polícia esteve aqui às oito. Levaram cinco hóspedes. Não me pergunte mais nada, moça."
+
+[sub_resource type="Resource" id="Ans_hotel_batida_1"]
+script = ExtResource("9_reply")
+text = "Tem quarto vago?"
+follow = "Vago tem, e mais do que eu queria. Mas hoje não estamos recebendo ninguém, desculpe."
+
+[sub_resource type="Resource" id="Ans_hotel_batida"]
+script = ExtResource("8_chat")
+requires = PackedStringArray("rua_raid_13")
+from_night = 13
+to_night = 13
+line = "Serena, recepção. Pois não?"
+replies = Array[ExtResource("9_reply")]([SubResource("Ans_hotel_batida_0"), SubResource("Ans_hotel_batida_1")])
+
+[sub_resource type="Resource" id="Ans_hotel_lacrado_0"]
+script = ExtResource("9_reply")
+text = "Tem quarto vago?"
+follow = "O hotel está fechado, moça. A polícia lacrou."
+
+[sub_resource type="Resource" id="Ans_hotel_lacrado_1"]
+script = ExtResource("9_reply")
+text = "Quem está falando?"
+follow = "O vigia. Só tem eu aqui até liberarem o hotel de novo."
+
+[sub_resource type="Resource" id="Ans_hotel_lacrado"]
+script = ExtResource("8_chat")
+from_night = 14
+to_night = 15
+line = "Hotel Serena, boa noite."
+replies = Array[ExtResource("9_reply")]([SubResource("Ans_hotel_lacrado_0"), SubResource("Ans_hotel_lacrado_1")])
+
 [resource]
 script = ExtResource("1_entry")
 name = "Hotel Serena"
@@ -64,4 +99,4 @@ hello = "Hotel Serena, boa noite."
 category = "hospedagem"
 spoken = "o Hotel Serena"
 motives = Array[ExtResource("2_motive")]([SubResource("Motive_25"), SubResource("Motive_26")])
-answers = Array[ExtResource("8_chat")]([SubResource("Answer_0"), SubResource("Answer_1")])
+answers = Array[ExtResource("8_chat")]([SubResource("Answer_0"), SubResource("Answer_1"), SubResource("Ans_hotel_batida"), SubResource("Ans_hotel_lacrado")])

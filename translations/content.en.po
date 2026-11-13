@@ -944,6 +944,22 @@ msgid "Um guarda-chuva preto e uma luva. Está tudo aqui na bilheteria."
 msgstr "A black umbrella and one glove. It's all here at the box office."
 
 #: data/directory/344_cine_odeon.tres
+msgid "E quem atende a esta hora?"
+msgstr "And who is answering at this hour?"
+
+#: data/directory/344_cine_odeon.tres
+msgid "O porteiro. Durmo aqui desde que o toque começou: não dá tempo de chegar em casa."
+msgstr "The doorman. I've slept here since the curfew began: there's no time to get home."
+
+#: data/directory/344_cine_odeon.tres
+msgid "Ainda tem sessão hoje?"
+msgstr "Is there still a showing tonight?"
+
+#: data/directory/344_cine_odeon.tres
+msgid "Não tem mais: com o toque de recolher, a última acaba às oito. E é o mesmo faroeste há duas semanas."
+msgstr "Not anymore: with the curfew, the last one ends at eight. And it's been the same western for two weeks."
+
+#: data/directory/344_cine_odeon.tres
 msgid "do Cine Odeon"
 msgstr "for the Cine Odeon"
 
@@ -994,6 +1010,18 @@ msgstr "Do you give news of patients over the phone?"
 #: data/directory/213_hospital_sao_lucas.tres
 msgid "Só para a família, e só se o médico deixar."
 msgstr "Only to the family, and only if the doctor allows."
+
+#: data/directory/213_hospital_sao_lucas.tres
+msgid "Dá para visitar um paciente hoje?"
+msgstr "Can I visit a patient today?"
+
+#: data/directory/213_hospital_sao_lucas.tres
+msgid "Visita hoje não tem: estamos lotados desde ontem. Não posso dar número; só digo que tem maca no corredor."
+msgstr "No visits today: we've been full since yesterday. I can't give numbers; I'll only say there are stretchers in the hallway."
+
+#: data/directory/213_hospital_sao_lucas.tres
+msgid "Todos. Ninguém foi para casa desde ontem à noite."
+msgstr "All of them. Nobody has gone home since last night."
 
 #: data/directory/155_tv_orbital.tres
 msgid "a TV Orbital"
@@ -1146,6 +1174,22 @@ msgstr "Who's reading the news tonight?"
 #: data/directory/155_tv_orbital.tres
 msgid "O de sempre. Lê o que mandam ler, como todo mundo."
 msgstr "The usual one. He reads what he's told to read, like everyone."
+
+#: data/directory/155_tv_orbital.tres
+msgid "O que aconteceu ontem?"
+msgstr "What happened yesterday?"
+
+#: data/directory/155_tv_orbital.tres
+msgid "Entraram no estúdio e ficaram quase duas horas no ar. De madrugada a polícia retomou. O resto a senhora leu no jornal."
+msgstr "They walked into the studio and stayed on the air for almost two hours. Before dawn the police took it back. The rest you read in the paper, ma'am."
+
+#: data/directory/155_tv_orbital.tres
+msgid "A programação voltou ao normal?"
+msgstr "Is the programming back to normal?"
+
+#: data/directory/155_tv_orbital.tres
+msgid "Voltou. Só que agora tem um guarda sentado ao lado do operador de câmera."
+msgstr "It is. Except now there's a guard sitting next to the cameraman."
 
 #: data/directory/155_tv_orbital.tres
 msgid "Boa noite. Fique ligada na Orbital."
@@ -1604,6 +1648,22 @@ msgid "O seu Aurélio. Faz trinta anos que é ele."
 msgstr "Mr. Aurélio. It's been him for thirty years."
 
 #: data/directory/118_farmacia_central.tres
+msgid "Tem gaze e esparadrapo aí?"
+msgstr "Do you have gauze and tape?"
+
+#: data/directory/118_farmacia_central.tres
+msgid "Acabou ontem, moça. Depois das explosões e do protesto na praça, veio gente a noite inteira, com medo de aparecer no hospital."
+msgstr "We ran out yesterday, miss. After the explosions and the protest in the square, people came all night, afraid to show up at the hospital."
+
+#: data/directory/118_farmacia_central.tres data/directory/390_radio_serena_am.tres
+msgid "Vocês estão bem?"
+msgstr "Are you all right?"
+
+#: data/directory/118_farmacia_central.tres
+msgid "Estamos. O estrago ficou para os lados da delegacia; aqui foi só o susto."
+msgstr "We are. The damage was over by the police station; here it was just the scare."
+
+#: data/directory/118_farmacia_central.tres
 msgid "Boa noite. Melhoras para quem precisa."
 msgstr "Good night. I hope whoever needs it gets better."
 
@@ -2008,6 +2068,22 @@ msgid "Tem um, de um senhor da Vila. A família pediu silêncio."
 msgstr "One, for an old man from the Vila. The family asked for quiet."
 
 #: data/directory/253_funeraria_paz_eterna.tres
+msgid "É sobre a Cecília, da central do Alto da Serra."
+msgstr "It's about Cecília, from the Alto da Serra exchange."
+
+#: data/directory/253_funeraria_paz_eterna.tres
+msgid "A telefonista? O enterro foi hoje às dez, no municipal. Veio pouca gente: a mãe e duas colegas."
+msgstr "The operator? The burial was today at ten, at the municipal cemetery. Few came: her mother and two colleagues."
+
+#: data/directory/253_funeraria_paz_eterna.tres
+msgid "O serviço anda muito?"
+msgstr "Has there been much work?"
+
+#: data/directory/253_funeraria_paz_eterna.tres
+msgid "Nunca trabalhei tanto, moça. E quase nunca me dizem do que foi."
+msgstr "I've never worked so much, miss. And they hardly ever tell me what it was."
+
+#: data/directory/253_funeraria_paz_eterna.tres
 msgid "Boa noite. Que Deus lhe guarde."
 msgstr "Good night. God keep you."
 
@@ -2186,6 +2262,34 @@ msgstr "All quiet over there?"
 #: data/directory/305_hotel_estrela.tres
 msgid "Tudo calmo. Só o letreiro da fachada que anda piscando."
 msgstr "All calm. Just the sign out front that keeps flickering."
+
+#: data/directory/305_hotel_estrela.tres
+msgid "Aconteceu alguma coisa?"
+msgstr "Did something happen?"
+
+#: data/directory/305_hotel_estrela.tres
+msgid "A polícia esteve aqui às oito. Levaram cinco hóspedes. Não me pergunte mais nada, moça."
+msgstr "The police were here at eight. They took five guests. Don't ask me anything else, miss."
+
+#: data/directory/305_hotel_estrela.tres data/directory/312_pensao_dona_cota.tres
+msgid "Tem quarto vago?"
+msgstr "Any vacant rooms?"
+
+#: data/directory/305_hotel_estrela.tres
+msgid "Vago tem, e mais do que eu queria. Mas hoje não estamos recebendo ninguém, desculpe."
+msgstr "There are, and more than I'd like. But we're not taking anyone in tonight, I'm sorry."
+
+#: data/directory/305_hotel_estrela.tres
+msgid "O hotel está fechado, moça. A polícia lacrou."
+msgstr "The hotel is closed, miss. The police sealed it."
+
+#: data/directory/305_hotel_estrela.tres
+msgid "Quem está falando?"
+msgstr "Who is speaking?"
+
+#: data/directory/305_hotel_estrela.tres
+msgid "O vigia. Só tem eu aqui até liberarem o hotel de novo."
+msgstr "The watchman. It's just me here until they release the hotel again."
 
 #: data/directory/305_hotel_estrela.tres
 msgid "do Hotel Serena"
@@ -3408,6 +3512,22 @@ msgid "Só caminhão passando para a Capital. Carro de passeio, quase nenhum."
 msgstr "Just trucks heading for the Capital. Hardly any cars."
 
 #: data/directory/347_posto_sao_cristovao.tres
+msgid "Vocês vendem gasolina em galão?"
+msgstr "Do you sell gasoline by the can?"
+
+#: data/directory/347_posto_sao_cristovao.tres
+msgid "Não vendo mais, é ordem da polícia. Depois das bombas, o que pega fogo só sai daqui dentro do tanque."
+msgstr "Not anymore, police orders. After the bombs, anything that burns only leaves here inside a tank."
+
+#: data/directory/347_posto_sao_cristovao.tres
+msgid "O posto fica aberto a noite toda?"
+msgstr "Is the station open all night?"
+
+#: data/directory/347_posto_sao_cristovao.tres
+msgid "Fica. Com o que anda acontecendo, prefiro não pregar o olho."
+msgstr "It is. With what's been going on, I'd rather not sleep a wink."
+
+#: data/directory/347_posto_sao_cristovao.tres
 msgid "do Posto São Cristóvão"
 msgstr "for the Posto São Cristóvão"
 
@@ -3566,6 +3686,22 @@ msgstr "Can a misprinted name be corrected?"
 #: data/directory/101_gazeta_de_sao_sotero.tres
 msgid "Mande uma carta. A errata sai na quinta, num cantinho."
 msgstr "Send a letter. The correction runs on Thursday, in a little corner."
+
+#: data/directory/101_gazeta_de_sao_sotero.tres
+msgid "É sobre o tal comandante."
+msgstr "It's about this commander fellow."
+
+#: data/directory/101_gazeta_de_sao_sotero.tres
+msgid "Então o número é o da delegacia, não o nosso. Ligaram o dia inteiro: metade jura que viu o homem, cada um num bairro diferente."
+msgstr "Then the number you want is the police station's, not ours. They called all day long: half of them swear they saw the man, each in a different part of town."
+
+#: data/directory/101_gazeta_de_sao_sotero.tres
+msgid "Vocês sabem quem ele é?"
+msgstr "Do you know who he is?"
+
+#: data/directory/101_gazeta_de_sao_sotero.tres
+msgid "Se soubéssemos, o jornal dava o nome, e não o apelido."
+msgstr "If we did, the paper would print the name, not the nickname."
 
 #: data/directory/101_gazeta_de_sao_sotero.tres
 msgid "Boa noite. Leia a Gazeta amanhã."
@@ -3738,6 +3874,34 @@ msgstr "Do you take messages for folks out in the country?"
 #: data/directory/390_radio_serena_am.tres
 msgid "Recebe, sim. Vai ao ar no quadro dos recados, depois das notícias."
 msgstr "We do. They go out in the messages slot, after the news."
+
+#: data/directory/390_radio_serena_am.tres
+msgid "A transmissão de ontem era de vocês?"
+msgstr "Was last night's broadcast yours?"
+
+#: data/directory/390_radio_serena_am.tres
+msgid "Não era o nosso locutor, é só o que eu digo. O resto saiu no jornal."
+msgstr "It wasn't our announcer, that's all I'll say. The rest was in the paper."
+
+#: data/directory/390_radio_serena_am.tres
+msgid "Estamos no ar. Com gente de farda no corredor, mas no ar."
+msgstr "We're on the air. With men in uniform in the hallway, but on the air."
+
+#: data/directory/390_radio_serena_am.tres
+msgid "O que houve ontem?"
+msgstr "What happened yesterday?"
+
+#: data/directory/390_radio_serena_am.tres
+msgid "Tentaram entrar aqui à força, e a guarda respondeu a tiros. Levaram três presos."
+msgstr "They tried to force their way in, and the guard answered with gunfire. Three were taken away."
+
+#: data/directory/390_radio_serena_am.tres
+msgid "Ninguém se feriu aí?"
+msgstr "Was anyone hurt there?"
+
+#: data/directory/390_radio_serena_am.tres
+msgid "Um vidro quebrado e o susto. Do estúdio, ninguém se feriu."
+msgstr "A broken window and the scare. Nobody from the studio was hurt."
 
 #: data/directory/390_radio_serena_am.tres
 msgid "Obrigado por ouvir a Serena. Boa noite!"
@@ -4416,6 +4580,22 @@ msgid "Então desliga, moça, que pode ter freguês tentando ligar."
 msgstr "Then hang up, miss, there could be a customer trying to call."
 
 #: data/directory/176_ponto_de_taxi_da_rodoviaria.tres
+msgid "Tem carro para agora?"
+msgstr "Is there a car for right now?"
+
+#: data/directory/176_ponto_de_taxi_da_rodoviaria.tres
+msgid "Depois das nove eu só rodo com salvo-conduto, e isso eu não tenho. Um colega levou uma parteira depois da hora e dormiu na delegacia."
+msgstr "After nine I only drive with a safe-conduct, and that I don't have. A colleague drove a midwife after hours and slept at the police station."
+
+#: data/directory/176_ponto_de_taxi_da_rodoviaria.tres
+msgid "De dia tem movimento?"
+msgstr "Is it busy during the day?"
+
+#: data/directory/176_ponto_de_taxi_da_rodoviaria.tres
+msgid "Tem, e todo mundo com mala. A rodoviária nunca vendeu tanta passagem."
+msgstr "It is, and everybody with a suitcase. The bus station has never sold so many tickets."
+
+#: data/directory/176_ponto_de_taxi_da_rodoviaria.tres
 msgid "Precisando de carro, é só chamar."
 msgstr "If you need a car, just call."
 
@@ -4858,6 +5038,18 @@ msgstr "Everything all right there?"
 #: data/directory/312_pensao_dona_cota.tres
 msgid "Tudo, graças a Deus. Só a goteira da cozinha que não para."
 msgstr "Fine, thank God. Just the kitchen leak that won't stop."
+
+#: data/directory/312_pensao_dona_cota.tres
+msgid "Não tenho mais: com o hotel lacrado, veio todo mundo bater aqui. Pregaram um papel na porta de lá e levaram a chave."
+msgstr "None left: with the hotel sealed, everybody came knocking here. They nailed a paper to its door and took the key."
+
+#: data/directory/312_pensao_dona_cota.tres
+msgid "Tem muita gente indo embora?"
+msgstr "Are many people leaving?"
+
+#: data/directory/312_pensao_dona_cota.tres
+msgid "Quem tem parente fora já foi. Eu fico: pensão não se leva nas costas."
+msgstr "Those with family elsewhere are gone already. I'm staying: you can't carry a boarding house on your back."
 
 #: data/directory/312_pensao_dona_cota.tres
 msgid "Boa noite. E não liga depois das dez, que eu durmo cedo."
@@ -11672,6 +11864,26 @@ msgid "Precisando de mim, é só discar 002 no discador, ali na prateleira."
 msgstr "If you need me, just dial 002 on the dialer, there on the shelf."
 
 #: data/nights/night_00.tres
+msgid "Aliás, testa agora: eu desligo e você me liga. Zero, zero, dois e Discar."
+msgstr "Actually, try it now: I'll hang up and you call me. Zero, zero, two and Dial."
+
+#: data/nights/night_00.tres
+msgid "No [b]discador[/b], na prateleira da mesa, aperte [b]0[/b], [b]0[/b], [b]2[/b] e [b]Discar[/b]."
+msgstr "On the [b]dialer[/b], on the board's shelf, press [b]0[/b], [b]0[/b], [b]2[/b] and [b]Dial[/b]."
+
+#: data/nights/night_00.tres
+msgid "Ué, a ligação caiu! Deixa eu terminar o que eu ia dizer."
+msgstr "Oh, the call dropped! Let me finish what I was going to say."
+
+#: data/nights/night_00.tres
+msgid "E dá pra ligar pra qualquer número da lista: às vezes é o jeito de avisar alguém. Boa noite, e boa sorte!"
+msgstr "And you can call any number in the directory: sometimes it's the way to warn someone. Good night, and good luck!"
+
+#: data/nights/night_00.tres
+msgid "Alto da Serra, Cecília falando. Viu? É assim que você me acha."
+msgstr "Alto da Serra, Cecília speaking. See? That's how you find me."
+
+#: data/nights/night_00.tres
 msgid "Valeu, Cecília!"
 msgstr "Thanks, Cecília!"
 
@@ -11682,10 +11894,6 @@ msgstr "Thanks so much, Cecília!"
 #: data/nights/night_00.tres
 msgid "Até a próxima!"
 msgstr "See you next time!"
-
-#: data/nights/night_00.tres
-msgid "Boa noite, e boa sorte!"
-msgstr "Good night, and good luck!"
 
 #: data/nights/night_16.tres
 msgid "O supervisor deixou um recado: \"Escala normal. Nenhuma ocorrência a registrar.\""

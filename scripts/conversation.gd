@@ -544,8 +544,12 @@ func _prank(c: PhoneCall) -> void:
 func _outgoing(c: PhoneCall) -> void:
 	var story := c.data as DialCall
 	var e := c.data as DirectoryEntry
-	var pool := e.answers.filter(func(t: ChatTopic): return t.weather in ["", main.weather] and main.flags.allows(t.requires)) \
+	var pool := e.answers.filter(func(t: ChatTopic): return t.weather in ["", main.weather] and main.flags.allows(t.requires) \
+			and main.night_no >= t.from_night and main.night_no <= t.to_night) \
 		if e != null and (e.closes < 0.0 or main.minutes < e.closes) and main.night_no <= e.answers_until else []   # (fechado, ninguém atende)
+	var special := pool.filter(func(t: ChatTopic): return not t.requires.is_empty() or t.from_night > 0 or t.to_night < 99)
+	if not special.is_empty():   # o atendimento da ocasião (a noite, o que houve) no lugar dos de todo dia
+		pool = special
 	var topic: ChatTopic = null if pool.is_empty() else pool.pick_random()
 	for i in randi_range(DIAL_RINGS.x, DIAL_RINGS.y) if story != null or topic != null else DIAL_NO_ANSWER:
 		Sfx.play("ringback")
