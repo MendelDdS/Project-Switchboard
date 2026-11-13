@@ -31,6 +31,9 @@
 [ext_resource type="Resource" path="res://data/calls/story_15_capital_volta.tres" id="m_capital_volta"]
 [ext_resource type="Resource" path="res://data/calls/story_15_muro.tres" id="m_muro"]
 [ext_resource type="Resource" path="res://data/calls/story_15_sobretudo.tres" id="m_sobretudo"]
+[ext_resource type="Resource" path="res://data/calls/story_15_gazeta.tres" id="m_gazeta"]
+[ext_resource type="Resource" path="res://data/calls/story_15_padaria.tres" id="m_padaria"]
+[ext_resource type="Resource" path="res://data/calls/story_15_obrigado.tres" id="m_obrigado"]
 
 [sub_resource type="Resource" id="ev_0"]
 script = ExtResource("2_event")
@@ -230,6 +233,27 @@ again = false
 script = ExtResource("3_story")
 at = 500.0
 call = ExtResource("m_sobretudo")
+again = false
+
+[sub_resource type="Resource" id="V_gazeta"]
+script = ExtResource("3_story")
+at = 615.0
+call = ExtResource("m_gazeta")
+requires = PackedStringArray("golpe_venceu")
+again = false
+
+[sub_resource type="Resource" id="V_padaria"]
+script = ExtResource("3_story")
+at = 650.0
+call = ExtResource("m_padaria")
+requires = PackedStringArray("golpe_venceu")
+again = false
+
+[sub_resource type="Resource" id="V_obrigado"]
+script = ExtResource("3_story")
+at = 690.0
+call = ExtResource("m_obrigado")
+requires = PackedStringArray("golpe_venceu", "ferido_salvo_15")
 again = false
 
 [sub_resource type="Resource" id="S_pol3"]
@@ -626,6 +650,11 @@ script = ExtResource("dl_diary_line")
 text = "Acabou, e não do nosso jeito."
 requires = PackedStringArray("golpe_falhou")
 
+[sub_resource type="Resource" id="N_10"]
+script = ExtResource("dl_diary_line")
+text = "O rapaz do ferido ligou para agradecer. O Tonico vai viver."
+call = SubResource("V_obrigado")
+
 [sub_resource type="Resource" id="N_9"]
 script = ExtResource("dl_diary_line")
 text = "Tem um homem de sobretudo subindo a escada. Se alguém achar este caderno, eu não me arrependo de nada."
@@ -638,7 +667,7 @@ shift_end = 720.0
 clears_at = 360.0
 quiet_from = 600.0
 note = "O supervisor deixou um recado: \"Ordem das autoridades: as linhas da Rádio Serena e da TV Orbital estão bloqueadas. Transferir qualquer ligação para elas é crime, sujeito a prisão. Quem ligar para o bar ou para o hotel, denuncie na delegacia (184). Ligação para a delegacia ou para a Alta Cúpula passa na hora, sem demora. Última noite do período: o relatório de hoje vai para a diretoria.\""
-story = Array[ExtResource("3_story")]([SubResource("Story_presa"), SubResource("S_pol1"), SubResource("S_bar"), SubResource("S_radio"), SubResource("S_hotel"), SubResource("S_cup1"), SubResource("S_pol2"), SubResource("S_cup2"), SubResource("S_cup2a"), SubResource("S_tv"), SubResource("S_celeste"), SubResource("S_pol3"), SubResource("M_ze"), SubResource("M_radio"), SubResource("M_telhado"), SubResource("M_ferido"), SubResource("M_tv"), SubResource("M_capital"), SubResource("M_muro"), SubResource("M_sobretudo")])
+story = Array[ExtResource("3_story")]([SubResource("Story_presa"), SubResource("S_pol1"), SubResource("S_bar"), SubResource("S_radio"), SubResource("S_hotel"), SubResource("S_cup1"), SubResource("S_pol2"), SubResource("S_cup2"), SubResource("S_cup2a"), SubResource("S_tv"), SubResource("S_celeste"), SubResource("S_pol3"), SubResource("M_ze"), SubResource("M_radio"), SubResource("M_telhado"), SubResource("M_ferido"), SubResource("M_tv"), SubResource("M_capital"), SubResource("M_muro"), SubResource("M_sobretudo"), SubResource("V_gazeta"), SubResource("V_padaria"), SubResource("V_obrigado")])
 street_events = Array[ExtResource("2_event")]([SubResource("ev_0"), SubResource("ev_1"), SubResource("ev_2")])
 endings = Array[ExtResource("5_text")]([SubResource("End_sucesso"), SubResource("End_presa")])
 letters = Array[ExtResource("5_text")]([SubResource("letter_15"), SubResource("letter_15a")])
@@ -649,4 +678,4 @@ calls = Array[ExtResource("3_story")]([SubResource("J_call_padaria"), SubResourc
 news_photo = "torre"
 news_caption = "Soldados na porta da Rádio Serena."
 tasks = Array[ExtResource("dt_diary_task")]([SubResource("T_0"), SubResource("T_1"), SubResource("T_2"), SubResource("T_3"), SubResource("T_4"), SubResource("T_5"), SubResource("T_6")])
-diary = Array[ExtResource("dl_diary_line")]([SubResource("N_0"), SubResource("N_1"), SubResource("N_2"), SubResource("N_3"), SubResource("N_4"), SubResource("N_5"), SubResource("N_6"), SubResource("N_7"), SubResource("N_8"), SubResource("N_9")])
+diary = Array[ExtResource("dl_diary_line")]([SubResource("N_0"), SubResource("N_1"), SubResource("N_2"), SubResource("N_3"), SubResource("N_4"), SubResource("N_5"), SubResource("N_6"), SubResource("N_7"), SubResource("N_8"), SubResource("N_10"), SubResource("N_9")])

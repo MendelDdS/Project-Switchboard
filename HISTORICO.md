@@ -3611,3 +3611,31 @@ Chaves:
    `Conversation.transfer_choices`; ela só cobra a demora) e o agradecimento virou "Obrigado, Maria. Boa noite." (en,
    es). Saíram a pedido "Isso fica entre nós" (Maria não sabe de nada para guardar) e "Deu tempo" (soa como se
    faltassem segundos): o agradecimento simples não promete nem insinua nada.
+573. #roteiro #conteudo "O que podemos fazer para melhorar o jogo?" e "pode fazer isso": as ligações da madrugada
+   vencida da noite 15 (`PLANO_ROTEIRO`, item 13) e uma build nova. Feito: três ligações do roteiro depois do veredito,
+   só com `golpe_venceu`, sem repetir quem já agradece no epílogo (Generosa, a mãe da Cecília, Sebastião, Miguel) nem
+   adiantar o que ele conta (os presos soltos de manhã, a rendição às 6h do final): 4:15 o correspondente da Gazeta
+   (Álvaro Torres, o mesmo da estrada) dita a primeira página da praça, com a bandeira na varanda do prédio de
+   tijolos; 4:50 o Lino pede à Nair (a irmã da Celeste) o pão da Pão Dourado para a praça, "hoje ninguém paga"; 5:30,
+   só com `ferido_salvo_15`, o rapaz que pediu o Dr. Augusto agradece e, perguntado, diz o nome que antes negou
+   (`ferido_nome_15`), com uma linha no diário. en e es; os quatro caminhos do robô conferidos (as três tocam no
+   sucesso e na amarga). A v0.9.0-alpha exportada (as falas ainda por aprovar).
+574. #interface #turno #saiu "Remova o relógio de início de turno, mas ficou legal": o relógio de ponto da abertura
+   (`time_clock.gd`, o cartão da quinzena carimbado, item 570) saiu; o botão Começar turno ou o Enter começam o turno
+   direto, o bilhete continua indo para o quadro de avisos. O bilhete segue "Noite 7 de 15" sem a hora (está no
+   relógio do turno). Pedido junto: um plano de melhoria da interface dos menus, depois das tarefas em andamento.
+575. #interface #consequencias #turno Do plano dos menus (`PLANO_MENUS.md`), as decisões: a direção é o metal do
+   console (as opções como teclas do console, `KeyCapStyle`; chaves e botões giratórios nas configurações), não papel e
+   caneta; o bilhete e o relatório se fecham com a assinatura de Maria; Recomeçar a noite e Voltar ao menu perguntam
+   antes. A tela inicial ficou por explicar. Feito: o "Ciente" de Maria (`scenes/ui/sign_field.tscn`) no pé do bilhete
+   da abertura ("Assine para começar o turno"; o clique ou o Enter, e o turno começa com ele assinado, a lápis, letra a
+   letra) e do relatório ("Assine para encerrar"), no lugar dos botões Começar turno e Assinar e sair; relido no turno,
+   o bilhete já vem assinado. Na pausa, Recomeçar a noite e Voltar ao menu perguntam no papel (`PauseMenu._ask`), com
+   o Não escolhido e o Esc voltando ao menu; `shot.gd --screen=pause --ask`; `test_keys` cobre a pergunta.
+576. #interface #turno A assinatura precisa mostrar que é ali que se clica para seguir: um lápis pequeno em diagonal
+   (as cores do lápis da mesa) bate de leve no começo da linha e o "×" e o "Assine..." clareiam e escurecem no ritmo
+   do papel esquecido na mesa (`sign_field.gd`, `TAP_SEC`, `PULSE_SEC`); sob o mouse param, e ao assinar o lápis corre
+   com o nome e some. As duas propostas da tela inicial (a chapa à esquerda; as opções nas entradas do painel) não
+   agradaram; das três novas (a sala antes do turno, a central vista da rua, o console de perto), escolhida a sala
+   antes do turno: a sala do jogo às 17:55 com a luminária apagada, o nome em letras douradas no vidro da janela e as
+   opções nas quatro teclas do painel do operador (`PLANO_MENUS.md` 3.3).

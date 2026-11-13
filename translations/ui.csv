@@ -27,7 +27,6 @@ INTRO_TRAINING,Treinamento · %s · %s,Training · %s · %s,Entrenamiento · %s 
 INTRO_INFO,"Tudo acontece na sua mesa. Use o mouse para levar os plugues até as tomadas e para consultar a lista, o mapa e a ficha de ocorrências. Mais de uma linha pode tocar ao mesmo tempo. Use fones de ouvido.","Everything happens at your desk. Use the mouse to move the plugs to the jacks and to check the directory, the map and the log sheet. More than one line can ring at the same time. Use headphones.","Todo sucede en su mesa. Use el mouse para llevar los conectores a las tomas y para consultar la guía, el mapa y la ficha de llamadas. Puede sonar más de una línea a la vez. Use audífonos."
 SAVE_ASIDE_BADGE,ATENÇÃO,WARNING,ATENCIÓN
 SAVE_ASIDE,"O progresso salvo não pôde ser aberto (é de uma versão mais nova do jogo ou está danificado) e o jogo começou do zero. O arquivo antigo foi guardado como %s, na pasta de dados do jogo.","The saved progress could not be opened (it is from a newer version of the game or is damaged), so the game started over. The old file was kept as %s, in the game's data folder.","El progreso guardado no se pudo abrir (es de una versión más nueva del juego o está dañado) y el juego empezó de cero. El archivo anterior quedó guardado como %s, en la carpeta de datos del juego."
-START_SHIFT,Começar turno,Start shift,Comenzar turno
 RESTART_FIRST_NIGHT,Recomeçar do treinamento,Start over from the training,Empezar de nuevo desde el entrenamiento
 SKIP_TRAINING,Pular o treinamento,Skip the training,Saltar el entrenamiento
 END_DEMO_TITLE,Fim da demonstração,End of demo,Fin de la demostración
@@ -339,7 +338,6 @@ RADIO_NOT_NEEDED,"Central, aqui não precisa de %s. Liberando.","Dispatch, no ne
 REPORT_TITLE,Relatório do supervisor,Supervisor's report,Informe del supervisor
 REPORT_DEPARTMENT,Supervisão do tráfego noturno,Night traffic supervision,Supervisión del tráfico nocturno
 REPORT_SIGNATURE,Supervisor de tráfego,Traffic supervisor,Supervisor de tráfico
-REPORT_SIGN,Assinar e sair,Sign and leave,Firmar y salir
 REPORT_NIGHT,Noite %d · turno das %s às %s,Night %d · shift from %s to %s,Noche %d · turno de %s a %s
 REPORT_TRAINING,Treinamento · turno das %s às %s,Training · shift from %s to %s,Entrenamiento · turno de %s a %s
 REPORT_WARNINGS,ADVERTÊNCIAS,WARNINGS,ADVERTENCIAS
@@ -540,3 +538,10 @@ FLYER_RATES,Novas tarifas interurbanas,New long-distance rates,Nuevas tarifas in
 FLYER_RATES_HEAD,TARIFAS,RATES,TARIFAS
 FLYER_POLICE,Aviso da delegacia: conversa suspeita ao 184,Police notice: report suspicious calls to 184,Aviso de la comisaría: conversación sospechosa al 184
 FLYER_POLICE_HEAD,AVISO,NOTICE,AVISO
+SIGN_START,Assine para começar o turno,Sign to start the shift,Firme para empezar el turno
+SIGN_CLOSE,Assine para encerrar,Sign to finish,Firme para terminar
+SIGN_OPERATOR,Telefonista,Operator,Telefonista
+PAUSE_ASK_RESTART,Recomeçar a noite? Tudo o que foi feito nela se perde.,Restart the night? Everything done in it will be lost.,¿Reiniciar la noche? Todo lo hecho en ella se pierde.
+PAUSE_ASK_MENU,Voltar ao menu? A noite em andamento se perde; o jogo salvo continua do começo dela.,Back to the menu? The night in progress will be lost; the saved game resumes from its start.,¿Volver al menú? La noche en curso se pierde; la partida guardada sigue desde su comienzo.
+ASK_YES,Sim,Yes,Sí
+ASK_NO,Não,No,No

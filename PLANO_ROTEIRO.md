@@ -111,7 +111,7 @@ motor (o que o roteiro precisa e o jogo ainda não faz), depois o conteúdo, com
       dela; epílogo: sucesso, a alta; fracasso, o hospital dá ocupado da primeira vez (`TransferCall.busy_line`).
     - Final com o gesso (`End_gesso`, `End_gesso_amarga`): de manhã Maria assina o gesso no São Lucas e encontra Sebastião.
 
-13. **A madrugada do golpe (noite 15), aprovada em 07/11/2026; no jogo o Zé pelo discador às 4h; faltam as ligações de quem conta, comemora e agradece (08/11/2026: o plano aprovado; as falas, a escrever).** A meia-noite deixa de decidir: a Cúpula
+13. **A madrugada do golpe (noite 15), aprovada em 07/11/2026; no jogo o Zé pelo discador às 4h; em 11/11/2026 as ligações de quem conta, comemora e agradece (as falas a aprovar).** A meia-noite deixa de decidir: a Cúpula
     resiste e a batalha atrás da igreja segue até o veredito, **às 4h** (`MIDNIGHT` vira a hora do veredito). As
     missões da madrugada somam com o resto da noite (como as ordens de hoje; nenhuma decide sozinha):
     - **0h–1h, o contra-ataque**: a Cúpula (296) pede a delegacia (184) duas vezes para retomar a rádio. Pedidos das
@@ -129,7 +129,9 @@ motor (o que o roteiro precisa e o jogo ainda não faz), depois o conteúdo, com
       o veredito sai na hora (fracasso ou presa, com as cenas de hoje; sem madrugada de repressão).
     - **4h–6h, com o golpe vencido**: a bandeira e o letreiro logo depois do veredito; nenhuma ligação sorteada, só
       as escritas da vitória: o Zé pelo discador (o recado de liberdade, que hoje é da meia-noite), e quem conta,
-      comemora e agradece. Falas a escrever e aprovar antes.
+      comemora e agradece: 4:15 o correspondente da Gazeta dita a primeira página da praça (`story_15_gazeta`), 4:50
+      a praça pede pão à Nair da Pão Dourado (`story_15_padaria`), 5:30, só com `ferido_salvo_15`, o rapaz do ferido
+      agradece e, perguntado, diz o nome (`story_15_obrigado`, `ferido_nome_15`). Sem a rendição antes das 6h.
     - O motor: a hora do veredito numa constante, a batalha e a bandeira por ela, `Rebellion` com o máximo possível
       de pontos que faltam, `last_call` do vencido sem sorteadas depois do veredito; os 4 caminhos do robô e a
       calibração refeitos.

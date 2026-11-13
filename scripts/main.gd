@@ -227,7 +227,7 @@ func _ready() -> void:
 	_intro.setup(night_no, night, progress != null, report.low_before > 0, bureaucracy.tapes.last,
 		progress.aside if progress else "", flags, bureaucracy.codes.code(night_no) if b3 in bureaucracy.live() else "",
 		_tonight())
-	for n: CanvasItem in [_shift_hours.get_parent().get_parent(), phone]:   # o turno aparece com o ponto batido
+	for n: CanvasItem in [_shift_hours.get_parent().get_parent(), phone]:   # o turno aparece quando começa (`_start_shift`)
 		n.modulate.a = 0.0
 	if is_training():   # o treinamento começa com o FONE já na entrada 1
 		board.plugged(0, 1)

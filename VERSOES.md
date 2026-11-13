@@ -124,3 +124,30 @@ Commit `5df0f75` · macOS, Windows e Linux
 ### Correções
 - Continuidade do roteiro: calendário, convites e falas que valem em todos os caminhos.
 - A sombra do painel na prateleira e o discador da prateleira.
+
+## v0.9.0-alpha — 11/11/2026
+
+Commit a definir (a tag sai com ele) · macOS, Windows e Linux
+
+### Novidades
+- O diário de Maria (tecla 5): as tarefas da noite e as anotações dela, uma página por noite; abre sozinho no fim do
+  turno.
+- O quadro de avisos: o jornal, o bilhete do supervisor e os avisos da companhia e das autoridades, noite a noite.
+- A abertura do turno: Maria assina o bilhete do supervisor para começar (e o relatório para sair), com o que a noite traz de novo embaixo; Recomeçar a noite e Voltar ao menu perguntam antes.
+- Letra de mão desenhada letra a letra em tudo o que é escrito à mão.
+- O amanhecer da noite 15: o veredito às 4h, a madrugada do contra-ataque, os feridos, o reforço da Capital, a
+  armadilha do homem de sobretudo e, com o golpe vencido, quem conta, comemora e agradece.
+- A pedra que trinca a janela na noite 14.
+- O discador alcança o Centro e o Alto da Serra.
+- Ambiente gravado (chuva, tempestade, vento, grilos, trovão).
+- O jornal abre com a manchete do dia, que muda conforme o que o jogador fez.
+- Ligações escritas que viram emergência quando a transferência demora.
+- Papéis esquecidos pulsam no próprio objeto (as tiras por registrar, os bilhetes fora da caixinha).
+- Opções de daltonismo e troca das teclas da ligação.
+- O treinamento cobre as mecânicas novas.
+
+### Correções
+- Letras das placas e plugues guardados não viram mais blocos brancos.
+- Ligação das autoridades não encontra mais a tomada tomada por uma conversa.
+- O lápis em tamanho real, sem a ponta torta; o calculógrafo e o carimbo da mesa redesenhados.
+

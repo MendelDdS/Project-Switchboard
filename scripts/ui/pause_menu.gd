@@ -11,21 +11,24 @@ const BUS_SLIDERS := {"Ambience": "%Ambience", "Voices": "%Voices", "Effects": "
 var _settings_only := false   ## aberto pela tela inicial: Voltar fecha tudo (não há jogo pausado)
 var _saved := {}              ## configurações ao abrir a tela: Voltar volta para elas, Aplicar grava as novas
 var _asking := ""            ## a ação esperando a tecla nova (`_input`)
+var _confirm := Callable()   ## o que perde a noite, esperando o Sim (`_ask`)
 
 
 func _ready() -> void:
 	$Version.text = Settings.version_text()
 	%Resume.pressed.connect(resume)
 	%OpenSettings.pressed.connect(_show_settings.bind(true))
-	%RestartNight.pressed.connect(func():
+	%RestartNight.pressed.connect(_ask.bind(T.Key.PAUSE_ASK_RESTART, func():
 		Sfx.muffle(false)
 		get_tree().paused = false
-		Main.restart())
-	%ToMenu.pressed.connect(func():   # a noite em andamento se perde, como em Recomeçar
+		Main.restart()))
+	%ToMenu.pressed.connect(_ask.bind(T.Key.PAUSE_ASK_MENU, func():   # a noite em andamento se perde, como em Recomeçar
 		Sfx.muffle(false)
 		get_tree().paused = false
 		GameView.playing = false
-		Main.restart())
+		Main.restart()))
+	%Yes.pressed.connect(func(): _confirm.call())
+	%No.pressed.connect(_back)
 	%Quit.pressed.connect(func(): get_tree().quit())
 	%Back.pressed.connect(_back)
 	%Apply.pressed.connect(_apply_settings)
@@ -117,9 +120,21 @@ func resume() -> void:
 	resumed.emit()
 
 
-## Voltar (ou Esc): nas configurações, descarta o que mudou.
+## O que perde a noite em andamento pergunta antes, no mesmo papel (`key`, a pergunta); o Sim faz `action`.
+func _ask(key: T.Key, action: Callable) -> void:
+	Sfx.play("click")
+	_confirm = action
+	%Question.text = T.text(key)
+	%Main.visible = false
+	%Ask.visible = true
+	%No.grab_focus()
+
+
+## Voltar (ou Esc): na pergunta, volta ao menu; nas configurações, descarta o que mudou.
 func _back() -> void:
-	if %Settings.visible:
+	if %Ask.visible:
+		_show_settings(false)
+	elif %Settings.visible:
 		Settings.restore(_saved)
 		_close_settings()
 	else:
@@ -148,6 +163,7 @@ func _show_settings(on: bool) -> void:
 	Sfx.play("click")
 	%Main.visible = not on
 	%Settings.visible = on
+	%Ask.visible = false
 	if not _settings_only:   # o jogo pausado fica abafado; nas configurações, não (o volume se ajusta ouvindo)
 		Sfx.muffle(not on)
 	if on:

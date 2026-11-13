@@ -4,7 +4,9 @@ extends PanelContainer
 ## companhia em vermelho, o fio duplo, a noite datilografada (`[typed]`), o recado à mão na caneta azul (`[hand]`,
 ## `PaperInk`), a rubrica dele e as fibras do papel; no alto, a tachinha com que ele fica pregado no quadro de avisos
 ## (`Background._draw_pinned_note`). O mesmo papel na tela de abertura (`Intro`, com os botões embaixo) e lido de novo
-## pelo quadro (`Intro.reread`).
+## pelo quadro (`Intro.reread`). No pé, à esquerda, o "Ciente" de Maria (`sign_field`): assinado, o turno começa.
+
+signal signed
 
 const INK := preload("res://scripts/ui/paper_ink.gd")
 const TACK := 9   ## a tachinha no alto (px)
@@ -28,6 +30,19 @@ func _ready() -> void:
 		%Scribble.draw_polyline(PackedVector2Array(ReportView.SCRIBBLE), Pal.PEN, 1.0)
 		%Scribble.draw_polyline(PackedVector2Array(ReportView.FLOURISH), Color(Pal.PEN, 0.8), 1.0))
 	resized.connect(queue_redraw)
+	%Sign.signed.connect(signed.emit)
+
+
+## Maria assina (o Enter da abertura).
+func sign() -> void:
+	%Sign.sign()
+
+
+## O campo em branco, esperando a assinatura (`on`), ou já assinado (relendo no turno).
+func blank(on: bool) -> void:
+	%Sign.clear()
+	if not on:
+		%Sign.fill()
 
 
 ## O recado da noite `n` (`Night.note_for` pelos marcadores `flags`) e os parágrafos `extra`, depois dele (quem
@@ -45,7 +60,7 @@ func _texts() -> void:
 	if _n == 0:
 		date = T.text(T.Key.INTRO_TRAINING) % [GameData.date_text(_n), Main.fmt(0.0)]
 	else:
-		var of := GameData.CONTENT.nights.size()   # "Noite 7 de 15" (sem a hora, que cabe no cartão de ponto); o epílogo, sem o "de"
+		var of := GameData.CONTENT.nights.size()   # "Noite 7 de 15" (a hora fica no relógio do turno); o epílogo, sem o "de"
 		date = T.text(T.Key.INTRO_NIGHT_OF) % [_n, of, GameData.date_text(_n)] if _n <= of \
 			else T.text(T.Key.INTRO_NIGHT) % [_n, GameData.date_text(_n), Main.fmt(0.0)]
 	%Date.text = "[typed]%s[/typed]" % date

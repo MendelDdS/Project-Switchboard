@@ -42,6 +42,7 @@ extends Node
 ##   --screen=id            uma tela por cima: intro (a de início), note (o recado relido pelo quadro), pause, settings,
 ##                          report (o relatório com advertências;
 ##                          --rating=great|good|fair|poor o conceito, padrão poor, a segunda noite seguida;
+##                          --ask, com pause: a pergunta de Recomeçar a noite;
 ##                          --warned, com intro, o bilhete depois de uma noite Insuficiente; --tapenote, com o resumo das
 ##                          fitas da noite anterior, da B4; --aside, o aviso do save que não deu para ler, `Progress.aside`)
 ##   --street=sol,1         com --tool=despacho: o mouse no trecho 1 da Rua do Sol (a rua inteira de leve e os números)
@@ -92,7 +93,7 @@ extends Node
 ##   --keys                 as teclas do painel do operador todas ativas (a cor acesa delas), sem ligação
 ##   --written=2            fichas registradas (o lugar do lápis no bloco)
 ##   --pencil               o lápis em cima do diário (tarefa nova)
-##   --punch=S              com --screen=intro: bate o ponto e captura S segundos depois (o cartão na fenda, o recado indo ao quadro)
+##   --punch=S              com --screen=intro: Maria assina o recado e captura S segundos depois (indo ao quadro)
 ##   --bolt                 um relâmpago caindo na hora da captura (o primeiro clarão)
 ##   --wait=5               segundos antes de capturar (a luminária esquenta em 4)
 ##   --dim=N                a luminária presa no nível N (0 a 1), como no meio de uma piscada
@@ -145,7 +146,7 @@ func _ready() -> void:
 				"user://progress.v2-1761600000.cfg" if _args.has("aside") else "")
 		await get_tree().create_timer(float(_args.get("wait", "5")), false).timeout
 		if _args.has("punch"):
-			m._intro.get_node("%Clock").punch()
+			m._intro.get_node("%Note").sign()
 			await get_tree().create_timer(float(_args["punch"]), false).timeout
 		_save(out)
 		return
@@ -394,8 +395,10 @@ func _ready() -> void:
 			m._intro.reread(m.background.prop_rect(Background.NOTE_ID))
 			for i in 30:
 				await get_tree().process_frame
-		"pause":
+		"pause":   # --ask: com a pergunta de Recomeçar a noite
 			m.pause()
+			if _args.has("ask"):
+				m._pause.get_node("%RestartNight").pressed.emit()
 		"settings":
 			m.pause()
 			m._pause.open_settings()

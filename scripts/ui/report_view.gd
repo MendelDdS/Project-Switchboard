@@ -62,12 +62,11 @@ func _ready() -> void:
 	%Scribble.draw.connect(func():
 		%Scribble.draw_polyline(PackedVector2Array(SCRIBBLE), Pal.PEN, 1.0)
 		%Scribble.draw_polyline(PackedVector2Array(FLOURISH), Color(Pal.PEN, 0.8), 1.0))
-	%Sign.pressed.connect(func():
-		Sfx.play("pencil")
-		closed.emit())
+	%Sign.signed.connect(closed.emit)   # Maria assina o "Ciente" e o memorando sai
 
 
 func show_report(r: ShiftReport) -> void:
+	%Sign.clear()
 	for n in _body.get_children():
 		n.queue_free()
 	if r.night == 0:

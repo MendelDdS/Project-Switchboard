@@ -6490,7 +6490,7 @@ msgstr ""
 msgid "A Gazeta de São Sotero, moça."
 msgstr ""
 
-#: data/calls/noite_05_jornal.tres data/calls/noite_10_tiros.tres data/calls/transfer_45_reporter_gazeta.tres
+#: data/calls/noite_05_jornal.tres data/calls/noite_10_tiros.tres data/calls/story_15_gazeta.tres
 msgid "Gazeta de São Sotero"
 msgstr ""
 
@@ -8590,7 +8590,7 @@ msgstr ""
 msgid "A padaria, moça. Pão Dourado."
 msgstr ""
 
-#: data/calls/noite_10_cancao.tres data/calls/noite_15_celeste.tres data/calls/transfer_04_dona_zilda_padaria_pao_dourado.tres
+#: data/calls/noite_10_cancao.tres data/calls/noite_15_celeste.tres data/calls/story_15_padaria.tres
 msgid "Padaria Pão Dourado"
 msgstr ""
 
@@ -10770,6 +10770,118 @@ msgstr ""
 msgid "Moça, não me faça repetir."
 msgstr ""
 
+#: data/calls/story_15_gazeta.tres data/calls/transfer_45_reporter_gazeta.tres
+msgid "Correspondente"
+msgstr ""
+
+#: data/calls/story_15_gazeta.tres
+msgid "Central, é o Álvaro, o correspondente da Gazeta. Tô na praça."
+msgstr ""
+
+#: data/calls/story_15_gazeta.tres
+msgid "A redação, moça. Hoje o jornal não sai sem isso."
+msgstr ""
+
+#: data/calls/story_15_gazeta.tres data/calls/transfer_45_reporter_gazeta.tres
+msgid "A Gazeta de São Sotero. A redação."
+msgstr ""
+
+#: data/calls/story_15_gazeta.tres
+msgid "Obrigado, moça. Amanhã a senhora lê no jornal. Dessa vez, tudo."
+msgstr ""
+
+#: data/calls/story_15_gazeta.tres
+msgid "Redação? É o Álvaro. Segura a primeira página."
+msgstr ""
+
+#: data/calls/story_15_gazeta.tres
+msgid "Que primeira página? Mandaram tirar tudo de política."
+msgstr ""
+
+#: data/calls/story_15_gazeta.tres
+msgid "Pois põe de volta. A rádio e a TV são do povo, e tem uma bandeira na varanda do prédio de tijolos."
+msgstr ""
+
+#: data/calls/story_15_gazeta.tres data/calls/transfer_45_reporter_gazeta.tres
+msgid "Quem confirmou?"
+msgstr ""
+
+#: data/calls/story_15_gazeta.tres
+msgid "A cidade inteira. Tá todo mundo na praça olhando pra ela."
+msgstr ""
+
+#: data/calls/story_15_gazeta.tres
+msgid "Então dita. Devagar, que eu tô batendo com a mão tremendo."
+msgstr ""
+
+#: data/calls/story_15_padaria.tres
+msgid "Bom dia, moça! Bom dia mesmo! A Padaria Pão Dourado, por favor."
+msgstr ""
+
+#: data/calls/story_15_padaria.tres
+msgid "Tem uma praça inteira com fome aqui."
+msgstr ""
+
+#: data/calls/story_15_padaria.tres
+msgid "A Pão Dourado, moça. A padaria."
+msgstr ""
+
+#: data/calls/story_15_padaria.tres
+msgid "Obrigado! Viva São Sotero!"
+msgstr ""
+
+#: data/calls/story_15_padaria.tres
+msgid "Pão Dourado, bom dia."
+msgstr ""
+
+#: data/calls/story_15_padaria.tres
+msgid "Dona Nair? É o Lino, da praça. Quanto pão a senhora tem aí?"
+msgstr ""
+
+#: data/calls/story_15_padaria.tres
+msgid "Forno aceso desde as três. Por quê?"
+msgstr ""
+
+#: data/calls/story_15_padaria.tres
+msgid "Porque tem gente cantando aqui desde as quatro, e ninguém comeu desde ontem."
+msgstr ""
+
+#: data/calls/story_15_padaria.tres
+msgid "Então manda buscar tudo. Hoje ninguém paga."
+msgstr ""
+
+#: data/calls/story_15_padaria.tres
+msgid "A senhora é uma santa, dona Nair."
+msgstr ""
+
+#: data/calls/story_15_padaria.tres
+msgid "Santa nada. O meu pai teria feito igual."
+msgstr ""
+
+#: data/calls/story_15_obrigado.tres
+msgid "Moça? É o rapaz do ferido. O do Tonico, lembra? A senhora passou pro Dr. Augusto."
+msgstr ""
+
+#: data/calls/story_15_obrigado.tres
+msgid "O doutor tirou a bala ali mesmo, na mesa da cozinha. Ele tá dormindo agora. Reclamando, mas dormindo."
+msgstr ""
+
+#: data/calls/story_15_obrigado.tres
+msgid "Que alívio."
+msgstr ""
+
+#: data/calls/story_15_obrigado.tres
+msgid "Como é o seu nome?"
+msgstr ""
+
+#: data/calls/story_15_obrigado.tres
+msgid "Ronaldo. Antes eu não podia dizer. Agora posso."
+msgstr ""
+
+#: data/calls/story_15_obrigado.tres
+msgid "Se a senhora não passa aquela ligação, ele não tava aqui. Era só isso. Obrigado, moça."
+msgstr ""
+
 #: data/calls/noite_15_mercearia.tres
 msgid "Dona Filomena"
 msgstr ""
@@ -10916,6 +11028,10 @@ msgstr ""
 
 #: data/nights/night_15.tres
 msgid "Acabou, e não do nosso jeito."
+msgstr ""
+
+#: data/nights/night_15.tres
+msgid "O rapaz do ferido ligou para agradecer. O Tonico vai viver."
 msgstr ""
 
 #: data/nights/night_15.tres
@@ -13639,19 +13755,11 @@ msgid "Fica pronto sábado às dez."
 msgstr ""
 
 #: data/calls/transfer_45_reporter_gazeta.tres
-msgid "Correspondente"
-msgstr ""
-
-#: data/calls/transfer_45_reporter_gazeta.tres
 msgid "Central, aqui é o correspondente da Gazeta na estrada."
 msgstr ""
 
 #: data/calls/transfer_45_reporter_gazeta.tres
 msgid "Me liga com a redação, rápido. O jornal fecha daqui a pouco."
-msgstr ""
-
-#: data/calls/transfer_45_reporter_gazeta.tres
-msgid "A Gazeta de São Sotero. A redação."
 msgstr ""
 
 #: data/calls/transfer_45_reporter_gazeta.tres
@@ -13668,10 +13776,6 @@ msgstr ""
 
 #: data/calls/transfer_45_reporter_gazeta.tres
 msgid "A ponte do rio Claro vai ser reformada. Começa em março."
-msgstr ""
-
-#: data/calls/transfer_45_reporter_gazeta.tres
-msgid "Quem confirmou?"
 msgstr ""
 
 #: data/calls/transfer_45_reporter_gazeta.tres

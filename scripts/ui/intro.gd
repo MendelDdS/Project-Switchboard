@@ -1,9 +1,9 @@
 class_name Intro
 extends ColorRect
 ## Tela inicial do turno: a sala escurecida e o recado do supervisor (`SupervisorNote`) de perto, na metade direita,
-## onde abrem as ferramentas (`over`); embaixo, à esquerda, o relógio de ponto (`time_clock.gd`) e, ao lado, o botão de
-## começar e, num papel como o da dica do manual, o que a noite traz de novo (na primeira, como se joga); as
-## configurações num canto. O botão (ou o Enter, ou o clique no relógio) bate o ponto e começa o turno: o bilhete vai para o quadro de avisos (`pinned`) e a sala clareia (`FADE_SEC`). Durante o
+## onde abrem as ferramentas (`over`); embaixo, num papel como o da dica do manual, o que a noite traz de novo (na
+## primeira, como se joga); as configurações num canto. Maria assina o "Ciente" no pé do bilhete (o clique ou o
+## Enter) e o turno começa: o bilhete vai para o quadro de avisos (`pinned`) e a sala clareia (`FADE_SEC`). Durante o
 ## turno, o bilhete pregado no quadro é lido de novo aqui (`reread`): ele vem do quadro, sem o resto, e o clique ou o
 ## Esc o devolve (`put_back`).
 
@@ -12,7 +12,7 @@ signal settings_pressed
 signal skip_pressed
 
 const FADE_SEC := 1.2
-const GAP := 14   ## entre o bilhete e o relógio embaixo dele
+const GAP := 14   ## entre o bilhete e o papel embaixo dele
 const READ_SEC := 0.2   ## relendo, o bilhete vem do quadro e volta para ele nesse tempo (o das ferramentas, `Tools.SLIDE_SEC`)
 
 var over: Control   ## a coluna das ferramentas, onde o bilhete fica no meio (o Main põe)
@@ -35,13 +35,12 @@ var _read: Tween
 func _ready() -> void:
 	$Version.text = Settings.version_text()
 	_dim = color.a
-	%Clock.punched.connect(_start)
-	%Start.pressed.connect(%Clock.punch)   # o botão bate o ponto: o relógio anima e o turno começa no fim
+	%Note.signed.connect(_start)
 	%Settings.pressed.connect(settings_pressed.emit)
 	%Skip.pressed.connect(skip_pressed.emit)
 
 
-## O bilhete no meio da coluna das ferramentas e, com o relógio embaixo, no meio da tela na altura (a mesa se
+## O bilhete no meio da coluna das ferramentas e, com o papel embaixo, no meio da tela na altura (a mesa se
 ## arruma na tela).
 func _process(_delta: float) -> void:
 	if over == null:
@@ -75,11 +74,11 @@ func setup(n: int, night: Night, can_skip: bool, warned := false, tapes := {}, a
 	_warned = warned
 	_tapes = tapes
 	%Skip.visible = can_skip and n == 0
-	%Clock.reset(n, GameData.CONTENT.nights.size())
+	%Note.blank(true)
 	_texts()
 
 
-## Começa o turno (o ponto batido): o relógio e os botões saem, o bilhete vai para o quadro de avisos com a sala
+## Começa o turno (o bilhete assinado): o papel de baixo e os botões saem, o bilhete vai para o quadro de avisos com a sala
 ## clareando (sem o quadro, só some); o mouse já passa para a mesa.
 func _start() -> void:
 	%Bottom.visible = false
@@ -100,12 +99,12 @@ func _start() -> void:
 		set_process(false))
 
 
-## O Enter bate o ponto, como o clique no relógio.
+## O Enter assina, como o clique no campo.
 func _unhandled_key_input(e: InputEvent) -> void:
-	if visible and not reading and %Bottom.visible and e.pressed and not e.echo \
+	if visible and not reading and %Buttons.visible and e.pressed and not e.echo \
 			and (e.keycode == KEY_ENTER or e.keycode == KEY_KP_ENTER):
 		get_viewport().set_input_as_handled()
-		%Clock.punch()
+		%Note.sign()
 
 
 ## Durante o turno, o bilhete pregado no quadro de avisos (`from`, px da tela) vem para perto, sem os botões.
@@ -116,6 +115,7 @@ func reread(from: Rect2) -> void:
 	%Buttons.visible = false
 	$Version.visible = false
 	%Note.modulate.a = 1.0
+	%Note.blank(false)
 	mouse_filter = Control.MOUSE_FILTER_STOP
 	visible = true
 	set_process(true)

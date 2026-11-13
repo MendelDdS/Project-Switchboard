@@ -57,8 +57,8 @@ func _write_enum() -> void:
 	var s := "class_name T\n"
 	s += "## Textos da interface e do código, por chave. GERADO por tools/update_translations.gd a partir de\n"
 	s += "## translations/ui.csv (colunas pt_BR, en, es): não edite à mão; acrescente a linha no CSV e rode a ferramenta.\n"
-	s += "## Uso: T.text(T.Key.START_SHIFT); com valores: T.text(T.Key.LINE_N) % n.\n"
-	s += "## Nas cenas, o texto do Label/Button é a própria chave (ex.: \"START_SHIFT\") e o Godot traduz sozinho.\n\n"
+	s += "## Uso: T.text(T.Key.RESUME); com valores: T.text(T.Key.LINE_N) % n.\n"
+	s += "## Nas cenas, o texto do Label/Button é a própria chave (ex.: \"RESUME\") e o Godot traduz sozinho.\n\n"
 	s += "enum Key {\n"
 	for k in keys:
 		s += "\t%s,\n" % k

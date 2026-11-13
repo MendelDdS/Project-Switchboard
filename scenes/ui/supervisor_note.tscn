@@ -1,6 +1,7 @@
 [gd_scene format=3]
 
 [ext_resource type="Script" path="res://scripts/ui/supervisor_note.gd" id="1_note"]
+[ext_resource type="PackedScene" path="res://scenes/ui/sign_field.tscn" id="2_sign"]
 
 [node name="SupervisorNote" type="PanelContainer"]
 custom_minimum_size = Vector2(400, 0)
@@ -68,7 +69,16 @@ theme_override_constants/line_separation = 3
 
 [node name="Foot" type="HBoxContainer" parent="Margin/VBox"]
 layout_mode = 2
-alignment = 2
+
+[node name="Sign" parent="Margin/VBox/Foot" instance=ExtResource("2_sign")]
+unique_name_in_owner = true
+layout_mode = 2
+hint = "SIGN_START"
+
+[node name="Space" type="Control" parent="Margin/VBox/Foot"]
+layout_mode = 2
+size_flags_horizontal = 3
+mouse_filter = 2
 
 [node name="Signed" type="VBoxContainer" parent="Margin/VBox/Foot"]
 layout_mode = 2

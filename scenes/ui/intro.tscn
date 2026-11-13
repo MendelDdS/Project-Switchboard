@@ -2,7 +2,6 @@
 
 [ext_resource type="Script" path="res://scripts/ui/intro.gd" id="1_intro"]
 [ext_resource type="PackedScene" path="res://scenes/ui/supervisor_note.tscn" id="2_note"]
-[ext_resource type="Script" path="res://scripts/ui/time_clock.gd" id="3_clock"]
 
 [node name="Intro" type="ColorRect"]
 anchors_preset = 15
@@ -22,25 +21,10 @@ unique_name_in_owner = true
 layout_mode = 0
 theme_override_constants/separation = 14
 
-[node name="Clock" type="Control" parent="Bottom"]
-unique_name_in_owner = true
-layout_mode = 2
-size_flags_vertical = 0
-script = ExtResource("3_clock")
-
 [node name="Side" type="VBoxContainer" parent="Bottom"]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_constants/separation = 10
-
-[node name="Start" type="Button" parent="Bottom/Side"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(135, 33)
-layout_mode = 2
-size_flags_horizontal = 0
-theme_type_variation = &"AmberButton"
-theme_override_font_sizes/font_size = 22
-text = "START_SHIFT"
 
 [node name="Info" type="RichTextLabel" parent="Bottom/Side"]
 unique_name_in_owner = true

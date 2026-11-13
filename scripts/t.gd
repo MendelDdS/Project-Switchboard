@@ -1,8 +1,8 @@
 class_name T
 ## Textos da interface e do código, por chave. GERADO por tools/update_translations.gd a partir de
 ## translations/ui.csv (colunas pt_BR, en, es): não edite à mão; acrescente a linha no CSV e rode a ferramenta.
-## Uso: T.text(T.Key.START_SHIFT); com valores: T.text(T.Key.LINE_N) % n.
-## Nas cenas, o texto do Label/Button é a própria chave (ex.: "START_SHIFT") e o Godot traduz sozinho.
+## Uso: T.text(T.Key.RESUME); com valores: T.text(T.Key.LINE_N) % n.
+## Nas cenas, o texto do Label/Button é a própria chave (ex.: "RESUME") e o Godot traduz sozinho.
 
 enum Key {
 	GAME_TITLE,
@@ -33,7 +33,6 @@ enum Key {
 	INTRO_INFO,
 	SAVE_ASIDE_BADGE,
 	SAVE_ASIDE,
-	START_SHIFT,
 	RESTART_FIRST_NIGHT,
 	SKIP_TRAINING,
 	END_DEMO_TITLE,
@@ -342,7 +341,6 @@ enum Key {
 	REPORT_TITLE,
 	REPORT_DEPARTMENT,
 	REPORT_SIGNATURE,
-	REPORT_SIGN,
 	REPORT_NIGHT,
 	REPORT_TRAINING,
 	REPORT_WARNINGS,
@@ -540,6 +538,13 @@ enum Key {
 	FLYER_RATES_HEAD,
 	FLYER_POLICE,
 	FLYER_POLICE_HEAD,
+	SIGN_START,
+	SIGN_CLOSE,
+	SIGN_OPERATOR,
+	PAUSE_ASK_RESTART,
+	PAUSE_ASK_MENU,
+	ASK_YES,
+	ASK_NO,
 }
 
 
