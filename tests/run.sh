@@ -69,6 +69,7 @@ run penalties
 run bureaucracy
 run keys --night=1   # (a noite também para a cena recarregada pelo Recomeçar, que não lê o progresso salvo)
 run layout
+run rua
 for s in 1 2 3; do
 	run shift --seed=$s
 done
@@ -76,6 +77,7 @@ run shift --seed=3 --clumsy
 run shift --seed=2 --night=2
 run shift --seed=1 --night=5
 run shift --seed=2 --night=9
+run shift --seed=7 --night=8   # (com as fitas da B4: o robô grava as marcadas para as autoridades)
 run shift --seed=1 --night=15   # a última noite vai até as 6h (`Night.shift_end`)
 run shift --seed=1 --human
 run shift --seed=2 --human --nosy

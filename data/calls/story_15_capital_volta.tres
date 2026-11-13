@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="TransferCall" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/transfer_call.gd" id="1_story"]
+
+[resource]
+script = ExtResource("1_story")
+group = 2
+voice = "m"
+caller = "Assessor"
+opening = PackedStringArray("A minha ligação para a Capital caiu. Completa de novo, quarenta e um, zero oito.", "E dessa vez fica de olho nessa linha, moça.")
+repeat = "Quarenta e um, zero oito, a Capital! Não me faça repetir."
+target = "901"
+destination = "41-08 (Capital)"
+thanks = "Vou lembrar do seu nome."
+overheard = PackedStringArray("General? A linha caiu. Caiu, não: derrubaram.", "Então a central é deles também. Fale rápido.", "Preciso de tropa. A rádio e a TV estão com eles.", "Quantos homens?", "Dois [number:batalhões], pela [other:estrada da serra], antes do sol.", "Saem em uma hora. Segure até lá.")
+far_number = "41-08"
+caller_name = "Henrique Valadares"
+name_line = "Henrique Valadares, da residência oficial."

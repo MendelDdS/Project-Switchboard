@@ -29,11 +29,11 @@ detalhe no comentário do código, o porquê no `HISTORICO.md`. Atualize os `CLA
   padrão no texto entra no `check.sh` dela.
 - **Interface em cenas** (`scenes/`), com Containers; scripts de interface em `scripts/ui/`, lógica em `scripts/`.
   Estilo no tema global `themes/main_theme.tres` por variações de tipo (`GreenButton`, `InkButton`, `HudPanel`,
-  `PaperPanel`, `MemoPanel`, `TapedNote`, `InkLabel`, `InkBoldLabel`, `TypedText`/`HandText`...): prefira variação de
+  `PaperPanel`, `MemoPanel`, `TapedNote`, `InkLabel`, `InkBoldLabel`, `InkText`, `TypedText`/`HandText`...): prefira variação de
   tema a override por nó. Papéis escritos: efeito de RichTextLabel (`scripts/ui/paper_ink.gd`, `[typed]` e `[hand]`).
 - Tela inicial (`scenes/title_screen.tscn`, posta pelo `GameView` antes do jogo, `GameView.playing`; a pausa volta a
-  ela, `%ToMenu`): a mesa de perto (`title_board.gd`, linha chamando, `ringing`) e o menu (`TitleButton`, setas e Enter). Telas fora do turno são papéis: o bilhete do supervisor na abertura (`Intro`), pausa e configurações num papel com
-  fita, o relatório num memorando (`ReportView`: timbre, serviços prestados, advertências com o carimbo da gravidade,
+  ela, `%ToMenu`): a mesa de perto (`title_board.gd`, linha chamando, `ringing`) e o menu (`TitleButton`, setas e Enter). Telas fora do turno são papéis: o bilhete do supervisor na abertura (`Intro` com o `SupervisorNote`, o papel timbrado do memorando, na metade direita, que Maria assina para começar, o clique ou o Enter, `sign_field.tscn`, como o relatório para sair; embaixo, o papel do que a noite traz de novo, `Main._tonight`; a interface do turno aparece com o turno começado e o bilhete vai para o quadro de avisos, onde é relido no turno, `Intro.reread`), pausa e configurações num papel com
+  fita (Recomeçar e Voltar ao menu perguntam, `PauseMenu._ask`; plano: `PLANO_MENUS.md`), o relatório num memorando (`ReportView`: timbre, serviços prestados, advertências com o carimbo da gravidade,
   parecer à mão, rubrica e o carimbo redondo do conceito, `_grade_stamp`, girado pixel a pixel e em lugar sorteado).
 - Botão de resposta (`ChoiceButton`): fala curta do operador (`CHOICE_*`; a frase inteira, `OP_*`, vai para a
   conversa); ação do jogador entre colchetes ("[Oferecer outro lugar]").
@@ -60,7 +60,8 @@ detalhe no comentário do código, o porquê no `HISTORICO.md`. Atualize os `CLA
   "nearest", ampliado só em múltiplos inteiros, `_fit`; o que sobra é borda escura). Nada de girar ou esticar pixel
   art pela transformação do desenho: gire pixel a pixel (`PixelArt.turned`, RotSprite) ou desenhe na tela. Gradação de
   cor no `Box` (`grade.gdshader`, `GameView.GRADES` por clima).
-- **Fonte**: uma só, Departure Mono (`Pal.ui`/`Pal.mono`), **só em múltiplos de 11**. Em objeto da sala, nada acima
+- **Fonte**: uma só, Departure Mono (`Pal.ui`/`Pal.mono`), **só em múltiplos de 11**; a única exceção é a letra de mão
+  (`Pal.hand`, desenhada em `hand_font.gd`, posta no tema `HandText` pelo `Settings`), só no 11, em tudo o que é escrito à mão. Em objeto da sala, nada acima
   de 11: use 11 em negrito (sombra de 1 px), `PixelArt.big`/`relief` ou letra desenhada à mão. Gravado no painel:
   `PixelArt.tiny` (maiúsculas 3×5 com acentos).
 - **Cores e materiais no `Pal`** (rampas `Array[Color]` escolhidas por `Pal.ramp`/`Pal.lit`), usados pelo objeto da
@@ -88,12 +89,15 @@ detalhe no comentário do código, o porquê no `HISTORICO.md`. Atualize os `CLA
   `Sfx._rng` e o cenário no `Background._rng` (`_pick`), nunca no global (andam pelo relógio real). Animação do desenho pelo `PixelArt.ms()`, não
   `Time.get_ticks_msec()` (para nas capturas com `--still`).
 - Cursores próprios no autoload `Cursors` (pixel art; passe `Image`, não textura, ao `Input`).
-- Configurações no autoload `Settings` (`user://settings.cfg`: `locale`, `volumes`, `fullscreen`); `set_*` vale na
-  hora, `save()` grava, `restore(snapshot)` desfaz. Testes não leem nem gravam o arquivo.
+- Configurações no autoload `Settings` (`user://settings.cfg`: `locale`, `volumes`, `fullscreen`, `colorblind`,
+  `keys`); `set_*` vale na hora, `save()` grava, `restore(snapshot)` desfaz. Testes não leem nem gravam o arquivo.
+  Daltonismo: o verde de "em conversa" e "tudo certo" vira azul (`Pal.ok()`, `Pal.colorblind`; use-o em vez de
+  `Pal.GREEN` onde a cor quer dizer isso). Teclas de atender, transferir, escutar e desligar trocáveis
+  (`Settings.KEY_ACTIONS`, `set_key` troca com a que já usava a tecla; a etiqueta dos botões segue `key_name`).
 - Entrada (Input Map): `cancel_plug` (Esc, botão direito), `pause` (Esc, P), `answer_call` (Espaço),
   `transfer_call` (Tab), `listen_call` (Z), `hang_up` (X), tratadas em `PhonePanel._input` antes da interface;
-  ferramentas 1–4 (`Main.TAB_KEYS`, `Tools.toggle`); ids das ferramentas sempre pelas constantes `Tools.DIRECTORY`,
-  `DISPATCH`, `LOGBOOK`, `CALL_LOG`, `NEWS`, `TOLL`.
+  ferramentas 1–5 (`Main.TAB_KEYS`, `Tools.toggle`); ids das ferramentas sempre pelas constantes `Tools.DIRECTORY`,
+  `DISPATCH`, `LOGBOOK`, `CALL_LOG`, `DIARY`, `NEWS`, `TOLL`.
 
 ## Rodar e testar
 - Godot: `/Applications/Godot.app/Contents/MacOS/Godot` (fora do PATH). Compilar: `Godot --headless --path . --quit-after 60`.
@@ -106,8 +110,8 @@ detalhe no comentário do código, o porquê no `HISTORICO.md`. Atualize os `CLA
   (`tests/test_<x>.gd` estende `test_base.gd`: `ok()`, `wait_until`, `load_main`, `finish`); tempo em quadros, nunca
   `Time.get_ticks_msec()`.
   - `test_content` (o conteúdo de `data/` sem a cena, ~2 s: referências, lacunas, traduções, marcadores, falas fora
-    do `.po`, número da lista que não é destino de nada; rode depois de mexer em `data/`), `test_flow` (cenários), `test_keys` (teclas e mouse pelo `GameView`), `test_layout` (objetos da mesa sem
-    sobreposição; rode ao mexer na disposição), `test_penalties` (consequências, relatório, conta do conceito),
+    do `.po`, número da lista que não é destino de nada; rode depois de mexer em `data/`), `test_flow` (cenários), `test_keys` (teclas e mouse pelo `GameView`, e a troca de teclas), `test_layout` (objetos da mesa sem
+    sobreposição; rode ao mexer na disposição), `test_rua` (cada cena da rua com a vista desenhada, a pausa, a tela inicial e o fim da presa), `test_penalties` (consequências, relatório, conta do conceito),
     `test_bureaucracy` (núcleo e B1–B4 com as ligações de teste dos `.tres`), `test_training`, `test_dial` (o discador), `test_shift` (o robô joga o turno inteiro e imprime métricas e a eficiência; `--human` mede o
     ritmo de uma pessoa, `--eager` não espera o fim da ligação, `--clumsy`, `--nosy`, `--careless`, `--night=N`, `--lang=`; falha se o atento ficar abaixo
     de Regular; `--path=sucesso|amarga|presa|fracasso` joga um caminho da história, e `tools/caminhos.sh` as 15 noites
@@ -121,7 +125,7 @@ detalhe no comentário do código, o porquê no `HISTORICO.md`. Atualize os `CLA
   `Godot --resolution 160x90 --position 0,0 --quit-after 1500 --path . tools/shot.tscn -- --hour=22:30 --weather=rain --out=build/x.png`.
   As opções estão no comentário do topo de `tools/shot.gd` (`--tool`, `--card`, `--hover`, `--screen=intro|pause|settings|report`,
   `--rating`, `--warned`, `--zoom`, `--still`...). Compare capturas com `tools/diff_shots.gd`; conjunto do plano
-  hi-bit: `tools/hibit_shots.sh build/hibit/<pasta>`; cores e degradês das capturas (`PLANO_PIXEL.md`): `tools/pixel_map.gd`. Degraus de uma beira: `tools/edge_steps.gd` (as consertadas, com os degraus aprovados, em `tools/beiras.txt`, que o `visual.sh` confere). **Regressão visual**: `tools/visual.sh [commit]` (~2 min, 12
+  hi-bit: `tools/hibit_shots.sh build/hibit/<pasta>`; cores e degradês das capturas: `tools/pixel_map.gd`. Degraus de uma beira: `tools/edge_steps.gd` (as consertadas, com os degraus aprovados, em `tools/beiras.txt`, que o `visual.sh` confere). **Regressão visual**: `tools/visual.sh [commit]` (~2 min, 12
   capturas do commit contra o disco, a tela inteira; sem a chuva, que ainda varia). Rode em mudança que
   não deveria mudar a tela (refatoração, desempenho) e confira que só mudou o esperado nas que deveriam.
 - Desempenho: sem tela, a vista da janela não é desenhada (`Background._headless`); a vista no amanhecer desenha ~17 mil
@@ -155,14 +159,25 @@ detalhe no comentário do código, o porquê no `HISTORICO.md`. Atualize os `CLA
   O ritmo da fala (`PACE`) e a suspeita andam juntos: mudou um, confira o outro.
 - **Interurbano**: troncos 901–906 (`GameData.TRUNKS`), a telefonista de lá (`Main._trunk`), o número de lá
   (`TransferCall.far_number`). **Calculógrafo** (`Toll`, `TollTicket`): conta a ligação interurbana, imprime o bilhete,
-  o jogador carimba e guarda na caixinha; esquecido ou sem carimbo é advertência leve.
+  o jogador carimba e guarda na caixinha; esquecido ou sem carimbo é advertência leve. Pendências chamam atenção
+  no próprio papel, pulsando (`Background._nag_layer`): a tira por registrar e o bilhete fora da caixinha; nunca numa
+  lâmpada de máquina, que não saberia (`LESSONS.md`).
 - Telefonistas das centrais (`GameContent.operators`: 001 Morgana até a 4, 002 Cecília até a 7; setor entregue é central fechada; 003 é a própria, `GameData.OWN`): só
   pelo discador, números no rodapé da lista (`PhoneBook._footer`); `DirectoryEntry.answers_until`/`gone_from`.
 - **Discador** (`Dialing`, nó do Main; `PhoneCall.Kind.OUTGOING`, `Conversation._outgoing`): o operador liga pelo
   próprio fone (sem o FONE); na prateleira (`Dialer`, `dialer.gd`) e de perto num pop-up em cima dele (`DialView`), só clique.
   Enquanto dura, é o foco (a linha do FONE em HOLD) e a do lugar fica ocupada (`Exchange`, `seized`); fora do caderno. Atende a do
   roteiro (`DialCall`, `Night.dial`/`GameContent.dial`, passos de `PrankStep`; a senha do Dia 4 ao hotel 305, das 20:30 às 21h) ou o atendimento do lugar
-  (`DirectoryEntry.answers`, `ChatTopic`, `closes`; todo número da cidade, menos os do despacho; palavras-chave nas respostas, `Eavesdrop.note`); a do roteiro atende também fora dos setores. Marcador `ligou_<número>_<noite>`. `PLANO_DISCADOR.md`.
+  (`DirectoryEntry.answers`, `ChatTopic`, `closes`; o da ocasião, com `requires` ou `from_night`/`to_night`, vem no lugar dos de todo dia; todo número da cidade, menos os do despacho; palavras-chave nas respostas, `Eavesdrop.note`); a do roteiro atende também fora dos setores. Marcador `ligou_<número>_<noite>`. `PLANO_DISCADOR.md`.
+- **Diário de Maria** (`Diary`, nó do Main; `diary_view.gd`, `Tools.DIARY`, tecla 5; na frente da mesa, onde ficava o
+  jornal, que foi pregado no quadro de avisos): as tarefas da noite, só lidas do jogo, sem pontos (os pedidos do roteiro
+  em `Night.tasks`, `DiaryTask`, pelos marcadores, `done`, `until`, `at_close`, `letter`; normas pelo
+  `BureaucracyRule.task_text`, riscadas no turno encerrado sem advertência delas; rotina com quanto falta) e, à direita,
+  as anotações dela (`Night.diary`, `DiaryLine`: no fim da ligação do roteiro `call` com o desfecho, `Main.story_ends`;
+  pelos marcadores; o balanço `at_close`), tudo por demanda (nada antes de alguém avisar); a carta lida fica guardada
+  nele (o clique abre); o presente da Cecília no treinamento; a página de cada noite no save (`Progress.diary`, `Diary.page`), folheadas
+  pelas dobras nos cantos de baixo; no fim do turno abre sozinho antes do memorando (`Main.DIARY_WAIT`; no fim do jogo, a última página antes do "Fim", uma linha por final); tarefa nova
+  põe o lápis em cima dele (`Background.diary_new`). O plano em etapas: `HISTORICO` 564.
 - Fim de ligação: `end_call(c, PhoneCall.End.*)` → `c.record` → `Notebook.add()`; o caderno registra com um clique no
   tipo (`register(T.Key.TYPE_*)`). A conversa do roteiro (`PrankCall` com `beat`) é ligação comum no caderno (com `prank`, trote). `TransferCall.busy_line`: o destino dá ocupado na primeira tentativa.
 - **Despacho** (`Dispatch`, `CityMap`, `CardMachines`, `PunchCard`): marcar o trecho no mapa imprime o cartão (dois cliques: o primeiro só datilografa, `CardMachines.draft`; o anel da moldura aproxima, `_knob`);
@@ -175,15 +190,14 @@ detalhe no comentário do código, o porquê no `HISTORICO.md`. Atualize os `CLA
   decisões, marcados pelo `Supervisor.credit`, nunca no treinamento), eficiência interna
   (`positives ÷ (positives + negatives × rigor da noite)`, `POINTS`, `RIGOR`), **conceito** (`grade()`: Ótimo, Bom, Regular, Insuficiente;
   `GRADE_MIN`; emergência perdida = Insuficiente). Duas noites seguidas abaixo de Regular demitem (`low_nights`,
-  `LOW_LIMIT`, `fired()`). Mudou um peso: recalibre com várias sementes (`tools/calibrar.sh [tabela anterior]`, ~4 min;
-  `PLANO_EFICIENCIA.md`, seção 6).
+  `LOW_LIMIT`, `fired()`). Mudou um peso: recalibre com várias sementes (`tools/calibrar.sh [tabela anterior]`, ~4 min).
 - O Main chama `supervisor.fault()` onde a falha acontece; `Supervisor.call_ended()` decide advertência e retorno
   (`call_again`, uma vez por motivo). Treinamento e trotes não geram advertência.
 - **Barra de agravamento** (`Urgency`, `PhoneCall.stage`): corre desde o atendimento, para em pergunta e resposta, com máquina do despacho trabalhando (`CardMachines.working`) e de
   vez com o socorro completo no lugar certo; cada estágio exige mais unidades (`Fleet.require`). Até duas emergências
   ao mesmo tempo (`Main.MAX_EMERGENCIES`); viatura de reserva só com duas (`Fleet.spare`).
 - Fim do turno: `Main.start_ending` → `Supervisor.shift_over` → `Ending.play(report, more, text, memo)` → `ReportView`.
-  **Finais** (`Rebellion.final`, à meia-noite da 15, `final_*`): três, sucesso, fracasso, presa (o golpe
+  **Finais** (`Rebellion.final`, no veredito da 15, `final_*`): três, sucesso, fracasso, presa (o golpe
   falhou e ela cortou mais pedidos das autoridades do que atendeu; a cena `Arrest` na rua e o fim); texto do fim por
   final em `Night.endings`. A vitória amarga é variação do sucesso no epílogo (`custou_gente`, `Rebellion.costly`). O fim do jogo (epílogo ou presa) não tem relatório: o fecho, "Fim", os créditos e o menu.
   **Epílogo**: a noite 16, `GameContent.epilogue`, fora de `nights` (a "última noite" continua a 15).
@@ -217,18 +231,19 @@ detalhe no comentário do código, o porquê no `HISTORICO.md`. Atualize os `CLA
   carro de som, panfletos, tinta, corrida, desfile e banca; 13: a batida no hotel às 20h, só com uma fita do hotel na polícia (`Raid`: camburão, viatura,
   cinco presos); 13 e 14: o homem de sobretudo embaixo do poste das 22h às 22h50 (`stranger`); 14: a fuga da família às 20h (`Moving`) e a pedra que trinca a janela às 23h, só sem chances altas (`Stone`, camada
   `_crack` na vista, o trincado fica para a 15); cena com `StreetEvent.requires` conferida na hora (`Main._street_check`,
-  liga `rua_<kind>_<noite>`); 14: o hotel lacrado, as janelas apagadas a noite toda (`closed`); 15: o letreiro do hotel apagado (aceso às 2h com o golpe vencido, `sign_from`), o
-  sinalizador vermelho às 21h (`Flare`, camada `_flare` entre o céu e a cidade), o incêndio e o combate longe, atrás da igreja, das 21:20 à meia-noite (`Battle`, camadas `_battle`/`_battle_add`; os estrondos e as rajadas chegam depois do clarão) e a bandeira na varanda à meia-noite, só
-  com `golpe_venceu` (`Banner`; o `_midnight` roda antes do `_street_check`); um script por cena em
+  liga `rua_<kind>_<noite>`); 14: o hotel lacrado, as janelas apagadas a noite toda (`closed`); 15: o letreiro do hotel apagado (aceso meia hora depois do veredito vencido, `sign_from`, `SIGN_AFTER`), o
+  sinalizador vermelho às 21h (`Flare`, camada `_flare` entre o céu e a cidade), o incêndio e o combate longe, atrás da igreja, das 21:20 às 4h (`Battle`, camadas `_battle`/`_battle_add`; os estrondos e as rajadas chegam depois do clarão) e a bandeira na varanda às 4h, só
+  com `golpe_venceu` (`Banner`; o `_coup_verdict` roda antes do `_street_check`); um script por cena em
   `scripts/ui/`, relógio `_scene_t`; pichação, tinta, banca e o apartamento vazio ficam nas noites seguintes, `left_behind`). Regra de qualidade: `PLANO_RUA.md`.
 - Marcadores do roteiro: `StoryFlags` (`flags.allows(requires)`, `flags.apply("nome" | "!nome")`), salvos no `Progress`.
   O desfecho de uma ligação do roteiro liga os dela (`StoryCall.if_connected`/`if_elsewhere`/`if_dropped`/`if_missed`/`if_hung_up`,
   `Main._story_outcome`; marcador `advertencia_*` ligado é advertência, `StoryFlags.FAULT`; a conectada só no fim da conversa, cortada antes vale `if_dropped`, `_story_talk_over`; `again` desligado: sem retorno automático; `if_delivered`, a fita entregue). O roteiro de Maria:
   `PLANO_ROTEIRO.md`. **Fator sucesso** (`scripts/model/rebellion.gd`, só dos marcadores e da noite; `test_story`): TV,
   rádio, pontos, nível (`chance_alta/media/baixa`, ligados por `Rebellion.sync`, que liga também `tomada_caiu`, a rádio já perdida na hora, para as falas da 9; ordens de Sebastião da noite 15 não cumpridas
-  são vacilos, `Rebellion.ORDERS`); à meia-noite da 15, `golpe_venceu` ou
-  `golpe_falhou` (o turno acaba ali, `Main._midnight`). Bilhete e jornal com versões por marcador (`Night.notes`,
-  `news_if`, `StoryText`); a primeira matéria do jornal é a manchete do dia (toda noite uma; as emergências descem); a foto e a legenda seguem a manchete (`Night.photo_for`, desenhadas em `NewsView._tone`). Carta da noite (`Night.letters`, `letter_for`): envelope lacrado em cima do jornal desde o
+  são vacilos, `Rebellion.ORDERS`); às 4h da 15 (`Main.VERDICT`; da meia-noite em diante, antes, quando já não há chance,
+  `Rebellion.hopeless`), `golpe_venceu` ou `golpe_falhou` (o turno acaba ali e as missões que faltavam saem,
+  `Main._coup_verdict`); a madrugada (contra-ataque, feridos, reforço à Capital, a armadilha do Sebastião): `PLANO_ROTEIRO.md`, item 13; depois do veredito, nenhuma sorteada (`Night.quiet_from`). Bilhete e jornal com versões por marcador (`Night.notes`,
+  `news_if`, `StoryText`); a primeira matéria do jornal é a manchete do dia (toda noite uma; as emergências descem); a foto e a legenda seguem a manchete (`Night.photo_for`, desenhadas em `NewsView._tone`). Carta da noite (`Night.letters`, `letter_for`): envelope lacrado em cima do diário desde o
   começo (`Background.letter`, `_art_envelope`; aberta, sem o lacre, `letter_read`), aberta quando o jogador quiser
   (`Tools.LETTER`, `letter_view.gd`); a dica do começo avisa (`HINT_LETTER`).
 - `Progress` (`user://progress.cfg`): próxima noite, ritmo, `low_nights`, marcadores, jornal, palavras-chave,
@@ -236,7 +251,7 @@ detalhe no comentário do código, o porquê no `HISTORICO.md`. Atualize os `CLA
   ou o sentido de um campo, suba e converta no `load_saved`; o que não dá para ler fica ao lado (`aside`).
 - Agenda (`Schedule`, constantes no topo de `main.gd` e `schedule.gd`; emergência do roteiro conta no espaçamento das sorteadas): a ligação do roteiro espera a mesa em silêncio (`STORY_WAIT`); numa missão do roteiro (a ligação dele na mesa, a conversa dele escutada, a do discador) nada novo toca (`Main.on_mission`); intervalo
   `Pace.call_gap`; nada novo depois de `last_call` (23:40; a do roteiro marcada depois toca, `_story_late`) e, depois, o botão Encerrar turno; `GIVE_UP_SEC` 60 s;
-  conversa fiada (`ChatTopic`, `Conversation.smalltalk`) só do cotidiano.
+  conversa fiada (`ChatTopic`, `Conversation.smalltalk`) só do cotidiano, nunca na ligação do roteiro (`PhoneCall.story`).
   Ligações escritas da noite (`Night.calls`: quem comenta a manchete, quem procura um parente preso) entram no
   sorteio em vagas de transferência (`Schedule._random_calls`), com `requires` conferido na hora de tocar; não são missão. A que vira
   emergência com a transferência demorando, no lugar da conversa fiada (`TransferCall.turns`, `Main.turn_emergency`), termina no despacho; quem volta a ligar

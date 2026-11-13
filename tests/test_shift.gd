@@ -44,8 +44,8 @@ var next_act := 0.0       ## instante (s, na velocidade do jogo) em que a "pesso
 const Tape := preload("res://scripts/bureaucracy/tape.gd")
 const REBEL := ["3:327", "4:305", "7:327", "8:213", "10:120", "15:120", "15:288", "15:291", "15:390", "15:327"]   ## o rebelde liga
 const PATHS := {
-	"sucesso": {"dial": REBEL, "cut": true, "deal": true, "record": {}},   # avisa o bar: nada a gravar dele
-	"amarga": {"dial": REBEL, "skip": "7:327", "cut": true, "deal": true, "record": {"story_07_bar_armas": Tape.To.AUTHORITIES}},
+	"sucesso": {"dial": REBEL, "cut": true, "deal": true, "record": {"story_15_sobretudo": Tape.To.SEBASTIAO}},   # avisa o bar: nada a gravar dele (na 15, ouve a armadilha e avisa)
+	"amarga": {"dial": REBEL, "skip": "7:327", "cut": true, "deal": true, "record": {"story_07_bar_armas": Tape.To.AUTHORITIES, "story_15_sobretudo": Tape.To.SEBASTIAO}},
 	"presa": {"dial": REBEL, "also": "4:184", "cut": true, "deal": true, "record": {}},   # denunciou o bar: sem a TV
 	"fracasso": {"dial": ["4:184", "15:184"], "cut": false, "deal": false, "record": "all"},
 }
@@ -79,6 +79,7 @@ var kinds := {}           ## tipo -> quantas tocaram
 var stages := []          ## estágio da barra de agravamento em cada despacho (e quanto ela correu)
 var max_quiet := 0.0      ## maior intervalo (min de jogo) sem nenhuma ligação nova tocando
 var max_empty := 0.0      ## maior tempo (min de jogo) com a mesa vazia, sem ninguém tocando nem na linha
+var empty_end := 0.0      ## quando ele acabou (min do dia)
 var rung := {}            ## as ligações do roteiro que tocaram (modo --path, para conferir a versão de cada caminho)
 
 
@@ -127,7 +128,9 @@ func _snoop(b, f: PhoneCall) -> bool:
 
 ## Para quem vai a fita da conversa `f` no caminho do robô (NONE: não grava).
 func _tape_to(f: PhoneCall) -> Tape.To:
-	if path.is_empty() or f.beat == null:
+	if path.is_empty():   # o atento grava as marcadas para as autoridades (menos as delas mesmas: gravíssima)
+		return Tape.To.AUTHORITIES if f.meta.has("b4") and (f.beat == null or not f.beat.authority) else Tape.To.NONE
+	if f.beat == null:
 		return Tape.To.NONE
 	var rec = path["record"]
 	var id := f.beat.call.resource_path.get_file().get_basename()
@@ -245,9 +248,11 @@ func _initialize() -> void:
 		sim += m.get_process_delta_time()
 		frames_left += 1
 		max_live = maxi(max_live, m.live.size())
-		if m.live.is_empty():
+		if m.live.is_empty() and m.minutes < m.last_call:   # (depois da última, a mesa esvazia de propósito)
 			empty_for += m.minutes - empty_at
-			max_empty = maxf(max_empty, empty_for)
+			if empty_for > max_empty:
+				max_empty = empty_for
+				empty_end = m.minutes
 		else:
 			empty_for = 0.0
 		empty_at = m.minutes
@@ -303,19 +308,19 @@ func _initialize() -> void:
 		if not path.is_empty():
 			for t in m.bureaucracy.tapes.unresolved():   # (sem destino o turno não encerra)
 				m.bureaucracy.tapes.discard(t)
-			var free := (f == null or not f.active) and m.dialing.call == null and not m.live.any(func(c: PhoneCall): return c.ringing)
-			if free and taping == null and m.bureaucracy.tapes.blank > 0:   # a conversa conectada que o caminho grava
-				for n: int in m.eavesdrop.talks:   # (a conectada já saiu do `live`: é só a conversa)
-					var c := m.eavesdrop.call_of(n)
-					if not c.has_meta("tape_to") and _tape_to(c) != Tape.To.NONE:
-						c.set_meta("tape_to", _tape_to(c))
-						taping = c
-						break
-				if taping != null:
-					continue
-			if free and _dial_story():
-				_acted()
+		var free := (f == null or not f.active) and m.dialing.call == null and not m.live.any(func(c: PhoneCall): return c.ringing)
+		if free and taping == null and m.bureaucracy.tapes.blank > 0:   # a conversa conectada que o robô grava
+			for n: int in m.eavesdrop.talks:   # (a conectada já saiu do `live`: é só a conversa)
+				var c := m.eavesdrop.call_of(n)
+				if not c.has_meta("tape_to") and _tape_to(c) != Tape.To.NONE:
+					c.set_meta("tape_to", _tape_to(c))
+					taping = c
+					break
+			if taping != null:
 				continue
+		if not path.is_empty() and free and _dial_story():
+			_acted()
+			continue
 		if f == null or not f.active or eager and _done_with(f):
 			var was := f
 			for c in m.live:
@@ -371,7 +376,8 @@ func _initialize() -> void:
 						f.options[rule]["fn"].call()
 						_acted()
 						continue
-					if f.meta.get("b1", "") == "refused" or m.bureaucracy.code_of(f) == 0:
+					# (na última noite nenhuma advertência conta: quem recusa o nome é transferido mesmo assim, como o ferido da 15)
+					if f.meta.get("b1", "") == "refused" and m.night_no != GameData.CONTENT.nights.size() or m.bureaucracy.code_of(f) == 0:
 						m.hangup()
 						_acted()
 						continue
@@ -460,10 +466,10 @@ func _initialize() -> void:
 			var a: Array = by_wary[w]
 			return "%.1f: %.0f s por entrada, %.0f s por conversa (%d)" % [w, a[0] / maxi(a[1], 1), a[0] / a[2], a[2]])))
 	max_quiet = maxf(max_quiet, m.minutes - last_ring)
-	print("fim às %s | máx=%d  2+=%d%%  3+=%d%%  sem_cabo=%d%% (cabos %d/%d)  perdidas=%d  ligações=%d (emerg=%d trotes=%d info=%d, %d seguidas)  maior_silêncio=%d min  mesa_vazia=%d min" % [
+	print("fim às %s | máx=%d  2+=%d%%  3+=%d%%  sem_cabo=%d%% (cabos %d/%d)  perdidas=%d  ligações=%d (emerg=%d trotes=%d info=%d, %d seguidas)  maior_silêncio=%d min  mesa_vazia=%d min (até %s)" % [
 		m.fmt(m.minutes), max_live, 100 * f2 / maxi(fall, 1), 100 * f3 / maxi(fall, 1),
 		100 * starved / maxi(fall, 1), cords_max, b.patches, lost, recs.size(), int(kinds.get(PhoneCall.Kind.EMERGENCY, 0)),
-		int(kinds.get(PhoneCall.Kind.PRANK, 0)), int(kinds.get(PhoneCall.Kind.INFO, 0)), info_max, max_quiet, max_empty])
+		int(kinds.get(PhoneCall.Kind.PRANK, 0)), int(kinds.get(PhoneCall.Kind.INFO, 0)), info_max, max_quiet, max_empty, m.fmt(empty_end)])
 	print("despachos (estágio e barra corrida): ", ", ".join(stages))
 	var r := m.report
 	print("burocracias: %s, %d decisões" % [", ".join(m.bureaucracy.live().map(func(x): return x.id)), m.bureaucracy.decisions.size()])

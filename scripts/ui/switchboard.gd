@@ -151,6 +151,7 @@ func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_STOP
 	_ci = self
 	_layers.append(self)
+	Settings.changed.connect(_redraw_all)   # (as cores para daltonismo: a legenda)
 	patches = SHELF_SLOTS - SECTOR_ORDER.size() + GameData.sectors.size()   # um lugar tampado por setor que ainda não é do operador
 	for f: Callable in [_draw_lamps, _draw_top, _draw_cords]:   # por cima do painel, nesta ordem (`_draw`)
 		var layer := Control.new()
@@ -487,6 +488,13 @@ func _process(delta: float) -> void:
 	_pull_edges(delta)
 	_swing_step(delta)
 	_hover = -1 if held != -1 else _plug_under(mouse)
+	if _hover != -1 and _hover != _rise_e:   # ponytail: o anterior assenta de uma vez, como na sala
+		_rise = Lift.new()
+		_rise_e = _hover
+	if _rise_e != -1:
+		_rise.held = _hover == _rise_e
+		if not _rise.step(delta) and not _rise.held:
+			_rise_e = -1
 	mouse_default_cursor_shape = _cursor_shape(mouse)
 	_acc = minf(_acc + delta, STEP * 6)
 	while _acc >= STEP:
@@ -573,7 +581,7 @@ func _look() -> Array:
 				plugs.append(_plug_light(j))
 	return [[size, states, GameData.sectors.duplicate(), _lamp_at, equipped, _eye], [size, levels, ends.duplicate(), _eye, poses, _lamp_at],
 		[size, GameData.sectors.duplicate(), _lamp_at, side_used],
-		[size, ends.duplicate(), _hover, plugs, PixelArt.ms() < info_until, info_line, _eye, _lamp_at]]
+		[size, ends.duplicate(), _hover, _rise_e, _rise_px(_rise_e), plugs, PixelArt.ms() < info_until, info_line, _eye, _lamp_at]]
 
 
 ## O plug da ponta e está no ponto p (guardado, vale a base inteira; fora dela, o desenho do plug).

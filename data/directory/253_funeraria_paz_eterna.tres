@@ -45,6 +45,23 @@ script = ExtResource("8_chat")
 line = "Paz Eterna. Em que posso ajudar?"
 replies = Array[ExtResource("9_reply")]([SubResource("Answer_1_0"), SubResource("Answer_1_1")])
 
+[sub_resource type="Resource" id="Ans_funeraria_cecilia_0"]
+script = ExtResource("9_reply")
+text = "É sobre a Cecília, da central do Alto da Serra."
+follow = "A telefonista? O enterro foi hoje às dez, no municipal. Veio pouca gente: a mãe e duas colegas."
+
+[sub_resource type="Resource" id="Ans_funeraria_cecilia_1"]
+script = ExtResource("9_reply")
+text = "O serviço anda muito?"
+follow = "Nunca trabalhei tanto, moça. E quase nunca me dizem do que foi."
+
+[sub_resource type="Resource" id="Ans_funeraria_cecilia"]
+script = ExtResource("8_chat")
+from_night = 13
+to_night = 13
+line = "Funerária Paz Eterna, boa noite."
+replies = Array[ExtResource("9_reply")]([SubResource("Ans_funeraria_cecilia_0"), SubResource("Ans_funeraria_cecilia_1")])
+
 [resource]
 script = ExtResource("1_entry")
 name = "Funerária Paz Eterna"
@@ -53,5 +70,5 @@ number = "253"
 hello = "Funerária Paz Eterna, boa noite."
 spoken = "a Funerária Paz Eterna"
 motives = Array[ExtResource("2_motive")]([SubResource("Motive_23"), SubResource("Motive_24")])
-answers = Array[ExtResource("8_chat")]([SubResource("Answer_0"), SubResource("Answer_1")])
+answers = Array[ExtResource("8_chat")]([SubResource("Answer_0"), SubResource("Answer_1"), SubResource("Ans_funeraria_cecilia")])
 bye = "Boa noite. Que Deus lhe guarde."

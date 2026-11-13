@@ -22,6 +22,7 @@
 [ext_resource type="PackedScene" path="res://scenes/ui/equipment/pilha_fitas.tscn" id="42_tape_pile"]
 [ext_resource type="Script" path="res://scripts/ui/badges.gd" id="43_badges"]
 [ext_resource type="Script" path="res://scripts/dialing.gd" id="44_dialing"]
+[ext_resource type="Script" path="res://scripts/diary.gd" id="60_diary"]
 [ext_resource type="Script" path="res://scripts/ui/dialer.gd" id="45_dialer"]
 [ext_resource type="PackedScene" path="res://scenes/ui/dial_view.tscn" id="46_dial_view"]
 
@@ -146,7 +147,6 @@ theme_override_constants/separation = 8
 unique_name_in_owner = true
 layout_mode = 2
 theme_type_variation = &"InkLabel"
-theme_override_font_sizes/font_size = 11
 text = "SHIFT_HOURS"
 
 [node name="EndShift" type="Button" parent="Layout/Rows/Columns/Left/TopLeft/ShiftPlate/HBox"]
@@ -155,7 +155,6 @@ visible = false
 layout_mode = 2
 size_flags_vertical = 4
 theme_type_variation = &"AmberButton"
-theme_override_font_sizes/font_size = 11
 text = "END_SHIFT"
 
 [node name="Board" type="Control" parent="Layout/Rows/Columns/Left" unique_id=995017339]
@@ -217,7 +216,6 @@ script = ExtResource("22_mini")
 layout_mode = 2
 size_flags_horizontal = 3
 mouse_filter = 2
-theme_override_constants/separation = 4
 
 [node name="HintSlot" type="Control" parent="Layout/Rows/Columns/Right"]
 visible = false
@@ -235,7 +233,6 @@ anchor_right = 1.0
 grow_horizontal = 2
 mouse_filter = 2
 theme_type_variation = &"TapedLabel"
-theme_override_font_sizes/normal_font_size = 11
 bbcode_enabled = true
 fit_content = true
 scroll_active = false
@@ -318,6 +315,10 @@ script = ExtResource("25_eavesdrop")
 [node name="Dialing" type="Node" parent="."]
 unique_name_in_owner = true
 script = ExtResource("44_dialing")
+
+[node name="Diary" type="Node" parent="."]
+unique_name_in_owner = true
+script = ExtResource("60_diary")
 
 [node name="Training" type="Node" parent="."]
 unique_name_in_owner = true

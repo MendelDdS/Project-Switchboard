@@ -1,17 +1,17 @@
 extends RefCounted
 ## O combate da noite 15 (`StreetEvent` "battle"), longe, atrás da cidade: às 21:20 um clarão amarelo no horizonte, à
-## esquerda da igreja, e logo a fumaça do incêndio subindo, acesa de baixo; até a meia-noite, estouros (o clarão no céu
+## esquerda da igreja, e logo a fumaça do incêndio subindo, acesa de baixo; até as 4h, estouros (o clarão no céu
 ## e, depois, o estrondo, pela distância) e rajadas (as faíscas no horizonte, o pipocar e, das mais perto, os traçantes
-## riscando o céu por trás da igreja); depois, o fogo ainda forte até a 1h, apagando até as 4h, e a última fumaça. Desenhado entre o céu e a
+## riscando o céu por trás da igreja); depois, o fogo ainda forte até as 4:30, apagando até as 5:30, e a última fumaça. Desenhado entre o céu e a
 ## cidade (`Background._battle`, `_battle_add`): o que fica atrás dos telhados e da igreja some neles. Como o `Flare`:
 ## tudo sai do tempo `t` (s desde as 21:20), sorteado por ele, sem estado.
 
 const FIRE := Vector3(-22.0, 280.0, 0.0)   ## o incêndio (x ao longo da rua, z distância, h altura; m): atrás da cidade, à esquerda da igreja
 const CATCH := 8.0       ## quanto o fogo leva para pegar de todo (s): primeiro a luz amarela no horizonte...
 const SMOKE_AT := 3.0    ## ...e a fumaça começando a subir depois
-const FIGHT := 213.0     ## até quando se luta (s): das 21:20 à meia-noite, a 0,75 min de jogo por segundo
-const DOUSE := 293.0     ## depois, o fogo ainda forte até a 1h (s)...
-const EMBERS := 240.0    ## ...e apagando até as 4h (s; 3 h de jogo): o amanhecer já não tem incêndio
+const FIGHT := 533.0     ## até quando se luta (s): das 21:20 às 4h (o veredito, `Main.VERDICT`), a 0,75 min de jogo por segundo
+const DOUSE := 573.0     ## depois, o fogo ainda forte até as 4:30 (s)...
+const EMBERS := 80.0     ## ...e apagando até as 5:30 (s; 1 h de jogo): o sol já não pega incêndio
 const SMOKE_LIFE := 60.0   ## quanto cada bolota da fumaça leva subindo até sumir (s)
 const SMOKE_EVERY := 1.2   ## de quanto em quanto tempo sai uma (s)
 const RISE := 7.0        ## m/s subindo...
@@ -34,7 +34,7 @@ const TRACE_V := Vector3(200.0, 0.0, 260.0)   ## ...a velocidade dele (m/s; x de
 const TRACE_TAIL := 0.15   ## ...e o tanto de voo que se vê aceso de uma vez (s): uma linha reta, inteira
 
 
-## A força do fogo no instante `t` (0 a 1), sem a cintilação: pegando, aceso e apagando da 1h às 4h.
+## A força do fogo no instante `t` (0 a 1), sem a cintilação: pegando, aceso e apagando das 4:30 às 5:30.
 static func fire(t: float) -> float:
 	if t < 0.0 or t >= DOUSE + EMBERS:
 		return 0.0
@@ -48,7 +48,7 @@ static func flicker(t: float) -> float:
 	return fire(t) * (0.8 + 0.2 * lerpf(noise(n), noise(n + 1.0), smoothstep(0.0, 1.0, u - n)))
 
 
-## O quanto se luta no instante `t` (0 a 1): crescendo no começo, em ondas (a luta aperta e afrouxa) e parando à meia-noite.
+## O quanto se luta no instante `t` (0 a 1): crescendo no começo, em ondas (a luta aperta e afrouxa) e parando às 4h.
 static func heat(t: float) -> float:
 	if t < 4.0 or t >= FIGHT:
 		return 0.0

@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="TransferCall" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/transfer_call.gd" id="1_story"]
+
+[resource]
+script = ExtResource("1_story")
+voice = "m"
+caller = "Rapaz"
+opening = PackedStringArray("O Dr. Augusto! O médico, o da Rua das Palmeiras!", "Ambulância não, a polícia tá esperando no Municipal.")
+repeat = "O Dr. Augusto Almeida, moça! Rápido!"
+target = "214"
+destination = "Dr. Augusto Almeida"
+thanks = "Deus te pague, moça."
+overheard = PackedStringArray("Doutor? É do pessoal do Sebastião. O Tonico levou um tiro na perna.", "Sangra muito? Aperta com um pano, com força.", "Já apertei. Não para.", "Onde vocês estão?", "Na casa amarela atrás da [place:igreja], a do portão verde.", "Estou indo. Não deixa ele dormir.")
+caller_name = "Ronaldo Teixeira"
+identify = 1
+refuse_line = "Transfere logo, pelo amor de Deus!"
+refuse_again_line = "Moça, ele tá sangrando no chão da cozinha! Transfere!"

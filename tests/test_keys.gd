@@ -31,9 +31,15 @@ func _initialize() -> void:
 	get_tree().current_scene = app
 	await frames(3)
 	m.sched.clear()
-	m._intro.visible = false
-	m.running = true
 	get_tree().paused = false
+	# a abertura: o Enter assina o recado, o turno começa e ele vai para o quadro de avisos
+	ok(m._intro.visible and not m.running and m.phone.modulate.a == 0.0, "a abertura, sem a interface do turno")
+	await _key(KEY_ENTER)
+	await wait_until(func(): return m.running, 5.0)
+	ok(m.running, "o Enter assina e começa o turno")
+	await wait_until(func(): return not m._intro.visible, 5.0)
+	ok(not m._intro.visible and m.phone.modulate.a == 1.0, "o recado sai para o quadro e a interface aparece")
+	m.sched.clear()
 	await frames(5)
 	await _key(KEY_1)
 	ok(m.tools.open, "a tecla 1 abre a lista")
@@ -50,6 +56,14 @@ func _initialize() -> void:
 	for k in [KEY_SPACE, KEY_TAB, KEY_Z, KEY_X]:
 		await _key(k)
 	ok(got == ["answer_pressed", "transfer_pressed", "listen_pressed", "hangup_pressed"], "Espaço, Tab, Z e X apertam os botões (%s)" % [got])
+	# trocada nas configurações, a tecla vale na hora, a etiqueta do botão acompanha e a que já usava a tecla fica com a antiga
+	Settings.set_key("answer_call", KEY_Z)
+	got.clear()
+	for k in [KEY_Z, KEY_SPACE]:
+		await _key(k)
+	ok(got == ["answer_pressed", "listen_pressed"], "Z atende e Espaço escuta depois da troca (%s)" % [got])
+	ok((m.phone.get_node("%Answer/Key") as Label).text == "Z", "a etiqueta de Atender mostra a tecla nova")
+	Settings.restore({"locale": Settings.locale, "volumes": Settings.volumes, "fullscreen": Settings.fullscreen, "colorblind": false, "keys": {}})
 	# o clique no objeto da mesa age ao soltar: aberta ao apertar, a ferramenta surgia sob o mouse com o botão apertado,
 	# a soltura se perdia e a cena ficava com o mouse (o mapa do despacho não via o mouse até outro clique)
 	get_window().size = GameView.BASE   # (sem tela a janela tem 64 px: o jogo a 1/15 e o mouse caía fora do mapa)
@@ -100,7 +114,15 @@ func _initialize() -> void:
 	# meio do evento, a cena saía da árvore antes de a SubViewport acabar de entregá-lo, e a espera acordava sem árvore
 	m.eavesdrop._wait(100.0)
 	await _key(KEY_ESCAPE)
-	(m.find_child("RestartNight", true, false) as Button).grab_focus()
+	var pause: Node = m.find_child("PauseMenu", true, false)
+	(pause.get_node("%RestartNight") as Button).grab_focus()
+	await _key(KEY_ENTER)
+	ok(pause.get_node("%Ask").visible and (pause.get_node("%No") as Button).has_focus(), "Recomeçar pergunta antes, com o Não escolhido")
+	await _key(KEY_ESCAPE)
+	ok(pause.get_node("%Main").visible and get_tree().paused, "Esc na pergunta volta ao menu da pausa")
+	(pause.get_node("%RestartNight") as Button).grab_focus()
+	await _key(KEY_ENTER)
+	(pause.get_node("%Yes") as Button).grab_focus()
 	await _key(KEY_ENTER)
 	ok(not is_instance_valid(app) and get_tree().current_scene.scene_file_path == "res://scenes/app.tscn", "Recomeçar troca a cena")
 	# fora do jogo (`GameView.playing`, que só a tela inicial liga), a cena abre na tela inicial: o menu e os créditos

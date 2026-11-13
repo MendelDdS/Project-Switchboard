@@ -62,12 +62,11 @@ func _ready() -> void:
 	%Scribble.draw.connect(func():
 		%Scribble.draw_polyline(PackedVector2Array(SCRIBBLE), Pal.PEN, 1.0)
 		%Scribble.draw_polyline(PackedVector2Array(FLOURISH), Color(Pal.PEN, 0.8), 1.0))
-	%Sign.pressed.connect(func():
-		Sfx.play("pencil")
-		closed.emit())
+	%Sign.signed.connect(closed.emit)   # Maria assina o "Ciente" e o memorando sai
 
 
 func show_report(r: ShiftReport) -> void:
+	%Sign.clear()
 	for n in _body.get_children():
 		n.queue_free()
 	if r.night == 0:
@@ -289,13 +288,17 @@ func _stamp(sev: int) -> Control:
 ## O papel por baixo do texto: as fibras e as duas dobras do memorando dobrado em três (a de cima na luz, a de baixo
 ## na sombra), sempre as mesmas.
 func _draw_paper() -> void:
-	var p: PanelContainer = %Paper
-	var sz := p.size
+	fibers(%Paper, %Paper.size, 2)
+
+
+## As fibras do papel timbrado em `ci` (do tamanho `sz`), sempre as mesmas, e as `folds` dobras dele (o memorando,
+## dobrado em três, tem duas; o bilhete do supervisor, `SupervisorNote`, nenhuma).
+static func fibers(ci: CanvasItem, sz: Vector2, folds: int) -> void:
 	var rng := RandomNumberGenerator.new()
 	rng.seed = 1973
 	for i in int(sz.x * sz.y / 900.0):
-		p.draw_rect(Rect2(rng.randi_range(3, int(sz.x) - 5), rng.randi_range(3, int(sz.y) - 4), 2 if i % 3 == 0 else 1, 1), Pal.PAPER.darkened(0.1))
-	for k in [1, 2]:
-		var y := roundf(sz.y * k / 3.0)
-		p.draw_rect(Rect2(1, y, sz.x - 2, 1), Color(1, 1, 1, 0.08))   # (mais fortes, pareciam o fio de uma tabela)
-		p.draw_rect(Rect2(1, y + 1, sz.x - 2, 1), Color(0, 0, 0, 0.035))
+		ci.draw_rect(Rect2(rng.randi_range(3, int(sz.x) - 5), rng.randi_range(3, int(sz.y) - 4), 2 if i % 3 == 0 else 1, 1), Pal.PAPER.darkened(0.1))
+	for k in range(1, folds + 1):
+		var y := roundf(sz.y * k / (folds + 1.0))
+		ci.draw_rect(Rect2(1, y, sz.x - 2, 1), Color(1, 1, 1, 0.08))   # (mais fortes, pareciam o fio de uma tabela)
+		ci.draw_rect(Rect2(1, y + 1, sz.x - 2, 1), Color(0, 0, 0, 0.035))

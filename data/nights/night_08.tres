@@ -1,6 +1,8 @@
 [gd_resource type="Resource" script_class="Night" format=3]
 
 [ext_resource type="Script" path="res://scripts/data/night.gd" id="1_night"]
+[ext_resource type="Script" path="res://scripts/data/diary_line.gd" id="dl_diary_line"]
+[ext_resource type="Script" path="res://scripts/data/diary_task.gd" id="dt_diary_task"]
 [ext_resource type="Script" path="res://scripts/data/street_event.gd" id="2_event"]
 [ext_resource type="Script" path="res://scripts/data/story_text.gd" id="x0_story_text"]
 [ext_resource type="Script" path="res://scripts/data/story_call.gd" id="x1_story_call"]
@@ -245,6 +247,56 @@ script = ExtResource("x1_story_call")
 call = ExtResource("j_parente")
 requires = PackedStringArray("fita_grupo_c_entregue")
 
+[sub_resource type="Resource" id="T_1"]
+script = ExtResource("dt_diary_task")
+text = "Ligar para o São Lucas (213): Enfermeira Joana"
+requires = PackedStringArray("sebastiao_hospital_8")
+done = PackedStringArray("hospital_8")
+until = 359.0
+
+[sub_resource type="Resource" id="N_0"]
+script = ExtResource("dl_diary_line")
+text = "O Sebastião pediu: ligar pro São Lucas e dizer à Enfermeira Joana que a ala 3C precisa de suprimentos."
+call = SubResource("S_seb")
+
+[sub_resource type="Resource" id="N_1"]
+script = ExtResource("dl_diary_line")
+text = "Dei o recado à Joana."
+requires = PackedStringArray("hospital_8")
+
+[sub_resource type="Resource" id="N_2"]
+script = ExtResource("dl_diary_line")
+text = "Liguei pro hotel e avisei que as autoridades estão de olho."
+requires = PackedStringArray("avisou_hotel_8")
+
+[sub_resource type="Resource" id="N_3"]
+script = ExtResource("dl_diary_line")
+text = "O Miguel me contou um segredo: o irmão dele está com os rebeldes."
+call = SubResource("A_story_08_miguel")
+requires = PackedStringArray("miguel_amigo", "miguel_irmao")
+
+[sub_resource type="Resource" id="N_4"]
+script = ExtResource("dl_diary_line")
+text = "O Otávio deu um beijo na Generosa. Amanhã ele vai à praça."
+call = SubResource("A_story_08_generosa")
+
+[sub_resource type="Resource" id="N_5"]
+script = ExtResource("dl_diary_line")
+text = "O Otávio deu um beijo na Generosa. Amanhã ele vai à praça."
+call = SubResource("A_story_08_generosa_recado")
+
+[sub_resource type="Resource" id="N_6"]
+script = ExtResource("dl_diary_line")
+text = "Tem gente que vai dormir melhor hoje. Foi o que ele disse."
+requires = PackedStringArray("hospital_8")
+at_close = true
+
+[sub_resource type="Resource" id="N_7"]
+script = ExtResource("dl_diary_line")
+text = "O recado da Joana ficou sem dar. Penso na ala 3C."
+requires = PackedStringArray("sebastiao_hospital_8", "!hospital_8")
+at_close = true
+
 [resource]
 script = ExtResource("1_night")
 note = "O supervisor deixou um recado: \"Pedido da polícia: grave as ligações para o Bar do Zé e para o Hotel Serena e entregue as fitas a eles no fim do turno.\""
@@ -253,3 +305,5 @@ news_if = Array[ExtResource("x0_story_text")]([SubResource("News_armas"), SubRes
 story = Array[ExtResource("x1_story_call")]([SubResource("S_seb"), SubResource("S_seb2"), SubResource("S_bar"), SubResource("S_barw"), SubResource("S_hot1"), SubResource("S_hot1a"), SubResource("S_hot1w"), SubResource("S_hot2"), SubResource("S_hot2w"), SubResource("A_story_08_miguel"), SubResource("A_story_08_generosa"), SubResource("A_story_08_generosa_recado")])
 dial = Array[ExtResource("x11_dial_call")]([SubResource("D_joana"), SubResource("D_hotel")])
 calls = Array[ExtResource("x1_story_call")]([SubResource("J_call_jornal"), SubResource("J_call_parente")])
+tasks = Array[ExtResource("dt_diary_task")]([SubResource("T_1")])
+diary = Array[ExtResource("dl_diary_line")]([SubResource("N_0"), SubResource("N_1"), SubResource("N_2"), SubResource("N_3"), SubResource("N_4"), SubResource("N_5"), SubResource("N_6"), SubResource("N_7")])

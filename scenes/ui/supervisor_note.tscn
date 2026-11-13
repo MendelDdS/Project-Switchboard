@@ -1,0 +1,102 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/supervisor_note.gd" id="1_note"]
+[ext_resource type="PackedScene" path="res://scenes/ui/sign_field.tscn" id="2_sign"]
+
+[node name="SupervisorNote" type="PanelContainer"]
+custom_minimum_size = Vector2(400, 0)
+theme_type_variation = &"MemoPanel"
+script = ExtResource("1_note")
+
+[node name="Margin" type="MarginContainer" parent="."]
+layout_mode = 2
+theme_override_constants/margin_left = 14
+theme_override_constants/margin_top = 12
+theme_override_constants/margin_right = 14
+theme_override_constants/margin_bottom = 8
+
+[node name="VBox" type="VBoxContainer" parent="Margin"]
+layout_mode = 2
+
+[node name="Head" type="HBoxContainer" parent="Margin/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="Emblem" type="Control" parent="Margin/VBox/Head"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(24, 24)
+layout_mode = 2
+
+[node name="HeadText" type="VBoxContainer" parent="Margin/VBox/Head"]
+layout_mode = 2
+size_flags_vertical = 4
+theme_override_constants/separation = 0
+
+[node name="Company" type="Label" parent="Margin/VBox/Head/HeadText"]
+layout_mode = 2
+text = "SIGN_COMPANY"
+theme_type_variation = &"LetterheadLabel"
+
+[node name="Department" type="Label" parent="Margin/VBox/Head/HeadText"]
+layout_mode = 2
+text = "REPORT_DEPARTMENT"
+theme_type_variation = &"InkSoftLabel"
+
+[node name="Rule" type="Control" parent="Margin/VBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 5)
+layout_mode = 2
+
+[node name="Date" type="RichTextLabel" parent="Margin/VBox"]
+unique_name_in_owner = true
+layout_mode = 2
+bbcode_enabled = true
+fit_content = true
+scroll_active = false
+auto_translate_mode = 2
+theme_type_variation = &"TypedText"
+
+[node name="Text" type="RichTextLabel" parent="Margin/VBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(372, 0)
+layout_mode = 2
+bbcode_enabled = true
+fit_content = true
+scroll_active = false
+auto_translate_mode = 2
+theme_type_variation = &"HandText"
+theme_override_constants/line_separation = 3
+
+[node name="Foot" type="HBoxContainer" parent="Margin/VBox"]
+layout_mode = 2
+
+[node name="Sign" parent="Margin/VBox/Foot" instance=ExtResource("2_sign")]
+unique_name_in_owner = true
+layout_mode = 2
+hint = "SIGN_START"
+
+[node name="Space" type="Control" parent="Margin/VBox/Foot"]
+layout_mode = 2
+size_flags_horizontal = 3
+mouse_filter = 2
+
+[node name="Signed" type="VBoxContainer" parent="Margin/VBox/Foot"]
+layout_mode = 2
+theme_override_constants/separation = 0
+
+[node name="Scribble" type="Control" parent="Margin/VBox/Foot/Signed"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(130, 22)
+layout_mode = 2
+
+[node name="Line" type="ColorRect" parent="Margin/VBox/Foot/Signed"]
+custom_minimum_size = Vector2(0, 1)
+layout_mode = 2
+mouse_filter = 2
+color = Color(0.16470589, 0.13725491, 0.09803922, 0.7)
+
+[node name="Who" type="Label" parent="Margin/VBox/Foot/Signed"]
+layout_mode = 2
+text = "REPORT_SIGNATURE"
+theme_type_variation = &"InkSoftLabel"
+horizontal_alignment = 1

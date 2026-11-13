@@ -1,7 +1,9 @@
 [gd_resource type="Resource" script_class="Night" format=3]
 
 [ext_resource type="Script" path="res://scripts/data/story_text.gd" id="j_story_text"]
+[ext_resource type="Script" path="res://scripts/data/diary_line.gd" id="dl_diary_line"]
 [ext_resource type="Script" path="res://scripts/data/night.gd" id="1_night"]
+[ext_resource type="Script" path="res://scripts/data/diary_task.gd" id="dt_diary_task"]
 [ext_resource type="Script" path="res://scripts/data/street_event.gd" id="2_event"]
 [ext_resource type="Script" path="res://scripts/data/story_call.gd" id="x0_story_call"]
 [ext_resource type="Resource" path="res://data/calls/story_03_cecilia_aviso.tres" id="x1_story_03_cecilia_aviso"]
@@ -126,6 +128,61 @@ again = false
 script = ExtResource("x0_story_call")
 call = ExtResource("j_nome")
 
+[sub_resource type="Resource" id="T_0"]
+script = ExtResource("dt_diary_task")
+text = "Ligar para o Bar do Zé (327) pelo discador"
+requires = PackedStringArray("cecilia_bar_3")
+done = PackedStringArray("sabe_senha_3")
+until = 345.0
+
+[sub_resource type="Resource" id="N_0"]
+script = ExtResource("dl_diary_line")
+text = "A Cecília ligou: prenderam gente no Centro. Pediu cuidado com o que eu escuto e repito."
+call = SubResource("S_cec1")
+
+[sub_resource type="Resource" id="N_1"]
+script = ExtResource("dl_diary_line")
+text = "A moça da fita amarela se chama Generosa. Deixou o número pro rapaz da rádio: 384."
+call = SubResource("A_story_03_generosa")
+
+[sub_resource type="Resource" id="N_2"]
+script = ExtResource("dl_diary_line")
+text = "O rapaz da rádio é o Otávio. Dei o número da Generosa, e ele escreveu na mão."
+requires = PackedStringArray("otavio_numero")
+
+[sub_resource type="Resource" id="N_3"]
+script = ExtResource("dl_diary_line")
+text = "O rapaz da rádio perguntou se tinha recado. Disse que não."
+requires = PackedStringArray("otavio_mentira")
+
+[sub_resource type="Resource" id="N_4"]
+script = ExtResource("dl_diary_line")
+text = "O menino do trote de novo. Agora eu sou a Rainha da Inglaterra."
+call = SubResource("A_story_03_miguel_trote")
+requires = PackedStringArray("miguel_amigo")
+
+[sub_resource type="Resource" id="N_5"]
+script = ExtResource("dl_diary_line")
+text = "A Cecília de novo: alguém no Bar do Zé quer falar comigo. Pelo discador, não pela mesa."
+requires = PackedStringArray("cecilia_bar_3")
+
+[sub_resource type="Resource" id="N_6"]
+script = ExtResource("dl_diary_line")
+text = "Liguei pro bar. Amanhã, às oito e meia, digo ao hotel: \"A semente brotou.\""
+requires = PackedStringArray("sabe_senha_3")
+
+[sub_resource type="Resource" id="N_7"]
+script = ExtResource("dl_diary_line")
+text = "Alguém que me conhece desde criança. Quem?"
+requires = PackedStringArray("sabe_senha_3")
+at_close = true
+
+[sub_resource type="Resource" id="N_8"]
+script = ExtResource("dl_diary_line")
+text = "A cidade está nervosa. Eu também."
+requires = PackedStringArray("!sabe_senha_3")
+at_close = true
+
 [resource]
 script = ExtResource("1_night")
 note = "O supervisor deixou um recado: \"Ordem da diretoria: a partir de hoje, peça o nome e o sobrenome de quem liga antes de completar a ligação. Quem não disser, não passa.\""
@@ -134,3 +191,5 @@ story = Array[ExtResource("x0_story_call")]([SubResource("S_cec1"), SubResource(
 dial = Array[ExtResource("x4_dial_call")]([SubResource("D_bar")])
 news_stories = PackedStringArray("Telefônica vai exigir o nome de quem liga\nA partir de hoje, a Companhia Telefônica de São Sotero só completa a ligação de quem disser nome e sobrenome à telefonista. A diretoria fala em \"segurança de todos\" e pede a compreensão dos assinantes.")
 calls = Array[ExtResource("x0_story_call")]([SubResource("J_call_nome")])
+tasks = Array[ExtResource("dt_diary_task")]([SubResource("T_0")])
+diary = Array[ExtResource("dl_diary_line")]([SubResource("N_0"), SubResource("N_1"), SubResource("N_2"), SubResource("N_3"), SubResource("N_4"), SubResource("N_5"), SubResource("N_6"), SubResource("N_7"), SubResource("N_8")])

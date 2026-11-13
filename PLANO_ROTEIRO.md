@@ -56,10 +56,10 @@ motor (o que o roteiro precisa e o jogo ainda não faz), depois o conteúdo, com
    da sala que dependiam dela). Dar a Sebastião só na noite em que ele pediu (`Tapes.ASKED` + a noite, que a ligação
    dele liga). A senha do Dia 4: ligar pelo discador para o Hotel Serena (305) das 20:30 às 21h e dizer "A semente
    brotou" liga `senha_hotel_4` (`Night.dial`, `DialCall`); fora disso, o hotel de sempre.
-8. **Feito, falta a aprovação.** Na rua: o homem de sobretudo nas noites 13 e 14, das 22h às 22h50, embaixo do poste da
+8. **Feito e aprovado (08/11/2026).** Na rua: o homem de sobretudo nas noites 13 e 14, das 22h às 22h50, embaixo do poste da
    esquina do prédio de tijolos, fumando (`StreetEvent` "stranger"); a bandeira na varanda do apartamento vazio à
    meia-noite da noite 15, só com `golpe_venceu` (`Banner`; o veredito da meia-noite agora vem antes das cenas da rua).
-9. **Feito, falta a aprovação.** Os finais (`Rebellion.final`, à meia-noite da 15, `final_*`): sucesso (o encontro
+9. **Feito e aprovado (08/11/2026).** Os finais (`Rebellion.final`, à meia-noite da 15, `final_*`): sucesso (o encontro
    com Sebastião num texto na tela preta, `Night.endings`), fracasso e presa. Três finais só: a vitória amarga é uma
    variação do sucesso no epílogo (`custou_gente`, `Rebellion.costly`: venceu com a fita das armas, do grupo C ou dos
    grupos entregue, ou com a paróquia esquecida; muda quem liga, o jornal e o fecho), e a esquecida, se vier, será uma
@@ -71,7 +71,7 @@ motor (o que o roteiro precisa e o jogo ainda não faz), depois o conteúdo, com
    conversa por final. Presa: o golpe falhou e ela cortou mais pedidos das autoridades do que atendeu. Ligações do
    roteiro depois das 23:40 ainda tocam (`Main._story_late`); as conversas do roteiro são ligação comum no caderno.
    Burocracias até a 15.
-10. **Noites 14 e 15 feitas, falta testar.** Na 14: Sebastião às 18:20 conta a versão dele (não pede mais fitas: o
+10. **Noites 14 e 15 feitas e aprovadas (08/11/2026); os quatro caminhos no robô.** Na 14: Sebastião às 18:20 conta a versão dele (não pede mais fitas: o
     pedido é só o do Dia 12, que não se repete); a polícia (184) fala do cerco ao aeroporto e à ferrovia e do hotel lacrado e do bar
     fechado amanhã; a Cúpula (296), do ministro levado ao Centro e tirado de avião e do armazém do comandante; bar e hotel marcados para gravar (entregues: `obedeceu_*_14`);
     rádio e TV bloqueadas (`b2_radio_tv.tres`, 14 e 15); o hotel apagado a noite toda (`StreetEvent` "closed"). Na
@@ -81,7 +81,7 @@ motor (o que o roteiro precisa e o jogo ainda não faz), depois o conteúdo, com
     22h, "Começou." à Casa Paroquial (120) e ao Armazém Ferreira (288); das 22h às 22:30, a "Canção da Madrugada" à
     rádio (390); com o golpe vencido, o bar à meia-noite com a mensagem de liberdade. Ordem de Sebastião não cumprida:
     um vacilo (`Rebellion.ORDERS`; as da 15 contam à meia-noite).
-11. **Noites 1 a 13 feitas, falta testar.** Ligações do roteiro (`data/calls/story_0*`, `story_1[0-3]_*`), discador e
+11. **Noites 1 a 13 feitas e aprovadas (08/11/2026); os quatro caminhos no robô.** Ligações do roteiro (`data/calls/story_0*`, `story_1[0-3]_*`), discador e
     jornal por marcador, geradas fiéis ao documento: 1 o homem sério pede o bar e agradece pelo nome; 2 três tentativas
     (`bar_2`; o "se perguntado" é a fala do repetir); 3 a Cecília avisa e, às 21h, manda ligar para o bar, onde ele dá
     a senha (`sabe_senha_3`, que o hotel do Dia 4 exige); 4 a denúncia pelo discador na delegacia (a ligação do roteiro
@@ -111,6 +111,36 @@ motor (o que o roteiro precisa e o jogo ainda não faz), depois o conteúdo, com
       dela; epílogo: sucesso, a alta; fracasso, o hospital dá ocupado da primeira vez (`TransferCall.busy_line`).
     - Final com o gesso (`End_gesso`, `End_gesso_amarga`): de manhã Maria assina o gesso no São Lucas e encontra Sebastião.
 
+13. **A madrugada do golpe (noite 15), aprovada em 07/11/2026; no jogo o Zé pelo discador às 4h; em 11/11/2026 as ligações de quem conta, comemora e agradece (as falas a aprovar).** A meia-noite deixa de decidir: a Cúpula
+    resiste e a batalha atrás da igreja segue até o veredito, **às 4h** (`MIDNIGHT` vira a hora do veredito). As
+    missões da madrugada somam com o resto da noite (como as ordens de hoje; nenhuma decide sozinha):
+    - **0h–1h, o contra-ataque**: a Cúpula (296) pede a delegacia (184) duas vezes para retomar a rádio. Pedidos das
+      autoridades como os de hoje (`obedeceu_`/`desobedeceu_`).
+    - **Os feridos**: emergências da batalha na região da igreja (despacho) e, à parte, um rebelde ferido: quem liga
+      pede transferência para o Dr. Augusto Almeida (214), não ambulância (a polícia está no Municipal). Transferido,
+      ele se salva; sem a transferência, liga `custou_gente`.
+    - **1h–2h, o reforço**: a Cúpula pede um interurbano para a Capital (901) pedindo tropas. Completado e ouvido até o
+      fim, vale o dobro de uma ordem contra o golpe; derrubado, ela volta a ligar uma vez, desconfiada (`callback`).
+    - **2h–3h, a armadilha**: a escuta pega a Cúpula combinando com o homem de sobretudo onde esperar o Sebastião
+      (palavras-chave de lugar e hora). Maria disca para o bar (327) e avisa o Zé (`avisou_armadilha_15`). Para o
+      jogador saber que pode: a carta da 15 troca o "à meia-noite, ligue para o bar" por "se ouvir qualquer coisa
+      sobre mim, ligue para o bar (327)", e o Zé, no bar das 0h, repete.
+    - **Fim antecipado**: se, antes das 4h, nem cumprindo todas as missões que faltam o golpe chega ao nível médio,
+      o veredito sai na hora (fracasso ou presa, com as cenas de hoje; sem madrugada de repressão).
+    - **4h–6h, com o golpe vencido**: a bandeira e o letreiro logo depois do veredito; nenhuma ligação sorteada, só
+      as escritas da vitória: o Zé pelo discador (o recado de liberdade, que hoje é da meia-noite), e quem conta,
+      comemora e agradece: 4:15 o correspondente da Gazeta dita a primeira página da praça (`story_15_gazeta`), 4:50
+      a praça pede pão à Nair da Pão Dourado (`story_15_padaria`), 5:30, só com `ferido_salvo_15`, o rapaz do ferido
+      agradece e, perguntado, diz o nome (`story_15_obrigado`, `ferido_nome_15`). Sem a rendição antes das 6h.
+    - O motor: a hora do veredito numa constante, a batalha e a bandeira por ela, `Rebellion` com o máximo possível
+      de pontos que faltam, `last_call` do vencido sem sorteadas depois do veredito; os 4 caminhos do robô e a
+      calibração refeitos.
+
 ## Dúvidas em aberto
+
+- (Respondida: quem liga pelo ferido não dá o nome; perguntado, responde com raiva, "transfere logo, pelo amor de
+  Deus".)
+- (Respondida: sem a armadilha avisada, o Sebastião é preso às 3h; com o golpe vencido, é solto de manhã e os
+  finais com ele ficam.)
 
 - (Respondida: a fita mínima conta só a dada às autoridades; uma dada a Sebastião não livra da advertência.)

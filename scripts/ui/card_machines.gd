@@ -735,7 +735,7 @@ func _draw_shredder() -> void:
 	var y := _slot(Machine.SHRED)
 	mouth(self, x0, y, CARD_W)
 	for x in range(int(x0) + 2, int(x0 + CARD_W) - 4, 6):   # as lâminas aparecendo na fenda
-		draw_colored_polygon(PackedVector2Array([Vector2(x, y + 2), Vector2(x + 3, y - 1), Vector2(x + 6, y + 2)]), Pal.DIM)
+		draw_primitive(PackedVector2Array([Vector2(x, y + 2), Vector2(x + 3, y - 1), Vector2(x + 6, y + 2)]), PackedColorArray([Pal.DIM]), PackedVector2Array())
 	_name(r, T.text(T.Key.CARD_SHREDDER))
 	var band := Rect2(r.position.x + 9.0, r.end.y - 11.0, r.size.x - 18.0, 5.0)
 	draw_rect(band, Pal.SHELL[4])

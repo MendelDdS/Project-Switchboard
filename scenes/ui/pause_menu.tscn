@@ -162,6 +162,23 @@ unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 
+[node name="ColorsLabel" type="Label" parent="Center/Card/Margin/Settings/Grid"]
+layout_mode = 2
+theme_type_variation = &"InkLabel"
+text = "SETTINGS_COLORS"
+
+[node name="Colors" type="OptionButton" parent="Center/Card/Margin/Settings/Grid"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="KeyGrid" type="GridContainer" parent="Center/Card/Margin/Settings"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/h_separation = 10
+theme_override_constants/v_separation = 6
+columns = 4
+
 [node name="Gap" type="Control" parent="Center/Card/Margin/Settings"]
 custom_minimum_size = Vector2(0, 6)
 layout_mode = 2
@@ -183,6 +200,42 @@ custom_minimum_size = Vector2(120, 28)
 layout_mode = 2
 theme_type_variation = &"DarkButton"
 text = "BACK"
+
+[node name="Ask" type="VBoxContainer" parent="Center/Card/Margin"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+theme_override_constants/separation = 9
+
+[node name="Question" type="Label" parent="Center/Card/Margin/Ask"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(305, 0)
+layout_mode = 2
+theme_type_variation = &"InkLabel"
+autowrap_mode = 3
+auto_translate_mode = 2
+
+[node name="Gap" type="Control" parent="Center/Card/Margin/Ask"]
+custom_minimum_size = Vector2(0, 6)
+layout_mode = 2
+
+[node name="Buttons" type="HBoxContainer" parent="Center/Card/Margin/Ask"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="Yes" type="Button" parent="Center/Card/Margin/Ask/Buttons"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(120, 28)
+layout_mode = 2
+theme_type_variation = &"AmberButton"
+text = "ASK_YES"
+
+[node name="No" type="Button" parent="Center/Card/Margin/Ask/Buttons"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(120, 28)
+layout_mode = 2
+theme_type_variation = &"DarkButton"
+text = "ASK_NO"
 
 [node name="Version" type="Label" parent="."]
 layout_mode = 1

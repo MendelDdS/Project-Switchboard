@@ -580,7 +580,7 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   bilhete) e as advertências (`POINTS` por gravidade); gravíssima = Insuficiente. `low_nights()` conta as noites
   seguidas abaixo de `GOAL` (Regular; `low_before` do `Progress.low_nights`) e `fired()` demite em `LOW_LIMIT` (2).
   O `test_shift` imprime a eficiência e falha se o robô atento ficar abaixo do mínimo; mudou um peso ou um crédito,
-  recalibre com várias sementes (`PLANO_EFICIENCIA.md`, seção 6).
+  recalibre com várias sementes.
 - **Barra de agravamento** (nó `Urgency`, `scripts/urgency.gd`: `tick` a cada quadro do turno; estado em `PhoneCall.stage`/`urgency`/`asking`/`secured`, regra em
   `PhoneCall.urgent()`, desenho em `UrgencyBar` na tela da conversa do painel de baixo, embaixo das opções, só com o operador na linha; fora dela, o rádio
   inteiro acende: `Radio.alert(stage, away)`, moldura pulsando e aviso na tela; a luz "Ocorrência" acende sempre;

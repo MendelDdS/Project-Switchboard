@@ -45,6 +45,23 @@ script = ExtResource("8_chat")
 line = "Redação. Aqui é o revisor; o pessoal já foi embora."
 replies = Array[ExtResource("9_reply")]([SubResource("Dial_1_0"), SubResource("Dial_1_1")])
 
+[sub_resource type="Resource" id="Ans_gazeta_recompensa_0"]
+script = ExtResource("9_reply")
+text = "É sobre o tal comandante."
+follow = "Então o número é o da delegacia, não o nosso. Ligaram o dia inteiro: metade jura que viu o homem, cada um num bairro diferente."
+
+[sub_resource type="Resource" id="Ans_gazeta_recompensa_1"]
+script = ExtResource("9_reply")
+text = "Vocês sabem quem ele é?"
+follow = "Se soubéssemos, o jornal dava o nome, e não o apelido."
+
+[sub_resource type="Resource" id="Ans_gazeta_recompensa"]
+script = ExtResource("8_chat")
+from_night = 12
+to_night = 12
+line = "Gazeta, redação. Fala rápido, que a edição está fechando."
+replies = Array[ExtResource("9_reply")]([SubResource("Ans_gazeta_recompensa_0"), SubResource("Ans_gazeta_recompensa_1")])
+
 [resource]
 script = ExtResource("1_entry")
 wary = 1.4
@@ -54,6 +71,6 @@ number = "101"
 hello = "Gazeta, redação. Quem fala?"
 spoken = "a Gazeta"
 motives = Array[ExtResource("2_motive")]([SubResource("Motive_43"), SubResource("Motive_44")])
-answers = Array[ExtResource("8_chat")]([SubResource("Dial_0"), SubResource("Dial_1")])
+answers = Array[ExtResource("8_chat")]([SubResource("Dial_0"), SubResource("Dial_1"), SubResource("Ans_gazeta_recompensa")])
 bye = "Boa noite. Leia a Gazeta amanhã."
 closes = 360.0

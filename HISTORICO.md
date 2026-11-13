@@ -25,7 +25,7 @@ Chaves:
 - `#conteudo` roteiros e moldes · `#conversa` conversa fiada e o andamento das falas · `#voz` vozes · `#som`
 - `#idiomas` · `#desempenho` · `#debug` · `#testes` · `#codigo` estrutura do código
 - `#burocracias` as normas do supervisor e das autoridades (identificação, bloqueios, códigos, fitas)
-- `#recompensas` os broches ganhos pelas noites
+- `#recompensas` os broches ganhos pelas noites · `#diario` o diário de Maria e o quadro de avisos
 - `#saiu` algo testado ou feito que saiu a pedido: confira antes de propor de novo
 
 1. #mesa-comutadora #cabos
@@ -3454,3 +3454,219 @@ Chaves:
     a de lá para `FREE_FOR_STORY` (3 min de jogo; nunca no meio das falas escritas), `Main._free_dest_for`; o desfecho
     da primeira continua "conectada". O cache das imagens (item 558) esvazia uma ou duas vezes por noite, com um quadro
     de ~15 ms a mais (medido): fica como está.
+560. #roteiro "Há emoção no roteiro? A forma como a história está sendo contada, está envolvente?": a auditoria achou a
+    emoção nas vozes da cidade e pouca na de Maria, e três laços do final sem preparo (o pai, a Cecília, o Sebastião).
+    Os 14 consertos foram aprovados um a um numa página (2 com o texto do usuário): o pai ganha nome na 5 (Cristóvão,
+    os cartões telefônicos antes de serem banidos) e Maria pode dizer que não lembra do rosto dele (`rosto_5`); a
+    Cecília cuida do Alto da Serra há oito anos (a 0 e a 13 batem) e tem a mãe (o enterro); "boas mãos" e o casaco
+    plantados antes do epílogo; o irmão do Miguel escapa do porão do grupo C (8, com a fita entregue), é preso por isso
+    (14) e volta solto no epílogo do sucesso; um traço humano na Teresa e no Davi (a suspeita não chega a calá-los);
+    a Celeste liga à irmã às 23:05 da 15 com a canção tocando (`S_celeste`, a encomenda da Filomena passou para a
+    Mercearia Silva, que não disputa número); Maria fala da Cecília na 14 (`nome_14`) e à meia-noite
+    (`cecilia_ouvindo_15`); os slogans do Sebastião saíram.
+561. #roteiro #ligacoes "Expandir a noite 15 [...] o golpe pode se estender mais, com missões mais elaboradas até às
+    3h ou 4h da manhã, e aí o jogador pode esperar o amanhecer com sentido": depois da meia-noite só restavam
+    ligações comuns. Aprovado na página, cartão a cartão: veredito às 4h; contra-ataque, feridos (transferência ao
+    Dr. Augusto, não emergência), reforço pelo interurbano e a armadilha (a carta e o Zé dizem que dá para avisar o
+    bar); tudo soma; fim antecipado quando não há mais chance; das 4h às 6h só as ligações da vitória. Plano no item
+    13 do `PLANO_ROTEIRO.md`. Também: o irmão do Miguel volta "morto de cansaço e com o rosto machucado" (ficou poucos
+    dias preso, magro não fazia sentido) e, no fracasso com a fita do grupo C, continua preso.
+562. #roteiro #ligacoes #vista A madrugada da 15 no jogo (o item 561): o veredito às 4h (`Main.VERDICT`,
+    `_coup_verdict`; sai antes, da meia-noite em diante, quando nem com o aviso da armadilha o golpe chega ao médio,
+    `Rebellion.hopeless`, e a cúpula da presa toca na hora); a batalha até as 4h, a bandeira e o Zé da vitória às 4h,
+    o letreiro meia hora depois (`SIGN_AFTER`); sem sorteadas depois do veredito (`Night.quiet_from`). As missões:
+    o Zé à 0:05 (avisa que dá para ligar), a delegacia duas vezes pela residência (Valadares), o telhado e o muro na
+    Rua da Matriz (despacho), o ferido ao Dr. Augusto (perdido, `custou_gente`), o interurbano à Capital (vale o dobro,
+    `REINFORCEMENT`; derrubado, liga de novo) e a armadilha do homem de sobretudo (ouvida, o discador do bar das 2:20
+    às 3h; sem aviso, `sebastiao_preso_15`). Falas na página para aprovar, com as propostas da vitória e do epílogo.
+563. #mesa-comutadora #caderno #calculografo #luz #som #saiu O jogador esquecia de registrar as ligações e de carimbar os
+    bilhetes porque nada chamava a atenção (o usuário escolheu, das quatro propostas, a luz e o movimento com som; a luz
+    **pulsante, não constante**, para não se misturar ao cenário). O próprio papel esquecido clareia e apaga devagar,
+    com um contorno de 1 px: as tiras do bloco de fichas, os bilhetes soltos na mesinha do calculógrafo e a ponta na
+    fenda (`Background._nag_layer`, `_nags`, `NAG_PULSE_SEC` 1,6 s, `Pal.PENDING_GLOW`; some com o objeto erguido). A
+    tira do registro novo sobe de trás do bloco com o som de papel (`_slip_layer`, `SLIP_SEC`, `_rising`); o bilhete na
+    fenda balança enquanto ninguém o pega (`TIP_SWAY_SEC`). Captura: `tools/shot.gd --logs=3`.
+    #saiu: a lâmpada da linha pulsando até a ficha ser registrada e o contador do calculógrafo pulsando até o bilhete
+    ir para a caixinha (a mesa não sabe do caderno nem do carimbo, e a lâmpada da linha serve à próxima ligação).
+564. #diario #objetos #ferramentas #caderno #jornal #sala Mesmo com o papel pulsando (o item 563), o jogador ia esquecer:
+    o usuário propôs o **diário de Maria**, que reúne tudo o que pede ação na noite (pedidos de Sebastião e das
+    autoridades, normas, missões, registros, bilhetes, fitas), e um **quadro de avisos** no lugar do armário (o plano,
+    com as respostas, no artefato "Diário de Maria"). Página dupla, como a lista: à esquerda as tarefas, riscadas a
+    lápis quando cumpridas (as normas e a rotina só no turno encerrado, quando aparece o botão Encerrar turno: até lá
+    pode chegar mais uma), com X a que não dá mais; à direita as anotações de Maria sobre as decisões dela. O diário
+    fica no lugar do jornal; o armário vira um gaveteiro baixo decorativo, com o guarda-chuva encostado, e o quadro
+    preso na parede com a folhinha, o jornal, o bilhete do supervisor (o mesmo da abertura, que ganha o visual do jogo)
+    e os panfletos (o da quermesse e outros eventos). Das sugestões, aprovadas: a rotina com quanto falta, a lápis; o
+    lápis atravessado no diário da mesa quando entra tarefa nova; o diário abre sozinho no fim, antes do memorando; a
+    Cecília dá o diário de presente no treinamento; a tecla 5; a carta lida guardada entre as páginas; X sem pontos (o
+    diário só ajuda a contar a história). A última página antes do "Fim" ficou para o usuário decidir com exemplos.
+    Etapa 1 (`Diary`, `diary_view.gd`, `Tools.DIARY`, `BureaucracyRule.task_text`): o objeto no lugar do jornal, um
+    caderno de capa de pano vinho menor que ele, com o jornal embaixo aparecendo atrás até o quadro existir
+    (`NEWS_UNDER`); a página dupla; as normas e a rotina (fichas, bilhetes depois do primeiro, fitas com a B4).
+    Etapa 2 (`Night.tasks`, `DiaryTask`, `Diary._story_tasks`): os pedidos do roteiro, das noites 3, 4, 8, 9, 10, 12
+    e 15, entram pelo marcador de quem pediu (os da carta, depois de lida) e ficam; riscados na hora pelo marcador,
+    com X no prazo vencido; os de não fazer (`at_close`) só no turno encerrado; os que se contradizem entram os dois
+    (na 9, o de Sebastião e o do supervisor; na 15, a carta e o bilhete). A 7 não tem pedido de ninguém (avisar o bar
+    é ideia de Maria); a das fitas é a norma B4. As frases curtas, de anotação; as que não cabem seguem na página da
+    direita, e as anotações descem.
+    O usuário lembrou: tarefas e anotações entram por demanda, nada no diário antes de alguém avisar (a das fichas
+    passou a entrar com a primeira ligação por registrar, como os bilhetes). Etapa 3a: a página de cada noite fica no
+    save (`Progress.diary`, `Diary.page`, sem o texto traduzido: `Diary.text_of`), com uma aba por noite que passou na
+    borda do diário (o dia do mês; o diário reabre sempre na de hoje; saíram, veja abaixo), e no fim do turno o diário abre sozinho, acaba de
+    escrever e riscar e fecha antes do memorando (`Main.DIARY_WAIT`, `DIARY_HOLD`; não no fim do jogo).
+    #saiu As abas dos dias saíram a pedido: no lugar, os cantos de baixo dobrados (`_draw_fold`, pixel a pixel: a ponta
+    virada e a folha de baixo), o da esquerda volta e o da direita avança, cada um só quando há página para o lado
+    dele, e dobram mais com o mouse em cima (`FOLD`, `FOLD_HOVER`).
+    A pedido, a dobra parada maior (16 px, 24 com o mouse) e mais realista: a ponta em degradê, clara na ponta, com a beira
+    da folha em tom de papel (em tinta, fechava um quadrado), a folha de baixo escura junto do vinco e a sombra macia.
+    Etapa 3b: as anotações de Maria na página da direita (`Night.diary`, `DiaryLine`), na primeira pessoa, escritas quando
+    acontece o fato: o fim de uma ligação do roteiro com o desfecho dela (`call`, `outcomes`; `Main.story_ends`), os
+    marcadores, a carta lida; o balanço da noite com o turno fechando (`at_close`). Treinamento e noites 1 a 15, pt, en e
+    es (o epílogo não tem). Cada anotação é um parágrafo (só a primeira linha recuada). A carta lida sai da mesa e fica
+    guardada no diário, a ponta para fora no alto da página da direita; o clique abre (as das noites que passaram também,
+    no save). No treinamento, a Cecília dá o diário de presente e pede para abrir (`LessonStep.until` "diary",
+    `diario_cecilia`, a primeira anotação).
+    A sugestão 7 do plano, aprovada com melhora: no fim do jogo (o epílogo, e a presa depois da cena da prisão), o diário
+    abre sozinho na última página antes do "Fim", segurado mais tempo (`DIARY_HOLD` × 3), com uma linha por final
+    (`at_close` no `night_16`, a da presa no `night_15`). A vitória amarga pela causa, de algo que o jogador viu: as
+    crianças do Alto (a paróquia esquecida), a fita que levou gente presa, ou a página de nomes do jornal; o rapaz ferido
+    da 15 saiu a pedido (sem roteiro, ninguém lembra dele). `shot.gd --ending`.
+    Etapa 4 (gaveteiro e quadro): o armário alto de aço virou um gaveteiro baixo, decorativo, da mesma largura (três
+    gavetas de arquivo com o ano no porta-etiqueta; não abre: o clique, o som da porta e os detalhes `numero_anotado` e
+    `armario_entreaberto`, sem uso, saíram), com o guarda-chuva encostado na quina (na frente, a unidade de despacho o
+    tapava todo; a poça fica atrás da mesa); em cima, na parede, o quadro de avisos de cortiça com moldura de madeira
+    (`Tools.BOARD`, "Quadro de avisos"), que não se ergue e abre de perto (`board_view.gd`) com o jornal da manhã
+    pregado: o clique no jornal o abre, e ele volta para o quadro. O jornal saiu da mesa. A folhinha e o cartaz ficam
+    onde estavam (vão para o quadro na etapa 5).
+    Correções do usuário: o quadro contém o jornal, a folhinha e o cartaz da quermesse (saíram da parede), mais largo
+    (da beira do gaveteiro até perto da quina, `BOARD_W`, `CORNER_GAP`) e mais alto (`BOARD_TOP`/`BOTTOM`); o quadro
+    não é de clicar, os itens nele sim (o jornal abre direto; a vista de perto do quadro, `Tools.BOARD`, saiu); a
+    etiqueta do que está no alto dele vai embaixo do item; e, na névoa, a parede
+    do fundo ficava enevoada e a da janela não: o brilho da noite pela janela (`_draw_window_glow`) não entra mais na
+    névoa (era 1,2× o do céu limpo).
+565. #objetos #cabos #jornal #saiu Sob o mouse, o jornal pregado no quadro de avisos se ergue 2 px como os objetos da
+    mesa (a sombra fica na cortiça; `_news_at`, desenhado de novo na camada `_lifted`); e o plug sob o mouse também: sai
+    2 px do buraco ou da tomada no tempo do `Lift` (`Switchboard._rise`, `_rise_e`) e assenta quando o mouse sai. O
+    contorno amarelo dele (`Pal.GLOW` na silhueta), que tinha ficado de fora do item 174, saiu. Captura: `shot.gd --plug=N`.
+566. #diario #sala #objetos #interface #jornal Etapa 5 do plano do diário, o quadro completo (respostas do usuário no
+    artefato: o bilhete "nos dois", na abertura e no quadro, com a mesma interface, renovada no visual do jogo; o
+    panfleto é o da quermesse, e outros eventos podem surgir no mural). O recado do supervisor virou um bilhete no papel
+    timbrado do memorando (`SupervisorNote`: o fone e o nome em vermelho, o fio duplo, a noite datilografada, o recado à
+    mão, a rubrica, as fibras, `ReportView.fibers`, e a tachinha no alto), o mesmo na abertura (com os botões) e pregado
+    no quadro, de onde o clique o traz de perto sem os botões (`Intro.reread`; o clique ou o Esc o devolvem,
+    `put_back`). Avisos que entram e saem pelas noites (`RoomChange.to_night`, `data/room/`), só os que a companhia ou
+    as autoridades mandariam (na central só entram Maria e o supervisor; o cachorro perdido, o curso de datilografia e
+    a vacinação saíram a pedido, por não fazerem sentido ali): a circular do sigilo das ligações (1–3), as tarifas
+    interurbanas novas (3–8), o aviso da delegacia, conversa suspeita ao 184 (4–10, o recado da noite 4) e o edital do
+    toque de recolher (9–14, o 21H), até dois por noite embaixo do jornal; sob o mouse se erguem com o nome na etiqueta, sem
+    abrir nada. A folhinha segue com a orelha na rajada. Captura: `shot.gd --screen=note`.
+567. #diario #fonte #papel Etapa 6 do plano do diário, a letra de mão: no lugar de ondular a Departure Mono, uma fonte
+    em pixel desenhada letra a letra (`scripts/ui/hand_font.gd`, `Pal.hand`, uma `FontFile` de bitmap montada em código,
+    nas medidas da Departure no 11; acentos do pt e do es montados por cima; o que falta vem da Departure), no diário,
+    na carta, no recado e no parecer do supervisor (`HandText`, o `[hand]` do `paper_ink.gd`, que agora só aperta a
+    caneta). Reta, a escolhida: a inclinada (as fileiras andando um pixel a cada quatro) tinha vãos nas letras; com um
+    pixel de ponte em cada degrau e o acento andando inteiro ficou sem vãos, para o usuário rever
+    (`build/quadro/reta_inclinada.png`).
+568. #objetos #mesa O lápis (no bloco de fichas e em cima do diário) no tamanho de verdade: uns 14 cm na escala dos
+    objetos (`PENCIL_LEN`; com uns 7 cm parecia de brinquedo), a madeira apontada afinando, a ponteira e a borracha
+    proporcionais; a ponta saía torta (pedido seguinte): as partes eram traços separados, cada um começando o degrau
+    num ponto, e as larguras pares e ímpares não tinham o mesmo meio; agora é um traço só, todas ímpares (3 px o
+    corpo, 1 a ponta) em volta do mesmo meio; posto pelo meio e pelo ângulo visto de cima (`_lay_pencil`, o fundo encurtado por
+    `PENCIL_FS`), em ângulos rasos, que ele quase não cabe no bloco. Captura: `shot.gd --pencil --written=N`.
+569. #diario #testes Fechamento do plano do diário: a suíte inteira, os quatro caminhos do robô (`tools/caminhos.sh`) e a
+    regressão visual contra o commit de antes do plano (as 12 capturas mudaram, como esperado). Das 10 beiras de
+    `tools/beiras.txt` fora do aprovado, 9 já estavam assim antes do plano (as medidas ficaram para trás quando os
+    objetos andaram); a do lado direito do bloco mudou só porque o lápis, maior, não passa mais por cima dela. O grafo
+    (`graphify update`) renomeou os nós de arquivo e de função; as ligações dos documentos, que caíram de 442 para
+    221, foram refeitas pelos nomes novos (492); o `docs/mapa-ui-detalhado.md` ganhou o resumo do que mudou.
+570. #interface #turno #noites A abertura do turno como parte da mesa: o bilhete do supervisor na metade direita, onde
+   abrem as ferramentas (não mais sobre a mesa comutadora); embaixo, à esquerda, o relógio de ponto (`time_clock.gd`)
+   com o cartão de Maria da quinzena (o dia de cada noite, o domingo em vermelho, a entrada e a saída das noites que
+   passaram carimbadas) e, ao lado, o botão Começar turno (pedido depois de testar só o relógio: o botão é mais
+   intuitivo); o botão, o Enter ou o clique no relógio batem o ponto: o cartão desce na fenda, o furador bate e o
+   turno começa; o bilhete vai então para o quadro de avisos. O papel "MANUAL" de como se joga só no treinamento e na
+   noite 1; nas outras, "HOJE": o banco novo, a norma que começa e a carta (`Main._tonight`). A interface do turno
+   (horário e painel de baixo) escondida até o ponto batido; "Noite 7 de 15" no bilhete (sem a hora, que está no
+   cartão); as configurações num canto. A dica da carta corrigida: ela fica em cima do diário, não do jornal.
+571. #testes #codigo #desempenho Varredura do jogo inteiro (artefato "Inspeção da central", respondido item a item
+   pelo usuário): a suíte, o robô em cinco modos, a medição com tela, as verificações da `revisar-mudancas` em todo o
+   código, os marcadores do roteiro, os planos abertos e os documentos. Decisões: a letra de mão inclinada não entra
+   (o degrau da inclinação risca as minúsculas; só desenhada letra a letra) e as aspas na letra de mão também não;
+   aprovados o roteiro (itens 8 a 13 do `PLANO_ROTEIRO`) e a prisão de Maria; a bandeira com o símbolo da
+   resistência (um arco com um risco vertical no meio e dois traços menores dos lados, em cima: a cúpula riscada);
+   daltonismo com cores próprias e opção nas configurações; trocar as teclas, mas nada de velocidade das falas (mexe
+   no jogo); mais movimento nos silêncios do turno, sem nada tocar durante as ligações do roteiro.
+   Feito: a opção Cores (Normal, Daltonismo vermelho e verde: o verde das lâmpadas em conversa, da legenda, da barra
+   de agravamento e do rádio vira azul, `Pal.ok()`) e a troca das quatro teclas da ligação nas configurações; a mesa
+   vazia chama uma a mais com 35% do maior intervalo do ritmo, não 60% (`Main.QUIET_SHARE`: a maior mesa vazia do
+   robô caiu de ~30 para ~20 min de jogo; a missão do roteiro continua sem nada tocar, `on_mission`); a bandeira com
+   o símbolo (`Banner.SYMBOL`, com a base, que sem ela lia como "M"); 46 overrides de tema que repetiam o tema
+   saíram das cenas e a tinta do jornal e do registro virou a variação `InkText`; cores escritas direto passaram ao
+   `Pal`; polígonos de área cheia viraram `draw_primitive`; `test_rua` (as cenas da rua, a pausa, a tela inicial e o
+   fim da presa) e o robô atento grava as fitas das autoridades sem caminho. Fica de fora: dividir o
+   `background_view.gd` em mais uma camada (as cenas da rua e a rua se chamam nos dois sentidos).
+572. #roteiro #conversa Na noite 2, o homem do bar (Sebastião, urgente e misterioso) puxou a conversa fiada da quermesse
+   esperando a transferência e agradeceu com "você não vai se arrepender", sem nada a que se arrepender. Ligação do
+   roteiro não puxa conversa fiada nem oferece "[Puxar assunto]" (`PhoneCall.story` no `Main._nag` e no
+   `Conversation.transfer_choices`; ela só cobra a demora) e o agradecimento virou "Obrigado, Maria. Boa noite." (en,
+   es). Saíram a pedido "Isso fica entre nós" (Maria não sabe de nada para guardar) e "Deu tempo" (soa como se
+   faltassem segundos): o agradecimento simples não promete nem insinua nada.
+573. #roteiro #conteudo "O que podemos fazer para melhorar o jogo?" e "pode fazer isso": as ligações da madrugada
+   vencida da noite 15 (`PLANO_ROTEIRO`, item 13) e uma build nova. Feito: três ligações do roteiro depois do veredito,
+   só com `golpe_venceu`, sem repetir quem já agradece no epílogo (Generosa, a mãe da Cecília, Sebastião, Miguel) nem
+   adiantar o que ele conta (os presos soltos de manhã, a rendição às 6h do final): 4:15 o correspondente da Gazeta
+   (Álvaro Torres, o mesmo da estrada) dita a primeira página da praça, com a bandeira na varanda do prédio de
+   tijolos; 4:50 o Lino pede à Nair (a irmã da Celeste) o pão da Pão Dourado para a praça, "hoje ninguém paga"; 5:30,
+   só com `ferido_salvo_15`, o rapaz que pediu o Dr. Augusto agradece e, perguntado, diz o nome que antes negou
+   (`ferido_nome_15`), com uma linha no diário. en e es; os quatro caminhos do robô conferidos (as três tocam no
+   sucesso e na amarga). A v0.9.0-alpha exportada (as falas ainda por aprovar).
+574. #interface #turno #saiu "Remova o relógio de início de turno, mas ficou legal": o relógio de ponto da abertura
+   (`time_clock.gd`, o cartão da quinzena carimbado, item 570) saiu; o botão Começar turno ou o Enter começam o turno
+   direto, o bilhete continua indo para o quadro de avisos. O bilhete segue "Noite 7 de 15" sem a hora (está no
+   relógio do turno). Pedido junto: um plano de melhoria da interface dos menus, depois das tarefas em andamento.
+575. #interface #consequencias #turno Do plano dos menus (`PLANO_MENUS.md`), as decisões: a direção é o metal do
+   console (as opções como teclas do console, `KeyCapStyle`; chaves e botões giratórios nas configurações), não papel e
+   caneta; o bilhete e o relatório se fecham com a assinatura de Maria; Recomeçar a noite e Voltar ao menu perguntam
+   antes. A tela inicial ficou por explicar. Feito: o "Ciente" de Maria (`scenes/ui/sign_field.tscn`) no pé do bilhete
+   da abertura ("Assine para começar o turno"; o clique ou o Enter, e o turno começa com ele assinado, a lápis, letra a
+   letra) e do relatório ("Assine para encerrar"), no lugar dos botões Começar turno e Assinar e sair; relido no turno,
+   o bilhete já vem assinado. Na pausa, Recomeçar a noite e Voltar ao menu perguntam no papel (`PauseMenu._ask`), com
+   o Não escolhido e o Esc voltando ao menu; `shot.gd --screen=pause --ask`; `test_keys` cobre a pergunta.
+576. #interface #turno A assinatura precisa mostrar que é ali que se clica para seguir: um lápis pequeno em diagonal
+   (as cores do lápis da mesa) bate de leve no começo da linha e o "×" e o "Assine..." clareiam e escurecem no ritmo
+   do papel esquecido na mesa (`sign_field.gd`, `TAP_SEC`, `PULSE_SEC`); sob o mouse param, e ao assinar o lápis corre
+   com o nome e some. As duas propostas da tela inicial (a chapa à esquerda; as opções nas entradas do painel) não
+   agradaram; das três novas (a sala antes do turno, a central vista da rua, o console de perto), escolhida a sala
+   antes do turno: a sala do jogo às 17:55 com a luminária apagada, o nome em letras douradas no vidro da janela e as
+   opções nas quatro teclas do painel do operador (`PLANO_MENUS.md` 3.3).
+577. #interface #saiu #vista #discador #prancheta #noites #conteudo Conferência do que falta (13/11/2026). "Não curti a
+    tela inicial, prefiro a atual com melhorias": a sala antes do turno (prévia só na captura, com o nome dourado no
+    vidro e as opções nas quatro teclas) saiu; a tela inicial fica a de hoje (a mesa de perto e o menu), a melhorar.
+    Das etapas dos menus, a pausa e as configurações de metal também não foram pedidas. A bandeira da noite 15 maior,
+    "para dar mais visibilidade": quase a varanda inteira (`Banner.SIZE` 2,2 × 2,0 m, da beira esquerda até onde o
+    batente da janela a cortaria, `_banner_x`) e o símbolo, que em dobro ficou grande ("Símbolo menor"), redesenhado em 13 × 10 px (`Banner.SYMBOL`). Do discador: a cidade que
+    lembra (atendimentos da ocasião, por noite e marcador, `ChatTopic.from_night`/`to_night`, que vêm no lugar dos de
+    todo dia: o posto e a farmácia depois das bombas, a TV ocupada, o cinema e o táxi no toque de recolher, a rádio e
+    o São Lucas depois da noite 9, a Gazeta e a recompensa, o hotel depois da batida, a funerária e a Cecília, a pensão
+    com o hotel lacrado; falas sugeridas por mim a pedido, a revisar pelo usuário); a seta "↗" na prancheta nas
+    ligações feitas; o passo de discar no treinamento (a Cecília desliga e o jogador liga 002: `LessonStep` "dialed",
+    `Night.dial` da noite 0, onde ela se despede). O uso da linha (advertência por ligação particular longa) não entra.
+    O ritmo (medir de novo) e o número das casas ficam como estão; os setores já vêm da história.
+    A tela inicial de hoje, melhorada: o nome em duas linhas com a cidade em letra de 4× (`TitleScreen.CITY`), a luz
+    da sala na parede atrás da mesa no lugar do preto chapado (`TitleBoard._wall`, `Pal.TITLE_WALL`) e a legenda das
+    saídas depois do fio do FONE, que caía por cima das letras.
+    Depois, das dúvidas: a barra escura à esquerda da mesa na tela inicial (a sombra da mesa caía também na parede:
+    agora só em cima da mesa, `TitleBoard._draw_shade`); os atendimentos da ocasião atendiam já dando a novidade, sem
+    saudação ("está muito ruim"): atendem como todo dia (a saudação do lugar) e a novidade vem na resposta à pergunta
+    de Maria; o hotel lacrado (14 e 15) não tem quem atenda: uma gravação da companhia que se repete a cada segundo
+    até o jogador encerrar (`ChatTopic.recording`); no treinamento, quem desliga a ligação feita antes da despedida
+    recebe a Cecília de novo ("a ligação caiu"), que termina o que ia dizer (`LessonStep.requires`, marcador
+    `despediu_cecilia`; o passo "dialed" só vale com ela atendendo).
+    E o bloqueio do hotel vale também para a transferência ("O vigia não atende"): nas noites 14 e 15, o cabo no 305
+    toca a mesma gravação e quem pediu o hotel desliga, sem advertência (`Conversation.recording`, `Main._ring_dest`);
+    as conversas da Irene Barbosa com o vigia (14 e 15) deixam de acontecer e a fita do hotel da 14
+    (`obedeceu_hotel_14`) fica sem como ser gravada; a ligação dela na 15 ainda marca `ligou_suspeito_15`.
+    Desfeito em seguida ("o roteiro prevalece"): o hotel da 14 e da 15 está lacrado, mas o telefone não, de
+    propósito (o Bastos, na 14: "Ficou só o vigia pra atender o telefone"; a polícia quer saber quem liga). A
+    gravação e o bloqueio da transferência saíram (`ChatTopic.recording` também); pelo discador, quem atende nessas
+    noites é o vigia. Lição: conferir o roteiro (as conversas escutadas) antes de perguntar se um lugar atende.

@@ -7,14 +7,14 @@ extends "res://tests/test_base.gd"
 
 const WIDTHS := [960, 1125, 1281]   # o jogo é sempre 960 (`GameView`); as outras, o `main.tscn` sozinho numa janela larga
 const TOGETHER := [["relogio", "caneca"]]   # os que se encostam de propósito
-const WANT := [Tools.DIRECTORY, Tools.DISPATCH, Tools.LOGBOOK, Tools.CALL_LOG, Tools.NEWS, Tools.TOLL, "relogio", "caneca"]
+const WANT := [Tools.DIRECTORY, Tools.DISPATCH, Tools.LOGBOOK, Tools.CALL_LOG, Tools.DIARY, Tools.TOLL, "relogio", "caneca"]
 
 
 func _initialize() -> void:
 	# a vista no amanhecer desenha ~17 mil itens por quadro: acima do buffer do renderizador, ele às vezes trava
 	# (`project.godot`; o editor aberto pode regravá-lo sem a linha)
 	ok(int(ProjectSettings.get_setting("rendering/gl_compatibility/item_buffer_size")) >= 32768, "item_buffer_size abaixo de 32768")
-	# as beiras longas em inclinação limpa (`clean_slope`, `PLANO_PIXEL.md` etapa 2): a razão exata e o eixo preso parado
+	# as beiras longas em inclinação limpa (`clean_slope`, plano de pixel, etapa 2): a razão exata e o eixo preso parado
 	var bg_script := load("res://scripts/ui/background_base.gd")
 	for c: Array in [[Vector2(103, 10), Vector2.ONE, Vector2(105, 10)], [Vector2(35, -100), Vector2.ONE, Vector2(33, -99)],
 			[Vector2(35, -100), Vector2(0, 1), Vector2(35, -105)], [Vector2(70, 30), Vector2.ONE, Vector2(70, 28)], [Vector2(0, 40), Vector2.ONE, Vector2(0, 40)],
@@ -48,6 +48,23 @@ func _initialize() -> void:
 					for p in q:
 						where = where.expand(p)
 				ok(area < 1.0, "%d px: %s e %s se sobrepõem na tela (%.0f px², em %s)" % [w, a, b, area, where])
+		# na parede, o quadro de avisos com folga da quina (a janela), do gaveteiro embaixo e da mesa comutadora; o que está
+		# pregado nele (o jornal, o recado, o cartaz, os panfletos, no máximo dois) e a folhinha dentro dele, sem um tapar o outro
+		var qb: Rect2 = bg._board
+		ok(qb.end.x + 4.0 <= bg._qx * 2.0 and qb.end.y + 4.0 <= bg._cab[0].position.y * 2.0
+			and qb.position.x >= (m.board.global_position.x + m.board.size.x - bg.global_position.x) + 4.0,
+			"%d px: o quadro de avisos encosta na quina, no gaveteiro ou na mesa comutadora (%s)" % [w, qb])
+		bg.details = PackedStringArray(Background.DETAILS)
+		await frames(3)
+		var pinned: Array[Rect2] = [bg._props[Background.CALENDAR]]
+		for id: String in bg._pinned:
+			pinned.append(bg._pinned[id])
+		ok(bg._pinned.size() == 5 and bg._pinned.has(Tools.NEWS) and bg._pinned.has(Background.NOTE_ID),
+			"%d px: no quadro, o jornal, o recado, o cartaz e dois panfletos (%s)" % [w, bg._pinned.keys()])
+		for i in pinned.size():
+			ok(qb.grow(-Background.BOARD_FRAME).encloses(pinned[i]), "%d px: o papel %d sai do quadro (%s em %s)" % [w, i, pinned[i], qb])
+			for j in range(i + 1, pinned.size()):
+				ok(not pinned[i].grow(1).intersects(pinned[j]), "%d px: os papéis %d e %d se tapam no quadro" % [w, i, j])
 		# os broches (`badges.gd`) e o discador (`dialer.gd`) na prateleira: a almofada folgada do tampo dos equipamentos e
 		# do discador, e o discador do fim dela
 		var sb: Switchboard = m.board

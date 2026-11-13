@@ -1,0 +1,28 @@
+[gd_resource type="Resource" script_class="EmergencyCall" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/emergency_call.gd" id="1_em"]
+
+[resource]
+script = ExtResource("1_em")
+voice = "f"
+caller = "Senhora"
+opening = "Central! Caiu uma coisa do céu no telhado da vizinha! Tá pegando fogo e ela tá lá dentro!"
+questions = PackedStringArray("Qual é o endereço?", "Ela está ferida?", "O fogo está se espalhando?")
+answers = PackedStringArray("Rua da Matriz, 140, do lado da minha!", "Não sei! Ela grita lá de dentro, a porta emperrou!", "Tá passando pro forro da minha casa!")
+street = "matriz"
+block = 1
+address = "Rua da Matriz, 140"
+occurrence = "Incêndio"
+units = PackedStringArray("bomb", "amb")
+after = "Os homens tão vindo? Eu tô jogando balde de água na porta."
+stage_sec = Vector3(45, 18, 18)
+worsening = "Caiu um pedaço do telhado! Ela parou de gritar!"
+worsening_question = "Ela ainda responde?"
+worsening_answer = "Bate na porta! Fraquinho, mas bate!"
+critical = "A fumaça tá saindo pela janela toda! Pelo amor de Deus!"
+critical_units = PackedStringArray("bomb")
+critical_question = "Tem alguém tentando entrar?"
+critical_answer = "Os vizinhos, com pano molhado na cara!"
+lost = "Desabou. O telhado todo desabou."
+lost_answer = "Ninguém saiu de lá..."
+lost_units = PackedStringArray("bomb")

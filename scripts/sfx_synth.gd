@@ -425,12 +425,6 @@ func _build_basic() -> void:
 	for at in [0.0, 0.2]:
 		_tone(at, 240, 0.05, "sine", 0.45); _tone(at + 0.04, 170, 0.06, "sine", 0.35); _noise(at, 0.07, "lp", 500, 0.7, 0.3)
 	_noise(0.5, 0.012, "bp", 2600, 1.4, 0.5); _tone(0.5, 2350, 0.08, "sine", 0.12); _tone(0.5, 3700, 0.04, "sine", 0.06); _end("gulp")
-	# a porta do armário de aço: o trinco, a dobradiça rangendo um pouco e a chapa batendo de leve
-	_begin(0.55)
-	_noise(0, 0.015, "bp", 3200, 1.5, 0.8); _tone(0, 900, 0.03, "sine", 0.25)
-	for k in 5:
-		_noise(0.08 + k * 0.05, 0.04, "bp", 1100 + k * 160, 3.0, 0.25)
-	_noise(0.42, 0.05, "lp", 900, 0.7, 0.7); _tone(0.42, 180, 0.08, "sine", 0.4); _tone(0.42, 1400, 0.06, "sine", 0.08); _end("locker")
 	# a campainha de bicicleta, de longe: duas batidas, "trim-trim"
 	_begin(0.5)
 	for at in [0.0, 0.16]:

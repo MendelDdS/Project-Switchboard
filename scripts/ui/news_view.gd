@@ -1,10 +1,10 @@
 class_name NewsView
 extends VBoxContainer
-## O jornal da manhã, aberto pelo jornal dobrado na mesa (da segunda noite em diante): o nome do jornal, a edição e
+## O jornal da manhã, aberto pelo jornal pregado no quadro de avisos (da segunda noite em diante): o nome do jornal, a edição e
 ## a manchete do dia (o título da primeira matéria da noite, `Night.stories_for`: o acontecimento grande, do jogador
 ## ou da cidade) e, embaixo, uma por emergência da noite anterior (`ShiftReport.news`, as mesmas do relatório); noite
 ## sem matéria, a primeira emergência em destaque, e sem nenhuma das duas, "noite tranquila". As consequências das escolhas ficam na sala, não só na tela final.
-## A página é a do jornal da mesa (`Background._art_newspaper`), de perto: o papel-jornal, o fio duplo embaixo do nome,
+## A página é a do jornal pregado no quadro de avisos (`Background._draw_pinned_news`), de perto: o papel-jornal, o fio duplo embaixo do nome,
 ## a letra miúda das colunas (só a mancha das linhas, `_greek`) e a foto em retícula (`_photo`), a da manchete
 ## (`Night.photo_for`: a cidade, a rua, a viatura...). Cada noite pode trazer a sua foto, a legenda e as matérias das
 ## colunas (`Night.news_*`); o que ela não trouxer sai como sempre.

@@ -4,6 +4,7 @@ extends RichTextLabel
 
 const INK := preload("res://scripts/ui/paper_ink.gd")
 
+var today := ""   ## a carta desta noite (o Main põe): volta a ela ao fechar uma carta guardada no diário (`show_letter`)
 var _text := ""
 
 
@@ -11,6 +12,9 @@ func _ready() -> void:
 	var hand := INK.new()
 	hand.bbcode = "hand"
 	install_effect(hand)
+	visibility_changed.connect(func():
+		if not is_visible_in_tree() and _text != today:
+			show_letter(today))
 
 
 ## Põe a carta `t` (em português; traduzida ao mostrar).

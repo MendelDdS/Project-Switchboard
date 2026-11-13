@@ -18,8 +18,8 @@ const POT := "res://translations/content.pot"
 const LANGS := ["en", "es"]
 const REVIEW := "res://build/traducoes.csv"
 ## Campos que não se traduzem: nomes próprios (contatos, ruas, endereços) e dados internos.
-const SKIP := ["name", "address", "number", "category", "target", "alt_target", "street", "id", "voice", "voices", "effect", "weather", "kind", "teacher", "teacher_voice", "until",
-	"fake_address", "caller_name", "caller_names", "message_to", "from_number", "urgency_reason", "deal_from", "deal_to", "deal_signal", "secret_signal", "block_labels", "units", "worsening_units", "critical_units", "lost_units", "requires", "sets", "overheard_sets", "overheard_flags", "if_connected", "if_elsewhere", "if_dropped", "if_missed", "if_hung_up", "if_delivered", "if_sebastiao", "key", "detail", "news_photo", "photo", "resource_name", "resource_path", "resource_scene_unique_id"]
+const SKIP := ["name", "address", "number", "category", "target", "alt_target", "street", "id", "voice", "voices", "effect", "weather", "kind", "teacher", "teacher_voice", "until", "outcomes",
+	"fake_address", "caller_name", "caller_names", "message_to", "from_number", "urgency_reason", "deal_from", "deal_to", "deal_signal", "secret_signal", "block_labels", "units", "worsening_units", "critical_units", "lost_units", "requires", "sets", "overheard_sets", "overheard_flags", "if_connected", "if_elsewhere", "if_dropped", "if_missed", "if_hung_up", "if_delivered", "if_sebastiao", "done", "key", "detail", "news_photo", "photo", "resource_name", "resource_path", "resource_scene_unique_id"]
 
 var _ids := {}   ## msgid -> Array de arquivos onde aparece (em ordem de descoberta)
 var _fixes := {}  ## idioma -> {msgid: tradução} da tabela de revisão (`--apply`)
@@ -27,7 +27,12 @@ var _fixes := {}  ## idioma -> {msgid: tradução} da tabela de revisão (`--app
 
 func _initialize() -> void:
 	_write_enum()
-	_visit(load("res://data/content.tres"), "res://data/content.tres", {})
+	var content := load("res://data/content.tres")
+	if content == null:   # um Resource quebrado: sem isto, os .po eram regravados vazios (todas as traduções perdidas)
+		push_error("data/content.tres não carregou: nada gravado nos .po")
+		quit(1)
+		return
+	_visit(content, "res://data/content.tres", {})
 	_write_pot()
 	for arg in OS.get_cmdline_user_args():
 		if arg.begins_with("--apply="):
@@ -52,8 +57,8 @@ func _write_enum() -> void:
 	var s := "class_name T\n"
 	s += "## Textos da interface e do código, por chave. GERADO por tools/update_translations.gd a partir de\n"
 	s += "## translations/ui.csv (colunas pt_BR, en, es): não edite à mão; acrescente a linha no CSV e rode a ferramenta.\n"
-	s += "## Uso: T.text(T.Key.START_SHIFT); com valores: T.text(T.Key.LINE_N) % n.\n"
-	s += "## Nas cenas, o texto do Label/Button é a própria chave (ex.: \"START_SHIFT\") e o Godot traduz sozinho.\n\n"
+	s += "## Uso: T.text(T.Key.RESUME); com valores: T.text(T.Key.LINE_N) % n.\n"
+	s += "## Nas cenas, o texto do Label/Button é a própria chave (ex.: \"RESUME\") e o Godot traduz sozinho.\n\n"
 	s += "enum Key {\n"
 	for k in keys:
 		s += "\t%s,\n" % k

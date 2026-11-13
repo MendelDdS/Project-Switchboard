@@ -118,4 +118,5 @@ active = true
 from_night = 3
 to_night = 15
 fault_text = "FAULT_UNIDENTIFIED"
+task_text = "DIARY_B1"
 tests = Array[ExtResource("2_call")]([SubResource("Test_sozinho"), SubResource("Test_pedem"), SubResource("Test_recusa"), SubResource("Test_insistir"), SubResource("Test_recado"), SubResource("Test_recado_nome"), SubResource("Test_liga")])

@@ -15,6 +15,10 @@ extends Resource
 ## Só aparece se os marcadores baterem (StoryFlags.allows): a cidade lembra do que o operador disse antes.
 ## Assunto com condição é novidade, como os da noite: vem antes dos outros e só uma vez por noite.
 @export var requires: PackedStringArray = []
+## Só no atendimento de um lugar pelo discador (`DirectoryEntry.answers`): as noites em que vale. Atendimento com
+## noite ou condição é o da ocasião (a cidade lembra do que houve): vem no lugar dos de todo dia (`Conversation._outgoing`).
+@export var from_night := 0
+@export var to_night := 99
 @export var line := ""
 ## Respostas do operador (de preferência uma simpática e uma seca).
 @export var replies: Array[ChatReply] = []

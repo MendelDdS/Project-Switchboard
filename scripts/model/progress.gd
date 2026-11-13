@@ -6,7 +6,7 @@ extends RefCounted
 ## nela (`ShiftReport.later`) e as palavras-chave ouvidas na escuta (`Clue`, em dicionário) e quantas vezes cada lugar
 ## denunciou a telefonista (`Eavesdrop.grudges`) e as noites de chuva (a mancha de umidade da sala, `Background.damp`)
 ## e o estado das burocracias (`Bureaucracy.state`: o registro de decisões, os recados...) e os broches ganhos e as
-## contas deles (`Badges`).
+## contas deles (`Badges`) e as páginas do diário de Maria das noites que passaram (`Diary.page`).
 ##
 ## O arquivo leva a versão do formato (`VERSION`). Um save de versão mais nova que o jogo (de um build mais novo) ou
 ## que não abre (corrompido) não é lido nem perdido: fica guardado ao lado (`aside`) e o jogo começa do zero. A
@@ -30,6 +30,7 @@ var rains := 0   ## noites de chuva que já passaram
 var bureaucracy := {}
 var badges := {}   ## id do broche -> a noite em que veio (`Badges.award`)
 var tally := {}    ## as contas dos broches de várias noites
+var diary := {}    ## noite -> a página do diário de Maria como ficou no fim dela (`Diary.page`)
 var aside := ""    ## o save que não deu para ler, guardado ao lado com este nome (vazio: nenhum)
 
 
@@ -60,6 +61,7 @@ static func load_saved(path := PATH) -> Progress:
 				p.bureaucracy.erase(k)
 		p.badges = f.get_value("progress", "badges", {})
 		p.tally = f.get_value("progress", "tally", {})
+		p.diary = f.get_value("progress", "diary", {})
 	return p
 
 
@@ -78,6 +80,7 @@ func save(path := PATH) -> void:
 	f.set_value("progress", "bureaucracy", bureaucracy)
 	f.set_value("progress", "badges", badges)
 	f.set_value("progress", "tally", tally)
+	f.set_value("progress", "diary", diary)
 	if f.save(path + ".tmp") == OK:
 		DirAccess.rename_absolute(ProjectSettings.globalize_path(path + ".tmp"), ProjectSettings.globalize_path(path))
 

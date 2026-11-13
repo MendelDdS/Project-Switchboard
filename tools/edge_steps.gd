@@ -1,5 +1,5 @@
 extends SceneTree
-## Os degraus de uma beira numa captura, para conferir se ela é limpa (`PLANO_PIXEL.md`):
+## Os degraus de uma beira numa captura, para conferir se ela é limpa (`scripts/ui/CLAUDE.md`, Beiras):
 ##   Godot --headless --path . -s tools/edge_steps.gd -- build/x.png 756,271,781,286 [mais beiras...]
 ## Cada beira é uma reta aproximada (px da captura, até ~3 px fora): ao longo do eixo longo, a beira de verdade é o
 ## maior salto de cor perto dela; com o lado do fundo no fim (`,l`, `,r`, `,u`, `,d`), o primeiro px que foge da cor

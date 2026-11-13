@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="TransferCall" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/transfer_call.gd" id="1_call"]
+
+[resource]
+script = ExtResource("1_call")
+voice = "m"
+caller = "Rapaz"
+caller_name = "Lino Cardoso"
+opening = PackedStringArray("Bom dia, moça! Bom dia mesmo! A Padaria Pão Dourado, por favor.", "Tem uma praça inteira com fome aqui.")
+repeat = "A Pão Dourado, moça. A padaria."
+target = "142"
+destination = "Padaria Pão Dourado"
+thanks = "Obrigado! Viva São Sotero!"
+overheard = PackedStringArray("Pão Dourado, bom dia.", "Dona Nair? É o Lino, da praça. Quanto pão a senhora tem aí?", "Forno aceso desde as três. Por quê?", "Porque tem gente cantando aqui desde as quatro, e ninguém comeu desde ontem.", "Então manda buscar tudo. Hoje ninguém paga.", "A senhora é uma santa, dona Nair.", "Santa nada. O meu pai teria feito igual.")

@@ -1,9 +1,12 @@
 [gd_resource type="Resource" script_class="Night" format=3]
 
 [ext_resource type="Script" path="res://scripts/data/night.gd" id="1_night"]
+[ext_resource type="Script" path="res://scripts/data/diary_line.gd" id="dl_diary_line"]
 [ext_resource type="Script" path="res://scripts/data/lesson_step.gd" id="2_lesson"]
 [ext_resource type="Script" path="res://scripts/data/transfer_call.gd" id="3_transfer"]
 [ext_resource type="Script" path="res://scripts/data/emergency_call.gd" id="4_emergency"]
+[ext_resource type="Script" path="res://scripts/data/dial_call.gd" id="5_dial"]
+[ext_resource type="Script" path="res://scripts/data/prank_step.gd" id="6_step"]
 
 [sub_resource type="Resource" id="Ask_hotel"]
 script = ExtResource("3_transfer")
@@ -35,7 +38,7 @@ text = "Você é quem começa na segunda, não é? Muito prazer!"
 
 [sub_resource type="Resource" id="Lesson_04"]
 script = ExtResource("2_lesson")
-text = "Eu cuido do Alto da Serra faz quinze anos."
+text = "Eu cuido do Alto da Serra faz oito anos."
 
 [sub_resource type="Resource" id="Lesson_05"]
 script = ExtResource("2_lesson")
@@ -497,29 +500,100 @@ text = "Antes de apertar, registra tudo na ficha e espera quem está na linha te
 script = ExtResource("2_lesson")
 text = "E se der meia-noite com a mesa vazia e tudo registrado, o turno fecha sozinho."
 
+[sub_resource type="Resource" id="Lesson_88a"]
+script = ExtResource("2_lesson")
+text = "Ah, e eu deixei um presente pra você na mesa: aquele caderninho de capa vinho."
+
+[sub_resource type="Resource" id="Lesson_88b"]
+script = ExtResource("2_lesson")
+text = "É um diário. Anota tudo, minha filha, que a cabeça esquece. Abre ele."
+
+[sub_resource type="Resource" id="Lesson_88c"]
+script = ExtResource("2_lesson")
+kind = 3
+seconds = 12.0
+until = "diary"
+hint = "Clique no [b]diário[/b], o caderninho de capa vinho na mesa (ou aperte 5)."
+nudges = PackedStringArray("É o caderninho vinho, ali na mesa. Ou aperta o 5.")
+
+[sub_resource type="Resource" id="Lesson_88d"]
+script = ExtResource("2_lesson")
+text = "Na página da esquerda vão as tarefas: o que te pedirem, você escreve ali e risca quando fizer."
+
+[sub_resource type="Resource" id="Lesson_88e"]
+script = ExtResource("2_lesson")
+text = "Na da direita, o que acontecer na noite. Escreve pra você mesma, que ninguém mais lê."
+
 [sub_resource type="Resource" id="Lesson_89"]
 script = ExtResource("2_lesson")
-text = "Por hoje é isso. A mesa é sua, e a noite é calma."
+text = "Por hoje é isso. A mesa é sua, e a noite é calma. Ah, e traz um casaco amanhã: central gela de madrugada. O meu mora pendurado na cadeira."
 
 [sub_resource type="Resource" id="Lesson_89a"]
 script = ExtResource("2_lesson")
 text = "Precisando de mim, é só discar 002 no discador, ali na prateleira."
 
-[sub_resource type="Resource" id="Lesson_90"]
+[sub_resource type="Resource" id="Lesson_89b"]
 script = ExtResource("2_lesson")
-kind = 2
-options = PackedStringArray("Valeu, Cecília!", "Obrigada, Cecília!", "Até a próxima!")
-
-[sub_resource type="Resource" id="Lesson_91"]
-script = ExtResource("2_lesson")
-text = "Boa noite, e boa sorte!"
+text = "Aliás, testa agora: eu desligo e você me liga. Zero, zero, dois e Discar."
 
 [sub_resource type="Resource" id="Lesson_92"]
 script = ExtResource("2_lesson")
 kind = 5
 
+[sub_resource type="Resource" id="Lesson_93"]
+script = ExtResource("2_lesson")
+kind = 3
+until = "dialed"
+hint = "No [b]discador[/b], na prateleira da mesa, aperte [b]0[/b], [b]0[/b], [b]2[/b] e [b]Discar[/b]."
+
+[sub_resource type="Resource" id="Lesson_94"]
+script = ExtResource("2_lesson")
+kind = 0
+requires = PackedStringArray("!despediu_cecilia")
+line = 3
+hint = "A [b]entrada 3[/b] está chamando. Ponha o [b]FONE[/b] nela e atenda."
+
+[sub_resource type="Resource" id="Lesson_95"]
+script = ExtResource("2_lesson")
+text = "Ué, a ligação caiu! Deixa eu terminar o que eu ia dizer."
+
+[sub_resource type="Resource" id="Lesson_96"]
+script = ExtResource("2_lesson")
+text = "E dá pra ligar pra qualquer número da lista: às vezes é o jeito de avisar alguém. Boa noite, e boa sorte!"
+
+[sub_resource type="Resource" id="Dial_c1"]
+script = ExtResource("6_step")
+text = "Alto da Serra, Cecília falando. Viu? É assim que você me acha."
+
+[sub_resource type="Resource" id="Dial_c2"]
+script = ExtResource("6_step")
+kind = 1
+options = PackedStringArray("Valeu, Cecília!", "Obrigada, Cecília!", "Até a próxima!")
+
+[sub_resource type="Resource" id="Dial_c3"]
+script = ExtResource("6_step")
+text = "E dá pra ligar pra qualquer número da lista: às vezes é o jeito de avisar alguém. Boa noite, e boa sorte!"
+
+[sub_resource type="Resource" id="D_cecilia"]
+script = ExtResource("5_dial")
+number = "002"
+sets = PackedStringArray("despediu_cecilia")
+steps = Array[ExtResource("6_step")]([SubResource("Dial_c1"), SubResource("Dial_c2"), SubResource("Dial_c3")])
+
+[sub_resource type="Resource" id="N_0"]
+script = ExtResource("dl_diary_line")
+text = "A Cecília me deu este diário. Disse pra anotar tudo, que a cabeça esquece."
+requires = PackedStringArray("diario_cecilia")
+
+[sub_resource type="Resource" id="N_1"]
+script = ExtResource("dl_diary_line")
+text = "Primeira noite na mesa, e de mentirinha. A Cecília tem paciência de santa."
+at_close = true
+
 [resource]
 script = ExtResource("1_night")
 note = "Sexta-feira. Seu primeiro turno de verdade é na segunda. Hoje a Cecília, telefonista do Alto da Serra, vai ligar para lhe mostrar o serviço. O fone já está na entrada 1."
 teacher = "Cecília"
-lesson = Array[ExtResource("2_lesson")]([SubResource("Lesson_01"), SubResource("Lesson_02"), SubResource("Lesson_03"), SubResource("Lesson_04"), SubResource("Lesson_05"), SubResource("Lesson_06"), SubResource("Lesson_07"), SubResource("Lesson_08"), SubResource("Lesson_09"), SubResource("Lesson_10"), SubResource("Lesson_11"), SubResource("Lesson_12"), SubResource("Lesson_13"), SubResource("Lesson_14"), SubResource("Lesson_15"), SubResource("Lesson_16"), SubResource("Lesson_17"), SubResource("Lesson_18"), SubResource("Lesson_19"), SubResource("Lesson_20"), SubResource("Lesson_21"), SubResource("Lesson_22"), SubResource("Lesson_23"), SubResource("Lesson_24"), SubResource("Lesson_25"), SubResource("Lesson_26"), SubResource("Lesson_27"), SubResource("Lesson_28"), SubResource("Lesson_29"), SubResource("Lesson_29a"), SubResource("Lesson_29b"), SubResource("Lesson_30"), SubResource("Lesson_31"), SubResource("Lesson_32"), SubResource("Lesson_33"), SubResource("Lesson_34"), SubResource("Lesson_35"), SubResource("Lesson_36"), SubResource("Lesson_37"), SubResource("Lesson_38"), SubResource("Lesson_39"), SubResource("Lesson_40"), SubResource("Lesson_41"), SubResource("Lesson_42"), SubResource("Lesson_43"), SubResource("Lesson_44"), SubResource("Lesson_45"), SubResource("Lesson_46"), SubResource("Lesson_47"), SubResource("Lesson_48"), SubResource("Lesson_49"), SubResource("Lesson_50"), SubResource("Lesson_50a"), SubResource("Lesson_50b"), SubResource("Lesson_50c"), SubResource("Lesson_51"), SubResource("Lesson_52"), SubResource("Lesson_53"), SubResource("Lesson_54"), SubResource("Lesson_55"), SubResource("Lesson_56"), SubResource("Lesson_57"), SubResource("Lesson_58"), SubResource("Lesson_59"), SubResource("Lesson_60"), SubResource("Lesson_60a"), SubResource("Lesson_60b"), SubResource("Lesson_61"), SubResource("Lesson_62"), SubResource("Lesson_63"), SubResource("Lesson_64"), SubResource("Lesson_65"), SubResource("Lesson_66"), SubResource("Lesson_67"), SubResource("Lesson_68"), SubResource("Lesson_69"), SubResource("Lesson_70"), SubResource("Lesson_71"), SubResource("Lesson_72"), SubResource("Lesson_73"), SubResource("Lesson_74"), SubResource("Lesson_75"), SubResource("Lesson_76"), SubResource("Lesson_77"), SubResource("Lesson_78"), SubResource("Lesson_79"), SubResource("Lesson_80"), SubResource("Lesson_81"), SubResource("Lesson_82"), SubResource("Lesson_83"), SubResource("Lesson_84"), SubResource("Lesson_84a"), SubResource("Lesson_84b"), SubResource("Lesson_84c"), SubResource("Lesson_85"), SubResource("Lesson_86"), SubResource("Lesson_87"), SubResource("Lesson_88"), SubResource("Lesson_89"), SubResource("Lesson_89a"), SubResource("Lesson_90"), SubResource("Lesson_91"), SubResource("Lesson_92")])
+lesson = Array[ExtResource("2_lesson")]([SubResource("Lesson_01"), SubResource("Lesson_02"), SubResource("Lesson_03"), SubResource("Lesson_04"), SubResource("Lesson_05"), SubResource("Lesson_06"), SubResource("Lesson_07"), SubResource("Lesson_08"), SubResource("Lesson_09"), SubResource("Lesson_10"), SubResource("Lesson_11"), SubResource("Lesson_12"), SubResource("Lesson_13"), SubResource("Lesson_14"), SubResource("Lesson_15"), SubResource("Lesson_16"), SubResource("Lesson_17"), SubResource("Lesson_18"), SubResource("Lesson_19"), SubResource("Lesson_20"), SubResource("Lesson_21"), SubResource("Lesson_22"), SubResource("Lesson_23"), SubResource("Lesson_24"), SubResource("Lesson_25"), SubResource("Lesson_26"), SubResource("Lesson_27"), SubResource("Lesson_28"), SubResource("Lesson_29"), SubResource("Lesson_29a"), SubResource("Lesson_29b"), SubResource("Lesson_30"), SubResource("Lesson_31"), SubResource("Lesson_32"), SubResource("Lesson_33"), SubResource("Lesson_34"), SubResource("Lesson_35"), SubResource("Lesson_36"), SubResource("Lesson_37"), SubResource("Lesson_38"), SubResource("Lesson_39"), SubResource("Lesson_40"), SubResource("Lesson_41"), SubResource("Lesson_42"), SubResource("Lesson_43"), SubResource("Lesson_44"), SubResource("Lesson_45"), SubResource("Lesson_46"), SubResource("Lesson_47"), SubResource("Lesson_48"), SubResource("Lesson_49"), SubResource("Lesson_50"), SubResource("Lesson_50a"), SubResource("Lesson_50b"), SubResource("Lesson_50c"), SubResource("Lesson_51"), SubResource("Lesson_52"), SubResource("Lesson_53"), SubResource("Lesson_54"), SubResource("Lesson_55"), SubResource("Lesson_56"), SubResource("Lesson_57"), SubResource("Lesson_58"), SubResource("Lesson_59"), SubResource("Lesson_60"), SubResource("Lesson_60a"), SubResource("Lesson_60b"), SubResource("Lesson_61"), SubResource("Lesson_62"), SubResource("Lesson_63"), SubResource("Lesson_64"), SubResource("Lesson_65"), SubResource("Lesson_66"), SubResource("Lesson_67"), SubResource("Lesson_68"), SubResource("Lesson_69"), SubResource("Lesson_70"), SubResource("Lesson_71"), SubResource("Lesson_72"), SubResource("Lesson_73"), SubResource("Lesson_74"), SubResource("Lesson_75"), SubResource("Lesson_76"), SubResource("Lesson_77"), SubResource("Lesson_78"), SubResource("Lesson_79"), SubResource("Lesson_80"), SubResource("Lesson_81"), SubResource("Lesson_82"), SubResource("Lesson_83"), SubResource("Lesson_84"), SubResource("Lesson_84a"), SubResource("Lesson_84b"), SubResource("Lesson_84c"), SubResource("Lesson_85"), SubResource("Lesson_86"), SubResource("Lesson_87"), SubResource("Lesson_88"), SubResource("Lesson_88a"), SubResource("Lesson_88b"), SubResource("Lesson_88c"), SubResource("Lesson_88d"), SubResource("Lesson_88e"), SubResource("Lesson_89"), SubResource("Lesson_89a"), SubResource("Lesson_89b"), SubResource("Lesson_92"), SubResource("Lesson_93"), SubResource("Lesson_94"), SubResource("Lesson_95"), SubResource("Lesson_96"), SubResource("Lesson_92")])
+dial = Array[ExtResource("5_dial")]([SubResource("D_cecilia")])
+diary = Array[ExtResource("dl_diary_line")]([SubResource("N_0"), SubResource("N_1")])

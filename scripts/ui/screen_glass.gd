@@ -38,5 +38,5 @@ func _draw() -> void:
 				var w := Pal.mono.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, 11).x
 				draw_rect(Rect2(at.x + w + 3, at.y - 9, 6, 11), IDLE_INK)
 	var x := size.x * 0.62
-	draw_colored_polygon(PackedVector2Array([Vector2(x, 0), Vector2(x + 70, 0), Vector2(x + 20, size.y), Vector2(x - 50, size.y)]),
-		Color(1, 1, 1, 0.035 if off else 0.02))
+	draw_primitive(PackedVector2Array([Vector2(x, 0), Vector2(x + 70, 0), Vector2(x + 20, size.y), Vector2(x - 50, size.y)]),
+		PackedColorArray([Color(1, 1, 1, 0.035 if off else 0.02)]), PackedVector2Array())

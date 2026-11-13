@@ -1,6 +1,7 @@
 [gd_resource type="Resource" script_class="Night" format=3]
 
 [ext_resource type="Script" path="res://scripts/data/night.gd" id="1_night"]
+[ext_resource type="Script" path="res://scripts/data/diary_line.gd" id="dl_diary_line"]
 [ext_resource type="Script" path="res://scripts/data/street_event.gd" id="2_event"]
 [ext_resource type="Script" path="res://scripts/data/story_text.gd" id="3_text"]
 [ext_resource type="Script" path="res://scripts/data/story_call.gd" id="x0_story_call"]
@@ -59,6 +60,28 @@ script = ExtResource("x0_story_call")
 call = ExtResource("j_parente")
 requires = PackedStringArray("!paroquia_10")
 
+[sub_resource type="Resource" id="N_0"]
+script = ExtResource("dl_diary_line")
+text = "Carta do Sebastião. Diz que o telefone já não é seguro."
+letter = true
+
+[sub_resource type="Resource" id="N_1"]
+script = ExtResource("dl_diary_line")
+text = "O Sebastião viu o jornal. Levaram as crianças. Era uma ligação só, ele disse."
+call = SubResource("S_seb")
+
+[sub_resource type="Resource" id="N_2"]
+script = ExtResource("dl_diary_line")
+text = "Não consigo tirar as crianças da cabeça."
+requires = PackedStringArray("!paroquia_10")
+at_close = true
+
+[sub_resource type="Resource" id="N_3"]
+script = ExtResource("dl_diary_line")
+text = "As famílias saíram a tempo. O jornal diz que a paróquia nega tudo."
+requires = PackedStringArray("paroquia_10")
+at_close = true
+
 [resource]
 script = ExtResource("1_night")
 note = "O supervisor deixou um recado: \"A semana está longa. Paciência com quem liga.\""
@@ -67,3 +90,4 @@ letters = Array[ExtResource("3_text")]([SubResource("letter_friend"), SubResourc
 news_if = Array[ExtResource("3_text")]([SubResource("News_presos"), SubResource("News_vazias")])
 story = Array[ExtResource("x0_story_call")]([SubResource("S_seb")])
 calls = Array[ExtResource("x0_story_call")]([SubResource("J_call_presas"), SubResource("J_call_vazias"), SubResource("J_call_parente")])
+diary = Array[ExtResource("dl_diary_line")]([SubResource("N_0"), SubResource("N_1"), SubResource("N_2"), SubResource("N_3")])

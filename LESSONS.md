@@ -1029,3 +1029,67 @@ O `draw_texture` guarda só o RID da textura; esvaziar um cache libera as textur
 quando o estado muda passa a desenhar uma textura que não existe mais, um retângulo branco (item 558, as chapas dos
 bancos). Cache de textura que esvazia manda tudo se redesenhar (`PixelArt._evict`); e "esvaziar só custa remontar o
 que está na tela" só vale para o que se redesenha sozinho.
+
+## Aviso de pendência mora no objeto, não numa máquina que não saberia dela
+Propus e fiz a lâmpada da linha pulsando até a ficha ser registrada e o contador do calculógrafo pulsando até o
+bilhete ir para a caixinha (item 563). O usuário recusou: a mesa não sabe se o caderno foi preenchido nem se o bilhete
+foi carimbado, e a lâmpada da linha serve logo à próxima ligação na mesma entrada. Antes de pôr um aviso num aparelho,
+pergunte se aquele aparelho, de verdade, saberia daquilo e se o lugar dele fica livre; senão o aviso vai no próprio
+objeto esquecido (o papel clareando, `Background._nag_layer`).
+
+## zsh não divide variável em palavras, e o `update_translations` regravava os `.po` vazios
+Num laço `for x in "a 1 4" ...; do set -- $x`, o zsh (o shell daqui) passou a string inteira como `$1`: os `.tres` saíram
+com o nome e o conteúdo errados, o `data/content.tres` não carregou e o `update_translations` regravou os `.po` sem
+nenhuma fala, apagando as 114 traduções desta branch ainda não commitadas (recuperadas das transcrições, item 566).
+Arquivos de dados se geram em Python, não em laço de shell; e a ferramenta agora para sem gravar quando o conteúdo
+não carrega.
+
+## `graphify update` pode renomear os nós e deixar os documentos soltos
+Numa atualização o extrator passou a pôr a extensão nos nós de arquivo (`..._story_flags` virou `..._story_flags_gd`) e
+o nome da classe nos de função; as ligações dos documentos apontavam para os nomes antigos e sumiram (442 para 221).
+Antes de atualizar, guarde o `graph.json`; depois, conte as arestas dos `.md` e refaça as que caíram pelos nomes novos.
+
+## Objeto pequeno se mede em centímetros contra o vizinho
+O lápis tinha uns 7 cm ao lado de um bloco de 18 cm: desenhado em px "que parecessem bons", não na escala dos objetos.
+Todo objeto, por menor que seja, tem o tamanho de verdade dele na escala da mesa (`PROP_K`, as constantes em cm).
+
+## Objeto da sala tem que ter motivo para estar ali
+Pus no quadro panfletos de rua (cachorro perdido, curso, vacinação); o usuário apontou que na central só entram Maria e
+o supervisor: ninguém pregaria aquilo ali. Antes de pôr algo na sala, pergunte quem o trouxe. No quadro, só o que a
+companhia ou as autoridades mandam, e o que a própria Maria traz (o cartaz da quermesse).
+
+## Efeito que saiu a pedido sai de todo lugar que o usa
+O contorno amarelo sob o mouse saiu dos objetos da mesa no item 174 (trocado pelo objeto que se ergue), mas o plug da
+mesa comutadora continuou com ele (`Pal.GLOW` na silhueta), e o usuário teve de pedir de novo (item 565). Ao trocar um
+efeito, procurar toda parte que faz o mesmo papel (`grep` pela cor e pelo nome do estado, `_hover`) e trocar junto.
+
+## "Deveria caber X" quer dizer "X fica nele", e o tamanho é o todo
+Fiz o quadro de avisos da etapa 4 só do tamanho do jornal; o usuário pediu maior, "para caber a folhinha e o
+panfleto". Aumentei só a altura e deixei os dois fora, para a etapa seguinte; ele repetiu irritado: o quadro contém os
+itens agora, não é de clicar (os itens nele, sim), e a largura também (item 564). Pedido sobre um objeto que guarda
+outros vale já para o conteúdo e para as duas medidas; não adiar parte dele para uma etapa do plano sem perguntar.
+
+## Efeito de clima que pega só uma parede lê como defeito
+Na névoa, o brilho da noite pela janela (`_draw_window_glow`) ficava 1,2× mais forte e espalhava na parede do fundo,
+enquanto a parede da janela continuava igual: o usuário viu "névoa na parede" e pediu para tirar (item 564). Luz ou
+névoa dentro da sala tem de cair igual em todas as superfícies que ela alcança, ou não entrar; o clima de lá fora
+fica no vidro e na vista.
+
+## No zsh, `$var` sem aspas não se divide em palavras
+Medindo o robô curioso, `a="--nosy"; ... $a` passava a opção inteira como um argumento só e, vazia, um argumento
+vazio: o modo parecia "sem efeito" e quase virou apontamento falso na varredura (item 571). No zsh, use `${=a}` (ou
+um array) para dividir; antes de concluir que uma opção não faz nada, confira na saída que ela chegou.
+
+## Mesa vazia no fim do turno não é silêncio
+A métrica `mesa_vazia` do robô contava o fim do turno, depois da última ligação (`last_call`), quando a mesa esvazia
+de propósito, e apontava 36 min onde o pior silêncio no meio do turno era de 20. Medida de ritmo exclui o trecho em
+que a agenda já parou.
+
+## Conversa fiada não cabe em ligação do roteiro
+O sistema de conversa fiada sorteava assunto para qualquer um esperando a transferência, e o homem urgente e
+misterioso da noite 2 comentou a quermesse (item 572). Sistema genérico de falas exclui as ligações do roteiro
+(`PhoneCall.story`), que têm tom e intenção escritos. Fala do roteiro tem de se explicar pelo que a ligação já
+disse: "você não vai se arrepender" sem pedido nenhum antes não se entende, e "isso fica entre nós" também não,
+porque Maria ainda não sabe de nada. Antes de escrever, liste o que o personagem que ouve já sabe naquele ponto; nem
+"deu tempo", que exagera a urgência. Na dúvida, a fala simples e comum vence a de efeito.
+

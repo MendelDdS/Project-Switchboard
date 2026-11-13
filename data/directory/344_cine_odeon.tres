@@ -45,6 +45,23 @@ script = ExtResource("8_chat")
 line = "Odeon, bilheteria."
 replies = Array[ExtResource("9_reply")]([SubResource("Answer_1_0"), SubResource("Answer_1_1")])
 
+[sub_resource type="Resource" id="Ans_cine_toque_0"]
+script = ExtResource("9_reply")
+text = "E quem atende a esta hora?"
+follow = "O porteiro. Durmo aqui desde que o toque começou: não dá tempo de chegar em casa."
+
+[sub_resource type="Resource" id="Ans_cine_toque_1"]
+script = ExtResource("9_reply")
+text = "Ainda tem sessão hoje?"
+follow = "Não tem mais: com o toque de recolher, a última acaba às oito. E é o mesmo faroeste há duas semanas."
+
+[sub_resource type="Resource" id="Ans_cine_toque"]
+script = ExtResource("8_chat")
+from_night = 10
+to_night = 14
+line = "Cine Odeon, boa noite."
+replies = Array[ExtResource("9_reply")]([SubResource("Ans_cine_toque_0"), SubResource("Ans_cine_toque_1")])
+
 [resource]
 script = ExtResource("1_entry")
 name = "Cine Odeon"
@@ -53,5 +70,5 @@ number = "344"
 hello = "Cine Odeon, boa noite."
 spoken = "o Cine Odeon"
 motives = Array[ExtResource("2_motive")]([SubResource("Motive_10"), SubResource("Motive_11")])
-answers = Array[ExtResource("8_chat")]([SubResource("Answer_0"), SubResource("Answer_1")])
+answers = Array[ExtResource("8_chat")]([SubResource("Answer_0"), SubResource("Answer_1"), SubResource("Ans_cine_toque")])
 closes = 330.0

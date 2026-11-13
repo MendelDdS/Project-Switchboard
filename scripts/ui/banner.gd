@@ -1,5 +1,5 @@
 extends RefCounted
-## A bandeira da noite 15 (`StreetEvent` "banner"), à meia-noite, só com o golpe vencido (`requires` "golpe_venceu"):
+## A bandeira da noite 15 (`StreetEvent` "banner"), no veredito das 4h, só com o golpe vencido (`requires` "golpe_venceu"):
 ## a luz da sala do apartamento vazio da varanda do prédio de tijolos (`Background.APT`) acende, a porta estala e um
 ## homem sai com a bandeira enrolada debaixo do braço; para no gradil, vira para a rua, ergue o rolo por cima do
 ## corrimão e o solta segurando a beira de cima: o pano desenrola caindo (`drop`), estala ao chegar no fim, quica e
@@ -8,8 +8,22 @@ extends RefCounted
 ## turno, no amanhecer. Só o roteiro, como o `Beating`: tudo sai do tempo `t` (s desde que a luz acende), sem estado.
 
 const Beating := preload("res://scripts/ui/beating.gd")
-const SIZE := Vector2(1.3, 1.1)   ## a bandeira (m): a largura e quanto desce do corrimão
-const DOOR := -1.2     ## a porta do apartamento, a partir de onde ele para no gradil (m; o meio da porta de `APT`, `Background._banner_x`)
+const SIZE := Vector2(2.2, 2.0)   ## a bandeira (m): a largura e quanto desce do corrimão (quase a varanda inteira: tem de ser vista da central)
+## O símbolo da resistência no meio do pano (px da tela, "X" pintado): a cúpula riscada, o arco na base com um risco
+## no meio e dois menores dos lados, em cima (sem a base, lia-se um "M").
+const SYMBOL: Array[String] = [
+	"......X......",
+	"......X......",
+	"...X..X..X...",
+	"...X..X..X...",
+	"...XXXXXXX...",
+	"..XX..X..XX..",
+	".XX...X...XX.",
+	".X....X....X.",
+	".X....X....X.",
+	"XXXXXXXXXXXXX",
+]
+const DOOR := -0.7     ## a porta do apartamento, a partir de onde ele para no gradil (m; o meio da porta de `APT`, `Background._banner_x`)
 const OUT_AT := 0.6    ## quando ele aparece na porta (s depois da luz)
 const WALK := 1.0      ## m/s, sem pressa
 const FALL := 3.9      ## m/s²: o pano desenrolando cai mais devagar que o peso solto (o rolo freia), ~0,75 s até o fim

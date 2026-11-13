@@ -18,9 +18,10 @@ peça (medidas, cores, o que foi tentado e saiu) está em `docs/mapa-ui-detalhad
   miniatura do painel, `ConsoleMini`); à direita a sala e as ferramentas (`Tools`, o papel sai do objeto dele na mesa,
   `Tools.origin` = `Background.prop_rect`; sem abas); embaixo de tudo, o painel do operador (`PhonePanel`, 150 px, fora
   da luz da sala). A dica do manual (`HintSlot`) está escondida, a pedido.
-- **A sala se distribui na largura que tiver**: armário (`CAB_W`, `CAB_AT`), conduíte, folhinha e cartaz; os objetos
+- **A sala se distribui na largura que tiver**: gaveteiro (`CAB_W`, `CAB_AT`) com o quadro de avisos em cima, da beira
+  dele até perto da quina (`BOARD_W`, `CORNER_GAP`), e conduíte; os objetos
   da mesa em duas fileiras (`_row`, `WALL_PAD`, `EDGE_PX`): atrás, o que é alto (unidade de despacho, listas, relógio
-  com a caneca na frente); na frente, o que é baixo (calculógrafo, bloco de fichas, jornal). A prancheta fica
+  com a caneca na frente); na frente, o que é baixo (calculógrafo, bloco de fichas, diário). A prancheta fica
   pendurada na lateral da mesa comutadora (`_draw_hung_clipboard`). `test_layout` confere que nada se sobrepõe.
 - Fio da unidade de despacho (o do calculógrafo saiu a pedido): sai da traseira dela e vai, rente ao console, para o fundo da mesa
   (`_draw_cable`, imagem guardada em `_cable_art` por `_cable_at`, que monta também os fios da caixa na parede), desenhado antes da máquina; sem plugue (a pedido). A mesa é
@@ -52,6 +53,10 @@ peça (medidas, cores, o que foi tentado e saiu) está em `docs/mapa-ui-detalhad
   homografia (`_project`, `_homography`), guardado até mudar; **risco fino vai na tela** (`_ink` nas alturas de
   `_rows`), não no papel (virava moiré). Cada objeto girado uns graus (`_turned`, `_faces`). Sombra em degraus
   (`_desk_shadow`).
+- Beiras (o plano de pixel, HISTORICO 392, concluído em 26/10/2026): degraus regulares numa beira reta (3-3-3,
+  2-3-2-3) e, nas longas à vista, inclinações limpas (1:1, 1:2, 2:1, 1:3...; `clean_slope`); vértice em pixel inteiro
+  (`_snap`), a beira e o brilho dela saem da mesma reta deslocada em px inteiros; linha fina sobre superfície em
+  perspectiva desenhada depois da projeção (`_tex_pt`, `_pixel_line`). Luz em degraus e pontilhado foram recusados.
 - Luz nos objetos: cada um escurece pela distância à poça (`_shade`, `_pool`, `FRONT_LIGHT`); **os papéis trocam de tom
   na rampa** (`_still`, `_paper_step`, `Pal.lit`, `PAPER_RAMPS`), não escurecem por cima; o metal pequeno fica num
   degrau só (`_lit_image`). A luminária piscando ou esquentando não redesenha: é o shader (`_noir`, `FLICK_DARK`).
@@ -59,12 +64,18 @@ peça (medidas, cores, o que foi tentado e saiu) está em `docs/mapa-ui-detalhad
   surgia sob o mouse e a soltura se perdia: a cena ficava com o mouse); sob o mouse o objeto sobe 2 px (`LIFT_PX`) e a
   etiqueta é uma fita crepe (`draw_hover`). O estado do jogo aparece nos objetos (`pending`, `unread`, `alert`,
   `card_out`, `counting`, `tickets`, `toll_desk`, `news`, `letter`, `written`, `sips`).
-- A sala muda pelas noites (`GameContent.room`, `RoomChange`, `Background.details`); a folhinha é a data do jogo
+- A sala muda pelas noites (`GameContent.room`, `RoomChange` entre `from_night` e `to_night`, `Background.details`); a folhinha é a data do jogo
   (`GameData.date_of`).
 
 ### A sala
-- Parede num tom só (`Pal.WALL_PAINT`) com manchas leves (`_stain_art`) e marcas de uso (`_draw_wall_marks`); armário
-  de aço que abre (`CABINET_ID`, `cab_open`), conduíte, mancha de umidade (`damp`, de `Progress.rains`).
+- Parede num tom só (`Pal.WALL_PAINT`) com manchas leves (`_stain_art`) e marcas de uso (`_draw_wall_marks`); gaveteiro
+  de aço baixo, decorativo (`_draw_drawers`, `CAB_TOP` abaixo dos olhos: o tampo aparece), com o guarda-chuva encostado
+  na quina (`_draw_umbrella`, `UMBRELLA_LEAN`); em cima, na parede, o quadro de avisos de cortiça (`_draw_cork_board`,
+  `BOARD_TOP`/`BOTTOM`, `_board`), que não é de clicar; os itens pregados nele (`_pinned`, `_draw_pinned`: erguidos
+  sob o mouse como os da mesa, a sombra na cortiça), sim: o jornal da manhã (`news`, `Tools.NEWS`), o recado do
+  supervisor (`NOTE_ID`, `_draw_pinned_note`; clicado, `Intro.reread`), o cartaz da quermesse (que Maria trouxe) e os avisos que a
+  companhia e as autoridades mandam, entrando e saindo pelas noites (só Maria e o supervisor entram ali) (`PINNED`, `_draw_flyer`, `Pal.FLYERS`; até dois; `RoomChange.to_night`), com o nome na etiqueta; a
+  folhinha (`CALENDAR`, a data, a orelha na rajada); conduíte, mancha de umidade (`damp`, de `Progress.rains`).
 - Janela na parede da direita (`_draw_side_wall`): persiana que fecha e abre (`toggle_blind`, `BLIND_ID`, `_blind_shape`),
   peitoril (`_sill_lit`), vão com espessura (`WALL_D`), sem montante nem travessa. O vidro reflete a sala
   (`_draw_reflection`) e embaça (`_draw_mist`).
@@ -82,7 +93,7 @@ peça (medidas, cores, o que foi tentado e saiu) está em `docs/mapa-ui-detalhad
   plano são postas pela parede da sala (`_side_pt`), não pela câmera da vista.
 - **Lá fora acontece coisa** (`_events`): carros, gente a pé (`_walkers`, `_draw_walker`; a passada de perfil, `_gait`, `STRIDE`, também a do homem e a das silhuetas, `_body`; quem está lá dentro contra a luz, o recepcionista, o porteiro, quem está no bar e quem passa atrás da janela, no corpo da rua escurecido, `_draw_backlit`; a cena da rua da noite 3, `Beating`, `_draw_rig`, com o sangue que fica, `_draw_blood`, e quem assiste, `_watch`; a viatura da noite 7 no hotel, `PATROL_*`, `_draw_patrol`; o vigia da noite 9 no terraço, `LOOKOUT_*`, `_draw_lookout`; o toque de recolher das noites 9 a 14, `CURFEW_*`, a viatura varrendo as calçadas com o holofote, `_aim` (procura aos trancos e acompanha quem pega), a luz na camada `_spot_add`, clareando o que está embaixo (`spot_light.gdshader`, `_draw_sweep_light`, por baixo dos carros e de quem passa), a sombra de quem ele pega na fachada (`_draw_beam_shadows`) e a pessoa acesa de frente (`_beam_at`), e quem foge para a esquina ou para a porta do hotel, `_hurry`, `_take_cover`; o carro de som da 5, `SPEAKER_*`, e quem para para ouvir, `_listen`; os panfletos da 6 e os três varredores, `Flyers`; a corrida da 8, `Chase`; a pichação da 4 e a tinta da 7, `Graffiti`; o desfile da 10, `_draw_army_truck`; a banca lacrada da 12, `Newsstand`, com o porta-malas abrindo, `"lid"`, e quem carrega por cima do carro, `_draw_loaders`; a batida no hotel da 13, `Raid`: o camburão (`"camburao"`, `_draw_camburao`, as portas do cofre abrindo, quem sobe some para lá da beira dele) e a viatura atrás, as portas das cabines do lado de cá (`_draw_cab_door`), quem está na rua desenhado com os carros (`_draw_raid`, `_raid_clip`) e os andares do hotel acendendo (`Raid.floors`); as sirenes paradas iluminam a rua, a fachada, quem o facho pega, o molhado e a sala (`_beacons`, `_draw_beacon`, `_draw_beacon_light`, `_beacon_at`, `BEACON_*`); a fuga da família da 14, `Moving`, com a varanda (`_draw_packer`, `_apt_gone`) e a Kombi encostando no meio-fio (`"park"`, o z mudando enquanto freia); a pedra da 14 às 23h, `Stone`, subindo da rua, trincando a parte esquerda do vidro, quicando e caindo (`_crack`, por cima da vista, `_crack_box`; o som `glass_hit`; o trincado fica na 15); o sinalizador da 15, `Flare`, na camada `_flare` entre o céu e a `_back` com a fumaça em bolotas (`Flare.smoke`, `puff`) e o halo liso somado (`_flare_add`, `_flare_halo`, maior no ar molhado, `FLARE_WET`), a barriga das nuvens perto dele (no halo, `_cloud_shapes`), a beira da igreja e dos prédios de longe virada para ele e, na chuva, o reflexo dele no asfalto (`_flare_rim`), as cornijas, a parede e o chão da rua do cruzamento na camada do holofote (`_draw_flare_light`), o tom vermelho no `modulate` da cidade fora do `_day`, a janela dele na sala pela camada do sol (`_flare_steep`) e quem olha para o céu, só quem está na luz dele, `_flare_reach`, `_skyward`; ao acender, `flare_lit` e o marcador `sinalizador_N`; o incêndio e o combate da 15, das 21:20 à meia-noite, `Battle` (tudo do tempo, sem estado), nas camadas `_battle` (a fumaça em bolotas `PixelArt.disc`, `_battle_puff`; as faíscas e os traçantes cruzando por trás da igreja, `Battle.muzzle`, `tracer`) e `_battle_add` (o clarão do fogo e dos estouros, somado), entre o `_flare_add` e a `_back`; os sons (`blast`, `gunfire`) chegam depois da luz, pela distância, `_battle_sounds`; a bandeira da 15 à meia-noite, só com o golpe vencido, `Banner`
 (a luz do apartamento vazio acendendo, `_banner_on`, quem a estende pelo rig com o rolo, `"roll"`, `_draw_banner_man`,
-o pano em colunas com as pregas no vento e a luz do poste, desenrolando, quicando e assentando, `_draw_banner`; os
+o pano em colunas com as pregas no vento e a luz do poste, desenrolando, quicando e assentando, `_draw_banner`, com o símbolo da resistência, a cúpula riscada, `Banner.SYMBOL`; os
 sons `latch` e `unfurl`); o homem de sobretudo das noites 13 e 14, das 22h às 22h50, embaixo do poste da esquina do
 prédio de tijolos (`stranger`, `MAN_*`, `_draw_stranger`, fumando); o fim da presa, `Arrest` (o homem atravessando
 para a central, `_draw_arrest` em duas vezes, antes e depois dos carros, `_arrest_rig` recortado atrás do arbusto, e a

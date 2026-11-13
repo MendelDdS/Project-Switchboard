@@ -40,8 +40,9 @@ static func build(night: Night, pace: Pace, last_call: float) -> Schedule:
 func _random_calls(night: Night, pace: Pace, last_call: float, fixed: Array[PhoneCall]) -> Array[PhoneCall]:
 	var C := GameData.CONTENT
 	var ats := []
+	var until := last_call if night.quiet_from < 0.0 else minf(last_call, night.quiet_from)
 	var t := randf_range(3.0, 10.0)
-	while t < last_call:
+	while t < until:
 		if not fixed.any(func(f: PhoneCall): return absf(t - f.at) < STORY_GAP):
 			ats.append(t)
 		t += randf_range(Pace.PEAK_GAP.x, Pace.PEAK_GAP.y) if randf() < pace.peak_chance else randf_range(pace.call_gap.x, pace.call_gap.y)

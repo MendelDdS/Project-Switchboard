@@ -174,7 +174,8 @@ Ordem sugerida: das que reaproveitam mais (o rig, a viatura, a passada) para as 
   desenrolando (o rolo da cor da faixa que vem, afinando), estala (`unfurl`), quica e balança até assentar; ele
   amarra as pontas, se endireita, ergue o punho e volta. A bandeira (preta com um círculo amarelo no meio, o símbolo ainda por escolher, `Pal.BANNER`; ele de jaqueta aberta e boina, no detalhe de quem passa na calçada) fica com as
   pregas mexendo no vento e a luz do poste embaixo, mais escura e pesada na chuva, até o amanhecer.
-- [ ] Aprovação do usuário (e o símbolo da bandeira).
+- [x] Maior, a pedido (13/11/2026): 2,2 × 2,0 m, quase a varanda inteira, e o símbolo redesenhado em 13 × 10 px (em dobro ficou grande).
+- [ ] Aprovação do usuário: o símbolo pedido em 08/11/2026 (um arco com um risco vertical no meio e dois traços menores dos lados, em cima: a cúpula riscada), a conferir na captura.
 
 ### M. A presa (o fim do jogo, posto pelo `Main.start_ending`)
 - [x] `Arrest`, `--arrest=t0,passo,n`: o homem de sobretudo vem pela calçada de lá fumando, para embaixo do poste de
@@ -184,7 +185,7 @@ Ordem sugerida: das que reaproveitam mais (o rig, a viatura, a passada) para as 
   pela mão de cá aos 4 s, freia e para em frente ao prédio, a sirene pintando a rua e o peitoril; os dois policiais
   descem pelo lado da rua (as portas batendo) e dão a volta pela traseira até a porta. Capturas com tempo limpo,
   chuva e névoa; `build/presa.gif`.
-- [ ] Aprovação do usuário.
+- [x] Aprovada pelo usuário (08/11/2026).
 
 ## 4. Fechando cada cena (a lista de cada cena nova, não pendência)
 - Opção na captura (`tools/shot.gd`) e botão no F1.

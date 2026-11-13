@@ -99,7 +99,7 @@ emergência perdida é Insuficiente em qualquer noite.
 o jogo volta para o treinamento. Depois de uma Insuficiente, o bilhete da noite seguinte lembra que ela decide. A
 denúncia da escuta conta na noite em que chega ao relatório. O treinamento não tem conceito. Calibrado com o robô
 do `test_shift`, cinco sementes em cinco noites: o atento fica entre 67% e 100% e o que deixa tocar 1 em 3, entre 47%
-e 77% (`PLANO_EFICIENCIA.md`).
+e 77%.
 
 ### Os broches
 
@@ -153,8 +153,8 @@ O operador liga pelo discador da prateleira (clicado, ele abre de perto): digita
 (Discar com o visor vazio liga de novo para o último). Quem estava com o FONE fica em espera enquanto isso.
 - **O atendimento de cada lugar** fica no contato dele em `data/directory/` (`answers`): cada um é um assunto de
   conversa fiada (`ChatTopic`), com a fala de atendimento (`line`) e as perguntas do operador (`replies`: `text` a
-  pergunta, `follow` a resposta, `sets` os marcadores). Pode ter `requires` (só depois de um marcador) e `weather`.
-  Sorteia um entre os que valem; o operador vê até duas perguntas e [Encerrar ligação]. `bye` é a despedida (vazio:
+  pergunta, `follow` a resposta, `sets` os marcadores). Pode ter `requires` (só depois de um marcador), `weather` e as noites em que vale (`from_night`, `to_night`).
+  Sorteia um entre os que valem, e o da ocasião (com marcador ou noite) vem no lugar dos de todo dia; o operador vê até duas perguntas e [Encerrar ligação]. `bye` é a despedida (vazio:
   uma de `dial_byes`, no `content.tres`). Sem atendimento, ninguém atende. Todo número da cidade atende, menos os do despacho (o `test_content` cobra).
   `closes`: a hora em que o lugar fecha (minutos depois das 18h) e ninguém mais atende. As respostas podem ter
   palavras-chave (`[person:Benedito Souza]`, como na escuta), que vão para as anotações da lista.
@@ -299,8 +299,8 @@ Ajuste em `main.gd` → `GAME_MIN_PER_SEC`.
 - As ligações tocam no horário mesmo com o operador ocupado; uma emergência espera a anterior desligar e as unidades
   chegarem. Quem ninguém atende desiste (`GIVE_UP_SEC`: 60 s; as do roteiro aguentam 90 s, os retornos 45 s; as do
   treinamento não desistem). As do roteiro esperam a mesa ficar em silêncio, por no máximo 30 minutos de jogo.
-- Alguns números não atendem à noite (`closed_at_night` no contato). Roteiros com `alt_target` deixam o operador
-  sugerir outro lugar.
+- Às vezes o destino não atende (sorteado, `PhoneCall.away`); roteiros com `alt_target` deixam o operador sugerir
+  outro lugar do mesmo ramo. No discador, o lugar fechado não atende (`closes`, `answers_until`, `gone_from` no contato).
 - Conexões completadas duram 34–68 minutos de jogo, cerca de 45–90 s reais (`talk_len` do nível de ritmo; mais longas do nível 6 em diante); depois as lâmpadas ficam vermelhas
   até o operador desmontar. Conversas mais longas prendem os cabos de conexão por mais tempo: em turnos
   movimentados, às vezes é preciso esperar uma conversa acabar (ou cortá-la) para ter um cabo livre. Sem cabo livre,

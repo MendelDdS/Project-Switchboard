@@ -45,6 +45,24 @@ script = ExtResource("8_chat")
 line = "Orbital, controle mestre. Seja rápida, que o comercial acaba em um minuto."
 replies = Array[ExtResource("9_reply")]([SubResource("Dial_1_0"), SubResource("Dial_1_1")])
 
+[sub_resource type="Resource" id="Ans_tv_ocupada_0"]
+script = ExtResource("9_reply")
+text = "O que aconteceu ontem?"
+follow = "Entraram no estúdio e ficaram quase duas horas no ar. De madrugada a polícia retomou. O resto a senhora leu no jornal."
+
+[sub_resource type="Resource" id="Ans_tv_ocupada_1"]
+script = ExtResource("9_reply")
+text = "A programação voltou ao normal?"
+follow = "Voltou. Só que agora tem um guarda sentado ao lado do operador de câmera."
+
+[sub_resource type="Resource" id="Ans_tv_ocupada"]
+script = ExtResource("8_chat")
+requires = PackedStringArray("tv_conquistada")
+from_night = 5
+to_night = 5
+line = "TV Orbital, boa noite. Aqui é o técnico de plantão."
+replies = Array[ExtResource("9_reply")]([SubResource("Ans_tv_ocupada_0"), SubResource("Ans_tv_ocupada_1")])
+
 [resource]
 script = ExtResource("1_entry")
 name = "TV Orbital"
@@ -54,6 +72,6 @@ voice = "m"
 spoken = "a TV Orbital"
 hello = "TV Orbital, boa noite."
 motives = Array[ExtResource("2_motive")]([SubResource("Motive_1"), SubResource("Motive_2")])
-answers = Array[ExtResource("8_chat")]([SubResource("Dial_0"), SubResource("Dial_1")])
+answers = Array[ExtResource("8_chat")]([SubResource("Dial_0"), SubResource("Dial_1"), SubResource("Ans_tv_ocupada")])
 bye = "Boa noite. Fique ligada na Orbital."
 closes = 330.0

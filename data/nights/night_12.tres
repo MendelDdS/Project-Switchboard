@@ -1,7 +1,9 @@
 [gd_resource type="Resource" script_class="Night" format=3]
 
 [ext_resource type="Script" path="res://scripts/data/story_text.gd" id="j_story_text"]
+[ext_resource type="Script" path="res://scripts/data/diary_line.gd" id="dl_diary_line"]
 [ext_resource type="Script" path="res://scripts/data/night.gd" id="1_night"]
+[ext_resource type="Script" path="res://scripts/data/diary_task.gd" id="dt_diary_task"]
 [ext_resource type="Script" path="res://scripts/data/street_event.gd" id="2_event"]
 [ext_resource type="Script" path="res://scripts/data/story_call.gd" id="x0_story_call"]
 [ext_resource type="Resource" path="res://data/calls/story_12_sebastiao.tres" id="x1_story_12_sebastiao"]
@@ -102,6 +104,38 @@ call = ExtResource("j_parente")
 script = ExtResource("x0_story_call")
 call = ExtResource("j_doutor")
 
+[sub_resource type="Resource" id="T_0"]
+script = ExtResource("dt_diary_task")
+text = "Gravar a Alta Cúpula e dar as fitas ao Sebastião"
+requires = PackedStringArray("sebastiao_pediu_fita_12")
+done = PackedStringArray("fita_sebastiao_12")
+
+[sub_resource type="Resource" id="N_0"]
+script = ExtResource("dl_diary_line")
+text = "O supervisor ligou: reclamação da Alta Cúpula pela noite nove. Vai ficar de olho em mim."
+call = SubResource("S_sup")
+
+[sub_resource type="Resource" id="N_1"]
+script = ExtResource("dl_diary_line")
+text = "O Sebastião: gravar a polícia com a Alta Cúpula e mandar as fitas pra ele, no pacote de carta."
+call = SubResource("S_seb")
+
+[sub_resource type="Resource" id="N_2"]
+script = ExtResource("dl_diary_line")
+text = "O Miguel está no São Lucas, de perna quebrada. Foi à praça escondido."
+call = SubResource("A_story_12_miguel")
+
+[sub_resource type="Resource" id="N_3"]
+script = ExtResource("dl_diary_line")
+text = "A Generosa ofereceu Luar da Serra pro Otávio, na rádio."
+call = SubResource("A_story_12_generosa_radio")
+
+[sub_resource type="Resource" id="N_4"]
+script = ExtResource("dl_diary_line")
+text = "Eles sabem que alguém nesta mesa ajuda. Esse alguém sou eu."
+requires = PackedStringArray("sebastiao_pediu_fita_12")
+at_close = true
+
 [resource]
 script = ExtResource("1_night")
 note = "O supervisor deixou um recado: \"Não esqueça: tudo o que acontece vai para a ficha.\""
@@ -111,3 +145,5 @@ news_stories = PackedStringArray("Alta Cúpula oferece recompensa pelo chefe dos
 calls = Array[ExtResource("x0_story_call")]([SubResource("J_call_parente"), SubResource("J_call_doutor"), SubResource("J_call_recompensa")])
 news_photo = "papeis"
 news_caption = "Cartazes da recompensa na estação."
+tasks = Array[ExtResource("dt_diary_task")]([SubResource("T_0")])
+diary = Array[ExtResource("dl_diary_line")]([SubResource("N_0"), SubResource("N_1"), SubResource("N_2"), SubResource("N_3"), SubResource("N_4")])

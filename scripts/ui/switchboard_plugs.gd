@@ -14,7 +14,9 @@ var _draped := {}   ## ponta encaixada -> as pontas cujo fio tapava a tomada qua
 var _pushed_from := {}   ## ponta -> [onde estava a frente do plug na mão, a partir do meio da tomada, e o ângulo dele] (ele vira dali, `_turning`)
 var _silhouette := {}   ## encaixado (o cotovelo, pela `_elbow_pose`) ou em pé (false) -> polígono do contorno (destaque, clique)
 var cursor := Vector2.ZERO
-var _hover := -1               # ponta cujo plug está sob o mouse (pode ser pega); desenhada com destaque
+var _hover := -1               # ponta cujo plug está sob o mouse (pode ser pega): ele se ergue (`_rise`)
+var _rise := Lift.new()        # o plug sob o mouse subindo `Background.LIFT_PX` e, quando o mouse sai, assentando (como os objetos da sala)
+var _rise_e := -1              # a ponta dele (-1: nenhum)
 var _cut := INF   # desenhando o plug em pé: abaixo disto (y dele) está dentro do buraco da prateleira
 var _loose := {}               # ponta solta voltando para o buraco -> {"t": s caindo/recolhendo, "seat": -1 ou s assentando, "direct", "ang", e, assentando, "from", "turn", "v0", "sink", "hit"}
 
@@ -536,6 +538,8 @@ func _draw_plug(e: int, shadow: bool) -> void:
 		else:
 			_ci.draw_texture(tex, (tu[0] as Vector2) - (art[1] as Vector2), _lit_by(tu[0]))
 		return
+	if not shadow:   # sob o mouse, erguido (a sombra fica: ele se afasta dela)
+		at += Vector2.UP * _rise_px(e)
 	if shadow and not seated:
 		at += _lift(e)
 	elif shadow:   # afundado, a sombra cola no plug
@@ -547,8 +551,6 @@ func _draw_plug(e: int, shadow: bool) -> void:
 	elif shadow:
 		_draw_cut(_plug_outline(e, 0.0), SHADOW)
 	else:
-		if e == _hover:   # contorno claro, na forma do plug: dá para pegar
-			_draw_cut(_plug_outline(e, 2.0), Pal.GLOW)
 		if seated:
 			_draw_elbow(_cable_col(e), pose, _push(e), 1.0, int(ends[e]), _lit_by(at))
 		elif _plug_angle(e) != 0.0:   # girado pixel a pixel, preso aos pixels (girado pelo desenho, serrilhava)
@@ -560,6 +562,11 @@ func _draw_plug(e: int, shadow: bool) -> void:
 			_draw_plug_body(_cable_col(e), true, _lit_by(at))
 	_ci.draw_set_transform(Vector2.ZERO)
 	_cut = INF
+
+
+## Quantos px o plug da ponta `e` está erguido sob o mouse (`_rise`).
+func _rise_px(e: int) -> int:
+	return roundi(_rise.height * Background.LIFT_PX) if e == _rise_e else 0
 
 
 ## O plug em pé está entrando no buraco dele (guardado ou assentando): a parte de baixo some no buraco.

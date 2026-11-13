@@ -1,5 +1,5 @@
 #!/bin/bash
-# Calibração do conceito (PLANO_EFICIENCIA.md, seção 6): o robô do test_shift joga 5 sementes nas noites 1, 5, 9, 12
+# Calibração do conceito (README, "O conceito do turno e a demissão"): o robô do test_shift joga 5 sementes nas noites 1, 5, 9, 12
 # e 15, como o atento (--human) e o desastrado (--clumsy), 5 turnos de cada vez (~2 min). Grava uma linha por turno
 # em build/calibracao/<commit>.tsv (com "+" se há mudanças fora do commit) e imprime, por jogador, a eficiência
 # (menor, mediana, maior) e quantas noites em cada conceito; com uma tabela anterior, as duas lado a lado:

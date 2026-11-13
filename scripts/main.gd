@@ -10,8 +10,10 @@ const SHIFT_START_HOUR := 18            # o turno vai das 18:00...
 const LAST_CALL_BEFORE := 20.0          # ...até `Night.shift_end`; tantos minutos antes dele, nada novo toca
 										# e aparece o botão Encerrar turno; quem está na linha no fim é atendido até o fim
 const CLEAR_SEC := 40.0                 # o som e a cor indo para a noite limpa quando a chuva ou a névoa param (`Night.clears_at`)
+const DIARY_WAIT := 15                  # no fim do turno, o diário aberto escrevendo e riscando, até tantos segundos...
+const DIARY_HOLD := 2.5                 # ...e depois aberto mais estes, para ler, antes do memorando
 const WEATHERS := ["rain", "fog", "clear"]   # clima sorteado no começo do turno (`-- --weather=fog` força um)
-const QUIET_SHARE := 0.6               # mesa vazia por tanto do maior intervalo do ritmo (`Pace.call_gap`): toca uma a mais
+const QUIET_SHARE := 0.35              # mesa vazia por tanto do maior intervalo do ritmo (`Pace.call_gap`): toca uma a mais
 const GIVE_UP_SEC := 60.0               # quem liga desiste se ninguém atende (as do roteiro aguentam 1,5x; retornos, 0,75x)
 const FREE_FOR_STORY := 3.0            # min de jogo até a conversa num destino que uma ligação do roteiro vai pedir terminar (`_free_dest_for`)
 const SMALLTALK_AFTER := 10.0           # segundos de silêncio esperando a transferência até puxar conversa fiada...
@@ -25,10 +27,12 @@ const DAY_DIM := 0.5   # o quanto o dia enfraquece o brilho da luminária e o ha
 const WARM_TINT := Color(1.0, 0.62, 0.36, 0.35)   # a luminária recém-acesa: o brilho dela nesse tom e nessa fração da força
 const Badges := preload("res://scripts/model/badges.gd")
 const Dialing := preload("res://scripts/dialing.gd")
+const Diary := preload("res://scripts/diary.gd")
 const Rebellion := preload("res://scripts/model/rebellion.gd")
-const SIGN_BACK := 8   # horas depois do início do turno em que o letreiro do hotel volta a acender no golpe vencido (2h)
-const MIDNIGHT := 360.0   # minutos depois do início do turno: na última noite, a conta do golpe (`_midnight`)
-const TAB_KEYS := {Tools.DIRECTORY: "tab_directory", Tools.DISPATCH: "tab_dispatch", Tools.LOGBOOK: "tab_logbook", Tools.CALL_LOG: "tab_call_log"}
+const SIGN_AFTER := 30.0   # minutos de jogo depois do veredito em que o letreiro do hotel volta a acender no golpe vencido
+const MIDNIGHT := 360.0   # minutos depois do início do turno: na última noite, daqui o veredito pode sair antes da hora
+const VERDICT := 600.0    # ...e a hora dele (4h): a conta do golpe (`_coup_verdict`)
+const TAB_KEYS := {Tools.DIRECTORY: "tab_directory", Tools.DISPATCH: "tab_dispatch", Tools.LOGBOOK: "tab_logbook", Tools.CALL_LOG: "tab_call_log", Tools.DIARY: "tab_diary"}
 var C: GameContent = GameData.CONTENT
 
 var exchange: Exchange
@@ -61,8 +65,10 @@ var live: Array[PhoneCall] = []    ## tocando ou em andamento (podem ser várias
 var emergencies: Array[PhoneCall] = []
 var _called_back: Array[StoryCall] = []   # as ligações cujo `callback` já entrou na agenda nesta noite (uma vez cada)
 var _street_waiting: Array = []    ## cenas da rua com `requires`: conferidas na hora delas (`_street_check`)
-var _verdict := false              ## a conta da meia-noite da última noite já foi feita (`_midnight`)
+var _verdict := false              ## a conta do golpe da última noite já foi feita (`_coup_verdict`)
+var _pending_n := 0                ## registros esperando no caderno, da última vez (a tira nova faz barulho)
 var ending := false
+var story_ends := {}   ## `StoryCall` -> o desfecho dela nesta noite ("connected", "elsewhere", "dropped", "missed"; `Diary`)
 var flick := false
 
 var _dgen := {}                    ## número -> geração do toque (invalida toques quando o cabo sai)
@@ -104,6 +110,7 @@ var talk_clock := 0.0              ## segundos de jogo (param na pausa); medem o
 @onready var urgency: Urgency = %Urgency
 @onready var eavesdrop: Eavesdrop = %Eavesdrop
 @onready var dialing: Dialing = %Dialing
+@onready var diary: Diary = %Diary
 @onready var training: Training = %Training
 @onready var bureaucracy: Bureaucracy = %Bureaucracy
 @onready var _hint: RichTextLabel = %Hint
@@ -137,7 +144,7 @@ func _ready() -> void:
 	if night.clears_at >= 0.0:
 		background.clears_at = SHIFT_START_HOUR * 60 + night.clears_at
 	background.night = night_no
-	if night_no == C.nights.size():   # a última noite: o letreiro do hotel apagado (acende às 2h com o golpe vencido, `_midnight`)
+	if night_no == C.nights.size():   # a última noite: o letreiro do hotel apagado (acende depois do veredito com o golpe vencido, `_coup_verdict`)
 		background.sign_from = INF
 	Rebellion.sync(flags, night_no)
 	for e in night.street_events:
@@ -185,6 +192,9 @@ func _ready() -> void:
 		var strips := notebook.pending_strips()
 		tools.set_pending(strips)
 		background.pending = strips
+		if n > _pending_n:   # a tira nova subindo do bloco (`Background._slip`)
+			Sfx.play_at("page", _across(background.prop_rect(Tools.LOGBOOK).get_center().x), -6.0)
+		_pending_n = n
 		if n > 0:
 			_teach(SAW_SLIPS, T.Key.HINT_DESK_SLIPS))
 	toll.unstamped.connect(func(t: TollTicket): supervisor.fault("toll_unstamped", t.detail()))
@@ -197,21 +207,36 @@ func _ready() -> void:
 		if on:
 			_teach(SAW_SHEET, T.Key.HINT_DESK_SHEET))
 	tools.origin = background.prop_rect   # o papel de cada ferramenta sai do objeto dela na mesa
+	tools.diary.night = night_no
+	tools.diary.pages = progress.diary if progress != null else {}
+	diary.changed.connect(func():
+		tools.diary.notes = diary.notes
+		tools.diary.tasks = diary.tasks)
+	diary.added.connect(func():   # Maria anotou: o lápis fica atravessado no diário da mesa até abrir
+		background.diary_new = true
+		Sfx.play_at("pencil", _across(background.prop_rect(Tools.DIARY).get_center().x), -6.0))
 	shelf_dialer.dialing = dialing
 	%DialView.dialing = dialing
 	shelf_dialer.clicked.connect(func(): if running and not ending: %DialView.visible = not %DialView.visible)   # o de perto, por cima do painel
 	background.prop_clicked.connect(func(id: String): if running and not ending: tools.set_tab(id))   # objetos da cena
+	background.note_clicked.connect(func(): if running and not ending: _intro.reread(background.prop_rect(Background.NOTE_ID)))   # o recado do supervisor, de perto
 	background.flare_lit.connect(func(): flags.apply("sinalizador_%d" % night_no))   # o sinal do roteiro na noite 15
-	_intro.over = board   # o bilhete do supervisor fica preso no painel da mesa comutadora
+	_intro.over = tools   # o bilhete do supervisor de perto, na metade direita, onde abrem as ferramentas
+	_intro.pinned = func(): return background.prop_rect(Background.NOTE_ID)   # começando o turno, ele vai para o quadro
 	var b3 := bureaucracy.rule("b3_codigo")
 	_intro.setup(night_no, night, progress != null, report.low_before > 0, bureaucracy.tapes.last,
-		progress.aside if progress else "", flags, bureaucracy.codes.code(night_no) if b3 in bureaucracy.live() else "")
+		progress.aside if progress else "", flags, bureaucracy.codes.code(night_no) if b3 in bureaucracy.live() else "",
+		_tonight())
+	for n: CanvasItem in [_shift_hours.get_parent().get_parent(), phone]:   # o turno aparece quando começa (`_start_shift`)
+		n.modulate.a = 0.0
 	if is_training():   # o treinamento começa com o FONE já na entrada 1
 		board.plugged(0, 1)
 	if progress != null and night_no > 1:   # o jornal da manhã, com o que aconteceu na noite anterior
 		set_news(progress.news)
 	var letter := night.letter_for(flags)   # a carta da noite, em cima do jornal desde o começo
 	tools.letter.show_letter(letter)
+	tools.letter.today = letter
+	diary.letter = letter
 	background.letter = letter != ""
 	if progress != null:
 		background.damp = progress.rains   # a mancha de umidade da sala, das noites de chuva
@@ -281,22 +306,34 @@ func _street_check() -> void:
 			_street(e)
 
 
-## Meia-noite da última noite: o golpe vence (o turno segue até o amanhecer) ou falha, e o turno acaba ali.
-func _midnight() -> void:
+## O veredito do golpe na última noite, às 4h (`VERDICT`), ou antes, da meia-noite em diante, se nem com tudo o que
+## ainda dá para fazer ele vence (`Rebellion.hopeless`): o golpe vence (o turno segue até o amanhecer) ou falha, e
+## o turno acaba ali.
+func _coup_verdict() -> void:
 	if _verdict or night_no != C.nights.size() or minutes < MIDNIGHT:
+		return
+	if minutes < VERDICT and not Rebellion.hopeless(flags, night_no + 1, minutes):
 		return
 	_verdict = true
 	var won := Rebellion.won(flags, night_no + 1)   # (a conta como depois da noite: as ordens dela já valem)
 	flags.apply(Rebellion.WON if won else Rebellion.LOST)
+	if not flags.has(Rebellion.TRAP_WARNED):
+		flags.apply(Rebellion.SEBASTIAO_TAKEN)
 	if won:
-		background.sign_from = (SHIFT_START_HOUR + SIGN_BACK) * 60.0
+		background.sign_from = (SHIFT_START_HOUR * 60.0 + minutes + SIGN_AFTER)
 	flags.apply(Rebellion.FINALS[Rebellion.final(flags, night_no + 1)])   # (a ligação da cúpula na presa, o epílogo)
 	if won and Rebellion.costly(flags):
 		flags.apply(Rebellion.COST)
 	if not won:
-		shift_end = MIDNIGHT
-		last_call = minf(last_call, MIDNIGHT)
+		shift_end = minutes
+		last_call = minf(last_call, minutes)
 		report.end = shift_end
+		for c in sched.duplicate():   # a que espera o final (a da cúpula na presa, marcada para as 4h) toca agora; as
+			if Array(c.requires).any(func(r: String) -> bool: return r in Rebellion.FINALS):   # missões que faltavam, não
+				c.at = minutes
+			elif c.beat != null:
+				sched.erase(c)
+		sched.sort_custom(func(a: PhoneCall, b: PhoneCall): return a.at < b.at)
 
 
 ## `godot -- --seed=123` repete a mesma agenda de ligações (útil para reproduzir bugs).
@@ -366,9 +403,27 @@ func set_weather(w: String, sec := 2.0) -> void:
 		Sfx.set_weather(w, sec)
 
 
+## O que a noite traz de novo, para o papel da abertura (`Intro.setup`): o banco novo da mesa, as normas que começam e
+## a carta; cada item, [chave, valores] (nome de chave `T.Key` entre os valores: traduzido ao mostrar).
+func _tonight() -> Array:
+	var out := []
+	if night_no > 1:
+		for s in GameData.sectors_for(night_no):
+			if s not in GameData.sectors_for(night_no - 1):
+				out.append([T.Key.INTRO_NEW_BANK, ["ABC"[Switchboard.SECTOR_ORDER.find(s)], s]])
+	for r in bureaucracy.live():
+		if r.from_night == night_no and r.task_text != "":
+			out.append([T.Key.INTRO_NEW_RULE, [r.task_text]])   # a tarefa do diário, traduzida ao mostrar
+	if night.letter_for(flags) != "":
+		out.append([T.Key.INTRO_LETTER, []])
+	return out
+
+
 # ================================================================ laço principal
 
 func _start_shift() -> void:
+	for n: CanvasItem in [_shift_hours.get_parent().get_parent(), phone]:
+		create_tween().tween_property(n, "modulate:a", 1.0, _intro.FADE_SEC)
 	Sfx.start_ambience(weather)
 	background.warm_up()
 	running = true
@@ -410,7 +465,7 @@ func _process(delta: float) -> void:
 				get_tree().create_timer(Background.FLIP_SEC, false).timeout.connect(
 					func() -> void: Sfx.play_at("tick", _across(background.clock_x), -3.0))
 			_minute = int(minutes)
-		_midnight()   # (antes da agenda e das cenas da rua: a ligação da cúpula e a bandeira da meia-noite da 15 pedem o final)
+		_coup_verdict()   # (antes da agenda e das cenas da rua: a ligação da cúpula e a bandeira da 15 pedem o final)
 		_run_schedule()
 		_street_check()
 		_update_line_timers()
@@ -437,6 +492,12 @@ func _process(delta: float) -> void:
 		background.minutes = SHIFT_START_HOUR * 60 + minutes
 		radio.minutes = minutes
 		_nag()
+		diary.refresh()
+		if tools.open and tools.tab == Tools.DIARY:
+			background.diary_new = false
+		if background.letter and background.letter_read and not tools.open:   # lida, a carta vai para dentro do diário
+			background.letter = false
+			tools.diary.letter = diary.letter
 		_busy_choices()
 		supervisor.check_hold()
 	background.flick = flick
@@ -483,7 +544,7 @@ func _nag() -> void:
 		if turns and quiet > SMALLTALK_AFTER and in_progress().size() < MAX_EMERGENCIES:
 			f.last_talk = talk_clock
 			conversation.turn(f)
-		elif not turns and not f.chatted and quiet > SMALLTALK_AFTER:
+		elif not turns and not f.story and not f.chatted and quiet > SMALLTALK_AFTER:   # (a do roteiro não fala de quermesse)
 			f.chatted = true
 			if randf() < SMALLTALK_CHANCE:
 				f.last_talk = talk_clock
@@ -500,8 +561,8 @@ func _nag() -> void:
 		conversation.say(f, GameData.pick(C.emergency_waiting))
 
 
-## Esc: primeiro devolve o plug que está na mão; depois fecha o discador de perto e guarda a ferramenta aberta; sem
-## nada disso, pausa o turno.
+## Esc: primeiro devolve o plug que está na mão; depois devolve o recado do supervisor relido, fecha o discador de
+## perto e guarda a ferramenta aberta; sem nada disso, pausa o turno.
 ## 1 a 4 abrem e guardam as ferramentas (só durante o turno; na pausa a árvore está parada). F1 abre o painel de
 ## debug (só em build de debug).
 func _unhandled_input(e: InputEvent) -> void:
@@ -511,6 +572,9 @@ func _unhandled_input(e: InputEvent) -> void:
 	elif e.is_action_pressed("debug") and OS.is_debug_build():
 		get_viewport().set_input_as_handled()
 		%Debug.visible = not %Debug.visible
+	elif e.is_action_pressed("pause") and running and _intro.reading and e is InputEventKey and e.keycode == KEY_ESCAPE:
+		get_viewport().set_input_as_handled()
+		_intro.put_back()
 	elif e.is_action_pressed("pause") and running and not ending and %DialView.visible and e is InputEventKey and e.keycode == KEY_ESCAPE:
 		get_viewport().set_input_as_handled()
 		%DialView.hide()
@@ -972,7 +1036,8 @@ func on_mission() -> bool:
 ## hora, `Schedule.filler`). Não com uma do roteiro para tocar (elas pedem a mesa em silêncio) nem depois da última ligação.
 func _fill_quiet() -> void:
 	_quiet_from = minutes
-	if minutes >= last_call or sched.any(func(x: PhoneCall): return x.at < minutes + Schedule.STORY_GAP):
+	if minutes >= last_call or night.quiet_from >= 0.0 and minutes >= night.quiet_from \
+			or sched.any(func(x: PhoneCall): return x.at < minutes + Schedule.STORY_GAP):
 		return
 	var c := plan.filler()
 	c.at = minutes
@@ -1152,7 +1217,7 @@ func _update_room() -> void:
 		return
 	var on := PackedStringArray()
 	for r in C.room:
-		if night_no >= r.from_night and flags.allows(r.requires):
+		if night_no >= r.from_night and night_no <= r.to_night and flags.allows(r.requires):
 			on.append(r.detail)
 	background.details = on
 
@@ -1173,6 +1238,7 @@ func _story_outcome(c: PhoneCall, reason: PhoneCall.End) -> void:
 	if reason == PhoneCall.End.CONNECTED:
 		_story_talks[c.line] = c
 		return
+	story_ends[c.beat] = "missed" if reason == PhoneCall.End.MISSED else "dropped"
 	_story_flags(c, c.beat.if_missed if reason == PhoneCall.End.MISSED else c.beat.if_dropped)
 	if reason == PhoneCall.End.OPERATOR:
 		_story_flags(c, c.beat.if_hung_up)
@@ -1185,7 +1251,9 @@ func _story_talk_over(n: int, cut: bool) -> void:
 		return
 	_story_talks.erase(n)
 	var o := c.beat
-	_story_flags(c, o.if_dropped if cut else (o.if_connected if str(c.dest_num) == c.target else o.if_elsewhere))
+	var end := "dropped" if cut else ("connected" if str(c.dest_num) == c.target else "elsewhere")
+	story_ends[o] = end
+	_story_flags(c, o.if_dropped if end == "dropped" else (o.if_connected if end == "connected" else o.if_elsewhere))
 
 
 ## Quem volta a ligar depois da ligação `c` (`StoryCall.callback`): uma vez por noite, se ela foi atendida, daqui a
@@ -1460,7 +1528,9 @@ func start_ending() -> void:
 		for f in report.later:
 			report.add(f["id"], f["time"], f["detail"], f.get("sev", -1), f.get("text", -1))
 	supervisor.shift_over()
+	diary.refresh()   # (o turno encerrado: as normas pelas advertências da noite, a rotina pendente com X)
 	if progress != null:
+		progress.diary[night_no] = diary.page()
 		if report.fired() or last:
 			Progress.clear()
 		else:
@@ -1479,6 +1549,14 @@ func start_ending() -> void:
 	if prison:   # a presa: no lugar do relatório, o homem de sobretudo atravessando a rua para o prédio (`Arrest`)
 		background.start_scene("arrest")
 		await get_tree().create_timer(Background.Arrest.end() + 1.0, false).timeout
-	else:
-		await get_tree().create_timer(5.0, false).timeout
+	# o diário abre sozinho e acaba de riscar a noite antes do memorando; no fim do jogo, a última página antes do "Fim"
+	await get_tree().create_timer(1.5, false).timeout
+	tools.set_tab(Tools.DIARY)
+	for i in DIARY_WAIT * 60:   # (o diário para quando já escreveu e riscou tudo; a espera tem limite)
+		if not tools.diary.is_processing():
+			break
+		await get_tree().process_frame
+	await get_tree().create_timer(DIARY_HOLD * (3.0 if last else 1.0), false).timeout
+	tools.close()
+	await get_tree().create_timer(1.0, false).timeout
 	_ending.play(report, not last, night.ending_for(flags), not last)   # (o fim do jogo, o epílogo ou a presa: sem relatório)

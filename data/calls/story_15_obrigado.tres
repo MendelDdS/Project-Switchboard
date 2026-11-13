@@ -1,0 +1,42 @@
+[gd_resource type="Resource" script_class="PrankCall" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/prank_call.gd" id="1_call"]
+[ext_resource type="Script" path="res://scripts/data/prank_step.gd" id="2_step"]
+
+[sub_resource type="Resource" id="Step_00"]
+script = ExtResource("2_step")
+text = "Moça? É o rapaz do ferido. O do Tonico, lembra? A senhora passou pro Dr. Augusto."
+
+[sub_resource type="Resource" id="Step_01"]
+script = ExtResource("2_step")
+text = "O doutor tirou a bala ali mesmo, na mesa da cozinha. Ele tá dormindo agora. Reclamando, mas dormindo."
+
+[sub_resource type="Resource" id="Step_02"]
+script = ExtResource("2_step")
+kind = 1
+options = PackedStringArray("Que alívio.", "Como é o seu nome?")
+sets = PackedStringArray("", "ferido_nome_15")
+
+[sub_resource type="Resource" id="Step_03"]
+script = ExtResource("2_step")
+text = "Ronaldo. Antes eu não podia dizer. Agora posso."
+requires = PackedStringArray("ferido_nome_15")
+
+[sub_resource type="Resource" id="Step_04"]
+script = ExtResource("2_step")
+kind = 2
+seconds = 0.8
+
+[sub_resource type="Resource" id="Step_05"]
+script = ExtResource("2_step")
+text = "Se a senhora não passa aquela ligação, ele não tava aqui. Era só isso. Obrigado, moça."
+
+[sub_resource type="Resource" id="Step_06"]
+script = ExtResource("2_step")
+kind = 3
+
+[resource]
+script = ExtResource("1_call")
+voice = "m"
+caller = "Rapaz"
+steps = Array[ExtResource("2_step")]([SubResource("Step_00"), SubResource("Step_01"), SubResource("Step_02"), SubResource("Step_03"), SubResource("Step_04"), SubResource("Step_05"), SubResource("Step_06")])

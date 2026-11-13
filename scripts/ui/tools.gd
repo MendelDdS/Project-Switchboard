@@ -2,10 +2,10 @@ class_name Tools
 extends VBoxContainer
 ## Ferramentas à direita da mesa: lista telefônica, mapa e despacho (a unidade de despacho), caderno, o registro das
 ## conversas e o calculógrafo dos interurbanos (o discador abre por cima da mesa comutadora, `DialView`). Ficam guardadas e a janela aparece no lugar delas; os objetos da mesa (`Background.prop_clicked`) ou as
-## teclas 1 a 4 (Main.TAB_KEYS) abrem a ferramenta: o papel sai do objeto dela na mesa (`origin`) e vem para a frente do
+## teclas 1 a 5 (Main.TAB_KEYS) abrem a ferramenta: o papel sai do objeto dela na mesa (`origin`) e vem para a frente do
 ## operador, com a forma do objeto (`PaperDeco`), e volta para ele ao guardar. Sem abas: para trocar, o objeto da mesa
 ## ou a tecla (as abas repetiam os objetos e tomavam altura do papel). A tecla da aberta ou Esc guardam. O jornal da
-## manhã (`news`) e a carta da noite (`letter`) também abrem aqui, só pelo objeto da mesa.
+## manhã (`news`, pregado no quadro de avisos) e a carta da noite (`letter`) também abrem aqui, só pelo objeto.
 
 ## O id de cada ferramenta: o mesmo nos objetos da mesa (`Background.PROPS`), nas teclas (`Main.TAB_KEYS`) e no papel
 ## aberto (`PaperDeco.kind`). Use as constantes, nunca o texto.
@@ -13,13 +13,15 @@ const DIRECTORY := "lista"
 const DISPATCH := "despacho"
 const LOGBOOK := "caderno"
 const CALL_LOG := "registro"
-const NEWS := "jornal"   ## o jornal da manhã: só pelo objeto da mesa, sem tecla
-const LETTER := "carta"   ## a carta da noite (`Night.letter_for`), em cima do jornal: só pelo objeto da mesa, sem tecla
+const NEWS := "jornal"   ## o jornal da manhã: só pelo jornal pregado no quadro de avisos, sem tecla
+const LETTER := "carta"   ## a carta da noite (`Night.letter_for`), em cima do diário: só pelo objeto da mesa, sem tecla
+const DIARY := "diario"   ## o diário de Maria (`Diary`): tecla 5
 const TOLL := "calculografo"   ## o calculógrafo dos interurbanos e os bilhetes de tarifação: só pelo objeto da mesa, sem tecla
 const SLIDE_SEC := 0.2
+const DiaryView := preload("res://scripts/ui/diary_view.gd")
 ## A cor do papel de cada ferramenta, a mesma do objeto dela na mesa (as outras, `Pal.PAPER`); a unidade de despacho é
 ## de metal (a moldura do vidro e a base das máquinas) e o calculógrafo fica no tampo da mesa.
-const PAPER := {LOGBOOK: Pal.NOTE_PAGE, CALL_LOG: Pal.SHEET, NEWS: Pal.NEWSPRINT, LETTER: Pal.SHEET_NEW, DISPATCH: Pal.PANEL, TOLL: Pal.DESK}
+const PAPER := {LOGBOOK: Pal.NOTE_PAGE, CALL_LOG: Pal.SHEET, NEWS: Pal.NEWSPRINT, LETTER: Pal.SHEET_NEW, DIARY: Pal.DIARY_PAGE, DISPATCH: Pal.PANEL, TOLL: Pal.DESK}
 
 @onready var book: PhoneBook = %PhoneBook
 @onready var dispatch: Dispatch = %Dispatch
@@ -28,10 +30,11 @@ const PAPER := {LOGBOOK: Pal.NOTE_PAGE, CALL_LOG: Pal.SHEET, NEWS: Pal.NEWSPRINT
 @onready var news: NewsView = %News
 @onready var letter: RichTextLabel = %Letter
 @onready var toll: Toll = %Toll
+@onready var diary: DiaryView = %Diary
 @onready var body: Control = %Body   ## onde a ferramenta aberta fica (e, guardada, a janela aparece)
 @onready var _paper: Control = %Paper
 @onready var _deco: PaperDeco = %Deco
-@onready var _views := {DIRECTORY: book, DISPATCH: dispatch, LOGBOOK: notebook, CALL_LOG: call_log, NEWS: news, LETTER: letter, TOLL: toll}
+@onready var _views := {DIRECTORY: book, DISPATCH: dispatch, LOGBOOK: notebook, CALL_LOG: call_log, NEWS: news, LETTER: letter, TOLL: toll, DIARY: diary}
 
 var tab := DIRECTORY   ## a última aberta
 var open := false
@@ -48,6 +51,9 @@ var _paper_box: StyleBoxFlat   # o fundo do papel, na cor da ferramenta (`PAPER`
 func _ready() -> void:
 	_paper_box = _paper.get_theme_stylebox("panel").duplicate()
 	_paper.add_theme_stylebox_override("panel", _paper_box)
+	diary.letter_open.connect(func(t: String):   # a carta guardada no diário abre no papel de carta
+		letter.show_letter(t)
+		set_tab(LETTER))
 	_apply()
 
 

@@ -45,6 +45,23 @@ script = ExtResource("8_chat")
 line = "Central, farmácia. Pois não, moça?"
 replies = Array[ExtResource("9_reply")]([SubResource("Dial_1_0"), SubResource("Dial_1_1")])
 
+[sub_resource type="Resource" id="Ans_farmacia_protesto_0"]
+script = ExtResource("9_reply")
+text = "Tem gaze e esparadrapo aí?"
+follow = "Acabou ontem, moça. Depois das explosões e do protesto na praça, veio gente a noite inteira, com medo de aparecer no hospital."
+
+[sub_resource type="Resource" id="Ans_farmacia_protesto_1"]
+script = ExtResource("9_reply")
+text = "Vocês estão bem?"
+follow = "Estamos. O estrago ficou para os lados da delegacia; aqui foi só o susto."
+
+[sub_resource type="Resource" id="Ans_farmacia_protesto"]
+script = ExtResource("8_chat")
+from_night = 5
+to_night = 5
+line = "Farmácia Central, boa noite."
+replies = Array[ExtResource("9_reply")]([SubResource("Ans_farmacia_protesto_0"), SubResource("Ans_farmacia_protesto_1")])
+
 [resource]
 script = ExtResource("1_entry")
 name = "Farmácia Central"
@@ -54,6 +71,6 @@ hello = "Farmácia Central, boa noite."
 category = "farmácia"
 spoken = "a Farmácia Central"
 motives = Array[ExtResource("2_motive")]([SubResource("Motive_18"), SubResource("Motive_19")])
-answers = Array[ExtResource("8_chat")]([SubResource("Dial_0"), SubResource("Dial_1")])
+answers = Array[ExtResource("8_chat")]([SubResource("Dial_0"), SubResource("Dial_1"), SubResource("Ans_farmacia_protesto")])
 bye = "Boa noite. Melhoras para quem precisa."
 closes = 240.0

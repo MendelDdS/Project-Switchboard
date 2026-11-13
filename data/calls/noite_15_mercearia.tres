@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="TransferCall" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/transfer_call.gd" id="1_call"]
+
+[resource]
+script = ExtResource("1_call")
+voice = "f"
+caller = "Dona Filomena"
+caller_name = "Filomena Prates"
+opening = PackedStringArray("Boa noite. A Mercearia Silva, por favor.", "Quero encomendar o pão de amanhã.")
+repeat = "A mercearia, moça. A do Silva."
+target = "262"
+destination = "Mercearia Silva"
+thanks = "Obrigada, moça. Boa noite pra você."
+overheard = PackedStringArray("Mercearia? É a Filomena. Separa dez pães pra amanhã cedo?", "Separo, mas não sei se abro. Tem soldado na esquina da rádio.", "Dizem que amanhã vai ter coisa.", "Dizem tanta coisa. Meu marido encheu a caixa d'água.", "O meu comprou vela e querosene.", "Então venha às seis. Se eu abrir, abro cedo.")

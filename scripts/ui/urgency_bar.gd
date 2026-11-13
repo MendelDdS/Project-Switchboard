@@ -5,7 +5,7 @@ extends Control
 ## Esvazia da direita para a esquerda pelos três estágios (inicial, agravando, agravada) e pisca quando muda de estágio. Só aparece com o operador na linha da emergência;
 ## fora dela continua correndo (a luz de ocorrência do rádio mostra). O estado fica na PhoneCall (`Urgency`).
 
-const COLORS := [Pal.GREEN, Pal.AMBER, Pal.RED]
+const COLORS := [Pal.GREEN, Pal.AMBER, Pal.RED]   # (o verde, pelo `Pal.ok`: `_col`)
 const NAMES := [T.Key.URGENCY_0, T.Key.URGENCY_1, T.Key.URGENCY_2]
 const BLINK_SEC := 1.4   ## quanto tempo pisca ao mudar de estágio
 
@@ -35,7 +35,7 @@ func _draw() -> void:
 	if not _active() or fmod(_blink, 0.3) > 0.15:
 		return
 	var e: EmergencyCall = call.data
-	var col: Color = COLORS[call.stage]
+	var col := _col(call.stage)
 	draw_string(Pal.ui, Vector2(0, 10), T.text(NAMES[call.stage]), HORIZONTAL_ALIGNMENT_LEFT, -1, 11, col)
 	var label_w := 0.0   # a do nome mais longo: a barra não muda de lugar com o estágio
 	for k in NAMES:
@@ -46,10 +46,14 @@ func _draw() -> void:
 	var x := r.end.x
 	for i in 3:   # as três zonas, da direita (inicial) para a esquerda (agravada)
 		var w := r.size.x * e.stage_sec[i] / total
-		draw_rect(Rect2(x - w, r.position.y, w, r.size.y), (COLORS[i] as Color).darkened(0.72))
+		draw_rect(Rect2(x - w, r.position.y, w, r.size.y), _col(i).darkened(0.72))
 		if i > 0:
 			draw_rect(Rect2(x - 1, r.position.y, 2, r.size.y), Pal.EDGE)
 		x -= w
 	var left := floorf(r.size.x * clampf(1.0 - call.urgency / total, 0.0, 1.0))
 	draw_rect(Rect2(r.position, Vector2(left, r.size.y)), col)
 	Bloom.light(self, Rect2(r.position, Vector2(left, r.size.y)), col, 0.6)
+
+
+func _col(stage: int) -> Color:
+	return Pal.ok() if stage == 0 else COLORS[stage]

@@ -11,5 +11,6 @@ from_night = 14
 to_night = 15
 severity = 2
 fault_text = "FAULT_BLOCKED"
+task_text = "DIARY_B2_RADIO_TV"
 blocked = PackedStringArray("390", "155")
 reactions = PackedStringArray("Bloqueada? Desde quando?", "Então é assim agora. Tá bom.", "Ninguém mais pode falar com ninguém nesta cidade. Boa noite.")

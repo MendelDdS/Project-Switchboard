@@ -16,9 +16,9 @@ extends PanelContainer
 ## Terminou de dizer `text` (o mesmo texto passado a `say`).
 signal said(text: String)
 
-const LED_OFF := Color("3a1a12")
-const ALERT_OFF := Color("1a1712")
-const ALERT_COLORS := [Pal.GREEN, Pal.AMBER, Pal.RED]   # estágios da barra de agravamento
+const LED_OFF := Pal.LED_OFF
+const ALERT_OFF := Pal.ALERT_OFF
+const ALERT_COLORS := [Pal.GREEN, Pal.AMBER, Pal.RED]   # estágios da barra de agravamento (o verde, pelo `Pal.ok`: `_alert_col`)
 const ALERT_BLINK := 1.4   # segundos piscando quando o estágio muda (no vermelho, pisca sempre)
 const PULSE_HZ := [0.7, 1.2, 2.2]   # moldura: pulsa mais rápido quanto pior o estágio
 const HISTORY := 4   # mensagens anteriores guardadas na tela (aparecem as que couberem, as mais novas)
@@ -70,13 +70,13 @@ func _process(delta: float) -> void:
 	_t += delta
 	_blink = maxf(0.0, _blink - delta)
 	var lit := _alert >= 0 and not ((_alert == 2 or _blink > 0.0) and fmod(_t, 0.5) > 0.25)
-	_alert_lamp.color = ALERT_COLORS[_alert] if lit else ALERT_OFF
-	_alert_label.modulate = ALERT_COLORS[_alert] if _alert >= 0 else Color.WHITE
+	_alert_lamp.color = _alert_col() if lit else ALERT_OFF
+	_alert_label.modulate = _alert_col() if _alert >= 0 else Color.WHITE
 	if not _busy:
 		if _away != "":
 			_archive()
 			_screen.text = _away
-			_screen.add_theme_color_override("font_color", ALERT_COLORS[_alert])
+			_screen.add_theme_color_override("font_color", _alert_col())
 			_away_shown = true
 		elif _away_shown:
 			_away_shown = false
@@ -119,7 +119,7 @@ func _draw() -> void:
 		return
 	# o rádio inteiro acende: moldura grossa pulsando na cor do estágio
 	var a := 0.55 + 0.45 * sin(_t * TAU * PULSE_HZ[_alert])
-	var col := (ALERT_COLORS[_alert] as Color)
+	var col := _alert_col()
 	draw_rect(Rect2(Vector2(2, 2), size - Vector2(4, 4)), Color(col, a), false, 4.0)
 	draw_rect(Rect2(Vector2(7, 7), size - Vector2(14, 14)), Color(col, a * 0.35), false, 2.0)
 
@@ -182,3 +182,7 @@ func _show_history() -> void:
 			break
 		n -= 1
 	_shown = n
+
+
+func _alert_col() -> Color:
+	return Pal.ok() if _alert == 0 else ALERT_COLORS[_alert]

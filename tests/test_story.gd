@@ -74,6 +74,14 @@ func _initialize() -> void:
 	for req in [[sucesso, "!" + R.COST], [sucesso, R.COST], [R.FINALS[R.Final.FAILURE]]]:   # a mãe da Cecília liga em todos, cada um com a sua conversa
 		ok(mother.steps.filter(func(st: PrankStep): return st.requires == PackedStringArray(req)).size() >= 5, "epílogo: a mãe com a conversa de " + str(req))
 
+	# a madrugada da 15: o reforço da Capital vale o dobro, o aviso da armadilha soma; sem chance nem com o aviso, o
+	# veredito sai antes das 4h
+	var base := R.points(_f(full), 16)
+	ok(R.points(_f(full + [R.REINFORCEMENT]), 16) == base - 2 and R.points(_f(full + [R.TRAP_WARNED]), 16) == base + 1,
+		"madrugada: o reforço tira 2, o aviso da armadilha soma 1")
+	ok(not R.hopeless(_f(full), 16, 360.0) and R.hopeless(_f([]), 16, 360.0), "madrugada: sem chance só quando nem o aviso salva")
+	ok(R.WOUNDED_LOST in R.COSTLY, "madrugada: o ferido perdido custou gente")
+
 	# as conclusões viram marcadores, para o roteiro usar
 	var f := _f(full)
 	R.sync(f, 11)
@@ -114,17 +122,24 @@ func _initialize() -> void:
 	ok(stone.size() == 1 and stone[0].requires == PackedStringArray(["!chance_alta"]), "a pedra (14) só sem chances altas")
 	ok(raid.size() == 1 and raid[0].requires == PackedStringArray([R.HOTEL_TAPED]), "a batida (13) só com uma fita do hotel na polícia")
 	var banner: Array = C.nights[14].street_events.filter(func(e): return e.kind == "banner")
-	ok(banner.size() == 1 and banner[0].at == 360.0 and banner[0].requires == PackedStringArray([R.WON]), "a bandeira (15) à meia-noite, só com o golpe vencido")
+	ok(banner.size() == 1 and banner[0].at == 600.0 and banner[0].requires == PackedStringArray([R.WON]), "a bandeira (15) no veredito das 4h, só com o golpe vencido")
 	for n_i in [12, 13]:
 		ok(C.nights[n_i].street_events.any(func(e): return e.kind == "stranger" and e.at == 240.0), "o homem de sobretudo às 22h na noite %d" % (n_i + 1))
-	# a presa na 15 (a cúpula à meia-noite) e o epílogo (a 16, fora de `nights`): uma ligação por final, a carta e o fecho
+	# a presa na 15 (a cúpula no veredito) e o epílogo (a 16, fora de `nights`): uma ligação por final, a carta e o fecho
 	var presa: Array = C.nights[14].story.filter(func(x: StoryCall): return x.requires == PackedStringArray([R.FINALS[R.Final.PRISON]]))
-	ok(presa.size() == 1 and presa[0].at == 360.0 and presa[0].authority and not presa[0].again, "presa: a cúpula liga à meia-noite da 15")
+	ok(presa.size() == 1 and presa[0].at == 600.0 and presa[0].authority and not presa[0].again, "presa: a cúpula liga no veredito da 15 (às 4h, ou antes, quando ele sai antes)")
 	var epi: Night = C.epilogue
 	ok(epi != null and not epi in C.nights, "o epílogo, fora das noites")
 	for fin in [[sucesso, R.WON], [sucesso, R.WON, R.COST], [R.FINALS[R.Final.FAILURE], R.LOST]]:
 		var fl := _f(fin)
 		ok(epi.ending_for(fl) != null and epi.story.any(func(x: StoryCall): return fl.allows(x.requires)), "epílogo: fecho e ligação no final " + str(fin))
+	# a última página do diário antes do "Fim": uma, e só uma, por final (a vitória amarga pela causa)
+	var last_page := func(n: Night, fl: Array) -> int:
+		return n.diary.filter(func(l: Night.DiaryLine) -> bool: return l.at_close and l.due(_f(fl), {}, false, true)).size()
+	for fin in [[sucesso, R.PARISH], [sucesso, R.COST], [sucesso, R.COST, R.PARISH, R.TAPE_GUNS], [sucesso, R.COST, R.PARISH, R.TAPE_GROUPS, R.TAPE_GROUP_C],
+			[sucesso, R.COST, R.PARISH, R.WOUNDED_LOST], [R.FINALS[R.Final.FAILURE]]]:
+		ok(last_page.call(epi, fin) == 1, "epílogo: uma última página no final " + str(fin))
+	ok(last_page.call(C.nights[14], [R.FINALS[R.Final.PRISON]]) == 1 and last_page.call(C.nights[14], [sucesso]) == 0, "presa: a última página na 15, só nela")
 	ok(epi.letter_for(_f([R.FINALS[R.Final.FAILURE]])) != "" and epi.letter_for(_f([R.FINALS[R.Final.SUCCESS]])) == "", "epílogo: a carta do supervisor só no fracasso")
 	ok(C.nights[14].ending_for(_f([R.FINALS[R.Final.SUCCESS]])).title != "" and C.nights[14].ending_for(_f([R.FINALS[R.Final.FAILURE]])) == null,
 		"noite 15: o encontro com Sebastião só no sucesso")

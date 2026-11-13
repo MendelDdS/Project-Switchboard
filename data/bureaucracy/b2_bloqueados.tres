@@ -89,6 +89,7 @@ from_night = 5
 to_night = 6
 severity = 2
 fault_text = "FAULT_BLOCKED"
+task_text = "DIARY_B2_BAR"
 blocked = PackedStringArray("327")
 tests = Array[ExtResource("2_call")]([SubResource("Test_bloq"), SubResource("Test_bar"), SubResource("Test_urgente"), SubResource("Test_acordo"), SubResource("Test_sinal"), SubResource("Test_semsinal")])
 reactions = PackedStringArray("Bloqueado? Tá bom, então. Boa noite.", "Agora até o bar é proibido? Que governo é esse...", "Ah, deixa pra lá. Eu passo lá amanhã.")

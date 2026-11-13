@@ -35,6 +35,23 @@ script = ExtResource("8_chat")
 line = "São Lucas. A senhora quer notícia de algum internado?"
 replies = Array[ExtResource("9_reply")]([SubResource("Dial_1_0"), SubResource("Dial_1_1")])
 
+[sub_resource type="Resource" id="Ans_hospital_lotado_0"]
+script = ExtResource("9_reply")
+text = "Dá para visitar um paciente hoje?"
+follow = "Visita hoje não tem: estamos lotados desde ontem. Não posso dar número; só digo que tem maca no corredor."
+
+[sub_resource type="Resource" id="Ans_hospital_lotado_1"]
+script = ExtResource("9_reply")
+text = "Tem médico de plantão?"
+follow = "Todos. Ninguém foi para casa desde ontem à noite."
+
+[sub_resource type="Resource" id="Ans_hospital_lotado"]
+script = ExtResource("8_chat")
+from_night = 10
+to_night = 10
+line = "Hospital São Lucas, recepção."
+replies = Array[ExtResource("9_reply")]([SubResource("Ans_hospital_lotado_0"), SubResource("Ans_hospital_lotado_1")])
+
 [resource]
 script = ExtResource("1_entry")
 name = "Hospital São Lucas"
@@ -44,4 +61,4 @@ number = "213"
 voice = "f"
 hello = "Hospital São Lucas, recepção."
 motives = Array[ExtResource("2_motive")]([])
-answers = Array[ExtResource("8_chat")]([SubResource("Dial_0"), SubResource("Dial_1")])
+answers = Array[ExtResource("8_chat")]([SubResource("Dial_0"), SubResource("Dial_1"), SubResource("Ans_hospital_lotado")])

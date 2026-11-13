@@ -1,0 +1,70 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/sign_field.gd" id="1_sign"]
+
+[node name="SignField" type="Button"]
+custom_minimum_size = Vector2(150, 38)
+size_flags_horizontal = 0
+size_flags_vertical = 0
+focus_mode = 0
+flat = true
+script = ExtResource("1_sign")
+
+[node name="VBox" type="VBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_constants/separation = 0
+
+[node name="Row" type="HBoxContainer" parent="VBox"]
+custom_minimum_size = Vector2(0, 22)
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 6
+
+[node name="Mark" type="RichTextLabel" parent="VBox/Row"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 8
+mouse_filter = 2
+theme_type_variation = &"HandText"
+fit_content = true
+autowrap_mode = 0
+scroll_active = false
+text = "×"
+auto_translate_mode = 2
+
+[node name="Name" type="RichTextLabel" parent="VBox/Row"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 8
+mouse_filter = 2
+theme_type_variation = &"HandText"
+fit_content = true
+autowrap_mode = 0
+scroll_active = false
+auto_translate_mode = 2
+
+[node name="Line" type="ColorRect" parent="VBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 1)
+layout_mode = 2
+mouse_filter = 2
+color = Color(0.16470589, 0.13725491, 0.09803922, 0.5)
+
+[node name="Who" type="Label" parent="VBox"]
+unique_name_in_owner = true
+layout_mode = 2
+mouse_filter = 2
+theme_type_variation = &"InkSoftLabel"
+horizontal_alignment = 1
+auto_translate_mode = 2
+
+[node name="Pen" type="TextureRect" parent="."]
+unique_name_in_owner = true
+layout_mode = 0
+mouse_filter = 2

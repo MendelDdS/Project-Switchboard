@@ -69,7 +69,7 @@ func _lamp(st: int, ms: int) -> Array:
 		Exchange.Line.HOLD:
 			return [Pal.AMBER, 1.0 if (ms / 800) % 2 == 0 else 0.45]
 		Exchange.Line.CONN:
-			return [Pal.GREEN, 1.0]
+			return [Pal.ok(), 1.0]
 		Exchange.Line.DONE:
 			return [Pal.RED, 1.0]
 	return [LAMP_OFF, 0.0]
@@ -81,7 +81,7 @@ func _dest_lamp(st: int, ms: int) -> Array:
 		Exchange.Dest.RING:
 			return _lamp(Exchange.Line.RING, ms)
 		Exchange.Dest.CONN:
-			return [Pal.GREEN, 1.0]
+			return [Pal.ok(), 1.0]
 		Exchange.Dest.DONE:
 			return [Pal.RED, 1.0]
 	return [LAMP_OFF, 0.0]
@@ -389,7 +389,7 @@ static func _round_dist(p: Vector2, r: Rect2, rad: float) -> float:
 ## A legenda das lâmpadas, na faixa das entradas, alinhada à direita e logo acima das lâmpadas que ela explica, na
 ## fonte gravada do painel (`tiny`; em 11 não cabia ali). No pé do painel, os plugs guardados passavam na frente dela.
 func _draw_legend() -> void:
-	var leg := [[Pal.AMBER, T.Key.LEGEND_RING], [Pal.GREEN, T.Key.LEGEND_CONN], [Pal.RED, T.Key.LEGEND_DONE], [LAMP_OFF, T.Key.LEGEND_FREE]]
+	var leg := [[Pal.AMBER, T.Key.LEGEND_RING], [Pal.ok(), T.Key.LEGEND_CONN], [Pal.RED, T.Key.LEGEND_DONE], [LAMP_OFF, T.Key.LEGEND_FREE]]
 	var texts := []
 	var width := -10.0
 	for item in leg:

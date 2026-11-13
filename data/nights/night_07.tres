@@ -1,6 +1,7 @@
 [gd_resource type="Resource" script_class="Night" format=3]
 
 [ext_resource type="Script" path="res://scripts/data/story_text.gd" id="j_story_text"]
+[ext_resource type="Script" path="res://scripts/data/diary_line.gd" id="dl_diary_line"]
 [ext_resource type="Script" path="res://scripts/data/night.gd" id="1_night"]
 [ext_resource type="Script" path="res://scripts/data/street_event.gd" id="2_event"]
 [ext_resource type="Script" path="res://scripts/data/prank_step.gd" id="x0_prank_step"]
@@ -143,6 +144,29 @@ callback = [SubResource("J_back_raimundo_padre"), SubResource("J_back_raimundo_c
 script = ExtResource("x2_story_call")
 call = ExtResource("j_taxi")
 
+[sub_resource type="Resource" id="N_0"]
+script = ExtResource("dl_diary_line")
+text = "Liguei pro bar e avisei: agora a mesa grava as conversas."
+requires = PackedStringArray("avisou_bar_7")
+
+[sub_resource type="Resource" id="N_1"]
+script = ExtResource("dl_diary_line")
+text = "A professora leu a redação do Miguel pra turma. O irmão dele anda estranho."
+call = SubResource("A_story_07_miguel")
+requires = PackedStringArray("miguel_amigo")
+
+[sub_resource type="Resource" id="N_2"]
+script = ExtResource("dl_diary_line")
+text = "Ninguém me pediu. Avisei o bar por minha conta."
+requires = PackedStringArray("avisou_bar_7")
+at_close = true
+
+[sub_resource type="Resource" id="N_3"]
+script = ExtResource("dl_diary_line")
+text = "A fita roda, e eu fico pensando em quem vai ouvir."
+requires = PackedStringArray("!avisou_bar_7")
+at_close = true
+
 [resource]
 script = ExtResource("1_night")
 note = "O supervisor deixou um recado: \"Instalaram um gravador na sua mesa, a pedido das autoridades. A linha do bar foi liberada, e elas querem gravado tudo o que for para lá. Em noite com ligação para o bar, entregue às autoridades pelo menos uma fita, mesmo que a conversa não tenha nada: grave assim mesmo, para não ter reclamação. E daqui em diante, o que as autoridades pedirem, atenda, mesmo contra as regras: não vai haver advertência.\""
@@ -153,3 +177,4 @@ news_stories = PackedStringArray("Baile da praça termina em revista geral\nPert
 calls = Array[ExtResource("x2_story_call")]([SubResource("J_call_baile"), SubResource("J_call_parente"), SubResource("J_call_taxi")])
 news_photo = "viatura"
 news_caption = "A barreira na saída da praça."
+diary = Array[ExtResource("dl_diary_line")]([SubResource("N_0"), SubResource("N_1"), SubResource("N_2"), SubResource("N_3")])

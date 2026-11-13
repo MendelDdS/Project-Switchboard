@@ -1,6 +1,7 @@
 [gd_resource type="Resource" script_class="Night" format=3]
 
 [ext_resource type="Script" path="res://scripts/data/story_text.gd" id="j_story_text"]
+[ext_resource type="Script" path="res://scripts/data/diary_line.gd" id="dl_diary_line"]
 [ext_resource type="Script" path="res://scripts/data/night.gd" id="1_night"]
 [ext_resource type="Script" path="res://scripts/data/chat_topic.gd" id="8_chat"]
 [ext_resource type="Script" path="res://scripts/data/chat_reply.gd" id="9_reply"]
@@ -80,6 +81,34 @@ again = false
 script = ExtResource("3_story")
 call = ExtResource("j_panfleto")
 
+[sub_resource type="Resource" id="N_0"]
+script = ExtResource("dl_diary_line")
+text = "O homem do bar de novo. Me chamou de Maria. Passei."
+requires = PackedStringArray("bar_2")
+
+[sub_resource type="Resource" id="N_1"]
+script = ExtResource("dl_diary_line")
+text = "Ele pediu o bar três vezes. Nas três, não passei."
+call = SubResource("S_homem3")
+outcomes = PackedStringArray("dropped", "elsewhere")
+
+[sub_resource type="Resource" id="N_2"]
+script = ExtResource("dl_diary_line")
+text = "Um rapaz ofereceu uma música na rádio pra moça de fita amarela. Nem o nome dela ele sabe."
+call = SubResource("A_story_02_otavio_radio")
+
+[sub_resource type="Resource" id="N_3"]
+script = ExtResource("dl_diary_line")
+text = "Não sei quem é esse homem. Ele sabe quem eu sou."
+requires = PackedStringArray("bar_2")
+at_close = true
+
+[sub_resource type="Resource" id="N_4"]
+script = ExtResource("dl_diary_line")
+text = "Ele disse que era urgente. Fiz bem em não passar? Não sei."
+requires = PackedStringArray("!bar_2")
+at_close = true
+
 [resource]
 script = ExtResource("1_night")
 note = "O supervisor deixou um recado: \"Hoje é como ontem: atenda, transfira e anote tudo na ficha.\""
@@ -89,3 +118,4 @@ news_stories = PackedStringArray("Panfletos contra a Alta Cúpula aparecem na es
 calls = Array[ExtResource("3_story")]([SubResource("J_call_panfleto")])
 news_photo = "papeis"
 news_caption = "Folhas recolhidas na plataforma da estação."
+diary = Array[ExtResource("dl_diary_line")]([SubResource("N_0"), SubResource("N_1"), SubResource("N_2"), SubResource("N_3"), SubResource("N_4")])

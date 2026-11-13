@@ -1,14 +1,14 @@
-# As beiras consertadas no plano de pixel (`PLANO_PIXEL.md`), conferidas pelo `tools/visual.sh` com o `tools/edge_steps.gd`:
+# As beiras consertadas no plano de pixel (HISTORICO 392), conferidas pelo `tools/visual.sh` com o `tools/edge_steps.gd`:
 # captura do visual.sh | o que é | x0,y0,x1,y1,lado do fundo (px da tela de 960) | degraus aprovados
 # Numa beira deitada o fundo fica em cima ou embaixo (u, d); numa em pé, dos lados (l, r). O relógio fica de fora: o
-# peitoril atrás dele e a sombra no tampo confundem a medida.
-sala_2100 | bloco de fichas, esquerda | 634,356,654,388,l | 2-1-2-1-2-1-2-2-1-2-1-2-1-2-1-2-1-2-2-1-2
-sala_2100 | bloco de fichas, direita | 737,360,762,390,r | 1-1-1-1-1-1-1-1-1-1-1-1-1-1-1-1-1-1-1-1-1-1-1-1-1-1-1-1-3
-sala_2100 | livros, lado direito da capa de cima | 712,265,721,281,r | 1-2-2-2-1-2-2-2-2-1
-sala_2100 | mesa comutadora, beira da lateral no tampo | 418,382,430,340,r | 2-4-3-4-3-4-3-4-3-4-3-4-2
-sala_2100 | peitoril | 724,227,856,266,u | 4-3-4-3-4-4-3-4-3-4-4-3-4-3-4-3-4-4-3-4-3-4-3-4-4-3-4-3-4-3-4-4-3-4-3-4-3-1
-amanhecer | bloco de fichas, esquerda | 634,356,654,388,l | 2-1-2-1-2-1-2-2-1-2-1-2-1-2-1-2-1-2-2-1-2
-amanhecer | bloco de fichas, direita | 737,360,762,390,r | 1-1-1-1-1-1-1-1-1-1-1-1-1-1-1-1-1-1-1-1-1-1-1-1-1-1-1-1-3
-amanhecer | livros, lado direito da capa de cima | 712,265,721,281,r | 1-2-2-2-1-2-2-2-2-1
-amanhecer | mesa comutadora, beira da lateral no tampo | 418,382,430,340,r | 2-4-3-4-3-4-3-4-3-4-3-4-2
-amanhecer | peitoril | 724,227,856,266,u | 4-3-4-3-4-4-3-4-3-4-4-3-4-3-4-3-4-4-3-4-3-4-3-4-4-3-4-3-4-3-4-4-3-4-3-4-3-1
+# peitoril atrás dele e a sombra no tampo confundem a medida. Remedidas em 08/11/2026, com os objetos no lugar do diário.
+sala_2100 | bloco de fichas, esquerda | 668,356,682,390,l | 2-2-2-2-2-2-2-2-2-3-2-2-2-2-2-2-2
+sala_2100 | bloco de fichas, direita | 758,354,788,390,r | 1-1-1-1-1-1-1-1-1-1-1-1-1-1-1-1-1-1-1-1-1-1-1-1-1-1-1-1-1-1-1-1-1-1-3
+sala_2100 | livros, lado direito da capa de cima | 719,262,735,280,r | 1-1-1-1-1-1-1-1-1-1-1-1-1-1-1-1-1-1-1
+sala_2100 | mesa comutadora, beira da lateral no tampo | 466,324,449,395,r | 4-4-4-4-4-4-4-4-4-4-4-4-4-4-4-4-4-4
+sala_2100 | peitoril | 850,260,940,284,u | 2-3-3-4-3-4-3-3-4-3-4-3-4-3-3-4-3-4-3-4-3-3-4-3-4-3-3-1
+amanhecer | bloco de fichas, esquerda | 668,356,682,390,l | 2-2-2-2-2-2-2-2-2-3-2-2-2-2-2-2-2
+amanhecer | bloco de fichas, direita | 758,354,788,390,r | 1-1-1-1-1-1-1-1-1-1-1-1-1-1-1-1-1-1-1-1-1-1-1-1-1-1-1-1-1-1-1-1-1-1-3
+amanhecer | livros, lado direito da capa de cima | 719,262,735,280,r | 1-1-1-1-1-1-1-1-1-1-1-1-1-1-1-1-1-1-1
+amanhecer | mesa comutadora, beira da lateral no tampo | 466,324,449,395,r | 4-4-4-4-4-4-4-4-4-4-4-4-4-4-4-4-4-4
+amanhecer | peitoril | 850,260,940,284,u | 2-3-3-4-3-4-3-3-4-3-4-3-4-3-3-4-3-4-3-4-3-3-4-3-4-3-3-1
