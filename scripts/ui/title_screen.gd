@@ -9,6 +9,7 @@ extends Control
 ## já no jogo.
 
 const MAIN := "res://scenes/main.tscn"
+const BOARD := preload("res://scripts/ui/title_board.gd")
 const RING_GAP := Vector2(25.0, 50.0)   ## de quanto em quanto tempo (s, sorteado) uma linha chama...
 const RING_SEC := 4.5   ## ...e quanto tempo ela fica chamando (dois toques) antes de desistir
 const FADE_SEC := 0.9   ## o escuro ao começar o jogo (e o clarear, já nele)
@@ -39,19 +40,26 @@ var _ring := Timer.new()
 func _ready() -> void:
 	%Load.visible = _saved()
 	%Quit.visible = OS.get_name() != "Web"   # (no navegador, sair do jogo não fecha nada)
-	var lamp := PixelArt.disc(11, [[2.5, Color.WHITE], [5.5, Color(0.92, 0.92, 0.92), Color(0.78, 0.78, 0.78), Color(0.58, 0.58, 0.58)]], Vector2(0.7071, -0.7071))
+	var lamp: ImageTexture = BOARD.lamp_art()
 	for b: Button in [%Load, %New, %Settings, %Quit]:
 		b.icon = lamp   # a lâmpada apagada; na escolhida, acesa (as cores do ícone na variação `TitleButton`)
 	for b: Button in [%Load, %New, %Settings, %Quit, %Credits]:
 		b.mouse_entered.connect(b.grab_focus)   # o mouse escolhe como as setas: uma lâmpada acesa só
 	%Version.texture = PixelArt.tiny(Settings.version_text())
 	_texts()
+	for b: Button in [%Load, %New, %Quit, %Credits]:   # outra opção escolhida fecha as configurações abertas ao lado
+		b.pressed.connect(func(): if %PauseMenu.visible: %PauseMenu.close_settings())
 	%Load.pressed.connect(_slots.bind(Pick.LOAD))
 	%New.pressed.connect(_slots.bind(Pick.NEW))
 	%Back.pressed.connect(_slots.bind(Pick.NONE))
 	%Back.icon = lamp
 	%Back.mouse_entered.connect(%Back.grab_focus)
-	%Settings.pressed.connect(%PauseMenu.open_settings)
+	%Settings.toggle_mode = true   # as configurações abrem ao lado do menu, com a lâmpada dela acesa
+	%Settings.pressed.connect(func():
+		if %PauseMenu.visible:
+			%PauseMenu.close_settings()
+		else:
+			%PauseMenu.open_settings(false))
 	%Quit.pressed.connect(get_tree().quit)
 	%Credits.pressed.connect(_paper)
 	%Erase.pressed.connect(func(): _confirm.call())
@@ -73,7 +81,11 @@ func _ready() -> void:
 				if not %Load.visible:
 					_picking = Pick.NONE
 				_close_paper()))
-	%PauseMenu.visibility_changed.connect(func(): if not %PauseMenu.visible: _choose())
+	%PauseMenu.visibility_changed.connect(func():
+		var on: bool = %PauseMenu.visible
+		%Settings.set_pressed_no_signal(on)
+		if not on:
+			_choose())
 	Sfx.ring_stop()
 	Sfx.muffle(false)
 	Sfx.start_ambience("rain" if randf() < RAIN_CHANCE else "clear")
@@ -107,9 +119,8 @@ func _texts() -> void:
 	var title := T.text(T.Key.GAME_TITLE)
 	var cut := title.rfind(" ")
 	var rest := title.left(maxi(cut, 0))
-	var ink := {"u": Pal.BOARD_INK.lightened(0.25), "d": Pal.BOARD_INK.darkened(0.3), "+": Pal.BOARD_INK}
-	var small := PixelArt.art(PixelArt.big(rest.to_upper(), 1), ink).get_image()
-	var big := PixelArt.art(PixelArt.big(title.substr(cut + 1).to_upper(), 2), ink).get_image()
+	var small: Image = BOARD.logo_art(rest, 1).get_image()
+	var big: Image = BOARD.logo_art(title.substr(cut + 1), 2).get_image()
 	var imgs: Array = [small, big] if cut > 0 else [big]
 	var h := 0
 	var w := 0

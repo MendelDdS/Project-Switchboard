@@ -64,15 +64,7 @@ func _ready() -> void:
 	_fone = _fone_art()
 	_shade = _light_art()
 	_side = _side_art()
-	_wall = GradientTexture2D.new()   # a parede atrás da mesa: a luz da sala caindo do alto e sumindo no escuro à esquerda
-	_wall.width = 240   # (um quarto da tela: liso, sem peso)
-	_wall.height = 135
-	_wall.fill = GradientTexture2D.FILL_RADIAL
-	_wall.fill_from = Vector2(0.62, -0.15)
-	_wall.fill_to = Vector2(0.0, 0.95)
-	_wall.gradient = Gradient.new()
-	_wall.gradient.set_color(0, Pal.TITLE_WALL)
-	_wall.gradient.set_color(1, Color(Pal.TITLE_WALL, 0.0))
+	_wall = wall_art()
 	_glow = GradientTexture2D.new()   # (feita aqui: criada no `_draw`, ainda não estava pronta e saía um quadrado branco)
 	_glow.fill = GradientTexture2D.FILL_RADIAL
 	_glow.fill_from = Vector2(0.5, 0.5)
@@ -87,6 +79,31 @@ func _ready() -> void:
 		lit.draw.connect(_draw_lit.bind(lit, Vector2(COL0 + PITCH * (n - 1), Y["lamp"])))
 		add_child(lit)
 		_lit[n] = lit
+
+
+## A parede atrás da mesa (e atrás do espectro da pausa, `pause_spectrum.gd`): a luz da sala caindo do alto e
+## sumindo no escuro à esquerda.
+static func wall_art() -> GradientTexture2D:
+	var g := GradientTexture2D.new()
+	g.width = 240   # (um quarto da tela: liso, sem peso)
+	g.height = 135
+	g.fill = GradientTexture2D.FILL_RADIAL
+	g.fill_from = Vector2(0.62, -0.15)
+	g.fill_to = Vector2(0.0, 0.95)
+	g.gradient = Gradient.new()
+	g.gradient.set_color(0, Pal.TITLE_WALL)
+	g.gradient.set_color(1, Color(Pal.TITLE_WALL, 0.0))
+	return g
+
+
+## A lâmpada apagada ao lado de cada opção do menu (acesa na escolhida, pelas cores do ícone na variação `TitleButton`).
+static func lamp_art() -> ImageTexture:
+	return PixelArt.disc(11, [[2.5, Color.WHITE], [5.5, Color(0.92, 0.92, 0.92), Color(0.78, 0.78, 0.78), Color(0.58, 0.58, 0.58)]], LIGHT)
+
+
+## Uma linha do nome em letra grande (`big` vezes o dobro da fonte), em relevo, na tinta das legendas do painel.
+static func logo_art(text: String, big: int) -> ImageTexture:
+	return PixelArt.art(PixelArt.big(text.to_upper(), big), {"u": Pal.BOARD_INK.lightened(0.25), "d": Pal.BOARD_INK.darkened(0.3), "+": Pal.BOARD_INK})
 
 
 func _process(delta: float) -> void:

@@ -399,9 +399,12 @@ func _ready() -> void:
 			m.pause()
 			if _args.has("ask"):
 				m._pause.get_node("%RestartNight").pressed.emit()
-		"settings":
+		"settings":   # a coluna das configurações ao lado do menu da pausa; --only: abertas pelo bilhete, sem o menu
 			m.pause()
-			m._pause.open_settings()
+			if _args.has("only"):
+				m._pause.open_settings()
+			else:
+				m._pause.get_node("%OpenSettings").pressed.emit()
 		"report":   # --rating=great|good|fair|poor: as advertências que dão esse conceito (padrão: poor, a segunda noite)
 			var faults := {"great": ["wrong_info"], "good": ["missed", "wrong_info"], "fair": ["missed", "hold", "wrong_number"],
 				"poor": ["missed", "hold", "wrong_number", "eavesdrop", "wrong_info"]}

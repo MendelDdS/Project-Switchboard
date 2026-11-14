@@ -3712,3 +3712,29 @@ Chaves:
     dela enquanto ela explica (menos no passo da espera e com a ligação seguindo pelo cabo), o cabo não sai enquanto
     ela conversa com o hotel (`Training.keeps`, `Switchboard.keeps`) e as ferramentas e o discador só abrem depois de
     ensinados (`Training.allows`, `Main._taught`).
+583. `#interface` "Durante o jogo quando eu apertar ESC (para pausar), eu queria que o menu fosse exatamente igual ao do menu
+    principal, com o nome Pausado no topo lado esquerdo, os botões no lado esquerdo também e no lado direito ao invés
+    da mesa comutadora, poderia ter um espectro de áudio esmaecido pulsando aleatoriamente." A pausa saiu do papel com
+    fita: tela inteira como a inicial (`PauseMenu`, `%Screen`), "Pausado" na letra grande do nome do jogo
+    (`TitleBoard.logo_art`), as cinco opções com lâmpada (`TitleButton`, setas, Enter e mouse) e, à direita, o
+    espectro (`pause_spectrum.gd`: 40 barras espelhadas). As configurações e
+    a pergunta de Recomeçar e Voltar ao menu continuam no papel, por cima.
+    "O que você melhoraria no espectro?" Das quatro que sugeri, pedidas duas ("1 e 3 por enquanto"): as barras vizinhas
+    andando juntas (uns poucos picos que passeiam e puxam as de perto, `_peaks`, mais um tremor em cada uma) e a cara
+    de medidor da época (segmentos empilhados no âmbar das lâmpadas, os de cima mais claros). Ficaram para depois
+    seguir o som do jogo e o topo que demora a cair.
+584. #interface #testes "O botão de configuração abre um modal, eu queria manter a mesma lógica do menu de pausa. Ao
+    clicar em configuração, abrir um menu novo no lado direito do menu atual, ou seja, como uma expansão organizada
+    do menu, ao invés do modal." Decisões: "Manter o aplicar, sem essa coloração alaranjada, algo mais simplista e
+    bonito" e "Esmaecer, se ficar ruim eu decido posteriormente". As configurações saíram do papel com fita: são uma
+    coluna à direita do menu (`PauseMenu`, `%Settings`, `_column`), na pausa e na tela inicial; o menu continua à
+    mostra, com a lâmpada de Configurações acesa (clicar nela de novo fecha, escolher outra opção também), e o que
+    está atrás da coluna (o espectro, a mesa) esmaece debaixo de um véu em degradê (`%Veil`). As listas do Godot
+    viraram opções num botão só ("< Tela cheia >": clique, Enter ou setas para os lados, `_option`), na variação de
+    tema nova `MenuOption`; Aplicar e Voltar são opções com lâmpada, como as do menu (Aplicar apagado sem mudança).
+    Aberta pelo bilhete do supervisor, a coluna vem com o fundo da pausa e "Configurações" em letra grande. As
+    perguntas continuam no papel. O papel que crescia ao escolher Daltonismo deixou de existir.
+    Depois: "Coloque os controles num grid, e as teclas com umas bordas, arredondando com 8px": as quatro teclas da
+    ligação numa grade de duas por linha (`%KeyGrid`), cada tecla numa borda de 1 px com cantos de 8 px (variação de
+    tema `KeyCap`; âmbar na escolhida).
+    Depois: "troque o lado do Aplicar e Voltar": Voltar à esquerda, Aplicar à direita.

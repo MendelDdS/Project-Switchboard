@@ -3,7 +3,9 @@
 Origem: "não estou gostando muito do que tem hoje" (11/11/2026, `HISTORICO.md` 574 e 575). Capturas de antes, a
 960×540: `build/menus/title.png`, `pause.png`, `settings.png`, `report.png`.
 
-**Estado (13/11/2026):** a tela inicial "sala antes do turno" (3.3) foi vista em prévia e **recusada**: fica a de hoje, com as primeiras melhorias feitas (o nome maior em duas linhas, a luz na parede, a legenda fora do fio); as etapas da pausa e das configurações de metal não foram pedidas (`HISTORICO.md` 577). Antes, em 12/11/2026: decididos a direção (metal do console), a assinatura e a pergunta antes de perder a noite;
+**Estado (14/11/2026):** a pausa ficou como a tela inicial (o nome e as opções com lâmpada à esquerda, um espectro de áudio à direita), a pedido; a pausa de metal deste plano não vale mais (`HISTORICO` 583).
+
+**Estado (14/11/2026):** as configurações saíram do papel e abrem numa coluna à direita do menu, na pausa e na tela inicial (`HISTORICO.md` 584). **Antes (13/11/2026):** a tela inicial "sala antes do turno" (3.3) foi vista em prévia e **recusada**: fica a de hoje, com as primeiras melhorias feitas (o nome maior em duas linhas, a luz na parede, a legenda fora do fio); as etapas da pausa e das configurações de metal não foram pedidas (`HISTORICO.md` 577). Antes, em 12/11/2026: decididos a direção (metal do console), a assinatura e a pergunta antes de perder a noite;
 **feitas** a assinatura (seção 3.4) e a pergunta (3.1, ainda no papel de hoje). A tela inicial também já está decidida (3.3).
 
 ## 1. O que há hoje

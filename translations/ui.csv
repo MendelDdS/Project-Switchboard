@@ -411,7 +411,7 @@ URGENCY_0,Situação inicial,Initial situation,Situación inicial
 URGENCY_1,Situação agravando,Getting worse,Empeorando
 URGENCY_2,Situação agravada,Critical,Crítica
 FAULT_EMERGENCY_DROPPED,Emergência encerrada sem despacho,Emergency ended without dispatch,Emergencia terminada sin despacho
-PAUSE_TITLE,Pausa,Paused,Pausa
+PAUSE_TITLE,Pausado,Paused,En pausa
 RESUME,Continuar,Resume,Continuar
 SETTINGS,Configurações,Settings,Configuración
 RESTART_NIGHT,Recomeçar a noite,Restart the night,Reiniciar la noche

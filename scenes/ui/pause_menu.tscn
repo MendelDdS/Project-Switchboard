@@ -1,6 +1,16 @@
 [gd_scene format=3]
 
 [ext_resource type="Script" path="res://scripts/ui/pause_menu.gd" id="1_pause"]
+[ext_resource type="Script" path="res://scripts/ui/pause_spectrum.gd" id="2_spectrum"]
+
+[sub_resource type="Gradient" id="Veil_grad"]
+offsets = PackedFloat32Array(0, 0.22)
+colors = PackedColorArray(0.039, 0.047, 0.051, 0, 0.039, 0.047, 0.051, 0.88)
+
+[sub_resource type="GradientTexture2D" id="Veil_tex"]
+gradient = SubResource("Veil_grad")
+width = 620
+height = 4
 
 [node name="PauseMenu" type="ColorRect"]
 process_mode = 3
@@ -10,8 +20,97 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-color = Color(0.01961, 0.02353, 0.02745, 0.72)
+mouse_filter = 2
+color = Color(0, 0, 0, 0)
 script = ExtResource("1_pause")
+
+[node name="Screen" type="Control" parent="."]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Room" type="ColorRect" parent="Screen"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.039, 0.047, 0.051, 1)
+
+[node name="Spectrum" type="Control" parent="Screen"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("2_spectrum")
+
+[node name="Logo" type="TextureRect" parent="Screen"]
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = 64.0
+offset_top = 124.0
+offset_right = 420.0
+offset_bottom = 174.0
+mouse_filter = 2
+stretch_mode = 2
+
+[node name="Main" type="VBoxContainer" parent="Screen"]
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = 64.0
+offset_top = 206.0
+offset_right = 420.0
+offset_bottom = 380.0
+theme_override_constants/separation = 10
+
+[node name="Resume" type="Button" parent="Screen/Main"]
+unique_name_in_owner = true
+layout_mode = 2
+mouse_default_cursor_shape = 2
+theme_type_variation = &"TitleButton"
+text = "RESUME"
+alignment = 0
+
+[node name="OpenSettings" type="Button" parent="Screen/Main"]
+unique_name_in_owner = true
+layout_mode = 2
+toggle_mode = true
+mouse_default_cursor_shape = 2
+theme_type_variation = &"TitleButton"
+text = "SETTINGS"
+alignment = 0
+
+[node name="RestartNight" type="Button" parent="Screen/Main"]
+unique_name_in_owner = true
+layout_mode = 2
+mouse_default_cursor_shape = 2
+theme_type_variation = &"TitleButton"
+text = "RESTART_NIGHT"
+alignment = 0
+
+[node name="ToMenu" type="Button" parent="Screen/Main"]
+unique_name_in_owner = true
+layout_mode = 2
+mouse_default_cursor_shape = 2
+theme_type_variation = &"TitleButton"
+text = "PAUSE_TO_MENU"
+alignment = 0
+
+[node name="Quit" type="Button" parent="Screen/Main"]
+unique_name_in_owner = true
+layout_mode = 2
+mouse_default_cursor_shape = 2
+theme_type_variation = &"TitleButton"
+text = "QUIT_GAME"
+alignment = 0
 
 [node name="Center" type="CenterContainer" parent="."]
 anchors_preset = 15
@@ -32,174 +131,6 @@ theme_override_constants/margin_left = 20
 theme_override_constants/margin_top = 16
 theme_override_constants/margin_right = 20
 theme_override_constants/margin_bottom = 16
-
-[node name="Main" type="VBoxContainer" parent="Center/Card/Margin"]
-unique_name_in_owner = true
-layout_mode = 2
-theme_override_constants/separation = 9
-
-[node name="Title" type="Label" parent="Center/Card/Margin/Main"]
-layout_mode = 2
-theme_type_variation = &"InkLabel"
-theme_override_font_sizes/font_size = 33
-text = "PAUSE_TITLE"
-
-[node name="Gap" type="Control" parent="Center/Card/Margin/Main"]
-custom_minimum_size = Vector2(0, 6)
-layout_mode = 2
-
-[node name="Resume" type="Button" parent="Center/Card/Margin/Main"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 33)
-layout_mode = 2
-theme_type_variation = &"AmberButton"
-theme_override_font_sizes/font_size = 22
-text = "RESUME"
-
-[node name="OpenSettings" type="Button" parent="Center/Card/Margin/Main"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 28)
-layout_mode = 2
-theme_type_variation = &"DarkButton"
-text = "SETTINGS"
-
-[node name="RestartNight" type="Button" parent="Center/Card/Margin/Main"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 28)
-layout_mode = 2
-theme_type_variation = &"DarkButton"
-text = "RESTART_NIGHT"
-
-[node name="ToMenu" type="Button" parent="Center/Card/Margin/Main"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 28)
-layout_mode = 2
-theme_type_variation = &"DarkButton"
-text = "PAUSE_TO_MENU"
-
-[node name="Quit" type="Button" parent="Center/Card/Margin/Main"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 28)
-layout_mode = 2
-theme_type_variation = &"DarkButton"
-text = "QUIT_GAME"
-
-[node name="Settings" type="VBoxContainer" parent="Center/Card/Margin"]
-unique_name_in_owner = true
-visible = false
-layout_mode = 2
-theme_override_constants/separation = 9
-
-[node name="Title" type="Label" parent="Center/Card/Margin/Settings"]
-layout_mode = 2
-theme_type_variation = &"InkLabel"
-theme_override_font_sizes/font_size = 33
-text = "SETTINGS"
-
-[node name="Grid" type="GridContainer" parent="Center/Card/Margin/Settings"]
-layout_mode = 2
-theme_override_constants/h_separation = 18
-theme_override_constants/v_separation = 10
-columns = 2
-
-[node name="LanguageLabel" type="Label" parent="Center/Card/Margin/Settings/Grid"]
-layout_mode = 2
-theme_type_variation = &"InkLabel"
-text = "SETTINGS_LANGUAGE"
-
-[node name="Language" type="OptionButton" parent="Center/Card/Margin/Settings/Grid"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(180, 0)
-layout_mode = 2
-size_flags_horizontal = 3
-
-[node name="AmbienceLabel" type="Label" parent="Center/Card/Margin/Settings/Grid"]
-layout_mode = 2
-theme_type_variation = &"InkLabel"
-text = "SETTINGS_VOL_AMBIENCE"
-
-[node name="Ambience" type="HSlider" parent="Center/Card/Margin/Settings/Grid"]
-unique_name_in_owner = true
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_vertical = 4
-max_value = 1.0
-step = 0.05
-
-[node name="VoicesLabel" type="Label" parent="Center/Card/Margin/Settings/Grid"]
-layout_mode = 2
-theme_type_variation = &"InkLabel"
-text = "SETTINGS_VOL_VOICES"
-
-[node name="Voices" type="HSlider" parent="Center/Card/Margin/Settings/Grid"]
-unique_name_in_owner = true
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_vertical = 4
-max_value = 1.0
-step = 0.05
-
-[node name="EffectsLabel" type="Label" parent="Center/Card/Margin/Settings/Grid"]
-layout_mode = 2
-theme_type_variation = &"InkLabel"
-text = "SETTINGS_VOL_EFFECTS"
-
-[node name="Effects" type="HSlider" parent="Center/Card/Margin/Settings/Grid"]
-unique_name_in_owner = true
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_vertical = 4
-max_value = 1.0
-step = 0.05
-
-[node name="DisplayLabel" type="Label" parent="Center/Card/Margin/Settings/Grid"]
-layout_mode = 2
-theme_type_variation = &"InkLabel"
-text = "SETTINGS_DISPLAY"
-
-[node name="Display" type="OptionButton" parent="Center/Card/Margin/Settings/Grid"]
-unique_name_in_owner = true
-layout_mode = 2
-size_flags_horizontal = 3
-
-[node name="ColorsLabel" type="Label" parent="Center/Card/Margin/Settings/Grid"]
-layout_mode = 2
-theme_type_variation = &"InkLabel"
-text = "SETTINGS_COLORS"
-
-[node name="Colors" type="OptionButton" parent="Center/Card/Margin/Settings/Grid"]
-unique_name_in_owner = true
-layout_mode = 2
-size_flags_horizontal = 3
-
-[node name="KeyGrid" type="GridContainer" parent="Center/Card/Margin/Settings"]
-unique_name_in_owner = true
-layout_mode = 2
-theme_override_constants/h_separation = 10
-theme_override_constants/v_separation = 6
-columns = 4
-
-[node name="Gap" type="Control" parent="Center/Card/Margin/Settings"]
-custom_minimum_size = Vector2(0, 6)
-layout_mode = 2
-
-[node name="Buttons" type="HBoxContainer" parent="Center/Card/Margin/Settings"]
-layout_mode = 2
-theme_override_constants/separation = 12
-
-[node name="Apply" type="Button" parent="Center/Card/Margin/Settings/Buttons"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(120, 28)
-layout_mode = 2
-theme_type_variation = &"AmberButton"
-text = "APPLY"
-
-[node name="Back" type="Button" parent="Center/Card/Margin/Settings/Buttons"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(120, 28)
-layout_mode = 2
-theme_type_variation = &"DarkButton"
-text = "BACK"
 
 [node name="Ask" type="VBoxContainer" parent="Center/Card/Margin"]
 unique_name_in_owner = true
@@ -236,6 +167,139 @@ custom_minimum_size = Vector2(120, 28)
 layout_mode = 2
 theme_type_variation = &"DarkButton"
 text = "ASK_NO"
+
+[node name="Veil" type="TextureRect" parent="."]
+unique_name_in_owner = true
+visible = false
+layout_mode = 0
+offset_left = 340.0
+offset_right = 960.0
+offset_bottom = 540.0
+mouse_filter = 2
+texture = SubResource("Veil_tex")
+expand_mode = 1
+
+[node name="Settings" type="VBoxContainer" parent="."]
+unique_name_in_owner = true
+visible = false
+layout_mode = 0
+offset_left = 480.0
+offset_top = 206.0
+offset_right = 880.0
+offset_bottom = 500.0
+theme_override_constants/separation = 18
+
+[node name="Grid" type="GridContainer" parent="Settings"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/h_separation = 24
+theme_override_constants/v_separation = 9
+columns = 2
+
+[node name="LanguageLabel" type="Label" parent="Settings/Grid"]
+layout_mode = 2
+text = "SETTINGS_LANGUAGE"
+
+[node name="Language" type="Button" parent="Settings/Grid"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(200, 0)
+layout_mode = 2
+size_flags_horizontal = 3
+mouse_default_cursor_shape = 2
+theme_type_variation = &"MenuOption"
+alignment = 0
+auto_translate_mode = 2
+
+[node name="AmbienceLabel" type="Label" parent="Settings/Grid"]
+layout_mode = 2
+text = "SETTINGS_VOL_AMBIENCE"
+
+[node name="Ambience" type="HSlider" parent="Settings/Grid"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+max_value = 1.0
+step = 0.05
+
+[node name="VoicesLabel" type="Label" parent="Settings/Grid"]
+layout_mode = 2
+text = "SETTINGS_VOL_VOICES"
+
+[node name="Voices" type="HSlider" parent="Settings/Grid"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+max_value = 1.0
+step = 0.05
+
+[node name="EffectsLabel" type="Label" parent="Settings/Grid"]
+layout_mode = 2
+text = "SETTINGS_VOL_EFFECTS"
+
+[node name="Effects" type="HSlider" parent="Settings/Grid"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+max_value = 1.0
+step = 0.05
+
+[node name="DisplayLabel" type="Label" parent="Settings/Grid"]
+layout_mode = 2
+text = "SETTINGS_DISPLAY"
+
+[node name="Display" type="Button" parent="Settings/Grid"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(200, 0)
+layout_mode = 2
+size_flags_horizontal = 3
+mouse_default_cursor_shape = 2
+theme_type_variation = &"MenuOption"
+alignment = 0
+auto_translate_mode = 2
+
+[node name="ColorsLabel" type="Label" parent="Settings/Grid"]
+layout_mode = 2
+text = "SETTINGS_COLORS"
+
+[node name="Colors" type="Button" parent="Settings/Grid"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(200, 0)
+layout_mode = 2
+size_flags_horizontal = 3
+mouse_default_cursor_shape = 2
+theme_type_variation = &"MenuOption"
+alignment = 0
+auto_translate_mode = 2
+
+[node name="KeyGrid" type="GridContainer" parent="Settings"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/h_separation = 12
+theme_override_constants/v_separation = 8
+columns = 4
+
+[node name="Buttons" type="HBoxContainer" parent="Settings"]
+layout_mode = 2
+theme_override_constants/separation = 28
+
+[node name="Back" type="Button" parent="Settings/Buttons"]
+unique_name_in_owner = true
+layout_mode = 2
+mouse_default_cursor_shape = 2
+theme_type_variation = &"TitleButton"
+text = "BACK"
+alignment = 0
+
+[node name="Apply" type="Button" parent="Settings/Buttons"]
+unique_name_in_owner = true
+layout_mode = 2
+mouse_default_cursor_shape = 2
+theme_type_variation = &"TitleButton"
+text = "APPLY"
+alignment = 0
 
 [node name="Version" type="Label" parent="."]
 layout_mode = 1
