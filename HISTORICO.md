@@ -3670,3 +3670,18 @@ Chaves:
     propósito (o Bastos, na 14: "Ficou só o vigia pra atender o telefone"; a polícia quer saber quem liga). A
     gravação e o bloqueio da transferência saíram (`ChatTopic.recording` também); pelo discador, quem atende nessas
     noites é o vigia. Lição: conferir o roteiro (as conversas escutadas) antes de perguntar se um lugar atende.
+578. #prototipo #3d #saiu Protótipo da mesa comutadora em 3D (peças no Blender, câmera parada na composição do jogo,
+    cabos com peso e arrasto), feito num ramo à parte para o usuário avaliar o visual; descartado inteiro a pedido
+    ("Descarte tudo. Talvez eu pense futuramente se continuo com uma versão 3D"). Nada dele ficou no projeto.
+579. `#interface` `#mesa-comutadora` `#camera` Tela inicial: "o plug está com perspectiva, com angulação para a direita,
+    então vale consertar essa perspectiva da mesa comutadora também". O plug era visto de lado (`TitleBoard.TILT`) e o
+    resto do painel de frente. Agora as peças com fundura passam pela mesma vista: o tampo da tecla pende para a
+    direita (`KEY_H`), a cúpula da lâmpada é meia esfera pixel a pixel (`_dome`, `DOME_R`) e o fundo do furo da tomada
+    vai para a esquerda, com a parede de dentro à mostra (`HOLE_DEPTH`). O que é chato (plaquinhas, faixas, chapas) fica.
+    Depois ("cadê a lateral da mesa comutadora?"): a lateral esquerda do móvel à mostra, o contorno da moldura levado
+    para trás pela mesma vista (`_side_art`, `SIDE`), na sombra, com a luz da sala já posta na imagem. "Ela parece
+    fina": `SIDE` de 50 para 100 (60 px na tela, começa em x = 400).
+    "Melhoraria mais alguma coisa?" Das cinco que sugeri, pedidas três: a sombra da moldura no painel rebaixado, mais
+    larga e acompanhando o canto (`FRAME_SHADE`, na imagem da moldura); a lateral esquerda das plaquinhas e a parede
+    direita da aba das saídas; o reflexo nítido de volta na cúpula das lâmpadas. Ficaram de fora a sombra do móvel na
+    parede e as lâmpadas da legenda.

@@ -28,6 +28,11 @@ const CORD_END := 580.0   ## o fio do FONE cai reto da boca do plug até esta al
 ## O FONE (`_fone_art`), as medidas do plug encaixado da mesa (`Switchboard.ELBOW_*`) em 3×:
 const TILT := Vector2(0.6, -0.08)   ## px na tela por px de distância do painel: quem olha está na frente da tela,
 ## à esquerda do painel e um pouco abaixo, e vê o plug pelo lado esquerdo (o cotovelo pende para a direita)
+const FRAME_SHADE := 8.0   ## o painel rebaixado: a faixa dele que a moldura tapa e escurece, em cima e à esquerda
+const SIDE := 100.0   ## a fundura do móvel: a lateral esquerda dele aparece à esquerda da moldura, `TILT` × isto
+const KEY_H := 10.0   ## quanto a tecla solta sai do painel: o tampo aparece deslocado `TILT` × isto, como o plug...
+const HOLE_DEPTH := 5.0   ## ...e o fundo do furo da tomada, para o outro lado (vê-se a parede da direita lá dentro)
+const DOME_R := 11.0   ## o raio da cúpula da lâmpada, meia esfera vista pela mesma vista
 const PLUG_R := 10.0   ## o raio do tubo (mais fino que o aro da tomada, como no jogo)
 const SLEEVE_R := 9.0   ## o da ponta de metal: o do furo da tomada (`Switchboard.JACK_RINGS[0]` em 3×)
 const PLUG_BODY := 24.0   ## do painel até o fim do corpo duro (curto: a cabeça lisa logo vira a dobra)
@@ -43,6 +48,7 @@ const CORD_R := 5.5   ## a metade da largura do fio (um pouco mais que no jogo, 
 
 var _shell: ImageTexture
 var _fone: ImageTexture
+var _side: ImageTexture
 var _shade: GradientTexture2D
 var _wall: GradientTexture2D
 var _glow: GradientTexture2D
@@ -57,6 +63,7 @@ func _ready() -> void:
 	_shell = _shell_art()
 	_fone = _fone_art()
 	_shade = _light_art()
+	_side = _side_art()
 	_wall = GradientTexture2D.new()   # a parede atrás da mesa: a luz da sala caindo do alto e sumindo no escuro à esquerda
 	_wall.width = 240   # (um quarto da tela: liso, sem peso)
 	_wall.height = 135
@@ -99,8 +106,7 @@ func _draw() -> void:
 	draw_texture_rect(_wall, Rect2(-position, get_viewport_rect().size), false)   # (a tela inteira, atrás da mesa)
 	var inner := OUTER.grow(-FRAME)
 	draw_rect(inner, Pal.BOARD_FACE)
-	draw_rect(Rect2(inner.position, Vector2(inner.size.x, 3)), Pal.BOARD_METAL[1])   # rebaixado: a sombra em cima e à esquerda
-	draw_rect(Rect2(inner.position, Vector2(3, inner.size.y)), Pal.BOARD_METAL[1])
+	draw_texture(_side, Vector2(OUTER.position.x - ceilf(TILT.x * SIDE), 0))
 	draw_texture(_shell, Vector2.ZERO)
 	_draw_header(inner)
 	_groove(Rect2(inner.position.x + 9, Y["key"] - 1, size.x, 3), true)   # a faixa das chaves de escuta, atrás delas
@@ -179,6 +185,7 @@ func _draw_plate(c: Vector2, text: String) -> void:
 	draw_rect(Rect2(r.position.x + 3, r.position.y, r.size.x - 6, 1), Pal.BOARD_TAG.lightened(0.18))
 	draw_rect(Rect2(r.position.x + 3, r.end.y - 1, r.size.x - 6, 1), Pal.BOARD_TAG.darkened(0.2))
 	draw_rect(Rect2(r.position.x + 1, r.end.y - 2, r.size.x - 2, 1), Pal.BOARD_TAG.darkened(0.1))
+	draw_rect(Rect2(r.position.x, r.position.y + 3, 2, r.size.y - 6), Pal.BOARD_TAG.darkened(0.35))   # a lateral esquerda dela, à mostra pela vista do plug (`TILT`)
 	var rows := PixelArt.big(text, 1)
 	PixelArt.sprite(self, PixelArt.art(rows, {"*": Pal.ENGRAVED}), r.get_center() + Vector2(0, 1))
 
@@ -198,11 +205,41 @@ func _draw_lit(ci: CanvasItem, c: Vector2) -> void:
 	ci.draw_texture_rect(_glow, Rect2(c - Vector2(48, 48), Vector2(96, 96)), false)
 
 
-## A cúpula de vidro leitoso na cor `g`, com o reflexo `shine` mais claro.
+## A cúpula de vidro leitoso na cor `g`, com o reflexo `shine` mais claro: meia esfera (`DOME_R`) pixel a pixel, vista
+## como o plug (`TILT`: o alto dela pende para a direita), cada pixel com o ponto mais à frente e o tom da luz na
+## normal ali. Guardada por cor (a apagada e a acesa).
+static var _domes := {}
 static func _dome(ci: CanvasItem, c: Vector2, g: Color, shine: float) -> void:
-	PixelArt.sprite(ci, PixelArt.disc(24, [[11.0, g.lightened(0.1), g, g.darkened(0.22)]], LIGHT), c)
-	PixelArt.sprite(ci, PixelArt.disc(24, [[7.0, g.lightened(0.18), g.lightened(0.06), g.darkened(0.06)]], LIGHT), c + Vector2(1, -1))
-	PixelArt.sprite(ci, PixelArt.disc(4, [[2.0, g.lightened(shine)]]), c + Vector2(4, -5))   # o reflexo no vidro
+	if not _domes.has(g):
+		var d := 36
+		var img := Image.create(d, d, false, Image.FORMAT_RGBA8)
+		var sun := Vector3(LIGHT.x, LIGHT.y, 1.1).normalized()
+		var half := (sun + Vector3(-TILT.x, -TILT.y, 1.0).normalized()).normalized()   # o reflexo: entre a luz e quem olha
+		var tt := TILT.length_squared() + 1.0
+		for y in d:
+			for x in d:
+				var o := Vector2(x + 0.5, y + 0.5) - Vector2(d, d) / 2.0
+				var b := o.dot(TILT)
+				var disc := b * b - tt * (o.length_squared() - DOME_R * DOME_R)
+				var z := (b + sqrt(maxf(disc, 0.0))) / tt   # o ponto da esfera mais à frente neste pixel
+				if disc < 0.0 or z < 0.0:
+					continue
+				var q := o - TILT * z
+				var lit := Vector3(q.x, q.y, z).dot(sun) / DOME_R
+				var col := g.darkened(0.22)
+				if Vector3(q.x, q.y, z).dot(half) / DOME_R > 0.972:
+					col = g.lightened(shine)   # o reflexo no vidro
+				elif lit > 0.85:
+					col = g.lightened(0.18)
+				elif lit > 0.6:
+					col = g.lightened(0.08)
+				elif lit > 0.3:
+					col = g
+				elif lit > 0.0:
+					col = g.darkened(0.1)
+				img.set_pixel(x, y, col)
+		_domes[g] = ImageTexture.create_from_image(img)
+	PixelArt.sprite(ci, _domes[g], c + Vector2(1, 0))   # (em cima do aro, 2 px para fora do painel)
 
 
 ## A chapa sobre um banco, como na mesa (`Switchboard._draw_plate`): oliva-acinzentada, a beira de cima na luz e a
@@ -246,7 +283,8 @@ func _draw_jack(c: Vector2, dim: float) -> void:
 
 ## O aro da tomada, pixel a pixel (a do painel, `Switchboard._jack_tex`, em 3×, com o que não cabia em 12 px): o furo
 ## com a mola de contato lá dentro, a parede da bucha (côncava: pega a luz do outro lado), a face e a descida até o
-## painel. Guardado por `dim`.
+## painel. O fundo do furo aparece deslocado para a esquerda (`HOLE_DEPTH`, pela vista do plug, `TILT`), com a parede
+## de dentro à mostra à direita. Guardado por `dim`.
 static var _jacks := {}
 static func _jack_art(dim: float) -> ImageTexture:
 	if _jacks.has(dim):
@@ -259,12 +297,13 @@ static func _jack_art(dim: float) -> ImageTexture:
 			var r := o.length()
 			var lit := o.normalized().dot(LIGHT) if r > 0.01 else 0.0
 			var col := Color.TRANSPARENT
-			if r <= 5.0:
+			var deep := (o + TILT * HOLE_DEPTH).length()   # a distância ao meio do fundo do furo
+			if r <= 8.5 and deep <= 5.0:
 				col = Pal.JACK_HOLE
-			elif r <= 6.5:   # a mola de contato, no fundo do furo, quase sem luz
+			elif r <= 8.5 and deep <= 6.5:   # a mola de contato, no fundo do furo, quase sem luz
 				col = Pal.JACK_HOLE.lerp(Pal.JACK_METAL["wall"][4] if lit < 0.0 else Pal.JACK_METAL["wall"][3], 0.5)
-			elif r <= 8.5:
-				col = Pal.JACK_HOLE.lightened(0.04)
+			elif r <= 8.5:   # a parede de dentro, à direita, na sombra
+				col = Pal.JACK_HOLE.lerp(Pal.JACK_METAL["wall"][4], 0.3 if deep > 8.5 else 0.1)
 			elif r <= 17.5:
 				var face := r > 11.5
 				var ramp: Array = Pal.JACK_METAL["face" if face else "wall"]
@@ -278,8 +317,9 @@ static func _jack_art(dim: float) -> ImageTexture:
 	return _jacks[dim]
 
 
-## A tecla de escuta solta, no rebaixo dela: a base e o tampo menor (a tecla afunila), com as laterais à mostra e a
-## sombra embaixo à esquerda (a da mesa, `Switchboard._key_cap`, em 3×).
+## A tecla de escuta solta, no rebaixo dela: a base e o tampo menor (a tecla afunila), deslocado para a direita pela
+## vista do plug (`TILT` × `KEY_H`), com a lateral esquerda e a da frente à mostra e a sombra embaixo à esquerda (a da
+## mesa, `Switchboard._key_cap`, em 3×).
 func _draw_key(c: Vector2) -> void:
 	var well := Rect2(c - Vector2(15, 15), Vector2(30, 30))
 	_rounded(well, 2.0, Pal.BOARD_INSET)
@@ -295,7 +335,7 @@ static func _key_art() -> ImageTexture:
 	var k := Pal.KEY_CAP
 	var img := Image.create(40, 40, false, Image.FORMAT_RGBA8)
 	var base := Rect2i(8, 8, 24, 24)
-	var top := Rect2i(11, 5, 18, 18)   # 6 px acima da base: a tecla solta
+	var top := Rect2i(Vector2i(11, 11) + Vector2i((TILT * KEY_H).round()), Vector2i(18, 18))
 	var layers := []
 	for i in 13:
 		var f := i / 12.0
@@ -325,6 +365,7 @@ func _draw_rule(inner: Rect2, y: float, caption: String) -> void:
 	var tab := Rect2(COL0 + PITCH * (LIT_LINE - 1) + 34, y - 15, w + 30, 32)   # (depois do fio do FONE, que caía por cima das letras)
 	_rounded(tab, 5.0, Pal.BOARD_STRIP)
 	draw_rect(Rect2(tab.position.x + 4, tab.end.y, tab.size.x - 8, 1), Pal.BOARD_METAL[5])
+	draw_rect(Rect2(tab.end.x - 2, tab.position.y + 4, 2, tab.size.y - 8), Pal.BOARD_METAL[2])   # a parede direita do rebaixo, à mostra pela vista do plug
 	_text(caption, tab.position.x + 15, tab.get_center().y, Pal.BOARD_INK)
 
 
@@ -357,12 +398,16 @@ func _shell_art() -> ImageTexture:
 		for x in range(int(OUTER.position.x), w):
 			var ex := x - OUTER.position.x
 			var ey := y - OUTER.position.y
-			if ex >= FRAME + 1 and ey >= FRAME + 1 and (ex >= SHELL_R or ey >= SHELL_R):
+			if ex >= FRAME + FRAME_SHADE and ey >= FRAME + FRAME_SHADE and (ex >= SHELL_R + FRAME_SHADE or ey >= SHELL_R + FRAME_SHADE):
 				continue
 			var c := Vector2(x + 0.5, y + 0.5)
 			var dout := _round_dist(c, OUTER, SHELL_R)
 			var din := _round_dist(c, inner, SHELL_R - FRAME)
-			if dout >= 0.0 or din < 0.0:
+			if dout >= 0.0:
+				continue
+			if din < 0.0:   # o painel, rebaixado: a sombra da moldura acompanha o canto, mais funda rente a ela
+				if din > -FRAME_SHADE:
+					img.set_pixel(x, y, Pal.BOARD_METAL[1 if din > -FRAME_SHADE / 2.0 else 2])
 				continue
 			var step := 0
 			if dout > -1.0:
@@ -376,6 +421,37 @@ func _shell_art() -> ImageTexture:
 			elif posmod((x * 73856093) ^ (y * 19349663), 23) == 0:
 				step = -1   # o grão do esmalte
 			img.set_pixel(x, y, Pal.cabinet(0.3, step))
+	return ImageTexture.create_from_image(img)
+
+
+## A lateral esquerda do móvel, pixel a pixel: o contorno da moldura levado para trás (`SIDE`) pela vista do plug
+## (`TILT`: para a esquerda e um pouco para baixo; o tampo de cima não aparece). O tom pela luz na normal do contorno
+## (a lateral na sombra, clareando na curva do canto), a beira de trás mais escura, o grão do esmalte e, por cima, a
+## luz da sala (`_shade`, posta aqui: desenhada na tela, escurecia a parede ao lado).
+func _side_art() -> ImageTexture:
+	var w := ceili(TILT.x * SIDE)
+	var x0 := OUTER.position.x - w
+	var img := Image.create(w + int(SHELL_R), SIZE.y, false, Image.FORMAT_RGBA8)
+	var from := _shade.fill_from * Vector2(SIZE)
+	var span := (_shade.fill_to * Vector2(SIZE)).distance_to(from)
+	for y in SIZE.y:
+		for x in img.get_width():
+			var p := Vector2(x0 + x + 0.5, y + 0.5)
+			if _round_dist(p, OUTER, SHELL_R) < 0.0:
+				continue
+			var d := 0.5
+			while d <= SIDE and _round_dist(p + TILT * d, OUTER, SHELL_R) >= 0.0:
+				d += 0.5
+			if d > SIDE:
+				continue
+			var q := p + TILT * d
+			var n := Vector2(_round_dist(q + Vector2.RIGHT, OUTER, SHELL_R) - _round_dist(q - Vector2.RIGHT, OUTER, SHELL_R),
+				_round_dist(q + Vector2.DOWN, OUTER, SHELL_R) - _round_dist(q - Vector2.DOWN, OUTER, SHELL_R)).normalized()
+			var step := -2 + int((n.dot(LIGHT) + 0.7071) * 2.0)
+			if d > SIDE - 1.5 or posmod((int(p.x) * 73856093) ^ (y * 19349663), 23) == 0:
+				step -= 1   # a beira de trás; o grão do esmalte
+			var sh := _shade.gradient.sample(p.distance_to(from) / span)
+			img.set_pixel(x, y, Pal.cabinet(0.3, step).lerp(Color(sh, 1.0), sh.a))
 	return ImageTexture.create_from_image(img)
 
 
