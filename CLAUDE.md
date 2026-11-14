@@ -1,4 +1,4 @@
-# Project Switchboard — memória do projeto
+# Estado de Ruído — memória do projeto
 
 Jogo em Godot 4.6 (GDScript, renderer GL Compatibility), a caminho da versão definitiva. O jogador é o operador
 noturno da central telefônica de São Sotero (18:00–00:00; a última noite vai até as 6h): atende e transfere ligações

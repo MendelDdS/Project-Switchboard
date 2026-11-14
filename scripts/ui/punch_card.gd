@@ -232,7 +232,7 @@ func _draw() -> void:
 	# rodapé: o fio, o nome da central e as marcas de coluna na borda, como nos cartões perfurados
 	var foot := size.y - FOOT + 2.0
 	draw_rect(Rect2(4, foot, W - 8.0, 1), Pal.CARD_FORM)
-	small(self, Vector2(0, foot + 3.0), T.text(T.Key.GAME_TITLE), Color(Pal.CARD_FORM, 0.8), W, HORIZONTAL_ALIGNMENT_CENTER)
+	small(self, Vector2(0, foot + 3.0), T.text(T.Key.EXCHANGE_NAME), Color(Pal.CARD_FORM, 0.8), W, HORIZONTAL_ALIGNMENT_CENTER)
 	for x in range(5, int(W) - 3, 5):
 		draw_rect(Rect2(x, size.y - 3.0, 1, 2), Color(Pal.CARD_FORM, 0.35))
 	shape.append(shape[0])

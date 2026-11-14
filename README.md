@@ -1,4 +1,4 @@
-# Project Switchboard (Godot 4.6)
+# Estado de Ruído (Godot 4.6)
 
 Abra a pasta no Godot 4.6 (Importar → `project.godot`) e aperte F5.
 

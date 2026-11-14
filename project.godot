@@ -10,7 +10,7 @@ config_version=5
 
 [application]
 
-config/name="Project Switchboard"
+config/name="Estado de Ruído"
 config/description="Protótipo: operador de central telefônica, turno da noite."
 config/version="0.9.0"
 run/main_scene="res://scenes/app.tscn"

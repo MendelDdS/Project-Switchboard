@@ -6,6 +6,7 @@ class_name T
 
 enum Key {
 	GAME_TITLE,
+	EXCHANGE_NAME,
 	YOU,
 	UNKNOWN_CALLER,
 	AND,

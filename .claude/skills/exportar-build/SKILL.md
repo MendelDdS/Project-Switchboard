@@ -12,8 +12,8 @@ description: Exportar executáveis do jogo (Windows, macOS, Linux) para testar f
   (`modify_resources=false`, sem o rcedit).
 - Presets em `export_presets.cfg`: Windows, macOS (universal, assinatura ad-hoc, sem notarização) e Linux; saída em
   `build/` (fora do git). Templates do Godot 4.6.2 ficam em `~/Library/Application Support/Godot/export_templates/`.
-- `Godot --headless --path . --import` e depois `Godot --headless --path . --export-release "Windows" build/windows/ProjectSwitchboard.exe`
-  (idem "macOS" → `build/macos/ProjectSwitchboard.zip`, "Linux" → `build/linux/ProjectSwitchboard.x86_64`).
+- `Godot --headless --path . --import` e depois `Godot --headless --path . --export-release "Windows" build/windows/EstadoDeRuido.exe`
+  (idem "macOS" → `build/macos/EstadoDeRuido.zip`, "Linux" → `build/linux/EstadoDeRuido.x86_64`).
 - **`editor/export/convert_text_resources_to_binary=false`**: a conversão para binário esvaziava todo `PackedStringArray`
   do conteúdo (falas, motivos, quem liga) e o jogo exportado quebrava ao montar a agenda. Não religue sem testar.
 - Teste o exportado: `Godot --headless --path . --export-pack "macOS" x.pck` e `Godot --headless --main-pack x.pck --quit-after 600`

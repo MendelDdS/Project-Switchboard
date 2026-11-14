@@ -3685,3 +3685,8 @@ Chaves:
     larga e acompanhando o canto (`FRAME_SHADE`, na imagem da moldura); a lateral esquerda das plaquinhas e a parede
     direita da aba das saídas; o reflexo nítido de volta na cúpula das lâmpadas. Ficaram de fora a sombra do móvel na
     parede e as lâmpadas da legenda.
+580. `#interface` `#idiomas` "Vamos alterar o nome do jogo para 'Estado de Ruído'". O nome do jogo (`GAME_TITLE`; "pode trocar para cada idioma":
+    "State of Noise" e "Estado de Ruido") na tela inicial, com a última palavra em letra de 4× (antes a cidade), nos
+    créditos, no `project.godot` e nas exportações (`EstadoDeRuido.*`, `com.mendeldds.estadoderuido`). "Central de São
+    Sotero" continua sendo o nome da central no mundo do jogo: o rodapé do cartão do despacho usa `EXCHANGE_NAME`.
+    O nome do projeto mudou a pasta do `user://`: o save e as configurações antigas ficam na pasta "Project Switchboard".

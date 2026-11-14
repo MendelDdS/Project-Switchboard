@@ -10,7 +10,6 @@ const MAIN := "res://scenes/main.tscn"
 const RING_GAP := Vector2(25.0, 50.0)   ## de quanto em quanto tempo (s, sorteado) uma linha chama...
 const RING_SEC := 4.5   ## ...e quanto tempo ela fica chamando (dois toques) antes de desistir
 const FADE_SEC := 0.9   ## o escuro ao começar o jogo (e o clarear, já nele)
-const CITY := "São Sotero"   ## a parte do nome do jogo que vai em letra maior (`_texts`)
 const LOGO_GAP := 8   ## px entre as duas linhas do nome
 const RAIN_CHANCE := 0.35   ## a chance de o ambiente ser de chuva
 
@@ -68,16 +67,15 @@ func _notification(what: int) -> void:
 
 ## O que se monta com o idioma: o nome do jogo em letra grande e a linha embaixo de Carregar.
 func _texts() -> void:
-	# ponytail: o nome da cidade (`CITY`) em letra de 4× e o resto do nome do jogo em 2×, em cima ou embaixo conforme
-	# vem antes ou depois dele no idioma; se um idioma novo não trouxer a cidade no nome, sai tudo em 2×.
+	# ponytail: a última palavra do nome ("Ruído", "Noise") em letra de 4× e o resto em 2×, em cima; um idioma em que
+	# a palavra forte não venha no fim pede outra regra.
 	var title := T.text(T.Key.GAME_TITLE)
-	var rest := title.replace(CITY, "").strip_edges()
+	var cut := title.rfind(" ")
+	var rest := title.left(maxi(cut, 0))
 	var ink := {"u": Pal.BOARD_INK.lightened(0.25), "d": Pal.BOARD_INK.darkened(0.3), "+": Pal.BOARD_INK}
 	var small := PixelArt.art(PixelArt.big(rest.to_upper(), 1), ink).get_image()
-	var imgs: Array = [small]
-	if rest != title:
-		var big := PixelArt.art(PixelArt.big(CITY.to_upper(), 2), ink).get_image()
-		imgs = [small, big] if title.begins_with(rest) else [big, small]
+	var big := PixelArt.art(PixelArt.big(title.substr(cut + 1).to_upper(), 2), ink).get_image()
+	var imgs: Array = [small, big] if cut > 0 else [big]
 	var h := 0
 	var w := 0
 	for i: Image in imgs:
