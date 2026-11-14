@@ -11,7 +11,7 @@ extends Control
 
 const COVER := 7     ## a largura da capa em volta do papel, na lista e no bloco de fichas (px)
 const BOARD_W := 10  ## a da tábua da prancheta
-const HEAD_Y := 34   ## o fio vermelho do cabeçalho do registro (o texto do `CallLog` começa abaixo dele, `CallLog.HEAD`)
+const HEAD_Y := 44   ## o fio vermelho do cabeçalho do registro (o texto do `CallLog` começa abaixo dele, `CallLog.HEAD`)
 const CLIP := Vector2i(76, 24)   ## o prendedor da prancheta
 ## A luz da luminária no papel: ela fica no alto do meio da tela (fração da tela), clareia um pouco o canto perto dela
 ## e escurece o longe, liso; apagando (piscando), o papel todo escurece junto.
@@ -65,8 +65,7 @@ func _draw() -> void:
 			draw_texture(_skin(kind, sz), Vector2.ZERO)
 			var x0 := BOARD_W + 12.0
 			var x1 := size.x - BOARD_W - 12.0
-			draw_string(Pal.mono, Vector2(x0, HEAD_Y - 6), T.text(T.Key.TAB_CALL_LOG).to_upper(), HORIZONTAL_ALIGNMENT_LEFT, -1, 11,
-				Pal.INK_SOFT)
+			draw_string(Pal.mono, Vector2(x0, HEAD_Y - 8), T.text(T.Key.TAB_CALL_LOG), HORIZONTAL_ALIGNMENT_LEFT, -1, 22, Pal.INK)   # (o título no tamanho do da ficha de ocorrências)
 			draw_rect(Rect2(x0, HEAD_Y, x1 - x0, 2), Pal.FORM_RED)   # o fio vermelho, duplo
 			draw_rect(Rect2(x0, HEAD_Y + 3, x1 - x0, 1), Pal.FORM_RED)
 			var at := Vector2(floorf((size.x - CLIP.x) / 2.0), 1)

@@ -23,6 +23,7 @@ custom_minimum_size = Vector2(72, 26)
 layout_mode = 2
 size_flags_vertical = 4
 focus_mode = 0
+theme_type_variation = &"InkButton"
 text = "BOOK_BACK"
 
 [node name="Space" type="Control" parent="Nav"]
@@ -35,4 +36,5 @@ custom_minimum_size = Vector2(72, 26)
 layout_mode = 2
 size_flags_vertical = 4
 focus_mode = 0
+theme_type_variation = &"InkButton"
 text = "BOOK_TURN"

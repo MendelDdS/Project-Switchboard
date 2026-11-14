@@ -12,18 +12,23 @@ extends ColorRect
 signal resumed
 
 const BOARD := preload("res://scripts/ui/title_board.gd")   ## (a lâmpada das opções e a letra grande da tela inicial)
+const SLIDE := 12.0   ## de quantos px à esquerda a coluna das configurações entra (`_slide_in`)
+const SLIDE_SEC := 0.14
 const BUS_SLIDERS := {"Ambience": "%Ambience", "Voices": "%Voices", "Effects": "%Effects"}
 
 var _settings_only := false   ## aberto sem pausar (tela inicial, bilhete do supervisor): Voltar fecha tudo
 var _backdrop := true   ## com o fundo da pausa atrás (na tela inicial, não: a coluna abre ao lado do menu dela)
 var _saved := {}              ## configurações ao abrir a tela: Voltar volta para elas, Aplicar grava as novas
 var _asking := ""            ## a ação esperando a tecla nova (`_input`)
+var _slide: Tween
 var _confirm := Callable()   ## o que perde a noite, esperando o Sim (`_ask`)
+
+@onready var _column_at: Vector2 = %Settings.position
 
 
 func _ready() -> void:
 	$Version.text = Settings.version_text()
-	for b: Button in %Main.get_children() + [%Apply, %Back]:
+	for b: Button in %Main.get_children() + [%Apply, %Back, %Language, %Display, %Colors]:
 		b.icon = BOARD.lamp_art()
 		b.mouse_entered.connect(b.grab_focus)   # o mouse escolhe como as setas: uma lâmpada acesa só
 	_logo()
@@ -197,6 +202,8 @@ func _show_settings(on: bool) -> void:
 	var was: bool = %Settings.visible
 	_column(on)
 	%Screen.visible = _backdrop
+	%Veil.self_modulate.a = 0.92 if _backdrop else 1.0   # na tela inicial o véu fecha mais: a mesa atrás é clara e cheia de letras
+	$Version.visible = _backdrop   # (a tela inicial já mostra a versão)
 	%Main.visible = not _settings_only
 	$Center.visible = false
 	%Ask.visible = false
@@ -209,8 +216,21 @@ func _show_settings(on: bool) -> void:
 		for bus in BUS_SLIDERS:
 			(get_node(BUS_SLIDERS[bus]) as HSlider).set_value_no_signal(Settings.volumes[bus])
 		%Language.grab_focus()
+		_slide_in()
 	elif not _settings_only:
 		(%OpenSettings if was else %Resume).grab_focus()
+
+
+## A coluna entra vindo do menu: uns poucos pixels inteiros para a direita, clareando.
+func _slide_in() -> void:
+	if _slide:
+		_slide.kill()
+	var at := _column_at
+	_slide = create_tween().set_parallel()
+	var t := _slide
+	t.tween_method(func(k: float): %Settings.position = at - Vector2(roundf(SLIDE * (1.0 - k)), 0), 0.0, 1.0, SLIDE_SEC).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_CUBIC)
+	t.tween_property(%Settings, "modulate:a", 1.0, SLIDE_SEC).from(0.0)
+	t.tween_property(%Veil, "modulate:a", 1.0, SLIDE_SEC).from(0.0)
 
 
 ## Uma opção de poucas escolhas, num botão: o clique ou o Enter passa à seguinte, as setas para os lados andam nas

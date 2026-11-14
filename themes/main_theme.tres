@@ -414,26 +414,14 @@ content_margin_left = 6.0
 content_margin_top = 3.0
 content_margin_right = 6.0
 content_margin_bottom = 3.0
-bg_color = Color(0.074117646, 0.061764706, 0.04411765, 1)
+bg_color = Color(0, 0, 0, 0)
 border_width_left = 2
 border_width_top = 2
 border_width_right = 2
 border_width_bottom = 2
-border_color = Color(0, 0, 0, 1)
+border_color = Color(0.16470589, 0.13725491, 0.09803922, 0.35)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_mxy8k"]
-content_margin_left = 6.0
-content_margin_top = 3.0
-content_margin_right = 6.0
-content_margin_bottom = 3.0
-bg_color = Color(0.23152941, 0.20627451, 0.17019609, 1)
-border_width_left = 2
-border_width_top = 2
-border_width_right = 2
-border_width_bottom = 2
-border_color = Color(0, 0, 0, 1)
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_33f1l"]
 content_margin_left = 6.0
 content_margin_top = 3.0
 content_margin_right = 6.0
@@ -443,19 +431,31 @@ border_width_left = 2
 border_width_top = 2
 border_width_right = 2
 border_width_bottom = 2
-border_color = Color(0, 0, 0, 1)
+border_color = Color(0.16470589, 0.13725491, 0.09803922, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_33f1l"]
+content_margin_left = 6.0
+content_margin_top = 3.0
+content_margin_right = 6.0
+content_margin_bottom = 3.0
+bg_color = Color(0, 0, 0, 0)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.16470589, 0.13725491, 0.09803922, 1)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_wbnll"]
 content_margin_left = 6.0
 content_margin_top = 3.0
 content_margin_right = 6.0
 content_margin_bottom = 3.0
-bg_color = Color(0.14494118, 0.12078432, 0.08627451, 1)
+bg_color = Color(0.16470589, 0.13725491, 0.09803922, 1)
 border_width_left = 2
 border_width_top = 2
 border_width_right = 2
 border_width_bottom = 2
-border_color = Color(0, 0, 0, 1)
+border_color = Color(0.16470589, 0.13725491, 0.09803922, 1)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_bmtpa"]
 bg_color = Color(0, 0, 0, 0.1)
@@ -943,6 +943,42 @@ corner_radius_bottom_right = 8
 corner_radius_bottom_left = 8
 anti_aliasing = false
 
+[sub_resource type="StyleBoxFlat" id="MenuSlider_track"]
+content_margin_top = 2.0
+content_margin_bottom = 2.0
+bg_color = Color(0.43137255, 0.44313726, 0.40784314, 0.45)
+anti_aliasing = false
+
+[sub_resource type="StyleBoxFlat" id="MenuSlider_fill"]
+content_margin_top = 2.0
+content_margin_bottom = 2.0
+bg_color = Color(0.8117647, 0.78431374, 0.67058825, 0.75)
+anti_aliasing = false
+
+[sub_resource type="StyleBoxFlat" id="MenuSlider_lit"]
+content_margin_top = 2.0
+content_margin_bottom = 2.0
+bg_color = Color(0.9529412, 0.65882355, 0.23529412, 1)
+anti_aliasing = false
+
+[sub_resource type="Gradient" id="MenuSlider_grab_g"]
+offsets = PackedFloat32Array(0)
+colors = PackedColorArray(0.8117647, 0.78431374, 0.67058825, 1)
+
+[sub_resource type="GradientTexture2D" id="MenuSlider_grab"]
+gradient = SubResource("MenuSlider_grab_g")
+width = 5
+height = 13
+
+[sub_resource type="Gradient" id="MenuSlider_grab_lit_g"]
+offsets = PackedFloat32Array(0)
+colors = PackedColorArray(0.9529412, 0.65882355, 0.23529412, 1)
+
+[sub_resource type="GradientTexture2D" id="MenuSlider_grab_lit"]
+gradient = SubResource("MenuSlider_grab_lit_g")
+width = 5
+height = 13
+
 [resource]
 default_font = ExtResource("1_vu6l5")
 default_font_size = 11
@@ -959,7 +995,7 @@ AmberButton/styles/normal = SubResource("StyleBoxFlat_8gw6x")
 AmberButton/styles/pressed = SubResource("StyleBoxFlat_g21io")
 AmberKey/base_type = &"Button"
 AmberKey/colors/font_color = Color(0.902, 0.8588, 0.7412, 1)
-AmberKey/colors/font_disabled_color = Color(0.21, 0.53, 0.6367, 1)
+AmberKey/colors/font_disabled_color = Color(0.5, 0.76, 0.82, 1)
 AmberKey/colors/font_focus_color = Color(0.902, 0.8588, 0.7412, 1)
 AmberKey/colors/font_hover_color = Color(0.902, 0.8588, 0.7412, 1)
 AmberKey/colors/font_hover_pressed_color = Color(0.902, 0.8588, 0.7412, 1)
@@ -972,7 +1008,7 @@ AmberKey/styles/normal = SubResource("KeyCap_Amber_normal")
 AmberKey/styles/pressed = SubResource("KeyCap_Amber_pressed")
 IvoryKey/base_type = &"Button"
 IvoryKey/colors/font_color = Color(0.902, 0.8588, 0.7412, 1)
-IvoryKey/colors/font_disabled_color = Color(0.21, 0.53, 0.6367, 1)
+IvoryKey/colors/font_disabled_color = Color(0.5, 0.76, 0.82, 1)
 IvoryKey/colors/font_focus_color = Color(0.902, 0.8588, 0.7412, 1)
 IvoryKey/colors/font_hover_color = Color(0.902, 0.8588, 0.7412, 1)
 IvoryKey/colors/font_hover_pressed_color = Color(0.902, 0.8588, 0.7412, 1)
@@ -1049,7 +1085,7 @@ GreenButton/styles/normal = SubResource("StyleBoxFlat_6h40v")
 GreenButton/styles/pressed = SubResource("StyleBoxFlat_s47sh")
 GreenKey/base_type = &"Button"
 GreenKey/colors/font_color = Color(0.902, 0.8588, 0.7412, 1)
-GreenKey/colors/font_disabled_color = Color(0.21, 0.53, 0.6367, 1)
+GreenKey/colors/font_disabled_color = Color(0.5, 0.76, 0.82, 1)
 GreenKey/colors/font_focus_color = Color(0.902, 0.8588, 0.7412, 1)
 GreenKey/colors/font_hover_color = Color(0.902, 0.8588, 0.7412, 1)
 GreenKey/colors/font_hover_pressed_color = Color(0.902, 0.8588, 0.7412, 1)
@@ -1065,9 +1101,9 @@ HandText/colors/default_color = Color(0.16862746, 0.24705882, 0.47058824, 1)
 HudPanel/base_type = &"PanelContainer"
 HudPanel/styles/panel = SubResource("StyleBoxFlat_hud")
 InkButton/base_type = &"Button"
-InkButton/colors/font_color = Color(0.84705883, 0.7921569, 0.6392157, 1)
-InkButton/colors/font_disabled_color = Color(0.84705883, 0.7921569, 0.6392157, 0.4)
-InkButton/colors/font_focus_color = Color(0.84705883, 0.7921569, 0.6392157, 1)
+InkButton/colors/font_color = Color(0.16470589, 0.13725491, 0.09803922, 1)
+InkButton/colors/font_disabled_color = Color(0.16470589, 0.13725491, 0.09803922, 0.45)
+InkButton/colors/font_focus_color = Color(0.16470589, 0.13725491, 0.09803922, 1)
 InkButton/colors/font_hover_color = Color(0.84705883, 0.7921569, 0.6392157, 1)
 InkButton/colors/font_pressed_color = Color(0.84705883, 0.7921569, 0.6392157, 1)
 InkButton/styles/disabled = SubResource("StyleBoxFlat_u5sc5")
@@ -1119,12 +1155,25 @@ MenuOption/colors/font_focus_color = Color(0.9529412, 0.65882355, 0.23529412, 1)
 MenuOption/colors/font_hover_color = Color(0.9529412, 0.65882355, 0.23529412, 1)
 MenuOption/colors/font_hover_pressed_color = Color(0.9529412, 0.65882355, 0.23529412, 1)
 MenuOption/colors/font_pressed_color = Color(0.9529412, 0.65882355, 0.23529412, 1)
+MenuOption/colors/icon_normal_color = Color(0.43137255, 0.44313726, 0.40784314, 0.5)
+MenuOption/colors/icon_focus_color = Color(0.9529412, 0.65882355, 0.23529412, 1)
+MenuOption/colors/icon_hover_color = Color(0.9529412, 0.65882355, 0.23529412, 1)
+MenuOption/colors/icon_hover_pressed_color = Color(0.9529412, 0.65882355, 0.23529412, 1)
+MenuOption/colors/icon_pressed_color = Color(0.9529412, 0.65882355, 0.23529412, 1)
+MenuOption/constants/h_separation = 8
 MenuOption/font_sizes/font_size = 11
 MenuOption/styles/disabled = SubResource("StyleBoxEmpty_axpob")
 MenuOption/styles/focus = SubResource("StyleBoxEmpty_axpob")
 MenuOption/styles/hover = SubResource("StyleBoxEmpty_axpob")
 MenuOption/styles/normal = SubResource("StyleBoxEmpty_axpob")
 MenuOption/styles/pressed = SubResource("StyleBoxEmpty_axpob")
+MenuSlider/base_type = &"HSlider"
+MenuSlider/icons/grabber = SubResource("MenuSlider_grab")
+MenuSlider/icons/grabber_disabled = SubResource("MenuSlider_grab")
+MenuSlider/icons/grabber_highlight = SubResource("MenuSlider_grab_lit")
+MenuSlider/styles/grabber_area = SubResource("MenuSlider_fill")
+MenuSlider/styles/grabber_area_highlight = SubResource("MenuSlider_lit")
+MenuSlider/styles/slider = SubResource("MenuSlider_track")
 MonoLabel/base_type = &"Label"
 MonoLabel/fonts/font = ExtResource("1_vu6l5")
 MemoPanel/base_type = &"PanelContainer"
@@ -1197,7 +1246,7 @@ RedButton/styles/normal = SubResource("StyleBoxFlat_r3gy8")
 RedButton/styles/pressed = SubResource("StyleBoxFlat_anjdx")
 EndKey/base_type = &"Button"
 EndKey/colors/font_color = Color(0.902, 0.8588, 0.7412, 1)
-EndKey/colors/font_disabled_color = Color(0.7067, 0.2833, 0.21, 1)
+EndKey/colors/font_disabled_color = Color(0.92, 0.56, 0.47, 1)
 EndKey/colors/font_focus_color = Color(0.902, 0.8588, 0.7412, 1)
 EndKey/colors/font_hover_color = Color(0.902, 0.8588, 0.7412, 1)
 EndKey/colors/font_hover_pressed_color = Color(0.902, 0.8588, 0.7412, 1)
@@ -1210,7 +1259,7 @@ EndKey/styles/normal = SubResource("KeyCap_End_normal")
 EndKey/styles/pressed = SubResource("KeyCap_End_pressed")
 RedKey/base_type = &"Button"
 RedKey/colors/font_color = Color(0.902, 0.8588, 0.7412, 1)
-RedKey/colors/font_disabled_color = Color(0.7067, 0.2833, 0.21, 1)
+RedKey/colors/font_disabled_color = Color(0.92, 0.56, 0.47, 1)
 RedKey/colors/font_focus_color = Color(0.902, 0.8588, 0.7412, 1)
 RedKey/colors/font_hover_color = Color(0.902, 0.8588, 0.7412, 1)
 RedKey/colors/font_hover_pressed_color = Color(0.902, 0.8588, 0.7412, 1)
@@ -1240,7 +1289,7 @@ DigitKey/colors/font_focus_color = Color(0.902, 0.8588, 0.7412, 1)
 DigitKey/colors/font_hover_color = Color(0.902, 0.8588, 0.7412, 1)
 DigitKey/colors/font_hover_pressed_color = Color(0.902, 0.8588, 0.7412, 1)
 DigitKey/colors/font_pressed_color = Color(0.902, 0.8588, 0.7412, 1)
-DigitKey/colors/font_disabled_color = Color(0.21, 0.53, 0.6367, 1)
+DigitKey/colors/font_disabled_color = Color(0.5, 0.76, 0.82, 1)
 DigitKey/font_sizes/font_size = 11
 DigitKey/styles/disabled = SubResource("KeyCap_Digit_disabled")
 DigitKey/styles/hover = SubResource("KeyCap_Digit_hover")

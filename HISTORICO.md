@@ -3738,3 +3738,20 @@ Chaves:
     ligação numa grade de duas por linha (`%KeyGrid`), cada tecla numa borda de 1 px com cantos de 8 px (variação de
     tema `KeyCap`; âmbar na escolhida).
     Depois: "troque o lado do Aplicar e Voltar": Voltar à esquerda, Aplicar à direita.
+585. #interface #pixel #luz #ferramentas Revisão visual pedida ("designer gráfico de jogos especialista": buscar artigos
+    e comentários de outros profissionais, revisar menus, interfaces, objetos, cenários e fundos e sugerir melhorias).
+    Feita sobre 13 capturas (`build/revisao/`) e referências (Cure, Derek Yu, Slynyrd, Lospec, os devlogs do Lucas
+    Pope, Game Accessibility Guidelines, Xbox XAG). Só sugestões, nada mudado: contraste dos botões do console e do
+    "Aguardando chamada" parados, hierarquia de valor da sala, cabeçalhos e botões dos papéis, réguas de volume,
+    o foco só pela cor nas configurações, a faixa preta da abertura, o cartão por cima do mapa. Aguardando a escolha.
+    "Faça tudo, aí você cria um artefato e cada print vai para uma seção apresentando a mudança". Feitas: as letras
+    das teclas apagadas do console e o "Aguardando chamada" mais claros (`*Key/font_disabled_color`,
+    `ScreenGlass.IDLE_INK`); os botões dos papéis cor de papel com borda de tinta, cheios só sob o mouse (`InkButton`,
+    agora também no Voltar e no Virar da lista); o título do registro no tamanho do da ficha (`PaperDeco.HEAD_Y`,
+    `CallLog.HEAD`); a lâmpada em cada opção das configurações e as réguas de volume retas (`MenuSlider`); o botão
+    Configurações da abertura como opção do menu (`MenuOption`); a coluna das configurações entra deslizando
+    (`PauseMenu._slide_in`); a versão em dobro na tela inicial com a coluna aberta saiu. De fora, por decisões já
+    registradas ou pelo modelo físico: a hierarquia de valor da sala (a luz é um sistema afinado: pede sessão própria
+    com variantes), o cartão por cima do mapa (sai da impressora, no meio), a faixa preta da abertura (o console só
+    aparece com o turno começado) e a tampa lisa da coluna dos equipamentos (item 430).
+    Depois: "poderia escurecer mais o fundo? Pois os textos estão quase se misturando com a imagem da mesa": o véu da tela inicial fecha em 96% (na pausa segue em ~88%).

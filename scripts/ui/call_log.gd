@@ -8,7 +8,7 @@ extends RichTextLabel
 
 signal unread_changed(on: bool)
 
-const HEAD := 24.0   ## o espaço do cabeçalho impresso no alto da folha (`PaperDeco.HEAD_Y`): o texto começa abaixo dele
+const HEAD := 38.0   ## o espaço do cabeçalho impresso no alto da folha (`PaperDeco.HEAD_Y`): o texto começa abaixo dele
 const SIDE := 6.0    ## dos lados, para o texto alinhar com o título e o fio do cabeçalho (`PaperDeco`, a 22 px da beira; a margem da cena dá 16)
 
 var unread := false

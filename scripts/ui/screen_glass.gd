@@ -4,7 +4,7 @@ extends Control
 ## painel), o vidro escuro. Com `idle`, a tela desligada continua ligada esperando, como um terminal antigo: o aviso
 ## bem apagado e o cursor piscando (a da conversa; sem ele parecia só um retângulo escuro).
 
-const IDLE_INK := Color(0.72, 0.79, 0.66, 0.3)
+const IDLE_INK := Color(0.72, 0.79, 0.66, 0.65)
 const BLINK := 0.53   # s: o cursor aceso, depois apagado
 
 var off := true:
