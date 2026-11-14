@@ -11528,10 +11528,6 @@ msgid "Ela e o hotel estão conversando pelo cabo: você já pode tirar o [b]FON
 msgstr "Ella y el hotel están hablando por el cable: ya puede sacar el [b]AURICULAR[/b] de la entrada y devolverlo a su soporte. Cuando termine la conversación, la lámpara se pone roja."
 
 #: data/nights/night_00.tres
-msgid "Lâmpada vermelha: a conversa acabou. Tire as duas pontas do cabo (um clique em cada plug) e o FONE, se ainda estiver na entrada, para liberar a linha."
-msgstr "Lámpara roja: la conversación terminó. Saque las dos puntas del cable (un clic en cada clavija) y el AURICULAR, si sigue en la entrada, para liberar la línea."
-
-#: data/nights/night_00.tres
 msgid "A Cecília está ligando de novo, pela [b]entrada 1[/b]. Ponha o [b]FONE[/b] nela."
 msgstr "Cecília está llamando otra vez, por la [b]entrada 1[/b]. Ponga el [b]AURICULAR[/b] en ella."
 
@@ -11542,6 +11538,14 @@ msgstr "¿Ves? Atender, buscar el número en la guía, cable en la salida y en e
 #: data/nights/night_00.tres
 msgid "E quando a lâmpada fica vermelha, tira o cabo. Isso é metade do serviço."
 msgstr "Y cuando la lámpara se pone roja, saca el cable. Esa es la mitad del trabajo."
+
+#: data/nights/night_00.tres
+msgid "Se a lâmpada da tomada ficar vermelha, é porque a ligação foi encerrada e você pode tirar os plugs: isso já libera o cabo e as tomadas."
+msgstr "Si la lámpara de la toma se pone roja, es que la llamada terminó y puedes sacar las clavijas: eso libera el cable y las tomas."
+
+#: data/nights/night_00.tres
+msgid "Lâmpada vermelha na [b]entrada 2[/b]: a conversa acabou. Tire as duas pontas do cabo (um clique em cada plug) para liberar a linha."
+msgstr "Lámpara roja en la [b]entrada 2[/b]: la conversación terminó. Saque las dos puntas del cable (un clic en cada clavija) para liberar la línea."
 
 #: data/nights/night_00.tres
 msgid "A outra metade é papel. Toda ligação que termina vai pra ficha de ocorrências."

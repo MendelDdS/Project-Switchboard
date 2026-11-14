@@ -220,7 +220,7 @@ detalhe no comentário do código, o porquê no `HISTORICO.md`. Atualize os `CLA
 
 ## Noites, setores e agenda
 - 15 noites (`GameContent.nights`, `Night`, `data/nights/`); a noite 0 é o treinamento (`Training`, `LessonStep`, a
-  Cecília). Só `story` é fixo (a ligação desconhecida saiu). Todas, até o epílogo, têm o roteiro de Maria.
+  Cecília; o que atrapalha a aula não se faz: `Training.keeps` prende o FONE e o cabo, `allows` só abre a ferramenta já ensinada, e a pedida balança na mesa, `Background.beckon`). Só `story` é fixo (a ligação desconhecida saiu). Todas, até o epílogo, têm o roteiro de Maria.
 - Setores: o primeiro dígito do número (3 Vila Serena, 1 Centro, 2 Alto da Serra); o operador recebe o 1 na noite 5 e
   o 2 na 10, nunca em noite de evento do golpe (`GameData.SECTOR_NIGHTS`; `GameData.sectors` definido em `Main._load_night`). Testes de cenário usam
   `load_main([1, 2, 3])`.
@@ -246,7 +246,7 @@ detalhe no comentário do código, o porquê no `HISTORICO.md`. Atualize os `CLA
   `news_if`, `StoryText`); a primeira matéria do jornal é a manchete do dia (toda noite uma; as emergências descem); a foto e a legenda seguem a manchete (`Night.photo_for`, desenhadas em `NewsView._tone`). Carta da noite (`Night.letters`, `letter_for`): envelope lacrado em cima do diário desde o
   começo (`Background.letter`, `_art_envelope`; aberta, sem o lacre, `letter_read`), aberta quando o jogador quiser
   (`Tools.LETTER`, `letter_view.gd`); a dica do começo avisa (`HINT_LETTER`).
-- `Progress` (`user://progress.cfg`): próxima noite, ritmo, `low_nights`, marcadores, jornal, palavras-chave,
+- `Progress` (três jogos salvos, `user://progress_N.cfg`, `Progress.slot`/`file`, escolhidos no papel da tela inicial: Carregar abre ou apaga, Novo jogo começa num vazio ou por cima de um usado, perguntando antes, `TitleScreen._pick`/`_ask`): próxima noite, ritmo, `low_nights`, marcadores, jornal, palavras-chave,
   denúncias, chuvas. A última noite ou a demissão limpa o save. Formato com versão (`Progress.VERSION`): mudou o tipo
   ou o sentido de um campo, suba e converta no `load_saved`; o que não dá para ler fica ao lado (`aside`).
 - Agenda (`Schedule`, constantes no topo de `main.gd` e `schedule.gd`; emergência do roteiro conta no espaçamento das sorteadas): a ligação do roteiro espera a mesa em silêncio (`STORY_WAIT`); numa missão do roteiro (a ligação dele na mesa, a conversa dele escutada, a do discador) nada novo toca (`Main.on_mission`); intervalo

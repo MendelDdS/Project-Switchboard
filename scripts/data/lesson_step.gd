@@ -15,6 +15,8 @@ enum Kind {
 @export var kind := Kind.SAY
 ## O passo só acontece se os marcadores baterem (StoryFlags.allows): ela liga de novo se a ligação feita caiu.
 @export var requires: PackedStringArray = []
+## O passo não acontece se o jogador já fez isto (os valores de `until`): ela só lembra de tirar o cabo se ele ficou.
+@export var skip_if := ""
 @export_multiline var text := ""
 @export var options: PackedStringArray = []
 @export var seconds := 0.0
@@ -30,7 +32,7 @@ enum Kind {
 ## "directory" (abriu a lista telefônica), "cord_out" (um cabo de conexão na saída da linha dela), "cord_dest" (a
 ## outra ponta no destino que ela pediu), "transfer" (apertou Transferir), "connected" (o destino atendeu e os dois
 ## ficaram ligados), "line_done" (a conversa dos dois terminou: lâmpada vermelha), "line_free" (o jogador tirou as
-## pontas do cabo), "logbook" (abriu o caderno), "registered" (nada mais esperando registro no caderno), "call_log"
+## pontas do cabo), "cords_free" (nenhum cabo de conexão encaixado na mesa), "logbook" (abriu o caderno), "registered" (nada mais esperando registro no caderno), "call_log"
 ## (abriu a prancheta do registro), "dispatch" (abriu a unidade de despacho), "card" (saiu um cartão para o lugar
 ## `street`/`block`; vazio = o da emergência de treino), "shred" (o cartão foi para a trituradora), "punched" (o cartão
 ## do lugar da emergência de treino perfurado com o tipo e as unidades dela), "sent" (um cartão entrou no
@@ -38,7 +40,7 @@ enum Kind {
 ## entrada dela: ela ficou em espera), "resume" (o FONE voltou para a entrada dela), "diary" (abriu o diário, o
 ## presente dela: liga o marcador `diario_cecilia`), "dialed" (ligou pelo discador para ela, ela atendeu e a ligação acabou; ela
 ## já desligou: quem atende é a `DialCall` da noite, `Night.dial`).
-@export_enum("directory", "cord_out", "cord_dest", "transfer", "connected", "line_done", "line_free", "logbook",
+@export_enum("directory", "cord_out", "cord_dest", "transfer", "connected", "line_done", "line_free", "cords_free", "logbook",
 		"registered", "call_log", "dispatch", "card", "shred", "punched", "sent", "arrived", "hold", "resume", "diary", "dialed") var until := "directory"
 ## WAIT "card": o lugar do cartão (`id` da rua e trecho, como em `EmergencyCall`); vazio = o da emergência de treino.
 @export var street := ""

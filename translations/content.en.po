@@ -11528,10 +11528,6 @@ msgid "Ela e o hotel estão conversando pelo cabo: você já pode tirar o [b]FON
 msgstr "She and the hotel are talking through the cord: you can take the [b]HEADSET[/b] out of the input and put it back in its holder. When the talk ends, the lamp turns red."
 
 #: data/nights/night_00.tres
-msgid "Lâmpada vermelha: a conversa acabou. Tire as duas pontas do cabo (um clique em cada plug) e o FONE, se ainda estiver na entrada, para liberar a linha."
-msgstr "Red lamp: the talk is over. Pull both ends of the cord (one click on each plug), and the HEADSET if it's still in the input, to free the line."
-
-#: data/nights/night_00.tres
 msgid "A Cecília está ligando de novo, pela [b]entrada 1[/b]. Ponha o [b]FONE[/b] nela."
 msgstr "Cecília is calling again, on [b]input 1[/b]. Put the [b]HEADSET[/b] on it."
 
@@ -11542,6 +11538,14 @@ msgstr "See? Answer, find the number in the book, cord in the output and the des
 #: data/nights/night_00.tres
 msgid "E quando a lâmpada fica vermelha, tira o cabo. Isso é metade do serviço."
 msgstr "And when the lamp turns red, pull the cord. That's half the job."
+
+#: data/nights/night_00.tres
+msgid "Se a lâmpada da tomada ficar vermelha, é porque a ligação foi encerrada e você pode tirar os plugs: isso já libera o cabo e as tomadas."
+msgstr "If the jack's lamp turns red, the call is over and you can pull the plugs: that frees the cord and the jacks."
+
+#: data/nights/night_00.tres
+msgid "Lâmpada vermelha na [b]entrada 2[/b]: a conversa acabou. Tire as duas pontas do cabo (um clique em cada plug) para liberar a linha."
+msgstr "Red lamp on [b]input 2[/b]: the talk is over. Pull both ends of the cord (one click on each plug) to free the line."
 
 #: data/nights/night_00.tres
 msgid "A outra metade é papel. Toda ligação que termina vai pra ficha de ocorrências."

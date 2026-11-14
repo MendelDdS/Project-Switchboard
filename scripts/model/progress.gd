@@ -1,6 +1,7 @@
 class_name Progress
 extends RefCounted
-## O que fica salvo entre as noites (user://progress.cfg): a próxima noite e o ritmo dela, as noites seguidas abaixo
+## O que fica salvo entre as noites (um arquivo por jogo salvo, `file`: o jogador tem `SLOTS`, escolhidos na tela
+## inicial, `slot`): a próxima noite e o ritmo dela, as noites seguidas abaixo
 ## do conceito mínimo (`ShiftReport.low_nights`; o `severe` dos saves antigos é ignorado), os marcadores do roteiro (escolhas que mudam as noites seguintes; veja StoryFlags) e o jornal da manhã
 ## seguinte (as manchetes da noite, `ShiftReport.news`, que ficam na mesa na próxima) e as advertências que só chegam
 ## nela (`ShiftReport.later`) e as palavras-chave ouvidas na escuta (`Clue`, em dicionário) e quantas vezes cada lugar
@@ -12,7 +13,8 @@ extends RefCounted
 ## que não abre (corrompido) não é lido nem perdido: fica guardado ao lado (`aside`) e o jogo começa do zero. A
 ## gravação vai para um arquivo temporário e só então toma o lugar do save: fechado no meio, o save antigo fica inteiro.
 
-const PATH := "user://progress.cfg"
+const SLOTS := 3   ## quantos jogos salvos o jogador pode ter
+static var slot := 1   ## o que está em uso (1 a `SLOTS`), escolhido na tela inicial
 ## A versão do formato do save. Mudou o tipo ou o sentido de um campo (não basta acrescentar um: a leitura dá o valor
 ## padrão ao que falta): suba e converta o save antigo no `load_saved`, de versão em versão, antes de ler. Os saves
 ## sem versão são da 1.
@@ -34,7 +36,12 @@ var diary := {}    ## noite -> a página do diário de Maria como ficou no fim d
 var aside := ""    ## o save que não deu para ler, guardado ao lado com este nome (vazio: nenhum)
 
 
-static func load_saved(path := PATH) -> Progress:
+## O arquivo do jogo salvo `n`.
+static func file(n := slot) -> String:
+	return "user://progress_%d.cfg" % n
+
+
+static func load_saved(path := file()) -> Progress:
 	var p := Progress.new()
 	var f := ConfigFile.new()
 	if not FileAccess.file_exists(path):
@@ -65,7 +72,7 @@ static func load_saved(path := PATH) -> Progress:
 	return p
 
 
-func save(path := PATH) -> void:
+func save(path := file()) -> void:
 	var f := ConfigFile.new()
 	f.set_value("progress", "version", VERSION)
 	f.set_value("progress", "night", night)
@@ -85,6 +92,6 @@ func save(path := PATH) -> void:
 		DirAccess.rename_absolute(ProjectSettings.globalize_path(path + ".tmp"), ProjectSettings.globalize_path(path))
 
 
-## Volta para o começo (o treinamento).
-static func clear() -> void:
-	DirAccess.remove_absolute(ProjectSettings.globalize_path(PATH))
+## Apaga o jogo salvo `n`: volta para o começo (o treinamento).
+static func clear(n := slot) -> void:
+	DirAccess.remove_absolute(ProjectSettings.globalize_path(file(n)))

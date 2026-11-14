@@ -127,11 +127,22 @@ func _initialize() -> void:
 	ok(not is_instance_valid(app) and get_tree().current_scene.scene_file_path == "res://scenes/app.tscn", "Recomeçar troca a cena")
 	# fora do jogo (`GameView.playing`, que só a tela inicial liga), a cena abre na tela inicial: o menu e os créditos
 	var title: Control = get_tree().current_scene.get_node("Box/View").get_child(0)
-	ok(title.scene_file_path == "res://scenes/title_screen.tscn" and (title.get_node("%Load") as Button).visible == FileAccess.file_exists(Progress.PATH),
+	ok(title.scene_file_path == "res://scenes/title_screen.tscn" and (title.get_node("%Load") as Button).visible == title._saved(),
 		"sem ter jogado, a tela inicial (Carregar só com jogo salvo)")
 	(title.get_node("%Credits") as Button).pressed.emit()
 	ok((title.get_node("%Shade") as Control).visible and not (title.get_node("%Erase") as Button).visible, "Créditos abre o papel, sem o Apagar")
 	await _key(KEY_ESCAPE)
 	ok(not (title.get_node("%Shade") as Control).visible, "Esc fecha o papel")
+	(title.get_node("%New") as Button).pressed.emit()
+	var slots: Control = title.get_node("%SlotMenu")
+	ok(slots.visible and not (title.get_node("Menu") as Control).visible and not (title._slot(1) as Button).disabled,
+		"Novo jogo troca o menu pelos jogos salvos, todos à escolha")
+	title._ask(T.Key.TITLE_DELETE_WARNING, "TITLE_DELETE", func(): pass)
+	ok((title.get_node("%Erase") as Button).visible and (title.get_node("%Close") as Button).has_focus(),
+		"apagar pergunta antes, com o Voltar escolhido")
+	await _key(KEY_ESCAPE)
+	ok(slots.visible and not (title.get_node("%Shade") as Control).visible, "Esc na pergunta volta aos jogos salvos")
+	await _key(KEY_ESCAPE)
+	ok(not slots.visible and (title.get_node("Menu") as Control).visible, "e de novo, ao menu")
 	get_tree().current_scene.free()
 	finish("teclas pelo GameView")

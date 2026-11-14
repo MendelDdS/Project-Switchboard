@@ -3690,3 +3690,25 @@ Chaves:
     créditos, no `project.godot` e nas exportações (`EstadoDeRuido.*`, `com.mendeldds.estadoderuido`). "Central de São
     Sotero" continua sendo o nome da central no mundo do jogo: o rodapé do cartão do despacho usa `EXCHANGE_NAME`.
     O nome do projeto mudou a pasta do `user://`: o save e as configurações antigas ficam na pasta "Project Switchboard".
+581. `#interface` `#noites` "Vamos implementar slots de save. O jogador terá 3 slots de save e ele pode apagar,
+    sobrescrever ou carregar um save." Três jogos salvos (`Progress.SLOTS`, um arquivo cada, `Progress.file`; o em uso,
+    `Progress.slot`). Na tela inicial, Carregar e Novo jogo abrem o papel com os três, cada um com a noite e a data em
+    que parou ou "Vazio": Carregar abre o escolhido e tem o Apagar ao lado; Novo jogo começa num vazio ou por cima de
+    um usado. Apagar e sobrescrever perguntam antes, no mesmo papel, com o Voltar escolhido. A linha da noite embaixo
+    de Carregar saiu (foi para o papel). O `progress.cfg` antigo não é lido (a troca de nome do jogo já mudou a pasta).
+    "Ao invés de um botão, prefiro um ícone de lixeira para indicar remoção": o Apagar virou a lixeira
+    (`TitleScreen.TRASH`), com o nome na dica do mouse.
+    "Eu prefiro que a tela de carregar jogo seja na mesma tela que a principal, não um 'modal' novo": os jogos
+    salvos saíram do papel e entram no lugar do menu (`%SlotMenu`, `TitleScreen._slots`), nas mesmas opções com
+    lâmpada, a data embaixo de cada um, a lixeira ao lado e o Voltar; o papel ficou só para os créditos e as perguntas.
+582. `#treinamento` `#interface` `#cabos` "Problemas no tutorial" (três). (1) A Cecília só ligava de novo pela entrada 1
+    depois de o jogador tirar o cabo da transferência, e quem não sabia ficava preso: agora ela liga com a conversa
+    acabada, com o cabo na mesa ou não, e, se ele ficou, lembra na ligação seguinte (a fala é do usuário: "Se a lâmpada da tomada ficar vermelha, é
+    porque a ligação foi encerrada e você pode tirar os plugs: isso já libera o cabo e as tomadas"; a minha dizia que
+    o cabo ainda estava na mesa, e ela não tem como saber) e espera tirar
+    (`LessonStep.skip_if`, passo "cords_free"). (2) O objeto que ela pede para abrir (lista, bloco de fichas,
+    prancheta, despacho, diário) sobe e assenta sozinho e clareia, como papel esquecido, até abrir
+    (`Background.beckon`, `BECKON_MS`). (3) O que atrapalha a aula não se faz, com um aviso: o FONE não sai da linha
+    dela enquanto ela explica (menos no passo da espera e com a ligação seguindo pelo cabo), o cabo não sai enquanto
+    ela conversa com o hotel (`Training.keeps`, `Switchboard.keeps`) e as ferramentas e o discador só abrem depois de
+    ensinados (`Training.allows`, `Main._taught`).

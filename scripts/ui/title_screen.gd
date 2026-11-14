@@ -2,9 +2,11 @@ extends Control
 ## A tela inicial do jogo, antes da primeira noite da sessão (o `GameView` a põe no lugar do `Main`; a pausa do jogo
 ## volta para ela por "Voltar ao menu"): à direita, o canto da mesa comutadora de perto com o FONE na entrada 1
 ## (`title_board.gd`); à esquerda, o nome do jogo, o menu (cada opção com uma lâmpada que acende na escolhida, pelo
-## mouse ou pelas setas; Carregar diz em que noite o jogo parou), os Créditos e a versão. Ao fundo, o ambiente da
-## sala e, de vez em quando, uma linha chamando. Carregar ou Novo jogo apagam a lâmpada do FONE, escurecem a tela e
-## clareiam já no jogo; Novo jogo com um jogo salvo pergunta antes de apagá-lo (num papel, como os créditos).
+## mouse ou pelas setas), os Créditos e a versão. Ao fundo, o ambiente da sala e, de vez em quando, uma linha
+## chamando. Carregar e Novo jogo trocam o menu, no mesmo lugar, pelos jogos salvos (`%SlotMenu`, `Progress.SLOTS`,
+## cada um com a noite em que parou): Carregar abre o escolhido ou o apaga (a lixeira); Novo jogo começa num vazio
+## ou por cima de um usado. Apagar e sobrescrever perguntam antes, num papel como o dos créditos (`_ask`). Começar apaga a lâmpada do FONE, escurece a tela e clareia
+## já no jogo.
 
 const MAIN := "res://scenes/main.tscn"
 const RING_GAP := Vector2(25.0, 50.0)   ## de quanto em quanto tempo (s, sorteado) uma linha chama...
@@ -12,14 +14,30 @@ const RING_SEC := 4.5   ## ...e quanto tempo ela fica chamando (dois toques) ant
 const FADE_SEC := 0.9   ## o escuro ao começar o jogo (e o clarear, já nele)
 const LOGO_GAP := 8   ## px entre as duas linhas do nome
 const RAIN_CHANCE := 0.35   ## a chance de o ambiente ser de chuva
+## A lixeira do botão de apagar um jogo salvo (`PixelArt.art`).
+const TRASH: Array[String] = [
+	"...###...",
+	"#########",
+	".........",
+	".#######.",
+	".#.#.#.#.",
+	".#.#.#.#.",
+	".#.#.#.#.",
+	".#.#.#.#.",
+	".#.#.#.#.",
+	".#######.",
+]
+
+enum Pick { NONE, LOAD, NEW }
 
 var _leaving := false
+var _picking := Pick.NONE   ## os jogos salvos no lugar do menu: para carregar ou para o jogo novo
+var _confirm := Callable()   ## perguntando no papel (`_ask`): o que o botão âmbar faz
 var _ring := Timer.new()
 
 
 func _ready() -> void:
-	var saved := FileAccess.file_exists(Progress.PATH)
-	%Load.visible = saved
+	%Load.visible = _saved()
 	%Quit.visible = OS.get_name() != "Web"   # (no navegador, sair do jogo não fecha nada)
 	var lamp := PixelArt.disc(11, [[2.5, Color.WHITE], [5.5, Color(0.92, 0.92, 0.92), Color(0.78, 0.78, 0.78), Color(0.58, 0.58, 0.58)]], Vector2(0.7071, -0.7071))
 	for b: Button in [%Load, %New, %Settings, %Quit]:
@@ -28,21 +46,33 @@ func _ready() -> void:
 		b.mouse_entered.connect(b.grab_focus)   # o mouse escolhe como as setas: uma lâmpada acesa só
 	%Version.texture = PixelArt.tiny(Settings.version_text())
 	_texts()
-	%Load.pressed.connect(_play)
-	%New.pressed.connect(func():
-		if saved:
-			_paper(true)
-		else:
-			_play())
+	%Load.pressed.connect(_slots.bind(Pick.LOAD))
+	%New.pressed.connect(_slots.bind(Pick.NEW))
+	%Back.pressed.connect(_slots.bind(Pick.NONE))
+	%Back.icon = lamp
+	%Back.mouse_entered.connect(%Back.grab_focus)
 	%Settings.pressed.connect(%PauseMenu.open_settings)
 	%Quit.pressed.connect(get_tree().quit)
-	%Credits.pressed.connect(_paper.bind(false))
-	%Erase.pressed.connect(func():
-		Progress.clear()
-		_play())
+	%Credits.pressed.connect(_paper)
+	%Erase.pressed.connect(func(): _confirm.call())
 	%Close.pressed.connect(func():
 		Sfx.play("click")
 		_close_paper())
+	for n in range(1, Progress.SLOTS + 1):
+		var slot := _slot(n)
+		var del := _delete(n)
+		slot.icon = lamp
+		del.icon = PixelArt.art(TRASH, {"#": Color.WHITE})   # (as cores do ícone, na variação `TitleButton`)
+		slot.pressed.connect(_pick.bind(n))
+		slot.mouse_entered.connect(func(): if not slot.disabled: slot.grab_focus())
+		del.mouse_entered.connect(del.grab_focus)
+		del.pressed.connect(func():
+			_ask(T.Key.TITLE_DELETE_WARNING, "TITLE_DELETE", func():
+				Progress.clear(n)
+				%Load.visible = _saved()
+				if not %Load.visible:
+					_picking = Pick.NONE
+				_close_paper()))
 	%PauseMenu.visibility_changed.connect(func(): if not %PauseMenu.visible: _choose())
 	Sfx.ring_stop()
 	Sfx.muffle(false)
@@ -55,9 +85,14 @@ func _ready() -> void:
 
 
 func _unhandled_input(e: InputEvent) -> void:
-	if %Shade.visible and e.is_action_pressed("pause"):
+	if not e.is_action_pressed("pause"):
+		return
+	if %Shade.visible:
 		get_viewport().set_input_as_handled()
 		_close_paper()
+	elif _picking != Pick.NONE:
+		get_viewport().set_input_as_handled()
+		_slots(Pick.NONE)
 
 
 func _notification(what: int) -> void:
@@ -65,7 +100,7 @@ func _notification(what: int) -> void:
 		_texts()
 
 
-## O que se monta com o idioma: o nome do jogo em letra grande e a linha embaixo de Carregar.
+## O que se monta com o idioma: o nome do jogo em letra grande.
 func _texts() -> void:
 	# ponytail: a última palavra do nome ("Ruído", "Noise") em letra de 4× e o resto em 2×, em cima; um idioma em que
 	# a palavra forte não venha no fim pede outra regra.
@@ -88,25 +123,38 @@ func _texts() -> void:
 		logo.blit_rect(i, Rect2i(Vector2i.ZERO, i.get_size()), Vector2i(0, y))
 		y += i.get_height() + LOGO_GAP
 	%Logo.texture = ImageTexture.create_from_image(logo)
-	%Where.text = _where()
-	%Where.get_parent().visible = %Load.visible and %Where.text != ""
 
 
-## A noite em que o jogo salvo parou, com a data ("Noite 4 · Quinta-feira, 11 de outubro de 1973"). Lido direto do
-## arquivo: o `Progress.load_saved` guarda ao lado o save que não dá para ler, e isso fica para o `Main` avisar.
-func _where() -> String:
+## Há algum jogo salvo.
+func _saved() -> bool:
+	return range(1, Progress.SLOTS + 1).any(func(n: int): return FileAccess.file_exists(Progress.file(n)))
+
+
+## O botão do jogo salvo `n` e a lixeira dele.
+func _slot(n: int) -> Button:
+	return %Slots.get_child(n - 1).get_node("Line/Slot")
+
+
+func _delete(n: int) -> Button:
+	return %Slots.get_child(n - 1).get_node("Line/Delete")
+
+
+## A noite em que o jogo salvo `n` parou, com a data ("Noite 4 · Quinta-feira, 11 de outubro de 1973"); vazio, "".
+## Lido direto do arquivo: o `Progress.load_saved` guarda ao lado o save que não dá para ler, e isso fica para o
+## `Main` avisar.
+func _where(n: int) -> String:
 	var f := ConfigFile.new()
-	if f.load(Progress.PATH) != OK:
+	if f.load(Progress.file(n)) != OK:
 		return ""
-	var n: int = f.get_value("progress", "night", 0)
-	if n == 0:
+	var night: int = f.get_value("progress", "night", 0)
+	if night == 0:
 		return T.text(T.Key.TITLE_WHERE_TRAINING) % GameData.date_text(0)
-	return T.text(T.Key.TITLE_WHERE) % [n, GameData.date_text(n)]
+	return T.text(T.Key.TITLE_WHERE) % [night, GameData.date_text(night)]
 
 
 ## A primeira opção à mostra fica escolhida (as setas e o Enter andam a partir dela).
 func _choose() -> void:
-	if _leaving or %Shade.visible:
+	if _leaving or %Shade.visible or _picking != Pick.NONE:
 		return
 	for b: Button in [%Load, %New]:
 		if b.visible:
@@ -128,18 +176,76 @@ func _toggle_ring() -> void:
 		_ring.start(randf_range(RING_GAP.x, RING_GAP.y))
 
 
-## O papel por cima do menu: o aviso de que o jogo novo apaga o salvo (`ask`) ou os créditos.
-func _paper(ask: bool) -> void:
+## Troca o menu pelos jogos salvos (`mode`: para carregar ou para o jogo novo) ou os devolve (`Pick.NONE`).
+func _slots(mode: Pick) -> void:
 	Sfx.play("click")
-	%Text.text = T.text(T.Key.TITLE_NEW_WARNING if ask else T.Key.CREDITS_TEXT)
-	%Erase.visible = ask
+	_picking = mode
+	_show_slots()
+
+
+## Monta os jogos salvos no lugar do menu: a noite em que cada um parou e a data embaixo, ou "Vazio" (que não se
+## carrega); a lixeira só para carregar, nos usados.
+func _show_slots() -> void:
+	var on := _picking != Pick.NONE
+	$Menu.visible = not on
+	%SlotMenu.visible = on
+	if not on:
+		_choose()
+		return
+	%Pick.text = T.text(T.Key.TITLE_PICK_LOAD if _picking == Pick.LOAD else T.Key.TITLE_PICK_NEW)
+	var first: Button = %Back
+	for n in range(Progress.SLOTS, 0, -1):
+		var where := _where(n)
+		var b := _slot(n)
+		var date: Label = %Slots.get_child(n - 1).get_node("WhereBox/Where")
+		b.text = "%d · %s" % [n, where.get_slice(" · ", 0) if where != "" else T.text(T.Key.TITLE_EMPTY)]
+		b.disabled = _picking == Pick.LOAD and where == ""
+		date.text = where.get_slice(" · ", 1)
+		date.get_parent().visible = where != ""
+		_delete(n).visible = _picking == Pick.LOAD and where != ""
+		if not b.disabled:
+			first = b
+	first.grab_focus()
+
+
+## O jogo salvo `n` escolhido: carrega; no jogo novo, começa nele (por cima do que houver, perguntando antes).
+func _pick(n: int) -> void:
+	if _picking == Pick.NEW and _where(n) != "":
+		_ask(T.Key.TITLE_NEW_WARNING, "TITLE_ERASE", func():
+			Progress.clear(n)
+			_pick(n))
+		return
+	Progress.slot = n
+	%Shade.visible = false
+	_play()
+
+
+## O papel dos créditos, por cima do menu.
+func _paper() -> void:
+	Sfx.play("click")
+	%Text.text = T.text(T.Key.CREDITS_TEXT)
+	%Erase.visible = false
 	%Shade.visible = true
-	(%Erase if ask else %Close).grab_focus()
+	%Close.grab_focus()
 
 
+## A pergunta no papel, antes de apagar um jogo salvo: o botão âmbar (`label`, a chave do texto) faz `yes`; o Voltar
+## vem escolhido.
+func _ask(text: T.Key, label: String, yes: Callable) -> void:
+	Sfx.play("click")
+	_confirm = yes
+	%Text.text = T.text(text)
+	%Erase.text = label
+	%Erase.visible = true
+	%Shade.visible = true
+	%Close.grab_focus()
+
+
+## Fecha o papel e volta ao que estava atrás: o menu ou os jogos salvos.
 func _close_paper() -> void:
 	%Shade.visible = false
-	_choose()
+	_confirm = Callable()
+	_show_slots()
 
 
 ## Troca esta tela pelo jogo (o `Main` lê o jogo salvo, se houver; os recomeços dele, `Main.restart`, não voltam

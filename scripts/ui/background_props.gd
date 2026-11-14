@@ -165,6 +165,7 @@ var _yaw := 0.0   # quanto o relógio da mesa está girado (rad; `_draw_flip_clo
 var _props := {}       # objeto que abre ferramenta -> retângulo dele (px da tela), do último desenho
 var _tape_next := Rect2()   # o tampo da próxima fita entregue na pilha (`tape_spot`), do último desenho
 var sips := 0   ## os goles já tomados do café: ele baixa na caneca (`_mug_art`) e, acabado, o vapor some
+var beckon := ""       ## o objeto (`Tools`) que a veterana pede para abrir no treinamento: balança e clareia até abrir (`_lift_step`, `_nag_look`)
 var _up_id := ""       # o objeto erguido sob o mouse, subindo ou assentando ("" = nenhum): fica na camada dele (`_lifted`), não na sala
 var _mug_rim := []     # a caneca na tela (o corpo e a meia altura da boca), para a beira acesa pelo sol (`Background._draw_sun_edge`)
 var _clock_rim := {}   # as faces do relógio na tela (`_clock_box`), para o mesmo

@@ -4,13 +4,19 @@ extends Node
 ## uma colega ao lado, pelos passos de `Night.lesson` (`LessonStep`). Ela liga por entradas certas, explica e espera o
 ## jogador fazer cada coisa na mesa; enquanto espera, a dica do passo fica no papel do manual. Se ela estiver na linha,
 ## ela mesma comenta o erro ou a demora; senão, fica só a dica. Enquanto corre (`active`), o relógio fica parado (o
-## Main não anda o turno) e nada da agenda toca; depois, segue um turno calmo.
+## Main não anda o turno) e nada da agenda toca; depois, segue um turno calmo. O que atrapalharia a aula não se faz:
+## o FONE fica na linha dela enquanto ela explica e o cabo enquanto ela fala com o destino (`keeps`), e as
+## ferramentas só abrem depois de ensinadas (`allows`); a que ela pede para abrir chama atenção na mesa
+## (`Background.beckon`).
 ## As ligações dela são transferências (`PhoneCall.lesson`): a mesa, os cabos e o Transferir valem como sempre.
 
 signal finished
 
 const TALK_SEC := 8.0   ## a conversa dela com o destino, até a lâmpada ficar vermelha (o relógio está parado)
 const SPEECH := 1.6     ## ela fala mais devagar que quem liga (`PhoneCall.speech`)
+## O passo de abrir cada ferramenta (`LessonStep.until`): a partir dele ela abre (`allows`) e, nele, chama atenção.
+const TOOL_OF := {"directory": Tools.DIRECTORY, "logbook": Tools.LOGBOOK, "call_log": Tools.CALL_LOG,
+	"dispatch": Tools.DISPATCH, "diary": Tools.DIARY, "dialed": "dialer"}
 
 var active := false
 var call: PhoneCall   ## a ligação dela agora (nula antes da primeira)
@@ -21,6 +27,7 @@ var drill_call: PhoneCall  ## a ligação dela com a emergência de treino (a fi
 var _sent := false      ## um cartão entrou no transmissor (passo "sent")
 var _arrived := false   ## as unidades chegaram ao lugar certo da emergência de treino (passo "arrived")
 var _hint := ""         ## a dica do passo, no papel do manual (`_show`)
+var _taught := []       ## as ferramentas que ela já ensinou (`allows`)
 
 @onready var main: Main = get_parent()
 
@@ -46,7 +53,7 @@ func start(night: Night) -> void:
 
 
 func _play(s: LessonStep) -> void:
-	if not main.flags.allows(s.requires):
+	if not main.flags.allows(s.requires) or (s.skip_if != "" and _done(s.skip_if)):
 		return
 	match s.kind:
 		LessonStep.Kind.RING:
@@ -138,6 +145,9 @@ func _wait(s: LessonStep) -> void:
 	if s.until == "sent":
 		_sent = false
 		_arrived = false
+	if TOOL_OF.has(s.until):
+		_taught.append(TOOL_OF[s.until])
+		main.background.beckon = TOOL_OF[s.until]   # (o discador não é objeto da sala: nada balança)
 	var since := 0.0
 	var nudge := 0
 	var told := -1   # o lugar errado já comentado (não repete enquanto ele não mudar)
@@ -166,6 +176,7 @@ func _wait(s: LessonStep) -> void:
 			since = 0.0
 			nudge += 1
 			await _say(s.nudges[nudge - 1])
+	main.background.beckon = ""
 
 
 ## A dica do manual no passo `s`: a dele, ou, se as unidades da emergência de treino ainda estão fora (um cartão
@@ -218,6 +229,8 @@ func _done(until: String) -> bool:
 			return main.exchange.line(call.line) == Exchange.Line.DONE
 		"line_free":
 			return main.exchange.line(call.line) == Exchange.Line.FREE
+		"cords_free":
+			return range(1, main.board.ends.size()).all(func(e: int): return main.board.ends[e] == -1)
 		"logbook":
 			return _opened(Tools.LOGBOOK, Main.SAW_SLIPS)
 		"registered":
@@ -230,6 +243,25 @@ func _done(until: String) -> bool:
 			return main.dialing.call == null and main.flags.allows(["ligou_%s_%d" % [_night.dial[0].number, main.night_no]])
 	push_error("Training: passo com until desconhecido: \"%s\"" % until)
 	return true   # (não trava o treinamento)
+
+
+## A ferramenta `id` (ou "dialer", o discador) já abre: fora do treinamento, todas; nele, só as que ela já ensinou.
+func allows(id: String) -> bool:
+	return not active or id in _taught
+
+
+## Por que a ponta `e` não sai da tomada agora ("" = sai): o FONE fica na linha dela enquanto ela explica (menos
+## para pôr em espera e com a ligação já seguindo pelo cabo), e o cabo dela, enquanto ela conversa com o destino.
+func keeps(e: int) -> String:
+	if not active or call == null:
+		return ""
+	var b := main.board
+	if e == 0:
+		var free := not _here() or call.connected or call.closing or (_step != null and _step.kind == LessonStep.Kind.WAIT and _step.until == "hold")
+		return "" if free or not call.active or b.fone_line() != call.line else T.text(T.Key.WARN_TRAINING_FONE) % tr(call.caller)
+	if call.connected and main.exchange.line(call.line) not in [Exchange.Line.DONE, Exchange.Line.FREE] and call.line + 10 in [b.ends[e], b.ends[b.mate(e)]]:
+		return T.text(T.Key.WARN_TRAINING_CORD)
+	return ""
 
 
 ## A ferramenta `tab` está aberta; o sinal da mesa que ela ensinou (`flag`) já não pede a dica de primeira vez.

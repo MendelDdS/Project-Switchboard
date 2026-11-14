@@ -60,6 +60,7 @@ const SET_SOUND := {Tools.DISPATCH: "set_metal", Tools.TOLL: "set_metal", TAPES_
 
 const TIP_SEC := 1.3   ## o bilhete subindo na fenda do calculógrafo da mesa: o tempo do som da impressora ("printer")
 const TIP_SWAY_SEC := 1.7   ## e, de todo para fora, o vaivém dele pendurado na fenda (a ponta encolhe 1 px e a serrilha anda)
+const BECKON_MS := 450   ## o objeto que a veterana pede para abrir (`beckon`) sobe e assenta neste ritmo, clareando como papel esquecido
 const NAG_PULSE_SEC := 1.6   ## o papel esquecido (a tira por registrar, o bilhete fora da caixinha) clareia e apaga devagar (`_nag_layer`)
 const SLIP_SEC := 0.6   ## a tira do registro novo subindo de trás do bloco de fichas (`_slip_layer`)
 const HUNG := Vector2(18, 24)   ## a prancheta do registro pendurada na lateral do painel: funda (z) e alta (y), na sala
@@ -735,6 +736,8 @@ func _process(delta: float) -> void:
 ## sala e quando volta, e a camada a cada pixel que ele sobe ou desce (a sombra fica na mesa).
 func _lift_step(delta: float) -> void:
 	var want := _hot if (_hot in PROPS or _hot in _pinned or _hot == MUG_ID or _hot == TAPES_ID) and not _cover.has_area() else ""
+	if want == "" and beckon != "" and not _cover.has_area() and (PixelArt.ms() / BECKON_MS) % 2 == 0:
+		want = beckon   # ninguém com o mouse num objeto: o que ela pediu sobe e desce sozinho
 	if _up_id != "" and want != "" and want != _up_id:   # ponytail: o anterior assenta de uma vez; uma camada por objeto se os dois tiverem de se ver
 		_land()
 	if _up_id == "" and want != "":
@@ -760,7 +763,7 @@ func _lift_step(delta: float) -> void:
 
 ## O objeto erguido volta para a mesa e para a sala, com o som do material dele (sem o papel de uma ferramenta por cima).
 func _land() -> void:
-	if not _cover.has_area():
+	if not _cover.has_area() and _up_id != beckon:   # (o que balança chamando atenção não bate na mesa a cada vez)
 		Sfx.play_at(SET_SOUND.get(_up_id, "set_paper"), _props.get(_up_id, Rect2()).get_center().x / maxf(1.0, size.x))
 	_up_id = ""
 	_lift = Lift.new()
@@ -1792,6 +1795,9 @@ func _nag_look() -> Array:
 			out.append_array(_nags[id])
 	if tickets > 0 and _tip_h > 0 and _up_id != Tools.TOLL:
 		var r := Rect2(_tip.position, Vector2(_tip.size.x, _tip_h - _tip_sway))
+		out.append(PackedVector2Array([r.position, Vector2(r.end.x, r.position.y), r.end, Vector2(r.position.x, r.end.y)]))
+	if _props.has(beckon) and not _cover.has_area():   # o objeto que a veterana pede para abrir
+		var r: Rect2 = _props[beckon]
 		out.append(PackedVector2Array([r.position, Vector2(r.end.x, r.position.y), r.end, Vector2(r.position.x, r.end.y)]))
 	return out
 

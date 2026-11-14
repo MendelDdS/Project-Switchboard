@@ -217,8 +217,9 @@ func _ready() -> void:
 		Sfx.play_at("pencil", _across(background.prop_rect(Tools.DIARY).get_center().x), -6.0))
 	shelf_dialer.dialing = dialing
 	%DialView.dialing = dialing
-	shelf_dialer.clicked.connect(func(): if running and not ending: %DialView.visible = not %DialView.visible)   # o de perto, por cima do painel
-	background.prop_clicked.connect(func(id: String): if running and not ending: tools.set_tab(id))   # objetos da cena
+	shelf_dialer.clicked.connect(func(): if running and not ending and _taught("dialer"): %DialView.visible = not %DialView.visible)   # o de perto, por cima do painel
+	background.prop_clicked.connect(func(id: String): if running and not ending and _taught(id): tools.set_tab(id))   # objetos da cena
+	board.keeps = training.keeps
 	background.note_clicked.connect(func(): if running and not ending: _intro.reread(background.prop_rect(Background.NOTE_ID)))   # o recado do supervisor, de perto
 	background.flare_lit.connect(func(): flags.apply("sinalizador_%d" % night_no))   # o sinal do roteiro na noite 15
 	_intro.over = tools   # o bilhete do supervisor de perto, na metade direita, onde abrem as ferramentas
@@ -588,7 +589,15 @@ func _unhandled_input(e: InputEvent) -> void:
 		for id in TAB_KEYS:
 			if e.is_action_pressed(TAB_KEYS[id]):
 				get_viewport().set_input_as_handled()
-				tools.toggle(id)
+				if _taught(id):
+					tools.toggle(id)
+
+
+## O jogador pode abrir a ferramenta `id` (ou o discador): no treinamento, só o que a veterana já ensinou; senão, o aviso.
+func _taught(id: String) -> bool:
+	if not training.allows(id):
+		warn(T.text(T.Key.WARN_TRAINING_LATER) % tr(night.teacher))
+	return training.allows(id)
 
 
 func pause() -> void:

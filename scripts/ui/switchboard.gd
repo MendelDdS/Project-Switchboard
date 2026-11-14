@@ -121,6 +121,8 @@ var _hand_was := Vector2.ZERO     # onde o plug na mão (ou o mouse) estava no q
 var shelf: Callable
 ## Os olhos do operador, o ponto de fuga da sala (`Background.eye`, em px da tela); sem ele, `PLUG_EYE`.
 var eye: Callable
+## Por que a ponta `e`, encaixada, não sai da tomada pela mão do jogador ("" = sai): o treinamento (`Training.keeps`).
+var keeps: Callable
 var _swing_v := 0.0
 # fio que passou pelos buracos neste quadro, para o som de atrito (px): saindo, entrando, e somas pesadas por px
 # do lugar do buraco na tela (0..1) e do que era o fio do FONE
@@ -390,6 +392,11 @@ func _press(pos: Vector2) -> void:
 	_held_for = 0.0
 	var e := _plug_under(pos)
 	if e != -1:
+		var why: String = keeps.call(e) if keeps.is_valid() and ends[e] != -1 else ""
+		if why != "":
+			warned.emit(why)
+			_sfx("click", pos)
+			return
 		_loose.erase(e)
 		pick_up(e)
 		return

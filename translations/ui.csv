@@ -102,6 +102,9 @@ WARN_PLUG_OUTPUT,Ligue um cabo de conexão da SAÍDA %02d até o número de dest
 WARN_DEST_BUSY,O %d já está tocando ou em conversa.,%d is already ringing or on a call.,El %d ya está sonando o en conversación.
 WARN_FONE_TO_BLINK,Leve o FONE até a entrada que está piscando.,Bring the HEADSET to the blinking input.,Lleve el AURICULAR a la entrada que parpadea.
 WARN_TRAINING_HANG_UP,%s ainda está explicando: ela desliga quando terminar.,%s is still explaining: she will hang up when she is done.,%s todavía está explicando: ella cuelga cuando termine.
+WARN_TRAINING_LATER,%s ainda vai mostrar isso: uma coisa de cada vez.,%s will get to that: one thing at a time.,%s todavía va a mostrar eso: una cosa a la vez.
+WARN_TRAINING_FONE,Deixe o FONE na linha: %s ainda está explicando.,Leave the HEADSET on the line: %s is still explaining.,Deje el AURICULAR en la línea: %s todavía está explicando.
+WARN_TRAINING_CORD,A conversa ainda não acabou: espere a lâmpada ficar vermelha para tirar o cabo.,The talk is not over yet: wait for the lamp to turn red before pulling the cord.,La conversación aún no terminó: espere a que la lámpara se ponga roja para sacar el cable.
 WARN_TRAINING_WRONG,"O cabo está no %d, que não é o número pedido.","The cord is on %d, which is not the number asked for.","El cable está en el %d, que no es el número pedido."
 HINT_TRAINING_BACK,"%s está em espera e não ouve nada: volte o [b]FONE[/b] para a [b]entrada %d[/b].","%s is on hold and cannot hear you: put the [b]HEADSET[/b] back on [b]input %d[/b].","%s está en espera y no oye nada: vuelva a poner el [b]AURICULAR[/b] en la [b]entrada %d[/b]."
 HINT_TRAINING_UNITS_AWAY,"Os [b]bombeiros[/b] ainda estão fora, voltando de outro cartão: espere chegarem à base para perfurá-los.","The [b]fire brigade[/b] is still out, coming back from another card: wait for them to reach the station before punching them.","Los [b]bomberos[/b] todavía están fuera, volviendo de otra tarjeta: espere a que lleguen a la base para perforarlos."
@@ -523,7 +526,12 @@ TITLE_LOAD,Carregar jogo,Load game,Cargar partida
 TITLE_NEW,Novo jogo,New game,Nueva partida
 TITLE_QUIT,Sair,Quit,Salir
 TITLE_CREDITS,Créditos,Credits,Créditos
-TITLE_NEW_WARNING,Um jogo novo apaga o jogo salvo e começa de novo do treinamento.,A new game erases the saved game and starts over from the training.,Una partida nueva borra la partida guardada y empieza de nuevo desde el entrenamiento.
+TITLE_PICK_LOAD,Qual jogo salvo carregar?,Which saved game to load?,¿Qué partida guardada cargar?
+TITLE_PICK_NEW,Onde guardar o jogo novo?,Where to keep the new game?,¿Dónde guardar la partida nueva?
+TITLE_EMPTY,Vazio,Empty,Vacío
+TITLE_DELETE,Apagar,Delete,Borrar
+TITLE_DELETE_WARNING,Apagar este jogo salvo? Não dá para desfazer.,Delete this saved game? This cannot be undone.,¿Borrar esta partida guardada? No se puede deshacer.
+TITLE_NEW_WARNING,O jogo novo apaga o jogo salvo que está aqui e começa do treinamento.,The new game erases the saved game kept here and starts from the training.,La partida nueva borra la partida guardada que está aquí y empieza desde el entrenamiento.
 TITLE_ERASE,Apagar e começar,Erase and start,Borrar y empezar
 CREDITS_TEXT,"Criação, roteiro e programação\nMendelssohn Dantas de Sá\n\nFeito com Godot Engine\ngodotengine.org/license\n\nFonte Departure Mono, de Helena Zhang\n(SIL Open Font License)","Created, written and programmed by\nMendelssohn Dantas de Sá\n\nMade with Godot Engine\ngodotengine.org/license\n\nDeparture Mono font by Helena Zhang\n(SIL Open Font License)","Creación, guion y programación\nMendelssohn Dantas de Sá\n\nHecho con Godot Engine\ngodotengine.org/license\n\nFuente Departure Mono, de Helena Zhang\n(SIL Open Font License)"
 TITLE_WHERE,Noite %d · %s,Night %d · %s,Noche %d · %s

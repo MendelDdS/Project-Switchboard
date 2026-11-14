@@ -11527,10 +11527,6 @@ msgid "Ela e o hotel estão conversando pelo cabo: você já pode tirar o [b]FON
 msgstr ""
 
 #: data/nights/night_00.tres
-msgid "Lâmpada vermelha: a conversa acabou. Tire as duas pontas do cabo (um clique em cada plug) e o FONE, se ainda estiver na entrada, para liberar a linha."
-msgstr ""
-
-#: data/nights/night_00.tres
 msgid "A Cecília está ligando de novo, pela [b]entrada 1[/b]. Ponha o [b]FONE[/b] nela."
 msgstr ""
 
@@ -11540,6 +11536,14 @@ msgstr ""
 
 #: data/nights/night_00.tres
 msgid "E quando a lâmpada fica vermelha, tira o cabo. Isso é metade do serviço."
+msgstr ""
+
+#: data/nights/night_00.tres
+msgid "Se a lâmpada da tomada ficar vermelha, é porque a ligação foi encerrada e você pode tirar os plugs: isso já libera o cabo e as tomadas."
+msgstr ""
+
+#: data/nights/night_00.tres
+msgid "Lâmpada vermelha na [b]entrada 2[/b]: a conversa acabou. Tire as duas pontas do cabo (um clique em cada plug) para liberar a linha."
 msgstr ""
 
 #: data/nights/night_00.tres

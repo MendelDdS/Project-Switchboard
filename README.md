@@ -16,7 +16,7 @@ Abra a pasta no Godot 4.6 (Importar → `project.godot`) e aperte F5.
   no `content.tres`.
 - `data/nights/` — **uma noite por arquivo** (ordem em `nights` no `content.tres`): dia da semana, bilhete da tela
   inicial, clima, agenda, ligações do roteiro (`story`: um roteiro de `data/calls/` num horário fixo). Para criar uma noite: duplique um `.tres`, edite no
-  inspetor e acrescente na lista `nights`. O progresso fica salvo em `user://progress.cfg`, com a versão
+  inspetor e acrescente na lista `nights`. O progresso fica salvo em `user://progress_N.cfg` (três jogos salvos, escolhidos na tela inicial), com a versão
   do formato (`Progress.VERSION`): mudou o tipo ou o sentido de um campo, suba a versão e converta o save antigo no
   `load_saved`. Um save de versão mais nova ou corrompido fica guardado ao lado (`progress.v2-<hora>.cfg`,
   `progress.corrompido-<hora>.cfg`), a tela inicial avisa e o jogo começa do zero.
