@@ -525,6 +525,10 @@ OP_DIAL_BYE,"Vou desligar agora, obrigada.","I'll hang up now, thank you.","Voy 
 TITLE_LOAD,Carregar jogo,Load game,Cargar partida
 TITLE_NEW,Novo jogo,New game,Nueva partida
 TITLE_QUIT,Sair,Quit,Salir
+TITLE_REPLAY,Rejogar noite,Replay a night,Rejugar noche
+TITLE_PICK_REPLAY,Rejogar uma noite de qual jogo?,Replay a night from which game?,¿Rejugar una noche de qué partida?
+TITLE_PICK_NIGHT,Qual noite rejogar?,Which night to replay?,¿Qué noche rejugar?
+TITLE_REPLAY_NOTE,"Nada é gravado: o jogo salvo continua de onde parou.","Nothing is saved: the saved game stays where it stopped.","No se guarda nada: la partida guardada sigue donde quedó."
 TITLE_CREDITS,Créditos,Credits,Créditos
 TITLE_PICK_LOAD,Qual jogo salvo carregar?,Which saved game to load?,¿Qué partida guardada cargar?
 TITLE_PICK_NEW,Onde guardar o jogo novo?,Where to keep the new game?,¿Dónde guardar la partida nueva?

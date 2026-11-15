@@ -23,7 +23,7 @@ func _ready() -> void:
 		n.modulate.a = 0.0
 	_restart.disabled = true   # no lugar desde o começo, transparente: escondido, entrar depois subia o texto
 	_restart.pressed.connect(func() -> void:
-		if _to_menu:
+		if _to_menu or Progress.replay > 0:   # (a noite rejogada não tem seguinte)
 			GameView.playing = false
 		Main.restart())
 
@@ -47,6 +47,8 @@ func play(report: ShiftReport, more: bool, text: StoryText = null, memo := true)
 		_title.text = T.text(T.Key.END_GAME_TITLE)
 		_restart.text = T.text(T.Key.PAUSE_TO_MENU)
 		_to_menu = true
+	if Progress.replay > 0:
+		_restart.text = T.text(T.Key.PAUSE_TO_MENU)
 	if text != null and not report.fired():
 		if text.title != "":
 			_title.text = tr(text.title)

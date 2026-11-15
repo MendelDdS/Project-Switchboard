@@ -36,8 +36,9 @@ const DiaryLine := preload("res://scripts/data/diary_line.gd")
 @export var story: Array[StoryCall] = []
 ## Ligações escritas desta noite que entram no sorteio, cada uma numa vaga sorteada no lugar de uma transferência
 ## (`Schedule._random_calls`): quem comenta a manchete do jornal, quem procura um parente preso. Do `StoryCall` valem
-## só `call` e `requires` (conferido na hora de tocar: as versões de um mesmo assunto com marcadores opostos); não são
-## missão do roteiro, não têm horário nem desfecho.
+## `call`, `requires` (conferido na hora de tocar: as versões de um mesmo assunto com marcadores opostos), os
+## marcadores do desfecho e o `callback`; não são missão do roteiro nem têm horário. O freguês que volta noites depois
+## (`noite_NN_<nome>_bem`/`_mal`) escolhe a versão pelo desfecho da primeira ligação dele.
 @export var calls: Array[StoryCall] = []
 ## O que pedem a Maria nesta noite, como ela anota no diário (`Diary`): as missões e os pedidos de cada lado.
 @export var tasks: Array[DiaryTask] = []

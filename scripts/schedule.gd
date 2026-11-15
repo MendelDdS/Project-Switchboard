@@ -15,8 +15,9 @@ var calls: Array[PhoneCall] = []   ## em ordem de horário
 var targets := []                  ## os destinos já pedidos nesta noite (um número por noite; `filler` também usa)
 
 
-## Agenda da noite `night` no ritmo `pace`; as ligações sorteadas vão até o minuto `last_call`.
-static func build(night: Night, pace: Pace, last_call: float) -> Schedule:
+## Agenda da noite `night` no ritmo `pace`; as ligações sorteadas vão até o minuto `last_call`. `flags`: os marcadores
+## do começo da noite (as escritas da noite que já podem tocar ganham vaga primeiro).
+static func build(night: Night, pace: Pace, last_call: float, flags: StoryFlags = null) -> Schedule:
 	var s := Schedule.new()
 	var fixed: Array[PhoneCall] = []
 	for st in night.story:
@@ -28,7 +29,7 @@ static func build(night: Night, pace: Pace, last_call: float) -> Schedule:
 		c.latest = minf(st.at + STORY_WAIT, last_call)
 		fixed.append(c)
 	s.calls = fixed.duplicate()
-	s.calls.append_array(s._random_calls(night, pace, last_call, fixed))
+	s.calls.append_array(s._random_calls(night, pace, last_call, fixed, flags))
 	s.calls.sort_custom(func(a: PhoneCall, b: PhoneCall): return a.at < b.at)
 	return s
 
@@ -37,7 +38,7 @@ static func build(night: Night, pace: Pace, last_call: float) -> Schedule:
 ## silêncio possível); de vez em quando (`Pace.peak_chance`) a próxima vem logo em seguida. O tipo também é sorteado:
 ## `Pace.emergencies` emergências (espaçadas por EMERGENCY_GAP), `Pace.pranks` trotes, e o resto
 ## transferências ou pedidos de informação.
-func _random_calls(night: Night, pace: Pace, last_call: float, fixed: Array[PhoneCall]) -> Array[PhoneCall]:
+func _random_calls(night: Night, pace: Pace, last_call: float, fixed: Array[PhoneCall], flags: StoryFlags) -> Array[PhoneCall]:
 	var C := GameData.CONTENT
 	var ats := []
 	var until := last_call if night.quiet_from < 0.0 else minf(last_call, night.quiet_from)
@@ -61,8 +62,11 @@ func _random_calls(night: Night, pace: Pace, last_call: float, fixed: Array[Phon
 	for i in free.slice(0, n_pranks):
 		kinds[i] = PhoneCall.Kind.PRANK
 	var own := {}   # vaga -> StoryCall: as escritas da noite (`Night.calls`), nas vagas comuns que sobraram
-	for k in mini(night.calls.size(), free.size() - n_pranks):
-		own[free[n_pranks + k]] = night.calls[k]
+	# com poucas vagas, primeiro as que os marcadores já deixam tocar (das duas versões de um freguês, a que vale)
+	var can := func(st: StoryCall) -> bool: return flags == null or flags.allows(st.requires)
+	var mine := night.calls.filter(can) + night.calls.filter(func(st: StoryCall) -> bool: return not can.call(st))
+	for k in mini(mine.size(), free.size() - n_pranks):
+		own[free[n_pranks + k]] = mine[k]
 	var used := fixed.map(func(f: PhoneCall): return f.caller)
 	targets = fixed.map(func(f: PhoneCall): return f.target) + own.values().map(func(st: StoryCall): return st.call.target)
 	var transfers := C.transfers.filter(func(x): return not x.caller in used and GameData.serves(x))

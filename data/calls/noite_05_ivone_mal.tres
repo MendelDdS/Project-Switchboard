@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="TransferCall" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/transfer_call.gd" id="1_call"]
+
+[resource]
+script = ExtResource("1_call")
+group = 1
+voice = "f"
+caller = "Dona Ivone"
+caller_name = "Ivone Paiva"
+opening = PackedStringArray("Boa noite. É a Ivone Paiva. Outro dia eu pedi a Pensão Dona Cota e fiquei falando sozinha.", "Hoje vê se me atende direito, moça. A Padaria Pão Dourado, por favor.")
+repeat = "A Padaria Pão Dourado, minha filha."
+target = "142"
+destination = "Padaria Pão Dourado"
+thanks = "Agora sim. Obrigada, moça."
+overheard = PackedStringArray("Nair? É a Ivone, de Vila Serena. Amanhã tem pão?", "Tem, Ivone. Mas só até as oito. Depois do protesto, a praça amanhece cheia de soldado.", "Me guarda seis? O meu sobrinho vai buscar.", "Guardo. Diz pra ele vir pela rua de trás e não parar na praça.", "Ele tem dezesseis anos, Nair. O que iam querer com ele?", "O filho da Rosa tem dezoito. Manda ele vir cedo.")

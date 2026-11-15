@@ -3807,3 +3807,21 @@ Chaves:
     (5) Nas rajadas fortes, até três folhas se soltam do alto da copa e vão com o vento (`LOOSE`, `LOOSE_FLY`,
     `LOOSE_GUST`); na névoa, sem vento, nenhuma. A conferência do brilho: as lâmpadas da mesa já são tapadas pelos
     plugs (`Bloom.occlude`) e o relógio é de palhetas, sem luz; nada a consertar.
+590. #conteudo #noites #interface #radio "Sugere alguma coisa pra melhorar a gameplay? Também algo que possa tornar o
+    jogo mais divertido": seis sugestões (linha cruzada, defeitos da mesa, fregueses que lembram, pedido incompleto,
+    o rádio nos silêncios, rejogar uma noite). "Gostei mais dos pontos 3, 5 e 6. Para a 3, você pode sugerir e
+    escrever as falas." **Fregueses que lembram** (só conteúdo, as falas escritas pelo assistente com essa licença):
+    três moradores que já ligavam voltam noites depois e tratam Maria conforme ela os atendeu, cada um em duas versões
+    (`_bem`/`_mal`): Ivone Paiva (a da pensão, noite 2) volta na 5 pedindo a padaria (`ivone_bem_2`/`ivone_mal_2`);
+    Geraldo Nogueira (a febre do Toninho, noite 6) volta na 9 pedindo o pai (`febre_farmacia_6`/`febre_caiu_6`);
+    Raimundo Teles (o filho preso no baile, noite 7) volta na 12 com o José solto, pedindo o padre
+    (`raimundo_delegacia_7`/`raimundo_caiu_7`). A primeira ligação de cada um marca o desfecho (conectada ou
+    cortada/perdida; o último vale); sem ela ter tocado, o freguês não volta. Com poucas vagas na noite, as escritas
+    que os marcadores já deixam tocar ganham vaga primeiro (`Schedule.build` recebe os marcadores): das duas versões,
+    a que vale podia ficar sem vaga. **Rejogar uma noite**: cada noite começada deixa uma cópia do jogo salvo
+    (`Progress.keep`, `night_file`); na tela inicial, "Rejogar noite" (só com alguma cópia) escolhe o jogo e, numa
+    grade, a noite (`%NightMenu`); ela é jogada como começou, sem gravar nada nem deixar advertência para depois
+    (`Progress.replay`), e no fim volta ao menu. O fim do jogo e a demissão apagam o jogo salvo e deixam as noites
+    para rejogar; apagar ou começar por cima apaga tudo (perguntando antes). O treinamento e o epílogo não se rejogam.
+    **O rádio nos silêncios** ficou para decidir: a música e as canções da Rádio Serena pela janela já saíram a
+    pedido (553), então o desenho dele foi perguntado antes de fazer.

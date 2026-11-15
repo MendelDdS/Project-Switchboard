@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="TransferCall" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/transfer_call.gd" id="1_call"]
+
+[resource]
+script = ExtResource("1_call")
+group = 1
+voice = "m"
+caller = "Seu Raimundo"
+caller_name = "Raimundo Teles"
+opening = PackedStringArray("Boa noite. Raimundo Teles, o pai do José, o do baile.", "Naquela noite a ligação caiu e eu fiquei sem notícia do meu filho. Soltaram ele, e não foi graças à central. A Casa Paroquial, por favor.")
+repeat = "A Casa Paroquial. O Padre Anselmo."
+target = "120"
+destination = "Casa Paroquial"
+thanks = "Obrigado. Hoje a ligação chegou."
+overheard = PackedStringArray("Padre, é o Raimundo. O José está em casa.", "Graças a Deus. Eu soube pelo delegado. Como ele está?", "Magro. Não fala do que houve lá dentro. Dorme de luz acesa.", "Dê tempo a ele. E os outros dez?", "Ele diz que sobraram quatro. Dos outros não sabe.", "Reze por eles, Raimundo. E não repita esse número a ninguém.")

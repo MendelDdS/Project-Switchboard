@@ -65,6 +65,14 @@ theme_type_variation = &"TitleButton"
 text = "TITLE_NEW"
 alignment = 0
 
+[node name="Replay" type="Button" parent="Menu"]
+unique_name_in_owner = true
+layout_mode = 2
+mouse_default_cursor_shape = 2
+theme_type_variation = &"TitleButton"
+text = "TITLE_REPLAY"
+alignment = 0
+
 [node name="Settings" type="Button" parent="Menu"]
 unique_name_in_owner = true
 layout_mode = 2
@@ -199,6 +207,50 @@ auto_translate_mode = 2
 theme_type_variation = &"DimLabel"
 
 [node name="Back" type="Button" parent="SlotMenu"]
+unique_name_in_owner = true
+layout_mode = 2
+mouse_default_cursor_shape = 2
+theme_type_variation = &"TitleButton"
+text = "BACK"
+alignment = 0
+
+[node name="NightMenu" type="VBoxContainer" parent="."]
+unique_name_in_owner = true
+visible = false
+layout_mode = 0
+offset_left = 64.0
+offset_top = 206.0
+offset_right = 400.0
+offset_bottom = 440.0
+theme_override_constants/separation = 10
+
+[node name="PickNight" type="Label" parent="NightMenu"]
+layout_mode = 2
+theme_type_variation = &"DimLabel"
+text = "TITLE_PICK_NIGHT"
+
+[node name="Nights" type="GridContainer" parent="NightMenu"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 0
+theme_override_constants/h_separation = 22
+theme_override_constants/v_separation = 8
+columns = 5
+
+[node name="NightDate" type="Label" parent="NightMenu"]
+unique_name_in_owner = true
+layout_mode = 2
+auto_translate_mode = 2
+theme_type_variation = &"DimLabel"
+
+[node name="ReplayNote" type="Label" parent="NightMenu"]
+custom_minimum_size = Vector2(330, 0)
+layout_mode = 2
+theme_type_variation = &"DimLabel"
+text = "TITLE_REPLAY_NOTE"
+autowrap_mode = 3
+
+[node name="NightBack" type="Button" parent="NightMenu"]
 unique_name_in_owner = true
 layout_mode = 2
 mouse_default_cursor_shape = 2

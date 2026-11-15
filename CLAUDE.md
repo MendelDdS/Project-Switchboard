@@ -247,13 +247,13 @@ detalhe no comentário do código, o porquê no `HISTORICO.md`. Atualize os `CLA
   começo (`Background.letter`, `_art_envelope`; aberta, sem o lacre, `letter_read`), aberta quando o jogador quiser
   (`Tools.LETTER`, `letter_view.gd`); a dica do começo avisa (`HINT_LETTER`).
 - `Progress` (três jogos salvos, `user://progress_N.cfg`, `Progress.slot`/`file`, escolhidos no papel da tela inicial: Carregar abre ou apaga, Novo jogo começa num vazio ou por cima de um usado, perguntando antes, `TitleScreen._pick`/`_ask`): próxima noite, ritmo, `low_nights`, marcadores, jornal, palavras-chave,
-  denúncias, chuvas. A última noite ou a demissão limpa o save. Formato com versão (`Progress.VERSION`): mudou o tipo
+  denúncias, chuvas. A última noite ou a demissão limpa o save. Cada noite começada deixa a cópia do save (`Progress.keep`, `night_file`) e "Rejogar noite" na tela inicial a joga de novo sem gravar nada (`Progress.replay`, `%NightMenu`; as cópias ficam depois do fim do jogo). Formato com versão (`Progress.VERSION`): mudou o tipo
   ou o sentido de um campo, suba e converta no `load_saved`; o que não dá para ler fica ao lado (`aside`).
 - Agenda (`Schedule`, constantes no topo de `main.gd` e `schedule.gd`; emergência do roteiro conta no espaçamento das sorteadas): a ligação do roteiro espera a mesa em silêncio (`STORY_WAIT`); numa missão do roteiro (a ligação dele na mesa, a conversa dele escutada, a do discador) nada novo toca (`Main.on_mission`); intervalo
   `Pace.call_gap`; nada novo depois de `last_call` (23:40; a do roteiro marcada depois toca, `_story_late`) e, depois, o botão Encerrar turno; `GIVE_UP_SEC` 60 s;
   conversa fiada (`ChatTopic`, `Conversation.smalltalk`) só do cotidiano, nunca na ligação do roteiro (`PhoneCall.story`).
   Ligações escritas da noite (`Night.calls`: quem comenta a manchete, quem procura um parente preso) entram no
-  sorteio em vagas de transferência (`Schedule._random_calls`), com `requires` conferido na hora de tocar; não são missão. A que vira
+  sorteio em vagas de transferência (`Schedule._random_calls`), com `requires` conferido na hora de tocar; não são missão; as que já podem tocar ganham vaga primeiro. Fregueses que lembram: a primeira ligação marca o desfecho (`if_connected`/`if_dropped`/`if_missed`) e a volta, noites depois, vem em duas versões (`noite_NN_<nome>_bem`/`_mal`). A que vira
   emergência com a transferência demorando, no lugar da conversa fiada (`TransferCall.turns`, `Main.turn_emergency`), termina no despacho; quem volta a ligar
   (`StoryCall.callback`, `Main._call_back`) escolhe a versão pelo desfecho da primeira. Relógio: 0,75 min de jogo por segundo.
 - O amanhecer da noite 15 (céu, sol atrás da igreja, luz do dia na sala): `scripts/ui/CLAUDE.md` e

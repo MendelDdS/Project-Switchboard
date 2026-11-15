@@ -84,7 +84,9 @@ requires = PackedStringArray("!febre_farmacia_6")
 [sub_resource type="Resource" id="J_call_febre"]
 script = ExtResource("x0_story_call")
 call = ExtResource("j_febre")
-if_connected = PackedStringArray("febre_farmacia_6")
+if_connected = PackedStringArray("febre_farmacia_6", "!febre_caiu_6")
+if_dropped = PackedStringArray("febre_caiu_6")
+if_missed = PackedStringArray("febre_caiu_6")
 callback = [SubResource("J_back_febre_baixou"), SubResource("J_back_febre_fechada")]
 
 [sub_resource type="Resource" id="N_0"]

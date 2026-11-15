@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="TransferCall" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/transfer_call.gd" id="1_call"]
+
+[resource]
+script = ExtResource("1_call")
+group = 1
+voice = "m"
+caller = "Senhor"
+caller_name = "Geraldo Nogueira"
+opening = PackedStringArray("Boa noite, moça. É o Geraldo Nogueira, o pai do Toninho. O menino da febre, lembra?", "Ele sarou. E pediu pra eu agradecer à moça do telefone. O Paulo Nogueira, por favor, o meu pai.")
+repeat = "O Paulo Nogueira, o meu pai."
+target = "131"
+destination = "Paulo Nogueira"
+thanks = "Obrigado de novo, moça. O Toninho manda um abraço."
+overheard = PackedStringArray("Pai, sou eu. O senhor soube do toque de recolher?", "Soube. Às nove, todo mundo em casa. A sua mãe já trancou a porta.", "O Toninho queria ir aí no domingo ver a avó.", "Venham de dia. E voltem antes de escurecer.", "Ele pergunta por que não pode mais brincar na rua de noite.", "Diz que é por causa do sereno. Criança não precisa saber de tudo.")

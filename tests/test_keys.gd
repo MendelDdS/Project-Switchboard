@@ -144,5 +144,22 @@ func _initialize() -> void:
 	ok(slots.visible and not (title.get_node("%Shade") as Control).visible, "Esc na pergunta volta aos jogos salvos")
 	await _key(KEY_ESCAPE)
 	ok(not slots.visible and (title.get_node("Menu") as Control).visible, "e de novo, ao menu")
+	# Rejogar noite: a cópia do começo de cada noite (num jogo salvo de teste, fora dos três do jogador)
+	ok((title.get_node("%Replay") as Button).visible == title._replayable(), "Rejogar noite só com alguma noite já jogada")
+	Progress.slot = 99
+	var saved := Progress.new()
+	saved.night = 4
+	saved.keep()
+	saved.night = 5
+	saved.keep()
+	ok(Progress.nights() == [4, 5], "cada noite começada deixa a cópia dela (%s)" % [Progress.nights()])
+	Progress.clear(99, false)
+	ok(Progress.nights() == [4, 5] and not FileAccess.file_exists(Progress.file()), "o fim do jogo apaga o jogo salvo e deixa as noites")
+	Progress.replay = 4
+	ok(Progress.load_saved().night == 4, "rejogando, o jogo lê a cópia do começo da noite")
+	Progress.replay = 0
+	Progress.clear(99)
+	ok(Progress.nights().is_empty(), "apagar o jogo salvo apaga as noites dele")
+	Progress.slot = 1
 	get_tree().current_scene.free()
 	finish("teclas pelo GameView")

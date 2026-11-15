@@ -137,7 +137,9 @@ requires = PackedStringArray("!raimundo_delegacia_7")
 [sub_resource type="Resource" id="J_call_parente"]
 script = ExtResource("x2_story_call")
 call = ExtResource("j_parente")
-if_connected = PackedStringArray("raimundo_delegacia_7")
+if_connected = PackedStringArray("raimundo_delegacia_7", "!raimundo_caiu_7")
+if_dropped = PackedStringArray("raimundo_caiu_7")
+if_missed = PackedStringArray("raimundo_caiu_7")
 callback = [SubResource("J_back_raimundo_padre"), SubResource("J_back_raimundo_caiu")]
 
 [sub_resource type="Resource" id="J_call_taxi"]

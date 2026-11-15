@@ -15,6 +15,9 @@ extends RefCounted
 
 const SLOTS := 3   ## quantos jogos salvos o jogador pode ter
 static var slot := 1   ## o que está em uso (1 a `SLOTS`), escolhido na tela inicial
+## A noite que está sendo rejogada (0: nenhuma), escolhida na tela inicial: o jogo lê a cópia do começo dela
+## (`night_file`) e não grava nada; o jogo salvo continua de onde parou.
+static var replay := 0
 ## A versão do formato do save. Mudou o tipo ou o sentido de um campo (não basta acrescentar um: a leitura dá o valor
 ## padrão ao que falta): suba e converta o save antigo no `load_saved`, de versão em versão, antes de ler. Os saves
 ## sem versão são da 1.
@@ -36,9 +39,30 @@ var diary := {}    ## noite -> a página do diário de Maria como ficou no fim d
 var aside := ""    ## o save que não deu para ler, guardado ao lado com este nome (vazio: nenhum)
 
 
-## O arquivo do jogo salvo `n`.
+## O arquivo do jogo salvo `n`; rejogando uma noite (`replay`), a cópia do começo dela.
 static func file(n := slot) -> String:
-	return "user://progress_%d.cfg" % n
+	return night_file(replay, n) if replay > 0 else "user://progress_%d.cfg" % n
+
+
+## A cópia do jogo salvo `n` como estava no começo da noite `night` (`keep`), para rejogá-la.
+static func night_file(night: int, n := slot) -> String:
+	return "user://progress_%d_noite_%d.cfg" % [n, night]
+
+
+## As noites do jogo salvo `n` que dá para rejogar (as que têm cópia), em ordem.
+static func nights(n := slot) -> Array[int]:
+	var out: Array[int] = []
+	for i in range(1, GameData.CONTENT.nights.size() + 1):
+		if FileAccess.file_exists(night_file(i, n)):
+			out.append(i)
+	return out
+
+
+## Grava o jogo e guarda a cópia do começo da noite em que ele está (do treinamento não: não se rejoga).
+func keep() -> void:
+	save()
+	if night > 0:
+		save(night_file(night))
 
 
 static func load_saved(path := file()) -> Progress:
@@ -92,6 +116,9 @@ func save(path := file()) -> void:
 		DirAccess.rename_absolute(ProjectSettings.globalize_path(path + ".tmp"), ProjectSettings.globalize_path(path))
 
 
-## Apaga o jogo salvo `n`: volta para o começo (o treinamento).
-static func clear(n := slot) -> void:
+## Apaga o jogo salvo `n`: volta para o começo (o treinamento). `all` falso (o fim do jogo, a demissão): as noites
+## já jogadas ficam para rejogar.
+static func clear(n := slot, all := true) -> void:
 	DirAccess.remove_absolute(ProjectSettings.globalize_path(file(n)))
+	for i in nights(n) if all else []:
+		DirAccess.remove_absolute(ProjectSettings.globalize_path(night_file(i, n)))

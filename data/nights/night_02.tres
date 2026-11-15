@@ -80,6 +80,9 @@ again = false
 [sub_resource type="Resource" id="J_call_panfleto"]
 script = ExtResource("3_story")
 call = ExtResource("j_panfleto")
+if_connected = PackedStringArray("ivone_bem_2", "!ivone_mal_2")
+if_dropped = PackedStringArray("ivone_mal_2", "!ivone_bem_2")
+if_missed = PackedStringArray("ivone_mal_2", "!ivone_bem_2")
 
 [sub_resource type="Resource" id="N_0"]
 script = ExtResource("dl_diary_line")

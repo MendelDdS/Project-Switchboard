@@ -5595,7 +5595,7 @@ msgstr "Sale al aire después del noticiero. Buena suerte."
 msgid "Otávio Almeida."
 msgstr "Otávio Almeida."
 
-#: data/calls/noite_02_panfleto.tres
+#: data/calls/noite_02_panfleto.tres data/calls/noite_05_ivone_bem.tres data/calls/noite_05_ivone_mal.tres
 msgid "Dona Ivone"
 msgstr "Dona Ivone"
 
@@ -6763,6 +6763,62 @@ msgstr "¿Entonces dónde está?"
 msgid "Procure amanhã de dia. De noite não damos informação."
 msgstr "Vuelva mañana de día. De noche no damos información."
 
+#: data/calls/noite_05_ivone_bem.tres
+msgid "Boa noite, moça. É a Ivone Paiva, a que pediu a Pensão Dona Cota outro dia."
+msgstr "Buenas noches, señorita. Soy Ivone Paiva, la que pidió la Pensão Dona Cota el otro día."
+
+#: data/calls/noite_05_ivone_bem.tres
+msgid "A senhora me atendeu tão depressa que eu guardei a sua voz. A Padaria Pão Dourado, por favor."
+msgstr "Usted me atendió tan rápido que me quedé con su voz. La Padaria Pão Dourado, por favor."
+
+#: data/calls/noite_05_ivone_bem.tres data/calls/noite_05_ivone_mal.tres
+msgid "A Padaria Pão Dourado, minha filha."
+msgstr "La Padaria Pão Dourado, hija mía."
+
+#: data/calls/noite_05_ivone_bem.tres data/calls/noite_05_ivone_mal.tres data/calls/noite_10_cancao.tres
+msgid "Padaria Pão Dourado"
+msgstr "Padaria Pão Dourado"
+
+#: data/calls/noite_05_ivone_bem.tres
+msgid "Obrigada, minha filha. Com a senhora na mesa eu fico sossegada."
+msgstr "Gracias, hija mía. Con usted en la mesa me quedo tranquila."
+
+#: data/calls/noite_05_ivone_bem.tres data/calls/noite_05_ivone_mal.tres
+msgid "Nair? É a Ivone, de Vila Serena. Amanhã tem pão?"
+msgstr "¿Nair? Soy Ivone, de Vila Serena. ¿Mañana hay pan?"
+
+#: data/calls/noite_05_ivone_bem.tres data/calls/noite_05_ivone_mal.tres
+msgid "Tem, Ivone. Mas só até as oito. Depois do protesto, a praça amanhece cheia de soldado."
+msgstr "Hay, Ivone. Pero solo hasta las ocho. Desde la protesta, la plaza amanece llena de soldados."
+
+#: data/calls/noite_05_ivone_bem.tres data/calls/noite_05_ivone_mal.tres
+msgid "Me guarda seis? O meu sobrinho vai buscar."
+msgstr "¿Me guardas seis? Mi sobrino va a buscarlos."
+
+#: data/calls/noite_05_ivone_bem.tres data/calls/noite_05_ivone_mal.tres
+msgid "Guardo. Diz pra ele vir pela rua de trás e não parar na praça."
+msgstr "Te los guardo. Dile que venga por la calle de atrás y que no se pare en la plaza."
+
+#: data/calls/noite_05_ivone_bem.tres data/calls/noite_05_ivone_mal.tres
+msgid "Ele tem dezesseis anos, Nair. O que iam querer com ele?"
+msgstr "Tiene dieciséis años, Nair. ¿Qué iban a querer con él?"
+
+#: data/calls/noite_05_ivone_bem.tres data/calls/noite_05_ivone_mal.tres
+msgid "O filho da Rosa tem dezoito. Manda ele vir cedo."
+msgstr "El hijo de Rosa tiene dieciocho. Mándalo temprano."
+
+#: data/calls/noite_05_ivone_mal.tres
+msgid "Boa noite. É a Ivone Paiva. Outro dia eu pedi a Pensão Dona Cota e fiquei falando sozinha."
+msgstr "Buenas noches. Soy Ivone Paiva. El otro día pedí la Pensão Dona Cota y me quedé hablando sola."
+
+#: data/calls/noite_05_ivone_mal.tres
+msgid "Hoje vê se me atende direito, moça. A Padaria Pão Dourado, por favor."
+msgstr "Hoy a ver si me atiende bien, señorita. La Padaria Pão Dourado, por favor."
+
+#: data/calls/noite_05_ivone_mal.tres
+msgid "Agora sim. Obrigada, moça."
+msgstr "Ahora sí. Gracias, señorita."
+
 #: data/nights/night_05.tres
 msgid "A Cecília contou: o homem do bar se chama Sebastião. Diz que posso confiar nele."
 msgstr "Cecília me contó: el hombre del bar se llama Sebastião. Dice que puedo confiar en él."
@@ -7163,11 +7219,11 @@ msgstr "Soy yo otra vez, señorita. El padre del niño con fiebre."
 msgid "A febre baixou, graças a Deus! Me liga com o meu pai, o Paulo Nogueira? Ele está aflito."
 msgstr "¡Le bajó la fiebre, gracias a Dios! ¿Me comunica con mi padre, Paulo Nogueira? Está muy preocupado."
 
-#: data/calls/noite_06_febre_baixou.tres
+#: data/calls/noite_06_febre_baixou.tres data/calls/noite_09_geraldo_bem.tres data/calls/noite_09_geraldo_mal.tres
 msgid "O Paulo Nogueira, o meu pai."
 msgstr "Paulo Nogueira, mi padre."
 
-#: data/calls/noite_06_febre_baixou.tres data/calls/transfer_33_rapaz_paulo_nogueira.tres
+#: data/calls/noite_06_febre_baixou.tres data/calls/noite_09_geraldo_bem.tres data/calls/noite_09_geraldo_mal.tres
 msgid "Paulo Nogueira"
 msgstr "Paulo Nogueira"
 
@@ -7555,7 +7611,7 @@ msgstr "Soy yo otra vez, señorita. El padre de José, el del baile."
 msgid "Na delegacia não me disseram nada. Me liga com o Padre Anselmo? Ele conhece o delegado."
 msgstr "En la comisaría no me dijeron nada. ¿Me comunica con el padre Anselmo? Él conoce al comisario."
 
-#: data/calls/noite_07_raimundo_padre.tres
+#: data/calls/noite_07_raimundo_padre.tres data/calls/noite_12_raimundo_bem.tres data/calls/noite_12_raimundo_mal.tres
 msgid "A Casa Paroquial. O Padre Anselmo."
 msgstr "La casa parroquial. El padre Anselmo."
 
@@ -8599,6 +8655,54 @@ msgstr "¿Y si me agarran en la calle después de las nueve?"
 msgid "Aí você vê o filme na delegacia. Vá direto pra casa."
 msgstr "Entonces ves la película en la comisaría. Vete derecho a casa."
 
+#: data/calls/noite_09_geraldo_bem.tres
+msgid "Boa noite, moça. É o Geraldo Nogueira, o pai do Toninho. O menino da febre, lembra?"
+msgstr "Buenas noches, señorita. Soy Geraldo Nogueira, el padre de Toninho. El niño de la fiebre, ¿se acuerda?"
+
+#: data/calls/noite_09_geraldo_bem.tres
+msgid "Ele sarou. E pediu pra eu agradecer à moça do telefone. O Paulo Nogueira, por favor, o meu pai."
+msgstr "Se curó. Y me pidió que le diera las gracias a la señorita del teléfono. Paulo Nogueira, por favor, mi padre."
+
+#: data/calls/noite_09_geraldo_bem.tres
+msgid "Obrigado de novo, moça. O Toninho manda um abraço."
+msgstr "Gracias otra vez, señorita. Toninho le manda un abrazo."
+
+#: data/calls/noite_09_geraldo_bem.tres data/calls/noite_09_geraldo_mal.tres
+msgid "Pai, sou eu. O senhor soube do toque de recolher?"
+msgstr "Papá, soy yo. ¿Se enteró del toque de queda?"
+
+#: data/calls/noite_09_geraldo_bem.tres data/calls/noite_09_geraldo_mal.tres
+msgid "Soube. Às nove, todo mundo em casa. A sua mãe já trancou a porta."
+msgstr "Me enteré. A las nueve, todo el mundo en casa. Tu madre ya trancó la puerta."
+
+#: data/calls/noite_09_geraldo_bem.tres data/calls/noite_09_geraldo_mal.tres
+msgid "O Toninho queria ir aí no domingo ver a avó."
+msgstr "Toninho quería ir ahí el domingo a ver a la abuela."
+
+#: data/calls/noite_09_geraldo_bem.tres data/calls/noite_09_geraldo_mal.tres
+msgid "Venham de dia. E voltem antes de escurecer."
+msgstr "Vengan de día. Y vuelvan antes de que oscurezca."
+
+#: data/calls/noite_09_geraldo_bem.tres data/calls/noite_09_geraldo_mal.tres
+msgid "Ele pergunta por que não pode mais brincar na rua de noite."
+msgstr "Pregunta por qué ya no puede jugar en la calle de noche."
+
+#: data/calls/noite_09_geraldo_bem.tres data/calls/noite_09_geraldo_mal.tres
+msgid "Diz que é por causa do sereno. Criança não precisa saber de tudo."
+msgstr "Dile que es por el sereno. Un niño no necesita saberlo todo."
+
+#: data/calls/noite_09_geraldo_mal.tres
+msgid "Boa noite. Geraldo Nogueira. Na noite da febre do meu filho, a ligação caiu na sua mão."
+msgstr "Buenas noches. Geraldo Nogueira. La noche de la fiebre de mi hijo, la llamada se cayó en sus manos."
+
+#: data/calls/noite_09_geraldo_mal.tres
+msgid "O menino sarou, mas não foi graças à central. O Paulo Nogueira, o meu pai. E dessa vez não me deixe esperando."
+msgstr "El niño se curó, pero no fue gracias a la central. Paulo Nogueira, mi padre. Y esta vez no me deje esperando."
+
+#: data/calls/noite_09_geraldo_mal.tres
+msgid "Obrigado. Dessa vez foi."
+msgstr "Gracias. Esta vez sí."
+
 #: data/nights/night_09.tres
 msgid "Não passar a delegacia nem a Alta Cúpula"
 msgstr "No pasar la comisaría ni la Alta Cúpula"
@@ -8782,10 +8886,6 @@ msgstr "La dueña es mi hermana."
 #: data/calls/noite_10_cancao.tres data/calls/noite_15_celeste.tres
 msgid "A padaria, moça. Pão Dourado."
 msgstr "La panadería, señorita. Pão Dourado."
-
-#: data/calls/noite_10_cancao.tres data/calls/noite_15_celeste.tres data/calls/story_15_padaria.tres
-msgid "Padaria Pão Dourado"
-msgstr "Padaria Pão Dourado"
 
 #: data/calls/noite_10_cancao.tres
 msgid "Obrigada, moça. Que noite."
@@ -9682,6 +9782,54 @@ msgstr "Ni yo me conozco, Tonho. ¿Me guardas la mesa de las ocho?"
 #: data/calls/noite_12_recompensa.tres
 msgid "Guardo. Mas às oito e meia eu fecho, por causa do toque."
 msgstr "Te la guardo. Pero a las ocho y media cierro, por el toque de queda."
+
+#: data/calls/noite_12_raimundo_bem.tres
+msgid "Boa noite, moça. É o Raimundo Teles, o pai do José, o do baile."
+msgstr "Buenas noches, señorita. Soy Raimundo Teles, el padre de José, el del baile."
+
+#: data/calls/noite_12_raimundo_bem.tres
+msgid "Soltaram o meu filho. A senhora me atendeu naquela noite, e eu não esqueço. A Casa Paroquial, por favor."
+msgstr "Soltaron a mi hijo. Usted me atendió aquella noche, y no lo olvido. La Casa Paroquial, por favor."
+
+#: data/calls/noite_12_raimundo_bem.tres
+msgid "Deus lhe pague, moça. Por tudo."
+msgstr "Dios se lo pague, señorita. Por todo."
+
+#: data/calls/noite_12_raimundo_bem.tres data/calls/noite_12_raimundo_mal.tres
+msgid "Padre, é o Raimundo. O José está em casa."
+msgstr "Padre, soy Raimundo. José está en casa."
+
+#: data/calls/noite_12_raimundo_bem.tres data/calls/noite_12_raimundo_mal.tres
+msgid "Graças a Deus. Eu soube pelo delegado. Como ele está?"
+msgstr "Gracias a Dios. Lo supe por el comisario. ¿Cómo está?"
+
+#: data/calls/noite_12_raimundo_bem.tres data/calls/noite_12_raimundo_mal.tres
+msgid "Magro. Não fala do que houve lá dentro. Dorme de luz acesa."
+msgstr "Flaco. No habla de lo que pasó allá adentro. Duerme con la luz encendida."
+
+#: data/calls/noite_12_raimundo_bem.tres data/calls/noite_12_raimundo_mal.tres
+msgid "Dê tempo a ele. E os outros dez?"
+msgstr "Dele tiempo. ¿Y los otros diez?"
+
+#: data/calls/noite_12_raimundo_bem.tres data/calls/noite_12_raimundo_mal.tres
+msgid "Ele diz que sobraram quatro. Dos outros não sabe."
+msgstr "Dice que quedaron cuatro. De los otros no sabe."
+
+#: data/calls/noite_12_raimundo_bem.tres data/calls/noite_12_raimundo_mal.tres
+msgid "Reze por eles, Raimundo. E não repita esse número a ninguém."
+msgstr "Rece por ellos, Raimundo. Y no le repita ese número a nadie."
+
+#: data/calls/noite_12_raimundo_mal.tres
+msgid "Boa noite. Raimundo Teles, o pai do José, o do baile."
+msgstr "Buenas noches. Raimundo Teles, el padre de José, el del baile."
+
+#: data/calls/noite_12_raimundo_mal.tres
+msgid "Naquela noite a ligação caiu e eu fiquei sem notícia do meu filho. Soltaram ele, e não foi graças à central. A Casa Paroquial, por favor."
+msgstr "Aquella noche la llamada se cayó y me quedé sin noticias de mi hijo. Lo soltaron, y no fue gracias a la central. La Casa Paroquial, por favor."
+
+#: data/calls/noite_12_raimundo_mal.tres
+msgid "Obrigado. Hoje a ligação chegou."
+msgstr "Gracias. Hoy la llamada llegó."
 
 #: data/nights/night_12.tres
 msgid "Gravar a Alta Cúpula e dar as fitas ao Sebastião"

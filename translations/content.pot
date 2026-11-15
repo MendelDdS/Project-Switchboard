@@ -5594,7 +5594,7 @@ msgstr ""
 msgid "Otávio Almeida."
 msgstr ""
 
-#: data/calls/noite_02_panfleto.tres
+#: data/calls/noite_02_panfleto.tres data/calls/noite_05_ivone_bem.tres data/calls/noite_05_ivone_mal.tres
 msgid "Dona Ivone"
 msgstr ""
 
@@ -6762,6 +6762,62 @@ msgstr ""
 msgid "Procure amanhã de dia. De noite não damos informação."
 msgstr ""
 
+#: data/calls/noite_05_ivone_bem.tres
+msgid "Boa noite, moça. É a Ivone Paiva, a que pediu a Pensão Dona Cota outro dia."
+msgstr ""
+
+#: data/calls/noite_05_ivone_bem.tres
+msgid "A senhora me atendeu tão depressa que eu guardei a sua voz. A Padaria Pão Dourado, por favor."
+msgstr ""
+
+#: data/calls/noite_05_ivone_bem.tres data/calls/noite_05_ivone_mal.tres
+msgid "A Padaria Pão Dourado, minha filha."
+msgstr ""
+
+#: data/calls/noite_05_ivone_bem.tres data/calls/noite_05_ivone_mal.tres data/calls/noite_10_cancao.tres
+msgid "Padaria Pão Dourado"
+msgstr ""
+
+#: data/calls/noite_05_ivone_bem.tres
+msgid "Obrigada, minha filha. Com a senhora na mesa eu fico sossegada."
+msgstr ""
+
+#: data/calls/noite_05_ivone_bem.tres data/calls/noite_05_ivone_mal.tres
+msgid "Nair? É a Ivone, de Vila Serena. Amanhã tem pão?"
+msgstr ""
+
+#: data/calls/noite_05_ivone_bem.tres data/calls/noite_05_ivone_mal.tres
+msgid "Tem, Ivone. Mas só até as oito. Depois do protesto, a praça amanhece cheia de soldado."
+msgstr ""
+
+#: data/calls/noite_05_ivone_bem.tres data/calls/noite_05_ivone_mal.tres
+msgid "Me guarda seis? O meu sobrinho vai buscar."
+msgstr ""
+
+#: data/calls/noite_05_ivone_bem.tres data/calls/noite_05_ivone_mal.tres
+msgid "Guardo. Diz pra ele vir pela rua de trás e não parar na praça."
+msgstr ""
+
+#: data/calls/noite_05_ivone_bem.tres data/calls/noite_05_ivone_mal.tres
+msgid "Ele tem dezesseis anos, Nair. O que iam querer com ele?"
+msgstr ""
+
+#: data/calls/noite_05_ivone_bem.tres data/calls/noite_05_ivone_mal.tres
+msgid "O filho da Rosa tem dezoito. Manda ele vir cedo."
+msgstr ""
+
+#: data/calls/noite_05_ivone_mal.tres
+msgid "Boa noite. É a Ivone Paiva. Outro dia eu pedi a Pensão Dona Cota e fiquei falando sozinha."
+msgstr ""
+
+#: data/calls/noite_05_ivone_mal.tres
+msgid "Hoje vê se me atende direito, moça. A Padaria Pão Dourado, por favor."
+msgstr ""
+
+#: data/calls/noite_05_ivone_mal.tres
+msgid "Agora sim. Obrigada, moça."
+msgstr ""
+
 #: data/nights/night_05.tres
 msgid "A Cecília contou: o homem do bar se chama Sebastião. Diz que posso confiar nele."
 msgstr ""
@@ -7162,11 +7218,11 @@ msgstr ""
 msgid "A febre baixou, graças a Deus! Me liga com o meu pai, o Paulo Nogueira? Ele está aflito."
 msgstr ""
 
-#: data/calls/noite_06_febre_baixou.tres
+#: data/calls/noite_06_febre_baixou.tres data/calls/noite_09_geraldo_bem.tres data/calls/noite_09_geraldo_mal.tres
 msgid "O Paulo Nogueira, o meu pai."
 msgstr ""
 
-#: data/calls/noite_06_febre_baixou.tres data/calls/transfer_33_rapaz_paulo_nogueira.tres
+#: data/calls/noite_06_febre_baixou.tres data/calls/noite_09_geraldo_bem.tres data/calls/noite_09_geraldo_mal.tres
 msgid "Paulo Nogueira"
 msgstr ""
 
@@ -7554,7 +7610,7 @@ msgstr ""
 msgid "Na delegacia não me disseram nada. Me liga com o Padre Anselmo? Ele conhece o delegado."
 msgstr ""
 
-#: data/calls/noite_07_raimundo_padre.tres
+#: data/calls/noite_07_raimundo_padre.tres data/calls/noite_12_raimundo_bem.tres data/calls/noite_12_raimundo_mal.tres
 msgid "A Casa Paroquial. O Padre Anselmo."
 msgstr ""
 
@@ -8598,6 +8654,54 @@ msgstr ""
 msgid "Aí você vê o filme na delegacia. Vá direto pra casa."
 msgstr ""
 
+#: data/calls/noite_09_geraldo_bem.tres
+msgid "Boa noite, moça. É o Geraldo Nogueira, o pai do Toninho. O menino da febre, lembra?"
+msgstr ""
+
+#: data/calls/noite_09_geraldo_bem.tres
+msgid "Ele sarou. E pediu pra eu agradecer à moça do telefone. O Paulo Nogueira, por favor, o meu pai."
+msgstr ""
+
+#: data/calls/noite_09_geraldo_bem.tres
+msgid "Obrigado de novo, moça. O Toninho manda um abraço."
+msgstr ""
+
+#: data/calls/noite_09_geraldo_bem.tres data/calls/noite_09_geraldo_mal.tres
+msgid "Pai, sou eu. O senhor soube do toque de recolher?"
+msgstr ""
+
+#: data/calls/noite_09_geraldo_bem.tres data/calls/noite_09_geraldo_mal.tres
+msgid "Soube. Às nove, todo mundo em casa. A sua mãe já trancou a porta."
+msgstr ""
+
+#: data/calls/noite_09_geraldo_bem.tres data/calls/noite_09_geraldo_mal.tres
+msgid "O Toninho queria ir aí no domingo ver a avó."
+msgstr ""
+
+#: data/calls/noite_09_geraldo_bem.tres data/calls/noite_09_geraldo_mal.tres
+msgid "Venham de dia. E voltem antes de escurecer."
+msgstr ""
+
+#: data/calls/noite_09_geraldo_bem.tres data/calls/noite_09_geraldo_mal.tres
+msgid "Ele pergunta por que não pode mais brincar na rua de noite."
+msgstr ""
+
+#: data/calls/noite_09_geraldo_bem.tres data/calls/noite_09_geraldo_mal.tres
+msgid "Diz que é por causa do sereno. Criança não precisa saber de tudo."
+msgstr ""
+
+#: data/calls/noite_09_geraldo_mal.tres
+msgid "Boa noite. Geraldo Nogueira. Na noite da febre do meu filho, a ligação caiu na sua mão."
+msgstr ""
+
+#: data/calls/noite_09_geraldo_mal.tres
+msgid "O menino sarou, mas não foi graças à central. O Paulo Nogueira, o meu pai. E dessa vez não me deixe esperando."
+msgstr ""
+
+#: data/calls/noite_09_geraldo_mal.tres
+msgid "Obrigado. Dessa vez foi."
+msgstr ""
+
 #: data/nights/night_09.tres
 msgid "Não passar a delegacia nem a Alta Cúpula"
 msgstr ""
@@ -8780,10 +8884,6 @@ msgstr ""
 
 #: data/calls/noite_10_cancao.tres data/calls/noite_15_celeste.tres
 msgid "A padaria, moça. Pão Dourado."
-msgstr ""
-
-#: data/calls/noite_10_cancao.tres data/calls/noite_15_celeste.tres data/calls/story_15_padaria.tres
-msgid "Padaria Pão Dourado"
 msgstr ""
 
 #: data/calls/noite_10_cancao.tres
@@ -9680,6 +9780,54 @@ msgstr ""
 
 #: data/calls/noite_12_recompensa.tres
 msgid "Guardo. Mas às oito e meia eu fecho, por causa do toque."
+msgstr ""
+
+#: data/calls/noite_12_raimundo_bem.tres
+msgid "Boa noite, moça. É o Raimundo Teles, o pai do José, o do baile."
+msgstr ""
+
+#: data/calls/noite_12_raimundo_bem.tres
+msgid "Soltaram o meu filho. A senhora me atendeu naquela noite, e eu não esqueço. A Casa Paroquial, por favor."
+msgstr ""
+
+#: data/calls/noite_12_raimundo_bem.tres
+msgid "Deus lhe pague, moça. Por tudo."
+msgstr ""
+
+#: data/calls/noite_12_raimundo_bem.tres data/calls/noite_12_raimundo_mal.tres
+msgid "Padre, é o Raimundo. O José está em casa."
+msgstr ""
+
+#: data/calls/noite_12_raimundo_bem.tres data/calls/noite_12_raimundo_mal.tres
+msgid "Graças a Deus. Eu soube pelo delegado. Como ele está?"
+msgstr ""
+
+#: data/calls/noite_12_raimundo_bem.tres data/calls/noite_12_raimundo_mal.tres
+msgid "Magro. Não fala do que houve lá dentro. Dorme de luz acesa."
+msgstr ""
+
+#: data/calls/noite_12_raimundo_bem.tres data/calls/noite_12_raimundo_mal.tres
+msgid "Dê tempo a ele. E os outros dez?"
+msgstr ""
+
+#: data/calls/noite_12_raimundo_bem.tres data/calls/noite_12_raimundo_mal.tres
+msgid "Ele diz que sobraram quatro. Dos outros não sabe."
+msgstr ""
+
+#: data/calls/noite_12_raimundo_bem.tres data/calls/noite_12_raimundo_mal.tres
+msgid "Reze por eles, Raimundo. E não repita esse número a ninguém."
+msgstr ""
+
+#: data/calls/noite_12_raimundo_mal.tres
+msgid "Boa noite. Raimundo Teles, o pai do José, o do baile."
+msgstr ""
+
+#: data/calls/noite_12_raimundo_mal.tres
+msgid "Naquela noite a ligação caiu e eu fiquei sem notícia do meu filho. Soltaram ele, e não foi graças à central. A Casa Paroquial, por favor."
+msgstr ""
+
+#: data/calls/noite_12_raimundo_mal.tres
+msgid "Obrigado. Hoje a ligação chegou."
 msgstr ""
 
 #: data/nights/night_12.tres

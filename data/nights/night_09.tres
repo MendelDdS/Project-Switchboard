@@ -17,6 +17,8 @@
 [ext_resource type="Resource" path="res://data/calls/story_09_mae_atropelado.tres" id="x2_story_09_atropelada"]
 [ext_resource type="Resource" path="res://data/calls/story_09_briga.tres" id="x3_story_09_briga"]
 [ext_resource type="Resource" path="res://data/calls/noite_09_toque.tres" id="j_toque"]
+[ext_resource type="Resource" path="res://data/calls/noite_09_geraldo_bem.tres" id="j_geraldo_bem"]
+[ext_resource type="Resource" path="res://data/calls/noite_09_geraldo_mal.tres" id="j_geraldo_mal"]
 
 [sub_resource type="Resource" id="ev_0"]
 script = ExtResource("2_event")
@@ -183,6 +185,16 @@ call = SubResource("S_seb")
 requires = PackedStringArray("!cumpriu_9")
 at_close = true
 
+[sub_resource type="Resource" id="J_call_geraldo_bem"]
+script = ExtResource("x1_story_call")
+call = ExtResource("j_geraldo_bem")
+requires = PackedStringArray("febre_farmacia_6", "!febre_caiu_6")
+
+[sub_resource type="Resource" id="J_call_geraldo_mal"]
+script = ExtResource("x1_story_call")
+call = ExtResource("j_geraldo_mal")
+requires = PackedStringArray("febre_caiu_6")
+
 [resource]
 script = ExtResource("1_night")
 note = "O supervisor deixou um recado: \"Com o toque de recolher, a noite promete: emergência vem primeiro.\""
@@ -190,7 +202,7 @@ street_events = Array[ExtResource("2_event")]([SubResource("ev_0"), SubResource(
 news_if = Array[ExtResource("x0_story_text")]([SubResource("News_grupos"), SubResource("News_comandante")])
 story = Array[ExtResource("x1_story_call")]([SubResource("S_seb"), SubResource("S_aut0"), SubResource("S_aut1"), SubResource("S_aut1a"), SubResource("S_aut2"), SubResource("S_aut2a"), SubResource("E_car"), SubResource("E_bal"), SubResource("E_atr"), SubResource("E_bri")])
 news_stories = PackedStringArray("Toque de recolher às nove da noite\nA partir de hoje, ninguém fica na rua depois das 21h sem salvo-conduto, por ordem da Alta Cúpula. Bares e cinemas fecham às oito e meia. Quem for pego na rua responde na delegacia.")
-calls = Array[ExtResource("x1_story_call")]([SubResource("J_call_toque")])
+calls = Array[ExtResource("x1_story_call")]([SubResource("J_call_toque"), SubResource("J_call_geraldo_bem"), SubResource("J_call_geraldo_mal")])
 news_photo = "rua"
 news_caption = "Rua do Centro às nove e cinco."
 tasks = Array[ExtResource("dt_diary_task")]([SubResource("T_0"), SubResource("T_1")])

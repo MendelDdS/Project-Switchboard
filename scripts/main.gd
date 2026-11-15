@@ -166,7 +166,7 @@ func _ready() -> void:
 	board.set_equipment(bureaucracy.equipment())   # os equipamentos das burocracias já liberados (salvos nos marcadores)
 	badges.earned = progress.badges if progress else {}
 	bureaucracy.equipment_changed.connect(func(): board.set_equipment(bureaucracy.equipment()))
-	plan = Schedule.build(night, pace, last_call)
+	plan = Schedule.build(night, pace, last_call, flags)
 	sched = plan.calls.filter(func(c: PhoneCall) -> bool: return c.at >= minutes)   # (o debug pode começar mais tarde)
 	board.end_changed.connect(_on_end_changed)
 	board.info_requested.connect(_show_line_info)
@@ -444,7 +444,7 @@ func is_training() -> bool:
 ## Tela inicial do jogo novo: pula o treinamento e vai direto para a noite 1.
 func _skip_training() -> void:
 	progress.night = 1
-	progress.save()
+	progress.keep()
 	restart()
 
 
@@ -1529,19 +1529,20 @@ func start_ending() -> void:
 	var prison := flags.has(Rebellion.FINALS[Rebellion.Final.PRISON])
 	var last := night_no > C.nights.size() or prison   # sem noite seguinte: o fim do epílogo, ou a presa
 	var final := night_no >= C.nights.size()   # a do golpe e o epílogo: nada fica para depois
-	var later := progress != null and not final and night_no > 0   # o que a companhia cobra amanhã (o treinamento não leva)
+	var saving := progress != null and Progress.replay == 0   # (a noite rejogada não grava nem deixa nada para depois)
+	var later := saving and not final and night_no > 0   # o que a companhia cobra amanhã (o treinamento não leva)
 	for n in _story_talks.keys():   # ainda falando no fim do turno: ninguém cortou
 		_story_talk_over(n, false)
 	bureaucracy.night_ended()   # (antes da cobrança: uma regra pode deixar advertência para depois)
-	if progress == null or final:   # sem noite seguinte que cobre: cobra hoje
+	if not saving or final:   # sem noite seguinte que cobre: cobra hoje
 		for f in report.later:
 			report.add(f["id"], f["time"], f["detail"], f.get("sev", -1), f.get("text", -1))
 	supervisor.shift_over()
 	diary.refresh()   # (o turno encerrado: as normas pelas advertências da noite, a rotina pendente com X)
-	if progress != null:
+	if saving:
 		progress.diary[night_no] = diary.page()
 		if report.fired() or last:
-			Progress.clear()
+			Progress.clear(Progress.slot, false)
 		else:
 			progress.night = night_no + 1
 			progress.pace = Pace.next(pace_level, night_no, report.grade())
@@ -1554,7 +1555,7 @@ func start_ending() -> void:
 			progress.rains += 1 if weather == "rain" else 0
 			progress.bureaucracy = bureaucracy.state()
 			Badges.award(progress, report, night_no, pace_level)
-			progress.save()
+			progress.keep()
 	if prison:   # a presa: no lugar do relatório, o homem de sobretudo atravessando a rua para o prédio (`Arrest`)
 		background.start_scene("arrest")
 		await get_tree().create_timer(Background.Arrest.end() + 1.0, false).timeout

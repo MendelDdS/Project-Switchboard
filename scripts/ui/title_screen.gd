@@ -5,7 +5,8 @@ extends Control
 ## mouse ou pelas setas), os Créditos e a versão. Ao fundo, o ambiente da sala e, de vez em quando, uma linha
 ## chamando. Carregar e Novo jogo trocam o menu, no mesmo lugar, pelos jogos salvos (`%SlotMenu`, `Progress.SLOTS`,
 ## cada um com a noite em que parou): Carregar abre o escolhido ou o apaga (a lixeira); Novo jogo começa num vazio
-## ou por cima de um usado. Apagar e sobrescrever perguntam antes, num papel como o dos créditos (`_ask`). Começar apaga a lâmpada do FONE, escurece a tela e clareia
+## ou por cima de um usado. Rejogar noite (só com alguma noite já jogada) escolhe o jogo e, numa grade, a noite
+## (`%NightMenu`, `Progress.nights`): ela é jogada de novo como começou, sem gravar nada (`Progress.replay`). Apagar e sobrescrever perguntam antes, num papel como o dos créditos (`_ask`). Começar apaga a lâmpada do FONE, escurece a tela e clareia
 ## já no jogo.
 
 const MAIN := "res://scenes/main.tscn"
@@ -29,7 +30,7 @@ const TRASH: Array[String] = [
 	".#######.",
 ]
 
-enum Pick { NONE, LOAD, NEW }
+enum Pick { NONE, LOAD, NEW, REPLAY }
 
 var _leaving := false
 var _picking := Pick.NONE   ## os jogos salvos no lugar do menu: para carregar ou para o jogo novo
@@ -38,22 +39,38 @@ var _ring := Timer.new()
 
 
 func _ready() -> void:
+	Progress.replay = 0
 	%Load.visible = _saved()
+	%Replay.visible = _replayable()
 	%Quit.visible = OS.get_name() != "Web"   # (no navegador, sair do jogo não fecha nada)
 	var lamp: ImageTexture = BOARD.lamp_art()
-	for b: Button in [%Load, %New, %Settings, %Quit]:
+	for b: Button in [%Load, %New, %Replay, %Settings, %Quit]:
 		b.icon = lamp   # a lâmpada apagada; na escolhida, acesa (as cores do ícone na variação `TitleButton`)
-	for b: Button in [%Load, %New, %Settings, %Quit, %Credits]:
+	for b: Button in [%Load, %New, %Replay, %Settings, %Quit, %Credits]:
 		b.mouse_entered.connect(b.grab_focus)   # o mouse escolhe como as setas: uma lâmpada acesa só
 	%Version.texture = PixelArt.tiny(Settings.version_text())
 	_texts()
-	for b: Button in [%Load, %New, %Quit, %Credits]:   # outra opção escolhida fecha as configurações abertas ao lado
+	for b: Button in [%Load, %New, %Replay, %Quit, %Credits]:   # outra opção escolhida fecha as configurações abertas ao lado
 		b.pressed.connect(func(): if %PauseMenu.visible: %PauseMenu.close_settings())
 	%Load.pressed.connect(_slots.bind(Pick.LOAD))
 	%New.pressed.connect(_slots.bind(Pick.NEW))
-	%Back.pressed.connect(_slots.bind(Pick.NONE))
-	%Back.icon = lamp
-	%Back.mouse_entered.connect(%Back.grab_focus)
+	%Replay.pressed.connect(_slots.bind(Pick.REPLAY))
+	for b: Button in [%Back, %NightBack]:
+		b.pressed.connect(_slots.bind(Pick.NONE))
+		b.icon = lamp
+		b.mouse_entered.connect(b.grab_focus)
+	for night in range(1, GameData.CONTENT.nights.size() + 1):   # a grade das noites, para rejogar
+		var b := Button.new()
+		b.theme_type_variation = &"TitleButton"
+		b.auto_translate_mode = Node.AUTO_TRANSLATE_MODE_DISABLED
+		b.text = "%2d" % night
+		b.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+		b.focus_entered.connect(func(): %NightDate.text = GameData.date_text(night))
+		b.mouse_entered.connect(func(): if not b.disabled: b.grab_focus())
+		b.pressed.connect(func():
+			Progress.replay = night
+			_play())
+		%Nights.add_child(b)
 	%Settings.toggle_mode = true   # as configurações abrem ao lado do menu, com a lâmpada dela acesa
 	%Settings.pressed.connect(func():
 		if %PauseMenu.visible:
@@ -78,6 +95,7 @@ func _ready() -> void:
 			_ask(T.Key.TITLE_DELETE_WARNING, "TITLE_DELETE", func():
 				Progress.clear(n)
 				%Load.visible = _saved()
+				%Replay.visible = _replayable()
 				if not %Load.visible:
 					_picking = Pick.NONE
 				_close_paper()))
@@ -102,7 +120,7 @@ func _unhandled_input(e: InputEvent) -> void:
 	if %Shade.visible:
 		get_viewport().set_input_as_handled()
 		_close_paper()
-	elif _picking != Pick.NONE:
+	elif _picking != Pick.NONE:   # (da grade das noites, direto ao menu)
 		get_viewport().set_input_as_handled()
 		_slots(Pick.NONE)
 
@@ -141,6 +159,11 @@ func _saved() -> bool:
 	return range(1, Progress.SLOTS + 1).any(func(n: int): return FileAccess.file_exists(Progress.file(n)))
 
 
+## Há alguma noite já jogada para rejogar.
+func _replayable() -> bool:
+	return range(1, Progress.SLOTS + 1).any(func(n: int): return not Progress.nights(n).is_empty())
+
+
 ## O botão do jogo salvo `n` e a lixeira dele.
 func _slot(n: int) -> Button:
 	return %Slots.get_child(n - 1).get_node("Line/Slot")
@@ -155,9 +178,11 @@ func _delete(n: int) -> Button:
 ## `Main` avisar.
 func _where(n: int) -> String:
 	var f := ConfigFile.new()
-	if f.load(Progress.file(n)) != OK:
+	if _picking == Pick.REPLAY and Progress.nights(n).is_empty() or _picking != Pick.REPLAY and f.load(Progress.file(n)) != OK:
 		return ""
 	var night: int = f.get_value("progress", "night", 0)
+	if _picking == Pick.REPLAY:   # (para rejogar: a última noite que dá, mesmo com o jogo já acabado)
+		night = Progress.nights(n).back()
 	if night == 0:
 		return T.text(T.Key.TITLE_WHERE_TRAINING) % GameData.date_text(0)
 	return T.text(T.Key.TITLE_WHERE) % [night, GameData.date_text(night)]
@@ -195,22 +220,23 @@ func _slots(mode: Pick) -> void:
 
 
 ## Monta os jogos salvos no lugar do menu: a noite em que cada um parou e a data embaixo, ou "Vazio" (que não se
-## carrega); a lixeira só para carregar, nos usados.
+## carrega); a lixeira só para carregar, nos usados. Para rejogar, a última noite já jogada de cada um.
 func _show_slots() -> void:
 	var on := _picking != Pick.NONE
 	$Menu.visible = not on
 	%SlotMenu.visible = on
+	%NightMenu.visible = false
 	if not on:
 		_choose()
 		return
-	%Pick.text = T.text(T.Key.TITLE_PICK_LOAD if _picking == Pick.LOAD else T.Key.TITLE_PICK_NEW)
+	%Pick.text = T.text([T.Key.TITLE_PICK_LOAD, T.Key.TITLE_PICK_NEW, T.Key.TITLE_PICK_REPLAY][_picking - 1])
 	var first: Button = %Back
 	for n in range(Progress.SLOTS, 0, -1):
 		var where := _where(n)
 		var b := _slot(n)
 		var date: Label = %Slots.get_child(n - 1).get_node("WhereBox/Where")
 		b.text = "%d · %s" % [n, where.get_slice(" · ", 0) if where != "" else T.text(T.Key.TITLE_EMPTY)]
-		b.disabled = _picking == Pick.LOAD and where == ""
+		b.disabled = _picking != Pick.NEW and where == ""
 		date.text = where.get_slice(" · ", 1)
 		date.get_parent().visible = where != ""
 		_delete(n).visible = _picking == Pick.LOAD and where != ""
@@ -219,9 +245,20 @@ func _show_slots() -> void:
 	first.grab_focus()
 
 
-## O jogo salvo `n` escolhido: carrega; no jogo novo, começa nele (por cima do que houver, perguntando antes).
+## O jogo salvo `n` escolhido: carrega; no jogo novo, começa nele (por cima do que houver, perguntando antes, também
+## quando só sobraram as noites para rejogar); para rejogar, mostra as noites dele.
 func _pick(n: int) -> void:
-	if _picking == Pick.NEW and _where(n) != "":
+	if _picking == Pick.REPLAY:
+		Sfx.play("click")
+		Progress.slot = n
+		%SlotMenu.visible = false
+		%NightMenu.visible = true
+		var can := Progress.nights(n)
+		for b: Button in %Nights.get_children():
+			b.disabled = not (b.get_index() + 1 in can)
+		(%Nights.get_child(can.back() - 1) as Button).grab_focus()
+		return
+	if _picking == Pick.NEW and (_where(n) != "" or not Progress.nights(n).is_empty()):
 		_ask(T.Key.TITLE_NEW_WARNING, "TITLE_ERASE", func():
 			Progress.clear(n)
 			_pick(n))
