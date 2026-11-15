@@ -37,6 +37,7 @@ extends Node
 ##   --letter               a carta da noite já lida (aberta, sem o lacre; os pedidos dela entram no diário)
 ##   --ending               encerra o turno (o diário abre sozinho; no fim do jogo, a última página)
 ##   --logs=3               tantos registros esperando no caderno (as tiras no bloco de fichas, pulsando)
+##   --unread               fala nova no registro: a folha nova presa por cima na prancheta
 ##   --toll                 um interurbano contando no calculógrafo, dois bilhetes na mesa (um carimbado) e três na caixinha
 ##   --clues                palavras-chave ouvidas (uma marcada, uma riscada, uma ouvida duas vezes) e a lista nas anotações
 ##   --screen=id            uma tela por cima: intro (a de início), note (o recado relido pelo quadro), pause, settings,
@@ -172,6 +173,8 @@ func _ready() -> void:
 			m.toll.file(t)
 		m.exchange.set_line(2, Exchange.Line.CONN, m.minutes + 60.0)   # senão a linha livre já imprime o bilhete
 		m.toll.start(2, GameData.trunk_city(902), "7-30", m.minutes - 2.0)
+	if _args.has("unread"):
+		m.background.unread = true
 	if _args.has("logs"):   # registros esperando no caderno: as tiras no bloco, pulsando
 		for i in int(_args["logs"]):
 			var r := PhoneCall.Record.new()

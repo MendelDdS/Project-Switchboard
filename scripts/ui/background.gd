@@ -98,6 +98,7 @@ const MIST_TINT := Color(0.66, 0.72, 0.78)
 const DROP_SHADOW := 1.8   ## a sombra das gotas do vidro na luz da rua na mesa (`_draw_drop_shadows`), em relação à força da luz ali
 const NOIR := Color(0.012, 0.022, 0.045, 0.72)   ## o escuro frio da sala fora da luz da luminária (`_noir_params`)
 const GLOOM_R := Vector2(615, 248)   ## até onde vai a luz da luminária antes do escuro todo (px da tela, elipse em volta da poça na mesa: larga, a mesa toda na luz)
+const BOARD_LIGHT := Vector3(0.75, 1.0, 0.6)   ## a luz da arandela do quadro de avisos: o raio (fração da largura e da altura dele, em volta do alto do meio) e quanto do escuro da sala ela tira
 const GLOOM_IN := 0.25   ## dentro dessa fração do raio, nada de escuro: dali para fora ele cresce liso
 const LAMP_LIGHT := Vector3(0.6, 0.5, 0.03)   ## a luz da luminária no shader do `SceneView` (`light`): o raio em fração de `GLOOM_R`, o quanto a cor cresce no meio e a cor pura somada
 const WINDOW_GLOW := Color(0.45, 0.62, 1.0, 0.12)   ## o brilho azul da noite entrando pela janela (`_draw_window_glow`)
@@ -192,8 +193,8 @@ const DRAWER_H := 26.0           ## a altura de cada gaveta (cm)
 ## O quadro de avisos na parede, em cima do gaveteiro (`_draw_cork_board`): o alto e o pé (cm a partir dos olhos), a
 ## largura (px de 2x2 lá), a folga até a quina e a moldura (px da tela). Nele ficam o jornal, a folhinha, o cartaz da
 ## quermesse e, com a sobra, os avisos da etapa seguinte.
-const BOARD_TOP := -46.0
-const BOARD_BOTTOM := 14.0
+const BOARD_TOP := -43.0   ## (3 cm abaixo do que era: a arandela em cima da moldura cabe na tela)
+const BOARD_BOTTOM := 17.0
 const BOARD_W := 96.0
 const CORNER_GAP := 6.0
 const BOARD_FRAME := 4
@@ -606,7 +607,7 @@ func _process(delta: float) -> void:
 			_sun_layer.queue_redraw()
 			_sun_edge.queue_redraw()   # (depois dela: usa a janela que ela desenhou no tampo)
 		_show()
-	var dk := [size, _gloom_center(), lamp_level, warm, _glass, daylight()]
+	var dk := [size, _gloom_center(), lamp_level, warm, _glass, daylight(), _board]
 	if dk != _noir_set:   # o escuro da sala: só os parâmetros do shader mudam, nada se redesenha
 		_noir_set = dk
 		_noir_params()
@@ -1729,24 +1730,27 @@ func _draw_over() -> void:
 	_ci = _over
 	_cover = _paper()   # o papel da ferramenta aberta (ou deslizando) cobre o cenário por estar na frente
 	Bloom.clear(_over)
+	Bloom.clear(_blind_layer)   # as luzes de lá fora ficam em nome da camada da persiana: o que as tapa (`_frame_masks`) não corta as da sala
+	for m: PackedVector2Array in _frame_masks():
+		Bloom.occlude(_blind_layer, m)
 	for l: Array in _glows:
 		if not _cover.intersects(l[0]) and not _behind_blind(l[0]):
 			Bloom.light(_over, l[0], l[1], l[2], l[3], l[4])
 	if _posts_on():   # os postes de lá, que apagam com a luminária piscando e de manhã
 		for r: Rect2 in _posts:
 			if not _cover.intersects(r) and not _behind_blind(r):
-				Bloom.light(_over, r, Pal.STREET_LAMP, 0.8, true, false)
+				Bloom.light(_blind_layer, r, Pal.STREET_LAMP, 0.8, true, false)
 	for f: Array in _flats:   # as janelas acesas do prédio de tijolos, fraco e sem miolo (as cortinas ficam à vista)
 		if _win_lit(_houses[0], f[1]) and not _cover.intersects(f[0]) and not _behind_blind(f[0]):
-			Bloom.light(_over, f[0], Pal.CITY_LIT[0], 0.3, false, false)
+			Bloom.light(_blind_layer, f[0], Pal.CITY_LIT[0], 0.3, false, false)
 	if not _sign_glow.is_empty() and _sign_on():   # só o halo, na forma do letreiro (num retângulo, ficava quadrado): as letras ficam à vista
 		var boxes := _sign_glow.slice(0, -1)
 		var all: Rect2 = _sign_glow.back()
 		for r in boxes:
 			all = all.merge(r)
 		if not _cover.intersects(all) and not _behind_blind(all):
-			Bloom.light(_over, all, Pal.SIGN_RED, 0.35, false, false, boxes)   # as caixas, em T, num halo só
-			Bloom.light(_over, _sign_glow.back(), Pal.SIGN_MOON, 0.2, false, true)   # e a lua, amarela (a 0,5, o halo redondo dela cobria metade da torre da igreja, pedido 294)
+			Bloom.light(_blind_layer, all, Pal.SIGN_RED, 0.35, false, false, boxes)   # as caixas, em T, num halo só
+			Bloom.light(_blind_layer, _sign_glow.back(), Pal.SIGN_MOON, 0.2, false, true)   # e a lua, amarela (a 0,5, o halo redondo dela cobria metade da torre da igreja, pedido 294)
 	_draw_window_glow()
 	_draw_mist()
 	if _cover.has_area():   # uma ferramenta na frente do operador: o cenário atrás escurece e o papel faz sombra nele
@@ -1754,6 +1758,24 @@ func _draw_over() -> void:
 		_ci.draw_rect(Rect2(_cover.position + Vector2(10, 12), _cover.size), Color(0, 0, 0, 0.35))
 		_ci.draw_rect(Rect2(Vector2.ZERO, size), Color(0, 0, 0, 0.28))
 	_ci = self
+
+
+## O que tapa o halo das luzes de lá fora: uma faixa para fora de cada beira do vidro (`_glass`), da largura do halo
+## (o do poste do prédio de tijolos passava por cima do batente da janela).
+func _frame_masks() -> Array:
+	var out := []
+	if _glass.size() < 3:   # (a persiana toda descida: nenhuma luz de fora à vista)
+		return out
+	var mid := PixelArt.bounds(_glass).get_center()
+	for i in _glass.size():
+		var a := _glass[i]
+		var b := _glass[(i + 1) % _glass.size()]
+		var t := (b - a).normalized() * (Bloom.SPREAD + 2.0)
+		var n := t.orthogonal()
+		if n.dot(a - mid) < 0.0:
+			n = -n
+		out.append(PackedVector2Array([a - t, b + t, b + t + n, a - t + n]))
+	return out
 
 
 ## O objeto erguido sob o mouse (`_up_id`), na camada dele: o mesmo desenho da sala, com as luzes dele no brilho.
@@ -2202,6 +2224,9 @@ func _noir_params() -> void:
 	m.set_shader_parameter("front", FRONT_LIGHT)
 	m.set_shader_parameter("noir", NOIR)
 	m.set_shader_parameter("extra", lamp_dark())
+	m.set_shader_parameter("spot", _board_spot())
+	m.set_shader_parameter("spot_r", _board.size * Vector2(BOARD_LIGHT.x, BOARD_LIGHT.y))
+	m.set_shader_parameter("spot_k", BOARD_LIGHT.z if _board.has_area() else 0.0)
 	m.set_shader_parameter("glass", _glass)
 	m.set_shader_parameter("glass_n", _glass.size())
 	_day_params(m)
@@ -2240,9 +2265,15 @@ func _gloom_center() -> Vector2:
 func _gloom(p: Vector2, c: Vector2, steady := false) -> float:
 	var q := (p - c) / GLOOM_R
 	var k := smoothstep(GLOOM_IN, 1.0, q.length() / lerpf(1.0, FRONT_LIGHT, smoothstep(0.0, 0.5, q.y)))
-	if steady:
-		return clampf(NOIR.a * k, 0.0, 0.9)
-	return clampf(NOIR.a * k + lamp_dark(), 0.0, 0.9)
+	var lit := 1.0   # a arandela do quadro de avisos
+	if _board.has_area():
+		lit -= BOARD_LIGHT.z * (1.0 - smoothstep(0.35, 1.0, ((p - _board_spot()) / (_board.size * Vector2(BOARD_LIGHT.x, BOARD_LIGHT.y))).length()))
+	return clampf(NOIR.a * k + (0.0 if steady else lamp_dark()), 0.0, 0.9) * lit
+
+
+## O meio da luz da arandela no quadro de avisos (px da tela): logo abaixo dela, no alto do quadro.
+func _board_spot() -> Vector2:
+	return _board.position + _board.size * Vector2(0.5, 0.3)
 
 
 ## A luz da luminária no shader do `SceneView` (`lamp_light.gdshader`, plano hi-bit, etapa 5): a poça no meio do
@@ -3440,6 +3471,14 @@ func _draw_cork_board(r: Rect2) -> void:
 		if id in details and slot < 2:
 			_pinned[id] = Rect2(o + Vector2(pad + 2.0 + slot * 44.0, sz.y - pad - 50.0 + slot * 2.0), Vector2(38, 48))
 			slot += 1
+	# a arandela: um tubo de latão escuro em dois braços, em cima da moldura, com a boca acesa virada para o quadro
+	# (a luz dela é um furo no escuro da sala, `BOARD_LIGHT`)
+	var lamp := Rect2(o + Vector2(roundf(sz.x / 2.0) - 24.0, -9.0), Vector2(48, 4))
+	for x: float in [lamp.position.x + 8.0, lamp.end.x - 10.0]:
+		_ci.draw_rect(Rect2(x, lamp.end.y, 2, 5), Pal.BAKELITE[3])
+	_ci.draw_rect(lamp, Pal.BAKELITE[2])
+	_ci.draw_rect(Rect2(lamp.position, Vector2(lamp.size.x, 1)), Pal.BAKELITE[4])
+	_ci.draw_rect(Rect2(lamp.position + Vector2(1, lamp.size.y), Vector2(lamp.size.x - 2.0, 1)), Pal.GLOW)
 	var t: Array = Pal.BOARD_TACKS
 	var torn := o + Vector2(pad + 100.0, pad + 36.0)   # a de latão segura o canto rasgado de um aviso que saiu, no vão do alto
 	_poly(PackedVector2Array([torn + Vector2(-3, -2), torn + Vector2(4, -2), torn + Vector2(-3, 4)]), Pal.NEWSPRINT_TONES[2])
@@ -3459,7 +3498,7 @@ func _draw_pinned(id: String) -> void:
 	_props[id] = r
 	_ci.draw_set_transform(Vector2.ZERO)
 	if _ci != _lifted:
-		_ci.draw_rect(Rect2(r.position + Vector2(2, 2), r.size), Color(0, 0, 0, 0.3))
+		_ci.draw_rect(Rect2(r.position + Vector2(1, 3), r.size), Color(0, 0, 0, 0.3))   # (a sombra para baixo: a luz é a da arandela, em cima)
 		if id == _up_id:
 			return
 	match id:

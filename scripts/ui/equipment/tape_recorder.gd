@@ -4,7 +4,7 @@ extends Control
 ## vista, na escala de verdade (`Cassette.standing`: o nome de quem é gravado e a hora escritos de lado, um risquinho
 ## por palavra-chave); sem fita, a fenda fica fechada por uma tampinha de mola, como a dos toca-fitas de carro, que a
 ## fita empurra para dentro ao entrar e que bate de volta quando ela sai (`_flap`); à direita, o VU com o ponteiro
-## pulando com a voz, o contador, a lâmpada, o alto-falante e a tecla REC vermelha, que trava embaixo (`Tapes.rec`,
+## pulando com a voz, o contador, o alto-falante e a tecla REC vermelha, com a lâmpada nela, que trava embaixo (`Tapes.rec`,
 ## `press_rec`, também pela tecla R, `rec_tape`): presa e com a escuta na conversa, em qualquer ordem, grava
 ## (`Tapes.recording`, a lâmpada acesa); acabada a conversa gravada, solta sozinha (`rule_tapes.call_ended`).
 ##
@@ -20,11 +20,12 @@ const Cassette := preload("res://scripts/ui/equipment/cassette.gd")
 const Rack := preload("res://scripts/ui/equipment/tape_rack.gd")
 const SLOT := Rect2(5, 5, 14, 102)   ## a fenda, com o aro escuro
 const SEAT := Vector2(6, 6)   ## o canto da fita encaixada
-const VU := Rect2(23, 6, 21, 13)
-const COUNTER := Rect2(47, 6, 13, 7)
-const LAMP := Rect2(52, 16, 3, 3)   ## a lâmpada de gravando, embaixo do contador
-const GRILLE := Rect2(23, 26, 38, 56)   ## o alto-falante, furadinho
-const REC_KEY := Rect2(23, 90, 37, 10)   ## (largura ímpar como o texto: as letras no meio exato)
+## (à direita da fenda, tudo acaba em x = 58: 3 px livres até a beira da frente, como a fenda do outro lado)
+const VU := Rect2(23, 6, 19, 13)
+const COUNTER := Rect2(45, 12, 13, 7)   ## (o pé alinhado com o do VU)
+const GRILLE := Rect2(22, 25, 37, 58)   ## o alto-falante, furadinho, com o rebaixo (da largura dos rebaixos do VU e do contador)
+const LAMP := Vector2(3, 3)   ## a lâmpada de gravando, na ponta esquerda da tecla REC
+const REC_KEY := Rect2(23, 90, 35, 10)   ## (largura ímpar como o texto: as letras no meio exato)
 const WRITE_SEC := 0.07   ## cada letra da etiqueta
 const POP_SEC := 0.25   ## o risquinho novo, maior
 const BOUNCE_SEC := 0.08   ## o gravador afundando 1 px quando a fita bate
@@ -310,8 +311,8 @@ func _draw_flap(dy: Vector2) -> void:
 		draw_rect(Rect2(r.end.x - 1, r.position.y, 1, r.size.y), Pal.BAKELITE[0])   # a beira solta, na sombra
 
 
-## A tecla REC: vermelha, com o nome no meio; presa (`latched`), fica afundada; sob o dedo, desce 1 px. Ao lado do
-## contador, a lâmpada, acesa enquanto grava (`rec`).
+## A tecla REC: vermelha, com o nome no meio; presa (`latched`), fica afundada; sob o dedo, desce 1 px. Na ponta
+## esquerda dela (desce junto), a lâmpada, acesa enquanto grava (`rec`).
 func _draw_key(dy: Vector2, latched: bool, rec: bool) -> void:
 	var r := Rect2(REC_KEY.position + dy, REC_KEY.size)
 	draw_rect(r.grow(1), Pal.KEY_WELL)
@@ -324,8 +325,8 @@ func _draw_key(dy: Vector2, latched: bool, rec: bool) -> void:
 	var t := PixelArt.tiny("REC")
 	var top := floorf((r.size.y - 1.0 - 5.0) / 2.0) + 1.0   # (as maiúsculas, 5 linhas, no meio da frente, abaixo do alto)
 	draw_texture(t, r.position + Vector2(floorf((r.size.x - t.get_width()) / 2.0), top - 3.0), Pal.BOARD_INK)
-	var l := Rect2(LAMP.position + dy, LAMP.size)
-	draw_rect(l.grow(1), Pal.BOARD_INSET)
+	var l := Rect2(r.position + Vector2(LAMP.x, top + 1.0), LAMP)
+	draw_rect(l.grow(1), Pal.REC_CAP[0])
 	draw_rect(l, Pal.RED if rec else Pal.INK_RED.darkened(0.4))
 	if rec:
 		Bloom.light(self, l, Pal.RED, 0.6)
@@ -364,9 +365,13 @@ func _draw_meters(dy: Vector2, rec: bool) -> void:
 		_clipped(PixelArt.tiny(str(digit)), at, c)
 		if off > 0.0:
 			_clipped(PixelArt.tiny(str((digit + 1) % 10)), at + Vector2(0, 6), c)
-	# o alto-falante
-	for y in range(int(GRILLE.position.y), int(GRILLE.end.y), 2):
-		for x in range(int(GRILLE.position.x) + (y / 2) % 2, int(GRILLE.end.x), 2):
+	# o alto-falante: os furos numa chapa rebaixada, como os mostradores
+	var g := Rect2(GRILLE.position + dy, GRILLE.size)
+	draw_rect(g, Pal.BOARD_INSET)
+	draw_rect(g.grow(-1), Pal.BOARD_FACE.darkened(0.12))
+	g = GRILLE.grow(-2)
+	for y in range(int(g.position.y), int(g.end.y), 2):
+		for x in range(int(g.position.x) + (y / 2) % 2, int(g.end.x), 2):
 			draw_rect(Rect2(Vector2(x, y) + dy, Vector2.ONE), Pal.BOARD_INSET)
 
 

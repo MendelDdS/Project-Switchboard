@@ -3755,3 +3755,55 @@ Chaves:
     com variantes), o cartão por cima do mapa (sai da impressora, no meio), a faixa preta da abertura (o console só
     aparece com o turno começado) e a tampa lisa da coluna dos equipamentos (item 430).
     Depois: "poderia escurecer mais o fundo? Pois os textos estão quase se misturando com a imagem da mesa": o véu da tela inicial fecha em 96% (na pausa segue em ~88%).
+    Ponto 6 ("Pode montar"): três variantes da hierarquia de valor atrás de uma chave de teste (`Pal.trial`,
+    `tools/shot.gd --trial=A|B|C`; A, o creme um degrau abaixo longe da luminária e o despacho um degrau abaixo; B, o
+    brilho das lâmpadas maior e o painel um degrau abaixo; C, meio de cada), capturadas em três situações ao lado da
+    sala de hoje (`build/revisao/p6/`). Aguardando a escolha; a chave e os desvios saem quando uma for escolhida.
+    "Prefiro só a A": entrou a A (`Pal.cabinet`, o esmalte do móvel um degrau abaixo longe da luminária; a máquina do
+    despacho da mesa um degrau abaixo, `_draw_dispatch_unit`); a B e a C e a chave de teste saíram.
+    Ponto 9 ("Prefiro o ponto 2", das três saídas que dei): uma plaqueta de latão do fabricante rebitada no alto da
+    tampa lisa da coluna dos equipamentos (`Switchboard._draw_side_tag`, `SIDE_TAG`: "CTSS" e "N. 003", o número da
+    central); a tampa segue sem letra nem aviso (item 430) e a plaqueta some com ela quando chega o gravador.
+586. #fitas #burocracias #mesa-comutadora "O que você melhoraria com relação ao gravador?" e, da sugestão (o
+    alto-falante ocupa a frente sem informar nada), "além do que você sugeriu, quero que você dê um respiro para
+    desenhos, pois o botão REC está colado com a linha do lado direito, mesma coisa do alto falante". O gravador
+    ganhou o medidor da fita entre o VU e o alto-falante (`GAUGE`: um segmento âmbar por palavra-chave guardada,
+    `Tapes.max_points / per_word`; o último, vermelho, é a fita cheia), o alto-falante menor e tudo à direita da fenda
+    acabando 3 px antes da beira da frente (VU, contador, lâmpada, alto-falante e REC). Das menores que sugeri: a REC
+    presa já afundava 2 px (a sugestão estava errada) e o compartimento ficou como está (a caixa funda foi pedido, 432).
+    #saiu "Remova o medidor da fita, não faz sentido o gravador 'entender' que há palavras chaves registradas": o
+    medidor saiu (a máquina não sabe o que o jogo sabe, como as lâmpadas das pendências, `LESSONS.md`); ficam as folgas
+    e o alto-falante, de novo do VU até a REC, 3 px antes da beira.
+587. #fitas #prancheta #mesa-comutadora "Mais melhorias?" e, das três do gravador, "Faça 1 e 2": o alto-falante numa
+    chapa rebaixada como os mostradores (`GRILLE`, da largura dos rebaixos do VU e do contador) e a lâmpada de
+    gravando na ponta esquerda da tecla REC, descendo com ela (`LAMP`); o contador desceu para o pé do VU. O carretel
+    girando (a 3) não foi pedido. "O registro de conversas que fica na lateral da mesa precisa de uma melhoria também,
+    está com qualidade bem baixa": pendurada, a prancheta é vista quase de perfil (o desenho dela tem ~10 px de
+    largura) e as linhas datilografadas, inclinadas pela perspectiva e a 3 px uma da outra, viravam um xadrez; a folha
+    tinha 3 px de tábua de cada lado (sobrava menos da metade) e a folha nova, girada, passava da beira. Agora: 1 px de
+    tábua de cada lado, as linhas espaçadas pelo quanto a perspectiva inclina cada uma (`_clipboard_print`, `gap`), sem
+    a coluna da hora, e a folha nova reta, da largura da de baixo, com a sombra só no pé (o giro, `SHEET_TURN`, saiu).
+    `shot.gd --unread` mostra a folha nova.
+588. #vista #luz #sala #diario #janela "Outras coisas": (1) "o carro que fica perto da banca de jornal poderia não
+    aparecer em algumas noites, para dar mais vida": o carro estacionado na rua do cruzamento falta uma noite em cada
+    três (a 2, a 5, a 8, a 11 e a 14; `PARKED_AWAY`, `_draw_parked`). (2) "Melhorar as folhas da árvore, fazê-la mais
+    realista, seguindo o visual do jogo": as folhas eram bolotas de 6 × 4 px e a copa parecia de algodão; cada tufo
+    virou um miolo escuro com folhas miúdas (3 × 2 px) de ponta para fora e para baixo, postas de baixo para cima, as
+    do alto na luz cobrindo as de baixo (`_draw_shrub`, `CLUMP_LEAVES` 52, `HEDGE` 200; com 64 e 260 o amanhecer
+    passava de 16 ms em alguns quadros). (3) "A parede onde tem o quadro de avisos parece escura, poderíamos adicionar
+    uma iluminação melhor lá também": uma arandela de tubo em cima da moldura do quadro, e a luz dela é um furo no
+    escuro da sala (`BOARD_LIGHT`, `_board_spot`, `spot` no `room_noir.gdshader`, a mesma conta no `_gloom`). (4) "A
+    luz do prédio está ficando por cima da moldura da janela da sala": o halo das luzes de lá fora (postes, janelas do
+    prédio de tijolos, letreiro) era somado por cima do batente; agora elas entram no `Bloom` em nome da camada da
+    persiana, com uma faixa para fora de cada beira do vidro tapando o halo (`_frame_masks`), sem cortar as luzes da sala.
+589. #vista #luz #sala #diario "Baseado nessas melhorias que pedi, você sugere mais outras?" e, das cinco, "Gostaria que
+    fizesse tudo". (1) O quadro de avisos desceu 3 cm (`BOARD_TOP` −43, `BOARD_BOTTOM` 17) para a arandela caber na
+    tela, e a sombra dos papéis pregados cai para baixo (a luz vem dela). (2) Com a vaga vazia, a mancha de óleo tem um
+    miolo mais escuro e pingos. A vaga seca no começo da chuva, que eu tinha sugerido, não foi feita: o carro saiu
+    antes do turno, então a chuva do turno molha a vaga também (só valeria com o carro saindo no meio da chuva).
+    (3) Depois de cada noite vazia, quem estaciona é outro carro: outra cor e, um sim, um não, uma perua
+    (`_parked_car`, `PARKED_CARS`). (4) A roupa do varal do prédio de tijolos muda de uma noite para outra (as cores
+    trocam de lugar; uma noite em cada quatro, uma peça a menos) e, chovendo, já foi recolhida, menos na 14, a da fuga.
+    (5) Nas rajadas fortes, até três folhas se soltam do alto da copa e vão com o vento (`LOOSE`, `LOOSE_FLY`,
+    `LOOSE_GUST`); na névoa, sem vento, nenhuma. A conferência do brilho: as lâmpadas da mesa já são tapadas pelos
+    plugs (`Bloom.occlude`) e o relógio é de palhetas, sem luz; nada a consertar.

@@ -548,9 +548,10 @@ static func desk_edge(lit: float, step := 0) -> Color:
 
 
 ## O esmalte do móvel da mesa comutadora na luz da sala `lit` (`Switchboard._room_lit`: de 0 longe da luminária a
-## ~0,6 perto dela), `step` tons acima ou abaixo: no meio do painel, o tom de sempre (`SHELL[4]`).
+## ~0,6 perto dela), `step` tons acima ou abaixo: perto da luminária, o tom de sempre; longe dela, um degrau abaixo
+## (o creme não disputa com as lâmpadas das linhas, `HISTORICO` 585).
 static func cabinet(lit: float, step := 0) -> Color:
-	return ramp(SHELL, 0.45 + lit * 0.75, step)   # o branco não some no canto longe da luminária
+	return ramp(SHELL, 0.45 - (1.0 - clampf(lit / 0.6, 0.0, 1.0)) / SHELL.size() + lit * 0.75, step)   # o branco não some no canto longe da luminária
 
 
 ## O metal do painel da mesa comutadora na luz da sala `lit` (como em `cabinet`): no meio do painel, `BOARD_FACE`.

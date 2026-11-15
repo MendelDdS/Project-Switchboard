@@ -234,6 +234,27 @@ func _place_equipment() -> void:
 		x += n.size.x + BAY_GAP
 
 
+## A plaqueta do fabricante rebitada no alto da tampa da coluna do lado: latão, a sigla da companhia e o número da
+## central (`GameData.OWN`), um rebite de cada lado. Diz que a tampa é um lugar reservado, sem letra nem aviso nela.
+func _draw_side_tag() -> void:
+	var side := side_rect()
+	var r := Rect2(roundf(side.get_center().x - SIDE_TAG.x / 2.0), side.position.y + 10.0, SIDE_TAG.x, SIDE_TAG.y)
+	var b: Array[Color] = []
+	for c: Color in Pal.BRASS_PLATE:
+		b.append(Pal.lit(c, _step_at(r.get_center()) - 1))   # (um degrau abaixo: latão velho, sem disputar com as lâmpadas)
+	round_rect(_ci, r.grow(1), b[1])
+	round_rect(_ci, r, b[4])
+	_ci.draw_rect(Rect2(r.position.x + 2, r.position.y, r.size.x - 4, 1), b[5])   # a luz na beira de cima
+	_ci.draw_rect(Rect2(r.position.x + 2, r.end.y - 1, r.size.x - 4, 1), b[2])
+	for x: float in [r.position.x + 3.0, r.end.x - 5.0]:   # os rebites
+		_ci.draw_rect(Rect2(x, r.get_center().y - 1.0, 2, 2), b[2])
+		_ci.draw_rect(Rect2(x, r.get_center().y - 1.0, 1, 1), b[6])
+	var lines := [BADGE, "N. " + GameData.OWN]
+	for i in lines.size():
+		var t := PixelArt.tiny(lines[i])
+		_ci.draw_texture(t, Vector2(roundf(r.get_center().x - t.get_width() / 2.0), r.position.y + 2.0 + i * 8.0), b[1])   # (a letra miúda tem 2 px de acento em cima)
+
+
 ## A coluna do móvel à direita das tomadas (`SIDE_W`), dentro da moldura, depois do friso que a separa delas.
 func side_rect() -> Rect2:
 	return Rect2(SIZE.x - FRAME + 4.0, FRAME + 3.0, SIDE_W - 7.0, SIZE.y - FRAME * 2.0 - 6.0)
@@ -938,6 +959,7 @@ func _draw_top() -> void:
 			_draw_plate(_blocks[s], "ABC"[SECTOR_ORDER.find(s)])
 	if not side_used:   # a coluna do lado, tampada até chegar o primeiro equipamento dela
 		_draw_plate(side_rect().grow(-1), "")
+		_draw_side_tag()
 	for s in GameData.sectors:   # a faixa de numeração na moldura de cima, à esquerda, como o nome do INTERURBANO (a chapa dispensa)
 		var br: Rect2 = _blocks[s]
 		var cap := PixelArt.tiny("%d-%d" % [s * 100, s * 100 + 99])

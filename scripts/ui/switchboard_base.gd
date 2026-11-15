@@ -24,6 +24,7 @@ var patches := 3               # cabos de conexão em uso: cada setor entregue a
 var held := -1
 ## Os olhos do operador, o ponto de fuga da sala, em px da mesa (medido a cada quadro pela mesa; sem cenário, nos
 ## testes, onde eles ficam em 960 × 540): os plugs encaixados apontam para ele e a prateleira foge para ele.
+const SIDE_TAG := Vector2(42, 21)   # a plaqueta do fabricante na tampa da coluna do lado (`_draw_side_tag`)
 const SIDE_W := 72.0   # a coluna do móvel à direita do painel, para os equipamentos de pé (`side_rect`): o painel (as tomadas) é o `SIZE`
 const PLUG_EYE := Vector2(SIZE.x + 132, 81)
 var _eye := PLUG_EYE

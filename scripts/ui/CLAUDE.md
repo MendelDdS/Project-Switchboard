@@ -109,7 +109,7 @@ viatura parando na mão de cá, `_arrest_car`, com dois policiais), posto pelo `
   sol na rua como luz e não tinta (`_draw_sun_strip`), sombras compridas (`_sun_shadow`), vidros espelhando
   (`_sun_glass`), postes e neon apagando, e na sala a luz do dia por parâmetros (`daylight`, `_sun_layer`). É a área
   com mais pedidos no `HISTORICO.md`: consulte as chaves `#vista` e `#luz` antes de mexer.
-- Bloom das janelas e do letreiro: `Bloom.light` com `parts`; luzes de fora na sala: `_window_light_list`.
+- Bloom das janelas e do letreiro: `Bloom.light` com `parts`, em nome da `_blind_layer` (o batente tapa o halo, `_frame_masks`; as luzes da sala ficam na `_over`); a arandela do quadro de avisos é um furo no escuro (`BOARD_LIGHT`); luzes de fora na sala: `_window_light_list`.
 
 ## A mesa comutadora (`Switchboard`)
 - **Tomadas por id**: 1–10 entradas, 11–20 saídas (linha + 10), destinos = o próprio número (101–399; 901–906 os

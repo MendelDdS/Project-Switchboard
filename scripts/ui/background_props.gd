@@ -1654,7 +1654,7 @@ func _draw_dispatch_unit(x0: float, zf: float, wx: float) -> void:
 	var yd := _yd - UNIT.y * k   # o tampo da base
 	var yt := yd - UNIT_PANEL * k   # o alto do painel
 	_desk_shadow(PackedVector2Array([_p3(x0, _yd, ze), _p3(x1, _yd, ze), _p3(x1, _yd, zf), _p3(x0, _yd, zf)]))
-	var step := _paper_step(_still(x0 + wx / 2.0, (zf + ze) / 2.0))
+	var step := _paper_step(_still(x0 + wx / 2.0, (zf + ze) / 2.0)) - 1   # (um degrau abaixo da luz dali: o creme dela disputava com as lâmpadas das linhas)
 	var tone := func(c: Color) -> Color: return Pal.lit(c, step)
 	var all := PackedVector2Array()
 	var sx := x0 if x0 > 0.0 else x1   # o lado virado para o ponto de fuga (atravessando-o, nenhum)
@@ -1939,12 +1939,9 @@ func _pencil(a: Vector2, b: Vector2, mid: Vector2) -> void:
 	_ci.draw_set_transform_matrix(Transform2D.IDENTITY)
 
 
-const SHEET_TURN := 3.5   ## graus que a folha nova da prancheta fica girada (reta, lia como um risco no meio da de baixo)
-
-
 ## A prancheta do registro: tábua de duratex com os cantos cortados e a beira gasta e a folha. Com fala nova no registro
-## (`unread`), uma folha nova, mais clara, presa por cima, girada (`SHEET_TURN`) e com a ponta dobrada. O datilografado
-## das folhas e o prendedor vão por cima, na tela (`_clipboard_print`).
+## (`unread`), uma folha nova, mais clara, presa por cima, com a ponta dobrada (reta: de perfil na lateral da mesa, girada
+## ela passava da beira da tábua). O datilografado das folhas e o prendedor vão por cima, na tela (`_clipboard_print`).
 func _art_clipboard(sz: Vector2i) -> Image:
 	var img := Image.create(sz.x, sz.y, false, Image.FORMAT_RGBA8)
 	img.fill(Pal.BOARD[1])
@@ -1959,79 +1956,55 @@ func _art_clipboard(sz: Vector2i) -> Image:
 	_fr(img, r.position.x + 1, r.position.y + 1, r.size.x, r.size.y, Pal.BOARD[2])   # a sombra da folha na tábua
 	_fr(img, r.position.x, r.position.y, r.size.x, r.size.y, sheets[0][1])
 	_fr(img, r.position.x, r.position.y, r.size.x, 1, (sheets[0][1] as Color).lightened(0.12))
-	if sheets.size() > 1:   # a folha nova, girada em volta do prendedor, com a sombra na de baixo e a ponta dobrada
+	if sheets.size() > 1:   # a folha nova, com a sombra na de baixo e a ponta de baixo à direita dobrada
 		var n: Rect2i = sheets[1][0]
 		var base: Color = sheets[1][1]
-		var box := n.grow(4)
-		for y in range(maxi(0, box.position.y), mini(sz.y, box.end.y)):
-			for x in range(maxi(0, box.position.x), mini(sz.x, box.end.x)):
-				var l := _unturn(Vector2(x + 0.5, y + 0.5), n)   # o pixel na folha reta
-				var u := l.x - (n.end.x - 5.0)   # a ponta de baixo à direita
-				var v := l.y - (n.end.y - 5.0)
-				var corner := u > 0.0 and v > 0.0 and u + v > 5.0
-				if Rect2(n).has_point(l) and not corner:
-					var c := base.lightened(0.12) if l.y < n.position.y + 1.0 else base
-					if u > 0.0 and v > 0.0 and u + v > 3.0:
-						c = base.darkened(0.14) if u + v < 4.5 else base.lightened(0.06)   # a aba virada, com a dobra
-					img.set_pixel(x, y, c)
-				elif Rect2(n).has_point(l - Vector2(1, 1)) and not corner:
-					img.set_pixel(x, y, (sheets[0][1] as Color).darkened(0.25))   # a sombra dela
+		_fr(img, n.position.x, n.end.y, n.size.x, 1, (sheets[0][1] as Color).darkened(0.25))   # (a sombra só no pé: do lado, cobria a beira da tábua)
+		_fr(img, n.position.x, n.position.y, n.size.x, n.size.y, base)
+		_fr(img, n.position.x, n.position.y, n.size.x, 1, base.lightened(0.12))
+		img.set_pixel(n.end.x - 1, n.end.y - 1, (sheets[0][1] as Color).darkened(0.25))
+		img.set_pixel(n.end.x - 2, n.end.y - 1, base.darkened(0.14))
+		img.set_pixel(n.end.x - 1, n.end.y - 2, base.darkened(0.14))
 	return img
-
-
-## O ponto `p` do desenho da prancheta na folha nova `n` antes de girar (o giro é em volta do meio do alto dela, onde
-## fica o prendedor).
-func _unturn(p: Vector2, n: Rect2i) -> Vector2:
-	var c := Vector2(n.get_center().x, n.position.y)
-	return (p - c).rotated(-deg_to_rad(SHEET_TURN)) + c
-
-
-## O ponto `p` da folha nova `n` reta, girado como ela fica na prancheta.
-func _turn(p: Vector2, n: Rect2i) -> Vector2:
-	var c := Vector2(n.get_center().x, n.position.y)
-	return (p - c).rotated(deg_to_rad(SHEET_TURN)) + c
 
 
 ## As folhas da prancheta (`sz`, o desenho de frente): [retângulo, cor do papel, quantas linhas]; com fala nova no
 ## registro, a folha nova por cima cobre só o alto da de baixo (inteira, a prancheta parecia vazia).
 func _sheets(sz: Vector2i) -> Array:
-	var out := [[Rect2i(3, 4, sz.x - 6, sz.y - 6), Pal.SHEET, 99]]
+	var out := [[Rect2i(1, 4, sz.x - 2, sz.y - 6), Pal.SHEET, 99]]   # (1 px de tábua de cada lado: de perfil, ela tem ~10 px de largura)
 	if unread:
-		out.append([Rect2i(5, 3, sz.x - 10, int(sz.y * 0.55)), Pal.SHEET_NEW, 3])
+		out.append([Rect2i(1, 3, sz.x - 2, int(sz.y * 0.55)), Pal.SHEET_NEW, 99])
 	return out
 
 
 ## Por cima da prancheta, na tela: o datilografado de cada folha, o cabeçalho (o título e o fio vermelho) e as linhas
-## em duas colunas (a hora e o resto), a 3 px da tela uma da outra (`_rows`). Na de baixo, só o que a nova não cobre.
+## a 3 px da tela uma da outra (`_rows`) mais o quanto a perspectiva inclina cada
+## uma (`gap`: pendurada na lateral, quase de perfil, as linhas juntas viravam um xadrez). Na de baixo, só o que a nova
+## não cobre.
 func _clipboard_print(sz: Vector2i) -> void:
 	var sheets := _sheets(sz)
-	var cover := -1.0   # até onde a folha nova cobre a de baixo (y do desenho; girada, desce um pouco de um lado)
+	var cover := -1.0   # até onde a folha nova cobre a de baixo (y do desenho, com a sombra dela)
 	if sheets.size() > 1:
-		cover = (sheets[1][0] as Rect2i).end.y + 4.0
+		cover = (sheets[1][0] as Rect2i).end.y + 1.0
 	for i in sheets.size():
 		var r: Rect2i = sheets[i][0]
 		var rows := _rows(r.position.y + 2.0, r.end.y - 1.0, 1.0)
 		var x0 := float(r.position.x)
 		var w := float(r.size.x)
 		var n := 0
+		var gap := 3 + ceili(absf(_tex_pt(Vector2(x0 + w, r.position.y)).y - _tex_pt(Vector2(x0, r.position.y)).y))
 		for k in rows.size():
 			var y: float = rows[k]
 			if i == 0 and y <= cover:
 				continue
-			var line := func(a: float, b: float, col: Color) -> void:   # na folha nova, girado com ela
-				var pa := Vector2(a, y)
-				var pb := Vector2(b, y)
-				if i == 1:
-					pa = _turn(pa, r)
-					pb = _turn(pb, r)
-				_pixel_line(_tex_pt(pa), _tex_pt(pb), [_tone(col, pa)])
+			var line := func(a: float, b: float, col: Color) -> void:
+				_pixel_line(_tex_pt(Vector2(a, y)), _tex_pt(Vector2(b, y)), [_tone(col, Vector2(a, y))])
 			if k == 0:
-				line.call(x0 + 2, x0 + 2 + (w - 4) / 2.0 - 1, Pal.SHEET_INK[0])   # o título
+				line.call(x0 + 1, x0 + w / 2.0, Pal.SHEET_INK[0])   # o título
 			elif k == 1:
-				line.call(x0 + 2, x0 + w - 3, Pal.FORM_RED)   # o fio vermelho do cabeçalho
-			elif k >= 4 and (k - 4) % 3 == 0 and n < sheets[i][2]:
-				line.call(x0 + 2, x0 + 4, Pal.SHEET_INK[1])   # a hora
-				line.call(x0 + 7, x0 + w - 3 - (k * 7) % 9 - (6 if i == 1 else 0), Pal.SHEET_INK[1])
+				line.call(x0 + 1, x0 + w - 2, Pal.FORM_RED)   # o fio vermelho do cabeçalho
+			elif k >= 1 + gap and (k - 1 - gap) % gap == 0 and n < sheets[i][2]:
+				line.call(x0 + 1, x0 + w - 2 - (k * 7) % 3, Pal.SHEET_INK[1])   # (sem a coluna da hora: de perfil, não cabe)
 				n += 1
 	# o prendedor de níquel na beira de cima, na perspectiva da prancheta: o corpo (a luz no alto, a sombra embaixo e
 	# a da folha), a alavanca por cima e o prego no furo dela

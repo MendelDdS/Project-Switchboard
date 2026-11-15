@@ -348,6 +348,8 @@ const ROOF := Vector3(0.7, 0.5, 80.0)
 const NEWSSTAND := Vector3(10.4, 2.4, 1.1)
 const NEWSSTAND_SHUT := Vector2(19 * 60, 29 * 60 + 10)   ## ...que fecha às 19h e abre de novo às 5h10 (min do dia, depois da meia-noite)
 const WALK_RIGHT := CROSSING.y - NEWSSTAND.z - 0.35   ## a calçada da direita da rua do cruzamento, por onde quem vira a esquina anda: por fora da banca
+const PARKED_AWAY := 3   ## de quantas em quantas noites o carro estacionado não está na rua
+const PARKED_CARS := [1, 3, 4, 6, 0]   ## a cor (de `Pal.CAR_TONES`) do carro que ocupa a vaga depois de cada noite vazia; um sim, um não, é uma perua
 const PARKED := Vector3(2.4, 13.0, 4.0)   ## o carro estacionado na rua do cruzamento, junto do meio-fio da direita: x do lado de fora, z da traseira e o comprimento (m)
 const SHOP_Z := 60.0   ## até onde (z, m) o térreo das paredes da rua do cruzamento tem portas e lojas (depois, menores que um pixel)
 ## até onde (z, m) as lojas e as portas das paredes da rua do cruzamento têm o miúdo: a mercadoria e a mureta da vitrine,
@@ -375,14 +377,19 @@ const CAR_DEPTH := 0.4
 ## acima do peitoril (fração da altura): baixa, a pedido, para não esconder o outro lado da rua.
 const SHRUB := Vector3(0.66, 0.24, 0.15)
 const CLUMPS := 18        ## os tufos de folhas da copa...
-const CLUMP_LEAVES := 30  ## ...e as folhas de cada um
+const CLUMP_LEAVES := 52  ## ...e as folhas de cada um (miúdas e pontudas, por cima do miolo escuro dele)
 const CLUMP_R := Vector2(7, 12)   ## o raio dos tufos (px da tela, sorteado): de perto, maiores que os do arbusto
 ## Os galhos que aparecem entre os tufos: do tronco, saindo do peitoril, até o meio de alguns deles.
 const BRANCHES := 5
-const HEDGE := 110   ## as folhas da cerca viva embaixo dela, até o batente de perto (sem ela, sobrava a rua vazia entre a copa e o peitoril)
+const HEDGE := 200   ## as folhas da cerca viva embaixo dela, até o batente de perto (sem ela, sobrava a rua vazia entre a copa e o peitoril)
 ## As rajadas de vento no arbusto: as duas ondas lentas que as fazem (rad/s) e quanto elas empurram a copa para a
 ## esquerda (px da tela no alto dela).
 const GUST := Vector3(0.23, 0.071, 2.5)
+## As folhas que a rajada arranca: de quanto em quanto tempo cada uma pode sair (s), quanto dura o voo e até onde vai
+## para a esquerda (px da tela); só sai se a rajada está forte nessa hora (`LOOSE_GUST`) e fora da névoa, sem vento.
+const LOOSE: Array[float] = [31.0, 47.0, 73.0]
+const LOOSE_FLY := Vector2(2.4, 90.0)
+const LOOSE_GUST := 0.45
 const DAY_GAIN := 1.5    ## de dia, o quanto a cor da cidade cresce, vezes a do céu (o `modulate` dela, `_process`)...
 const DAY_WARM := 0.5   ## ...que é a do alto indo para a do horizonte (com 0,4, azulada, desbotava as cores quentes)
 ## o quanto o céu já é de dia às 6h (`_day_sky`: as nuvens brancas, o clarão e o halo do sol encolhendo): pouco, porque
@@ -1809,6 +1816,11 @@ func _draw_crossing_ground(g: Rect2, road: Array, walks: Array, hz: Color) -> vo
 			c = n
 	# a mancha de óleo embaixo do carro estacionado, saindo um pouco por trás
 	_poly(_patch(g, PARKED.x + 0.3, PARKED.x + 1.3, PARKED.y - 0.6, PARKED.y + PARKED.z - 0.8), Color(air.call(road[Pal.STREET_MID - 2], PARKED.y), 0.7))
+	if _parked_car() < 0:   # a vaga vazia: o miolo da mancha, mais escuro, e os pingos de onde ficava o motor
+		var oil: Color = (air.call(road[Pal.STREET_MID - 2], PARKED.y) as Color).darkened(0.45)
+		_poly(_patch(g, PARKED.x + 0.5, PARKED.x + 1.1, PARKED.y + 1.6, PARKED.y + PARKED.z - 1.0), oil)
+		for d: Vector2 in [Vector2(0.35, 1.2), Vector2(1.2, 2.2), Vector2(0.8, 0.6)]:
+			_poly(_patch(g, PARKED.x + d.x, PARKED.x + d.x + 0.2, PARKED.y + d.y, PARKED.y + d.y + 0.35), oil)
 	for side: Vector2 in [Vector2(l0, 1.0), Vector2(l1, -1.0)]:
 		# a sarjeta, mais escura e úmida, e a face do meio-fio virada para a rua
 		var gut := Color(road[Pal.STREET_MID - 2], 0.75)
@@ -1830,16 +1842,25 @@ func _draw_crossing_ground(g: Rect2, road: Array, walks: Array, hz: Color) -> vo
 		_ci.draw_line(_o(g, xm, ff), _o(g, xm, CROSS_DETAIL), joint, PX)
 
 
+## O carro que está na vaga nesta noite (o índice dele; a cada noite vazia, muda), ou -1 com ela vazia.
+func _parked_car() -> int:
+	return -1 if night % PARKED_AWAY == PARKED_AWAY - 1 else night / PARKED_AWAY
+
+
 ## O carro estacionado na rua do cruzamento (`PARKED`), de traseira para nós e visto do alto: a lateral virada para o
 ## meio da rua, com as rodas, a traseira com as lanternas apagadas e o para-choque, a tampa do motor, a cabine com o
-## vidro de trás e o teto, que pega o céu (e o sol, de manhã).
+## vidro de trás e o teto, que pega o céu (e o sol, de manhã). Uma noite em cada `PARKED_AWAY` ele não está (a 2, a 5,
+## a 8...): fica a mancha de óleo no lugar dele, e quem estaciona depois é outro carro (`_parked_car`, `PARKED_CARS`).
 func _draw_parked(g: Rect2, hz: Color) -> void:
+	var car := _parked_car()
+	if car < 0:
+		return
 	var x0 := PARKED.x
 	var x1 := x0 + 1.6
 	var z0 := PARKED.y
 	var z1 := z0 + PARKED.z
 	var haze := clampf((z0 - 14.0) / 160.0, 0.0, 0.5)
-	var tones: Array = Pal.CAR_TONES[1]
+	var tones: Array = Pal.CAR_TONES[PARKED_CARS[car % PARKED_CARS.size()]]
 	var tone := func(k: int) -> Color: return (tones[Pal.CAR_MID + k] as Color).lerp(hz, haze)
 	var sun := _sunlit()
 	var top: Color = (tone.call(1) as Color).lerp(Pal.CAR_SKY, 0.3).lerp(_sun_tint(Pal.SUN_STREET), 0.25 * sun)
@@ -1857,7 +1878,7 @@ func _draw_parked(g: Rect2, hz: Color) -> void:
 		_poly(PackedVector2Array([_o(g, xl, z0, 0.6), _o(g, xl + 0.18, z0, 0.6), _o(g, xl + 0.18, z0, 0.75), _o(g, xl, z0, 0.75)]), Pal.CAR_TAIL.darkened(0.5).lerp(hz, haze))
 	_ci.draw_line(_o(g, x0, z0, 0.3), _o(g, x1, z0, 0.3), Pal.CAR_CHROME.lerp(hz, 0.4 + haze), PX)   # o para-choque
 	_poly(flat.call(x0, x1, z0, z1, 0.85), top)   # a tampa e o capô
-	var cz0 := z0 + 1.0
+	var cz0 := z0 + (0.2 if car % 2 == 1 else 1.0)   # (a perua: a cabine até a traseira)
 	var cz1 := z1 - 1.3
 	_poly(side.call(x0 + 0.15, cz0, cz1, 0.85, 1.35), Pal.CAR_GLASS.lerp(hz, haze))   # os vidros do lado
 	_poly(PackedVector2Array([_o(g, x0 + 0.15, cz0, 0.85), _o(g, x1 - 0.15, cz0, 0.85), _o(g, x1 - 0.15, cz0, 1.35), _o(g, x0 + 0.15, cz0, 1.35)]), Pal.CAR_GLASS.lerp(Pal.CAR_GLINT, 0.3).lerp(hz, haze))   # o vidro de trás
@@ -3685,9 +3706,16 @@ func _draw_balcony_back(g: Rect2, tone: Callable) -> void:
 	var lb := _o(g, APT["x0"] + 1.4, lz, fl + 2.2)
 	_ci.draw_line(la, lb, tone.call(-3), PX)
 	var kk := OUT_F / lz
-	for i in range(Pal.LAUNDRY.size() - Moving.laundry(_scene_t.get("moving", -1.0)), Pal.LAUNDRY.size()):   # (recolhida na noite 14, da primeira em diante)
+	# a roupa muda de uma noite para outra (as cores trocam de lugar; uma noite em cada quatro, uma peça a menos) e,
+	# chovendo, já foi recolhida (menos na 14, a da fuga, em que é recolhida à vista, da primeira em diante)
+	var left := Moving.laundry(_scene_t.get("moving", -1.0))
+	if weather == "rain" and night != 14:
+		left = 0
+	elif night % 4 == 1:
+		left = mini(left, Pal.LAUNDRY.size() - 1)
+	for i in range(Pal.LAUNDRY.size() - left, Pal.LAUNDRY.size()):
 		var cx := la.x + (lb.x - la.x) * (0.15 + i * 0.3)
-		_r(cx, la.y, 0.28 * kk, (0.45 + 0.15 * (i % 2)) * kk, Pal.LAUNDRY[i])
+		_r(cx, la.y, 0.28 * kk, (0.45 + 0.15 * ((i + night) % 2)) * kk, Pal.LAUNDRY[(i + night) % Pal.LAUNDRY.size()])
 
 
 ## A parte da varanda que muda ou fica na frente, na camada da frente: o vidro da janela da sala com a luz da TV
@@ -5152,8 +5180,10 @@ func _sheen(g: Rect2, x0: float, x1: float, z: float, h: float, alpha: float, sp
 
 ## A árvore da nossa calçada, embaixo da janela (`SHRUB`, com a cerca viva embaixo, `HEDGE`): o tronco sobe do
 ## peitoril e só a copa aparece, em tufos, atrás do vidro, posta pela parede da sala (`_side_pt`) e não pela câmera da
-## vista; os galhos (`BRANCHES`) aparecem entre os tufos. Folhas em quatro tons (as de cima pegando a luz da rua),
-## maiores do lado de perto, mexendo com o vento.
+## vista; os galhos (`BRANCHES`) aparecem entre os tufos. Cada tufo é um miolo escuro (a sombra de dentro da copa) com
+## as folhas por cima, miúdas e com a ponta para fora e para baixo, postas de baixo para cima: as do alto, pegando a luz
+## da rua, cobrem as de baixo, na sombra. Quatro tons, maiores do lado de perto, mexendo com o vento. (Em bolotas de
+## 6 × 4 px, a copa parecia de algodão.)
 func _draw_shrub() -> void:
 	var rng := RandomNumberGenerator.new()
 	rng.seed = 4242
@@ -5164,6 +5194,7 @@ func _draw_shrub() -> void:
 	var tones := Pal.SHRUB
 	var f := _flash()
 	var sun := _sunlit()   # (a copa, no alto, pega o sol)
+	var sunny := [_sunny(Pal.LEAF_SUN[0]), _sunny(Pal.LEAF_SUN[1])]   # (uma vez: por folha, pesava no amanhecer)
 	_ci.draw_set_transform(Vector2.ZERO)   # as folhas em px da tela
 	var gw := SIDE_W
 	var gh := _cm(WIN_SILL - WIN_TOP)
@@ -5188,13 +5219,22 @@ func _draw_shrub() -> void:
 		var r := SHRUB.y
 		var dx := 0.0
 		var up := 0.0   # onde a folha fica no tufo dela: 1 no alto, -1 embaixo (o volume e a beira acesa)
+		var side := 1.0 if i % 2 == 0 else -1.0   # para que lado a ponta dela cai
 		if i < CLUMPS * CLUMP_LEAVES:
 			var cl := clumps[floori(float(i) / CLUMP_LEAVES)]
-			var o := Vector2.from_angle(rng.randf() * TAU) * sqrt(rng.randf()) * Vector2(cl.z, cl.z * 0.7)
+			var n := i % CLUMP_LEAVES
+			if n == 0:   # o miolo do tufo: uma elipse escura, em tiras
+				var mid := ((_side_pt(Vector2((SHRUB.x + cl.x) * gw, gh * (1.0 - cl.y)), WALL_D + 8.0) - _view_at) * 2.0).floor()
+				var ry := roundf(cl.z * 0.6)
+				for y in range(-ry, ry, 2):
+					var half := roundf(cl.z * 0.85 * sqrt(1.0 - pow((y + 1.0) / ry, 2.0)))
+					_ci.draw_rect(Rect2(mid + Vector2(-half, y), Vector2(half * 2.0, 2)), (tones[0] as Color).lerp(Pal.SHRUB_FLASH, f * 0.3))
+			up = clampf(lerpf(-1.0, 1.0, (n + rng.randf()) / CLUMP_LEAVES), -1.0, 1.0)
+			var o := Vector2(rng.randf_range(-1.0, 1.0) * sqrt(1.0 - up * up * 0.8) * cl.z, -up * cl.z * 0.7)
 			dx = cl.x + o.x / gw
 			hgt = cl.y - o.y / gh
 			r = absf(cl.x) + cl.z / gw
-			up = -o.y / (cl.z * 0.7)
+			side = signf(o.x)
 		else:   # a cerca viva embaixo dela, até o batente de perto
 			hgt = rng.randf_range(-0.08, 0.035)
 			dx = rng.randf_range(-r, 1.05 - SHRUB.x)
@@ -5202,18 +5242,27 @@ func _draw_shrub() -> void:
 		var p := (_side_pt(w, WALL_D + 8.0) - _view_at) * 2.0   # do lado de fora, atrás do vidro
 		var k := clampf(_side_pt(w + Vector2(0, 1)).y - _side_pt(w).y, 0.8, 1.6)   # a escala da parede ali
 		var sway := roundf((sin(t * (1.4 + gust) + i * 0.7) * (1.0 + gust) - gust * GUST.z) * wind * maxf(hgt, 0.0) / SHRUB.z * 1.5)
-		var lit := clampf(maxf(hgt, 0.0) / SHRUB.z * 0.5 + up * 0.25 + 0.15 + (dx / maxf(0.01, r)) * 0.1 + rng.randf_range(-0.2, 0.15), 0.0, 0.99)
+		var lit := clampf(maxf(hgt, 0.0) / SHRUB.z * 0.45 + up * 0.3 + 0.2 + (dx / maxf(0.01, r)) * 0.1 + rng.randf_range(-0.14, 0.12), 0.0, 0.99)
 		var c: Color = (tones[int(lit * tones.size())] as Color).lerp(Pal.SHRUB_FLASH, f * 0.5)
 		# o sol baixo: as folhas acendem de verde-amarelo, mais nos tufos do alto e na beira de cima de cada um, e as
 		# de baixo do tufo ficam no verde-escuro (`Pal.LEAF_SUN`)
-		c = c.lerp(_sunny(Pal.LEAF_SUN[0]), sun * clampf(lit * 0.9, 0.0, 0.7))
-		c = c.lerp(_sunny(Pal.LEAF_SUN[1]), sun * 0.75 * smoothstep(0.4, 0.9, up) * (0.4 + 0.6 * hgt / SHRUB.z))
+		if sun > 0.0:
+			c = c.lerp(sunny[0], sun * clampf(lit * 0.9, 0.0, 0.7))
+			c = c.lerp(sunny[1], sun * 0.75 * smoothstep(0.4, 0.9, up) * (0.4 + 0.6 * hgt / SHRUB.z))
 		var px := p.floor() + Vector2(sway, 0)
-		var lw := roundf(6.0 * k)
-		var lh := roundf(4.0 * k)
+		var lw := roundf(3.0 * k)
+		var lh := roundf(2.0 * k)
 		_ci.draw_rect(Rect2(px, Vector2(lw, lh)), c)
-		_ci.draw_rect(Rect2(px + Vector2(1, -1), Vector2(lw - 2, 1)), c)
-		_ci.draw_rect(Rect2(px + Vector2(1, lh), Vector2(lw - 2, 1)), c.darkened(0.3))
+		_ci.draw_rect(Rect2(px + Vector2(lw if side > 0.0 else -1.0, lh - 1.0), Vector2(1, 1)), c)   # a ponta, para fora e para baixo
+		_ci.draw_rect(Rect2(px + Vector2(0.0 if side > 0.0 else 1.0, lh), Vector2(lw - 1.0, 1)), c.darkened(0.35))   # a sombra dela na de baixo
+	for j in LOOSE.size():   # as folhas soltas: saem do alto da copa, sobem um pouco, caem e vão com o vento, virando
+		var t0 := floorf(t / LOOSE[j]) * LOOSE[j]
+		var u := (t - t0) / LOOSE_FLY.x
+		if u < 1.0 and wind >= 0.5 and sin(t0 * GUST.x) * sin(t0 * GUST.y + 1.3) > LOOSE_GUST:
+			var cl := clumps[clumps.size() - 1 - j * 2]
+			var p: Vector2 = at.call(cl.x, cl.y) + Vector2(-(LOOSE_FLY.y - j * 14.0) * u + sin(u * 19.0 + j) * 2.0, -10.0 * sin(u * PI) + 26.0 * u * u).round()
+			var flip := int(u * 14.0 + j) % 2 == 0
+			_ci.draw_rect(Rect2(p, Vector2(3, 2) if flip else Vector2(2, 3)), (tones[2 if flip else 3] as Color).lerp(sunny[1], sun * 0.5))
 	_ci.draw_set_transform(Vector2.ZERO, 0.0, Vector2(2, 2))
 
 
