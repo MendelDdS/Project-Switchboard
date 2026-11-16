@@ -3825,3 +3825,105 @@ Chaves:
     para rejogar; apagar ou começar por cima apaga tudo (perguntando antes). O treinamento e o epílogo não se rejogam.
     **O rádio nos silêncios** ficou para decidir: a música e as canções da Rádio Serena pela janela já saíram a
     pedido (553), então o desenho dele foi perguntado antes de fazer.
+591. #som #voz #musica #radio "Preciso que você busque áudios sem copyright de sons abafados de TV, Rádios, como
+    aqueles... 'music from another room', ou como aqueles sons da TV de the sims 1, que trazem uma sensação nostálgica
+    e melancólica": o rádio nos silêncios (590) virou o rádio e a TV do vizinho pela parede. Gravações de fora
+    (Freesound, OpenGameArt, CC0) foram ouvidas num artefato com aprovar e desaprovar: quase todas reprovadas ("apenas
+    ruído", batida moderna; a fala inventada gravada, nenhuma) e pacotes pagos também não serviram; no fim, "vamos
+    ignorar os sons de sites externos... e manter somente os gerados". Ficou a fala inventada sintetizada com a voz
+    das ligações (`tools/vizinhos/gerar.py`, seis programas de 40 s: noticiário, novela, auditório, futebol, rádio com
+    música, comerciais), melhorada a pedido, rodada a rodada: os estalos entre as falas (a voz contínua, sem pedaços
+    colados); "a voz levantava o volume" (a volta lenta da vogal); entonação; consoantes que dobram os formantes e
+    sílabas do português; um timbre por pessoa ("jornalistas e atores das novelas estão com as mesmas vozes"); o fim
+    das frases variado ("todas as falas terminam com a mesma entonação") e por tipo de programa; respiração,
+    hesitação, emoção e conversa de verdade na novela; palmas, torcida e música refeitas; "vozes onduladas tipo
+    aueuieu" (a voz passou a parar de verdade nas consoantes surdas); o "twi" de laser (o chiado cortado seco no fim
+    da frase, o resto dos formantes levantado pelo nivelamento, o filtro em degraus de 5 ms e a varredura até o lugar
+    exato da consoante); o aparelho (chiado, zumbido, o volume mexido, a estação procurada no rádio), quem está na
+    sala de lá (tosse, cadeira, passos, xícara, risada, o grito no gol) e uma cantora na valsa. No jogo ("o som
+    através das paredes precisa ser baixo e direcional, talvez até um pouco mais abafado"): `Sfx.neighbors`, um
+    programa de vez em quando, só começando com a mesa em silêncio, de um lado só (`NEIGHBOR_X`), baixo
+    (`VOL.neighbor`), no barramento Ambience (cede às vozes), o programa pela hora (`Sfx.NEIGHBORS`; depois das 23h o
+    vizinho já desligou), nas noites 1 a 13 (`Main.NEIGHBOR_NIGHTS`; a 14 e a 15, com a rádio e a TV no golpe, ficaram
+    para o roteiro dizer); a parede corta em 900 Hz. "Os jingles poderiam ser mais elaborados, com mais instrumentos e
+    mais tempo": vinhetas de 4 a 6 s arranjadas em partes (`THEMES`, `band`: tímpanos, metais, cordas, piano, baixo,
+    bateria, metalofone, a cantora) e o telex atrás do locutor. Os sons são gravados pela ferramenta, não
+    sintetizados ao iniciar (o modelo é pesado demais para o GDScript na abertura).
+592. #som #voz "As falas estão ficando muito com o som de 'L', tipo 'laioloialoioloia'": toda consoante com voz
+    (b, d, g, m, n, r, v, z) era a vogal mais baixa com os formantes escorregando, que é o que um "l" é. Agora, de
+    boca fechada, só o grave passa (`MURMUR`: o murmúrio do m, n, nh; a voz presa do b, d, g, com soltura curta,
+    `BURST`), a troca é de uma vez, o "r" é uma batida funda, o v, z, j caem mais, e o sorteio tem menos "l".
+593. #som #voz "Mais alguma melhoria nas vozes?" / "siga com o que você sugeriu" (as duas primeiras de sete): cada
+    programa tem as suas palavras, sorteadas uma vez e repetidas (`lexicon`, `lex`/`say`/`brand`: o produto no fim das
+    frases do reclame, os jogadores na narração, o bordão do apresentador, os nomes do dia e os da novela), e a vogal
+    átona encurta, enfraquece e vai para o meio da boca, mais depois da tônica (`WEAK`, `NEUTRAL`). Ficaram por
+    fazer: vogal nasal de verdade, sons que não são fala, gente falando junto, mais pessoas, o microfone de cada um.
+594. #som #voz #musica #radio "Pode ir fazendo seus outros pontos" (os cinco que faltavam do 593): a vogal nasal sai
+    também pelo nariz (`nz` no `_tracks`), sons que não são fala (`hm`, `sigh`, `sob`, o riso de quem fala, `laughs`),
+    gente falando junta (`chorus`, a plateia devolvendo o bordão; `ooh`), gente nova (a senhora, voz `idosa`, a
+    criança, a segunda locutora, o comentarista) e o microfone de cada um (`phone`, `hall`). "Mais variações de cada
+    coisa, como novos episódios da novela, mais tipos de noticiários, propagandas, mais músicas, algumas mais calmas
+    outras mais agitadas como as de Tim Maia, Elis Regina. Também adicionar filmes, como ação, aventura, romance,
+    comédia (sem risadas, mas com uma trilha sonora mais animada)": 24 programas (`PROGRAMS`: 3 noticiários, 3
+    capítulos, 3 auditórios, 2 jogos, 2 intervalos, 4 filmes, 3 músicas calmas e 4 agitadas). As músicas são
+    inventadas, só no gênero (soul com metais, samba com piano, iê-iê-iê, baião, bossa, bolero, valsa): a levada
+    (`groove`) e uma melodia sorteada com refrão (`melody`), nada de música ou cantor de verdade. "A rádio/tv não
+    precisa ficar a noite inteira ligada, aleatoriamente o vizinho pode ligar, sintonizar, ficar uma, duas ou três
+    horas assistindo e desligar... algumas vezes ele pode assistir até tarde, ou escutar música depois das 22h": a
+    noite do vizinho é sorteada (`Sfx._plan_neighbor`: 15% sem aparelho; liga entre 18h e 22h30, só num silêncio da
+    mesa; uma a três horas; 40% rádio; tendo desligado antes das 22h, 35% de ligar o rádio depois), os programas vêm
+    um atrás do outro pela hora (`NEIGHBOR_TV`, `NEIGHBOR_RADIO`), sem repetir na noite, com os sons de ligar,
+    sintonizar e desligar (`gadget`). Isto troca a regra do 591 (um programa solto de vez em quando).
+595. #som #radio "Vamos deixar o rádio somente no vizinho, não vamos adicionar na rádio da telefonista": os programas
+    e as músicas ficam só pela parede (`Sfx.neighbors`); o rádio da mesa de Maria continua só com a patrulha.
+596. #debug #som #radio "Poderia adicionar uma nova aba só para esses eventos de Rádio/TV? De forma que eu posso
+    escutar a hora que eu quiser sem esperar o jogo": aba Vizinho no painel de debug (F1): ligar a TV ou o rádio
+    agora (duas horas), desligar, os quatro sons do aparelho e um botão por programa (`Sfx.neighbor_listen`,
+    `neighbor_switch`); mostra o que toca e o plano sorteado da noite.
+597. #som #radio "Os sons do vizinho estão muito baixo, aumente mais": `Sfx.vol["neighbor"]` de -20 para -8 dB (os arquivos
+    saem a -23 dB de média; pico ainda abaixo de 0 dB).
+598. #som #radio "Coloque o direcional um pouquinho mais para direita": `Sfx.NEIGHBOR_X` de 0.0 (a beira esquerda da tela)
+    para 0.15.
+599. #som #radio "Mais para a esquerda": `Sfx.NEIGHBOR_X` de 0.15 para 0.07 (entre a beira e o 0.15).
+600. #som #radio #pausa "Mais para a esquerda então. Também deve pausar quando eu pausar o jogo": `NEIGHBOR_X` de volta a 0.0
+    (a beira; além dela o Godot não puxa mais) e `panning_strength` do vizinho de 1.0 para 1.5; o tocador dele é
+    `PROCESS_MODE_PAUSABLE` (o resto do `Sfx` segue na pausa).
+601. #vista #rua #bar "no prédio de tijolos perto das 23h há um homem no térreo que some instantaneamente, não deveria": o freguês
+    do balcão do bar que vai embora depois das 22h agora sai pela porta e segue pela calçada, com o casaco e o chapéu
+    que tinha lá (`_bar_patrons`, `_bar_due`, `_bar_leaving`); antes a conta caía pela hora e ele sumia.
+602. #discador #clique "a parte que está destacada não funciona no clique": o botão da tela do fim da noite (`Ending`, `%Restart`),
+    invisível e desligado no meio da tela, tapava o canto de baixo à direita do discador; ele ignora o mouse até aparecer.
+603. #noite #transicao "seria melhor colocar um fade out e fade in, atualmente dá uma piscada rápida": o botão da próxima
+    noite apaga o texto antes de recarregar e a cena nova surge do preto (`GameView.fade_in`, `FADE`).
+604. #som #sino #igreja "vamos dá apenas um toque por hora e apenas às 00h que o sino toca mais": uma badalada por hora e
+    doze à meia-noite (antes, tantas quantas a hora).
+605. #console #nome #escuta "só se deve mostrar o nome quando os personagens se apresentarem": quem vinha com tratamento e nome
+    ("Dona Ivone", "Sr. Nelson") aparece como "Senhora" ou "Senhor" até dizer o próprio nome numa fala (`PhoneCall.label`,
+    `heard`, `TITLES`) ou se identificar pela B1; vale no console, na escuta, no caderno e nas anotações. Os do roteiro
+    (Cecília, Sebastião, Zé) se apresentam na primeira fala e ficam com o nome. A etiqueta da fita não mudou. Apontado e
+    não mexido: na escuta do "Sr. Nelson", Nelson é o irmão hospedado, não quem liga.
+606. #escuta #palavras "Na noite 2 ... as palavras são sublinhadas sem motivo, pois não há pedido ou missão aberta": a
+    escuta só anota e sublinha palavras-chave da noite em que a norma das fitas começa (a 7) em diante (`Eavesdrop._asked`,
+    `TAPES`); as respostas do discador continuam anotando. Com as normas desligadas (debug, testes), sempre.
+607. #bug #desenho #cache "surgia um quadrado branco piscando na mesa comutadora, e às vezes um retângulo branco na prateleira": com um
+    plug na mão (gira e monta uma textura por ângulo), o cache do `PixelArt` estourava a cada poucos segundos e era
+    esvaziado na hora; o que já estava desenhado com aquelas texturas piscava branco até o redesenho. As texturas do
+    cache esvaziado agora vivem mais meio segundo (`PixelArt._kept`, `KEEP_SEC`).
+608. #bug #transferencia "o botão transferir não ficou habilitado e ... Pode repetir ... nada aconteceu" (fim da noite 2): não
+    reproduzido (sequência direta e 4200 passos de ações sorteadas na mesa, todas as ligações com a fala de repetir).
+    Hipótese não confirmada: scripts editados com o jogo rodando pelo editor (recarga a quente mata as falas em
+    andamento). Nada mudado por isso.
+609. #conversa #botao #roteiro "Botões de respostas de Maria que são relacionados às histórias principais e secundárias
+    precisam ter uma cor diferente": as respostas do roteiro saem em âmbar (`StoryChoiceButton`, opção com `story`): os
+    passos da ligação do roteiro, da escrita da noite e do discador do roteiro, a resposta à novidade da noite (conversa
+    fiada da noite ou com marcador) e a pergunta ao atendimento da ocasião no discador. As de todo dia ficam no papel.
+610. #bug #desenho #cache "O bloco branco enquanto movimento os cabos continua aparecendo" (cobre parte da placa "SETOR NÃO
+    ATENDIDO" e dos cabos embaixo, some e volta mexendo o cursor): o 607 só cobria os caches do `PixelArt`; os da mesa
+    (fios parados, `_rope_arts`, de 40; cotovelos, teclas, molduras), do `Bloom` (halos e recortes), da fita e do tampo
+    ainda se esvaziavam na hora, no meio do desenho, e o fio já desenhado naquele quadro ficava sem textura. Todos passam
+    pelo `PixelArt._evict`.
+611. #roteiro #conversa #maria "um homem disse que não viu a Maria na quermesse, mas essa pessoa nem sabe que é Maria ...
+    tratou Maria no masculino": na noite 2 quem liga só pergunta se ela foi à quermesse (as duas versões) e as respostas
+    acompanham; "Tá perdoado" saiu. Na varredura das conversas fiadas: "Ah, coitado" virou "coitada" e as reclamações
+    de destino errado ("moço", "o senhor ligou errado") foram para o feminino; en e es juntos. Regra: só quem conhece
+    Maria fala como quem sabe quem ela é (o nome dela só aparece nas ligações do roteiro e na Cecília).

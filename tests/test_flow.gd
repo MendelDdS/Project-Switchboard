@@ -402,6 +402,8 @@ func _initialize() -> void:
 	m.transfer()
 	ok(b.lever_up(el) and not ex.key(el), "escuta: a alavanca sobe com o destino tocando")
 	ok(await wait_until(func(): return ea.connected), "escuta: conectada")
+	ok(not m.eavesdrop._asked(), "escuta: antes da noite das fitas, ninguém pediu nada e as palavras-chave não são anotadas")
+	Bureaucracy.enabled = false   # (daqui em diante, as anotações como da noite das fitas em diante)
 	ok(not b.lever_up(el), "escuta: o destino atendeu e a alavanca desceu sozinha")
 	var m0 := m.minutes
 	m.minutes = ex.line_until(el) + 1.0
@@ -423,7 +425,7 @@ func _initialize() -> void:
 	ok(m.eavesdrop.clues.map(func(k: Clue): return [k.word, k.kind, k.call]) == [["oito", "time", ea], ["Benedito Souza", "person", ea]],
 		"escuta: as palavras-chave ouvidas inteiras ficam guardadas, sem as marcas")
 	var saved := Clue.from_dict(m.eavesdrop.clues[1].to_dict())
-	ok([saved.word, saved.kind, saved.night, saved.caller, saved.number] == ["Benedito Souza", "person", m.night_no, ea.caller, str(et)],
+	ok([saved.word, saved.kind, saved.night, saved.caller, saved.number] == ["Benedito Souza", "person", m.night_no, ea.label(), str(et)],
 		"escuta: a palavra-chave volta igual do progresso salvo (para as noites seguintes)")
 	ok(m.phone.shown().transcript.all(func(l: Dictionary): return not "[" in l["text"]), "escuta: a marca não aparece na tela")
 	var marked_line: Dictionary = m.phone.shown().transcript.filter(func(l: Dictionary): return l.has("marks")).back()
@@ -470,6 +472,7 @@ func _initialize() -> void:
 		shown_groups.append_array(notes_book._clue_hits.map(func(h: Array): return h[1]))
 	ok(notes_book.notes_spreads() > 1 and notes_book._next.disabled and shown_groups.size() == notes_book.clue_groups().size()
 		and notes_book.clue_groups().all(func(g: Array): return shown_groups.count(g) == 1), "escuta: anotações demais seguem nas páginas seguintes")
+	Bureaucracy.enabled = true
 	heard_clues.resize(n0)
 	heard_clues[0].chosen = false
 	notes_book.notes_changed()
@@ -623,7 +626,7 @@ func _initialize() -> void:
 		for t in ["0", "1", "2", "3"]:
 			if str(l["text"]).ends_with(t):
 				speakers[t] = l["who"]
-	ok(speakers.get("2") == tr(ea.caller) and speakers.get("3") == m.eavesdrop._other(ea) and speakers.get("1") != tr(ea.caller),
+	ok(speakers.get("2") == tr(ea.label()) and speakers.get("3") == m.eavesdrop._other(ea) and speakers.get("1") != tr(ea.label()),
 		"escuta: depois da pergunta sem resposta, cada fala escrita fica com quem a diz")
 	_move(0, -1)
 	_move(1, -1)
@@ -1596,6 +1599,28 @@ func _initialize() -> void:
 	Sfx.weather = ""
 	Sfx.set_late(0.0)
 	Sfx.start_ambience("clear")
+	# o vizinho liga o aparelho na hora sorteada, só com a mesa em silêncio, sintoniza, fica e desliga
+	Sfx._neighbor_plan = [[60.0, 120.0, false]]
+	Sfx._neighbor_queue.clear()
+	Sfx._neighbor_on = false
+	Sfx.neighbors(30.0, true)
+	Sfx.neighbors(70.0, false)
+	ok(not Sfx._neighbor_on and Sfx._neighbor_queue.is_empty(), "antes da hora ou com a mesa ocupada, o vizinho não liga")
+	Sfx.neighbors(70.0, true)
+	ok(Sfx._neighbor_on and Sfx._neighbor_queue.size() == 2 and Sfx._neighbor_queue[0] == "tune_tv"
+		and Sfx._neighbor_last in Sfx.NEIGHBOR_TV[1], "silêncio às 19h: liga a TV, sintoniza e passa %s" % [Sfx._neighbor_queue])
+	Sfx.neighbor.stop()
+	Sfx._neighbor_queue.clear()
+	Sfx.neighbors(130.0, true)
+	ok(not Sfx._neighbor_on and Sfx._neighbor_plan.is_empty(), "passada a hora, o vizinho desliga")
+	Sfx.neighbor.stop()
+	ok(Sfx._neighbor_pick(300.0, true).get_slice("_", 0) in ["calm", "hit"], "no rádio, depois das 22h, só música")
+	var missing: Array[String] = []
+	for kind: String in Sfx.NEIGHBOR_CLIPS:
+		for id in Sfx._neighbor_ids(kind):
+			if not FileAccess.file_exists("res://audio/neighbors/%s.ogg" % id):
+				missing.append(id)
+	ok(missing.is_empty(), "os sons do vizinho estão todos em audio/neighbors (faltam: %s)" % [missing])
 	await frames(int(10.0 * 60.0 / Engine.time_scale))
 	ok(Sfx._rain_db <= -79.0 and Sfx.crickets.volume_db > -40.0, "noite limpa: chuva %.0f dB, grilos %.0f dB" % [Sfx._rain_db, Sfx.crickets.volume_db])
 	Sfx.stop_ambience(0.0)

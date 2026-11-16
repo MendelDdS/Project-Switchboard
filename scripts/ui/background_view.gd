@@ -520,6 +520,7 @@ var _near := 0.0         # a vista passa do peitoril de longe para baixo (px de 
 var _cars: Array[Dictionary] = []   # os carros passando lá fora: {"t": de 0 a 1, "lane": em `CAR_LANES`, "kind": em `CAR_KINDS`, "tones": a rampa da lataria em `Pal.CAR_TONES`, "taxi"}
 var _walkers: Array = []   # quem está passando na calçada de lá (`_walker`), na ordem do desenho: os de mais longe primeiro
 var _bar_t := -1.0   # há quanto tempo a porta do bar abriu (s; -1 = fechada)
+var _bar_patrons := -1   # quantos estão no balcão do bar agora (-1: ainda não contados); cada um sai pela porta (`Background._process`)
 var _indoor := Vector3(-1.0, 0.0, 1.0)   # alguém passando atrás de uma janela acesa do prédio de tijolos: há quanto tempo (s; -1 = ninguém), qual janela e para que lado
 var _doors := {"hotel": 0.0, "apt": 0.0}   # o quanto cada porta está aberta agora (0 a 1, `_swing`)
 var _door_ms := -1.0   # quando elas andaram da última vez (`PixelArt.ms`)
@@ -2819,6 +2820,12 @@ func _draw_facade_wear(g: Rect2, b: Dictionary, tone: Callable) -> void:
 			Vector2(span.position.x, y.call(ht * 0.4))]), PackedColorArray([sky, sky, Color(sky, 0.0), Color(sky, 0.0)]))
 
 
+## Quantos fregueses o bar tem a esta hora (`BAR_PATRONS`, saindo aos poucos depois das 22h, `BAR_EMPTIES`).
+func _bar_due() -> int:
+	var left := clampf((minutes - BAR_EMPTIES.x) / (BAR_EMPTIES.y - BAR_EMPTIES.x), 0.0, 1.0)
+	return roundi(BAR_PATRONS[weekday()] * (1.0 - left))
+
+
 ## A vitrine acesa de um bar no térreo do prédio de tijolos, perto do poste da esquina (o homem de sobretudo, `MAN_X`,
 ## fica do outro lado dele). Vidro quente com o caixilho e o letreiro pintado, e a luz dela saindo pela calçada.
 func _draw_shopfront(g: Rect2) -> void:
@@ -2845,9 +2852,8 @@ func _draw_shopfront(g: Rect2) -> void:
 	_r(a.x, desk, e.x - a.x, PX, lo.darkened(0.3))   # o tampo
 	# quem está no balcão, em pé, de costas para a vitrine, contra o salão aceso (sentados, a cabeça caía na prateleira e
 	# viravam blocos): mais gente na sexta e no sábado (`BAR_PATRONS`), e depois das 22h vão saindo
-	var left := clampf((minutes - BAR_EMPTIES.x) / (BAR_EMPTIES.y - BAR_EMPTIES.x), 0.0, 1.0)
 	var clip := Rect2(a * 2.0, (e - a) * 2.0)
-	for i in roundi(BAR_PATRONS[weekday()] * (1.0 - left)):
+	for i in _bar_patrons if _bar_patrons >= 0 else _bar_due():
 		var z := ff + 1.2
 		var pose := {"front": i != 1, "s": -1.0, "hat": "fedora" if i % 2 == 0 else "", "skin": i % Pal.WALK_SKIN.size(),   # (uns de chapéu)
 			"cloth": Pal.WALK_COATS[(i * 3 + 1) % Pal.WALK_COATS.size()], "pants": Pal.SHIRT_PANTS}

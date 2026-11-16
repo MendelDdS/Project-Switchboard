@@ -6,6 +6,9 @@ extends Control
 ## Laço: ATENDER → ENTENDER → CONSULTAR → CONECTAR/DESPACHAR → REGISTRAR → CONTINUAR
 
 const GAME_MIN_PER_SEC := 0.75          # 360 minutos de turno ≈ 8 minutos reais
+## As noites em que se ouve o rádio e a TV do vizinho pela parede (`Sfx.neighbors`): na 14 e na 15 a rádio e a TV
+## são assunto do golpe (`b2_radio_tv`) e ficam caladas até o roteiro dizer o que passa nelas.
+const NEIGHBOR_NIGHTS := Vector2i(1, 13)
 const SHIFT_START_HOUR := 18            # o turno vai das 18:00...
 const LAST_CALL_BEFORE := 20.0          # ...até `Night.shift_end`; tantos minutos antes dele, nada novo toca
 										# e aparece o botão Encerrar turno; quem está na linha no fim é atendido até o fim
@@ -469,6 +472,8 @@ func _process(delta: float) -> void:
 		_coup_verdict()   # (antes da agenda e das cenas da rua: a ligação da cúpula e a bandeira da 15 pedem o final)
 		_run_schedule()
 		_street_check()
+		if night_no >= NEIGHBOR_NIGHTS.x and night_no <= NEIGHBOR_NIGHTS.y:
+			Sfx.neighbors(minutes, live.is_empty())
 		_update_line_timers()
 		# o turno fecha depois do fim do turno, da última ligação e do último registro
 		# (com registro pendente ou bilhete na mesa, espera o operador registrar e guardar ou encerrar pelo botão)
@@ -488,7 +493,7 @@ func _process(delta: float) -> void:
 		var hour := floori(minutes / 60.0)
 		if hour > _hour:   # a badalada do relógio a cada hora cheia (vem do relógio de flip da mesa) e o sino da igreja
 			Sfx.play_at("chime", _across(background.clock_x))
-			background.toll((SHIFT_START_HOUR + hour - 1) % 12 + 1)
+			background.toll(12 if (SHIFT_START_HOUR + hour) % 24 == 0 else 1)   # (uma por hora; as doze só à meia-noite)
 		_hour = hour
 		background.minutes = SHIFT_START_HOUR * 60 + minutes
 		radio.minutes = minutes
@@ -1377,7 +1382,7 @@ func _record(c: PhoneCall, reason: PhoneCall.End) -> PhoneCall.Record:
 			where = String(_sent[training.drill]["loc"])
 			unit = String(_sent[training.drill]["units"])
 			card = int(_sent[training.drill]["card"])
-	var who := T.text(T.Key.UNKNOWN_CALLER) if reason == PhoneCall.End.MISSED else tr(c.caller)
+	var who := T.text(T.Key.UNKNOWN_CALLER) if reason == PhoneCall.End.MISSED else tr(c.label())
 	var r := PhoneCall.Record.new()
 	r.time = c.time
 	r.who = "%s (%s)" % [who, T.text(T.Key.LINE_N) % c.line]

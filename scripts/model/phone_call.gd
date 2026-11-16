@@ -55,12 +55,14 @@ enum Retry {
 
 const AWAY_CHANCE := 0.5    ## pedido com alternativa: chance de o destino pedido não atender
 
+const TITLES := {"Dona ": "Senhora", "Sra. ": "Senhora", "Seu ": "Senhor", "Sr. ": "Senhor"}   ## o tratamento de quem ainda não disse o nome (`label`)
+
 var kind := Kind.TRANSFER
 var data: Resource          ## roteiro (TransferCall, EmergencyCall ou PrankCall); nulo para informação;
                             ## na feita pelo operador, o lugar chamado (DirectoryEntry) ou a do roteiro (`DialCall`)
 var voice := "m"
 var caller := ""
-var named := ""             ## o nome que quem liga disse (B1): dali em diante, o chat mostra ele no lugar de `caller`
+var named := ""             ## o nome que quem liga disse (B1, ou na própria fala, `heard`): dali em diante, o chat mostra ele (`label`)
 var lesson := false         ## da veterana do treinamento (`Training`): fala pelo roteiro dela, não desiste nem gera advertência
 var speech := 1.0           ## o tempo de cada letra falada, multiplicado (a veterana do treinamento fala mais devagar)
 var story := false          ## ligação do roteiro da noite (horário fixo; aguenta mais tempo tocando)
@@ -90,7 +92,7 @@ var chat_asked := false     ## o operador já puxou conversa (só uma vez por li
 var chats: Array[ChatTopic] = []   ## assuntos já puxados nesta ligação (não se repetem)
 var hold_since := 0.0       ## minuto em que ficou em espera
 var transcript: Array[Dictionary] = []   ## {"who", "text", "cls", "marks"}; cls: "" / "op" / "sys"; marks: trechos sublinhados
-var options: Array[Dictionary] = []      ## {"label": String, "fn": Callable}
+var options: Array[Dictionary] = []      ## {"label": String, "fn": Callable, "story": fala do roteiro (outra cor)}
 var record: Record                       ## linha do caderno gerada quando a ligação termina (nula antes)
 var meta := {}              ## o que as burocracias guardam desta ligação (`BureaucracyRule`), cada uma nas chaves dela
 
@@ -174,6 +176,24 @@ static func info(voice_id: String, who: String, question: String, spoken: String
 	c.about = spoken
 	c.answer = number
 	return c
+
+
+## Como a mesa chama quem liga: o nome só depois de a pessoa se apresentar (`named`); até lá, quem vem com tratamento e
+## nome ("Dona Ivone", `TITLES`) é só "Senhora" ou "Senhor". Os do roteiro (Cecília, Sebastião) se apresentam na
+## primeira fala da primeira ligação e Maria já os conhece nas seguintes.
+func label() -> String:
+	if named != "":
+		return named
+	for t: String in TITLES:
+		if caller.begins_with(t):
+			return TITLES[t]
+	return caller
+
+
+## Quem liga disse `text`: com o próprio nome nela, passa a ser chamado por ele.
+func heard(text: String) -> void:
+	if named == "" and label() != caller and text.contains(caller.get_slice(" ", 1)):
+		named = caller
 
 
 func add_line(who: String, text: String, cls := "") -> int:

@@ -64,6 +64,8 @@ func say(c: PhoneCall, text: String, pause: float = 0.55, who := "", voice := ""
 	voice = "k" if paren else (voice if voice != "" else c.voice)
 	var prev_vowel := false
 	var pitch := Sfx.pitch_of(who if who != "" else c.caller)
+	if who == "":
+		c.heard(text)
 	for i in text.length():
 		# em espera, a pessoa para de falar até o operador voltar
 		if not c.on_line and not c.closing and not await _until_on_line(c):
@@ -72,7 +74,7 @@ func say(c: PhoneCall, text: String, pause: float = 0.55, who := "", voice := ""
 		var ch := text[i]
 		if c.on_line:
 			if li == -1:
-				li = c.add_line(who if who != "" else (c.named if c.named != "" else c.caller), "", "")
+				li = c.add_line(who if who != "" else c.label(), "", "")
 			c.append_text(li, ch)
 			prev_vowel = Sfx.speak_char(voice, text, i, prev_vowel, paren, -1.0, pitch, Sfx.agitation(c))
 			for m in parsed[1]:   # a palavra-chave dita inteira vai para as anotações da lista, como na escuta
@@ -100,7 +102,7 @@ func snaps(c: PhoneCall, rhythm: String) -> bool:
 		if c.ended:
 			return false
 	c.set_talking(true)
-	var li := c.add_line(c.named if c.named != "" else c.caller, "(")
+	var li := c.add_line(c.label(), "(")
 	var beats := rhythm.split(" ", false)
 	for i in beats.size():
 		Sfx.play("snap")
@@ -130,8 +132,9 @@ func wait(c: PhoneCall, sec: float) -> bool:
 	return not c.ended
 
 
-## Mostra as opções e espera o operador escolher uma. -1 se a ligação terminar antes.
-func choose(c: PhoneCall, opts: Array) -> int:
+## Mostra as opções e espera o operador escolher uma. -1 se a ligação terminar antes. `story`: fala do roteiro, que
+## o painel mostra em outra cor (`StoryChoiceButton`).
+func choose(c: PhoneCall, opts: Array, story := false) -> int:
 	var picked := [-1]
 	var list: Array[Dictionary] = []
 	for i in opts.size():
@@ -139,7 +142,7 @@ func choose(c: PhoneCall, opts: Array) -> int:
 		var fn := func():
 			picked[0] = k
 			c.set_options([])
-		list.append({"label": tr(opts[i]), "fn": fn})
+		list.append({"label": tr(opts[i]), "fn": fn, "story": story})
 	c.set_options(list)
 	while picked[0] == -1:
 		if c.ended:
@@ -212,7 +215,7 @@ func transfer_choices(c: PhoneCall) -> void:
 	list.append_array(main.bureaucracy.choices(c))
 	if c.chat != null:
 		for r in c.chat.replies:
-			list.append({"label": tr(r.text), "fn": _chat.bind(c, r)})
+			list.append({"label": tr(r.text), "fn": _chat.bind(c, r), "story": is_news(c.chat)})
 	elif not c.story and not c.chat_asked and not c.chatting and c.chats.size() < SMALLTALK_MAX:
 		list.append({"label": T.text(T.Key.CHOICE_SMALLTALK), "fn": _ask_chat.bind(c)})
 	c.set_options(list)
@@ -501,7 +504,7 @@ func play_steps(c: PhoneCall, steps: Array[PrankStep]) -> bool:
 				if not await wait(c, st.seconds):
 					return false
 			PrankStep.Kind.OPERATOR:
-				var i := await choose(c, Array(st.options))
+				var i := await choose(c, Array(st.options), c.story or c.data is DialCall or c.data in main.night.calls)
 				if i < 0:
 					return false
 				if i < st.sets.size():
@@ -580,7 +583,7 @@ func _outgoing(c: PhoneCall) -> void:
 	while true:
 		var opts: Array = [] if asked else asks.map(func(r: ChatReply): return r.text)
 		opts.append(T.text(T.Key.CHOICE_DIAL_BYE))
-		var i := await choose(c, opts)
+		var i := await choose(c, opts, topic in special)
 		if i < 0:
 			return
 		if i == opts.size() - 1:

@@ -150,7 +150,7 @@ static func _key_cap(off: Vector2i, t: int, lit: bool) -> ImageTexture:
 	if _keys.has(key):
 		return _keys[key]
 	if _keys.size() > 64:
-		_keys.clear()
+		PixelArt._evict(_keys)
 	var img := Image.create(16, 16, false, Image.FORMAT_RGBA8)
 	var base := Rect2i(4, 4, 8, 8)
 	if lit:
@@ -347,7 +347,7 @@ func _shell_frame(sz: Vector2) -> ImageTexture:
 	var key := Rect2(_lamp_at, sz)
 	if not _shells.has(key):
 		if _shells.size() >= 8:
-			_shells.clear()
+			PixelArt._evict(_shells)
 		var w := int(sz.x)
 		var h := int(sz.y)
 		var img := Image.create(w, h, false, Image.FORMAT_RGBA8)

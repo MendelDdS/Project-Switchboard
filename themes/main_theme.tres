@@ -194,6 +194,42 @@ border_width_right = 2
 border_width_bottom = 2
 border_color = Color(0, 0, 0, 1)
 
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_story_off"]
+content_margin_left = 9.0
+content_margin_top = 2.0
+content_margin_right = 9.0
+content_margin_bottom = 2.0
+bg_color = Color(0.5294, 0.4275, 0.2353, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 3
+border_color = Color(0.0902, 0.1059, 0.0706, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_story_over"]
+content_margin_left = 9.0
+content_margin_top = 2.0
+content_margin_right = 9.0
+content_margin_bottom = 2.0
+bg_color = Color(0.9529, 0.7804, 0.4235, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 3
+border_color = Color(0.0902, 0.1059, 0.0706, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_story_on"]
+content_margin_left = 9.0
+content_margin_top = 2.0
+content_margin_right = 9.0
+content_margin_bottom = 2.0
+bg_color = Color(0.8784, 0.6902, 0.3373, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 3
+border_color = Color(0.0902, 0.1059, 0.0706, 1)
+
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_0x86e"]
 content_margin_left = 9.0
 content_margin_top = 2.0
@@ -1298,6 +1334,11 @@ DigitKey/styles/normal = SubResource("KeyCap_Digit_normal")
 DigitKey/styles/pressed = SubResource("KeyCap_Digit_pressed")
 SlipPanel/base_type = &"PanelContainer"
 SlipPanel/styles/panel = SubResource("StyleBoxFlat_slip")
+StoryChoiceButton/base_type = &"ChoiceButton"
+StoryChoiceButton/styles/disabled = SubResource("StyleBoxFlat_story_off")
+StoryChoiceButton/styles/hover = SubResource("StyleBoxFlat_story_over")
+StoryChoiceButton/styles/normal = SubResource("StyleBoxFlat_story_on")
+StoryChoiceButton/styles/pressed = SubResource("StyleBoxFlat_story_over")
 TapedLabel/base_type = &"RichTextLabel"
 TapedLabel/colors/default_color = Color(0.16470589, 0.13725491, 0.09803922, 1)
 TapedLabel/styles/normal = SubResource("Taped_strip")

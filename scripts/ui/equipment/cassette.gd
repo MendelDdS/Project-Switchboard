@@ -102,7 +102,7 @@ static func block(ci: CanvasItem, r: Rect2) -> void:
 static func _turned(s: String) -> Texture2D:
 	if not _sideways.has(s):
 		if _sideways.size() >= TEXT_CACHE:
-			_sideways.clear()
+			PixelArt._evict(_sideways)
 		var img := PixelArt.tiny(s).get_image()
 		img.rotate_90(COUNTERCLOCKWISE)
 		_sideways[s] = ImageTexture.create_from_image(img)

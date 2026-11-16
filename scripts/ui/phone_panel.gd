@@ -207,7 +207,7 @@ func _render_choices() -> void:
 		var b := Button.new()
 		b.text = o["label"]
 		b.auto_translate_mode = Node.AUTO_TRANSLATE_MODE_DISABLED   # já vem traduzido
-		b.theme_type_variation = &"ChoiceButton"
+		b.theme_type_variation = &"StoryChoiceButton" if o.get("story", false) else &"ChoiceButton"   # a do roteiro, em outra cor
 		b.focus_mode = Control.FOCUS_NONE
 		b.disabled = _call.talking
 		b.pressed.connect(o["fn"])

@@ -42,7 +42,7 @@ func fault_later(id: String, detail := "", sev := -1, text := -1, nights := 1) -
 
 
 func who(c: PhoneCall) -> String:
-	return "%s (%s)" % [tr(c.caller), T.text(T.Key.LINE_N) % c.line]
+	return "%s (%s)" % [tr(c.label()), T.text(T.Key.LINE_N) % c.line]
 
 
 ## O que o supervisor vai anotar e quem vai ligar de novo por causa de como a ligação terminou.

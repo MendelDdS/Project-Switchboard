@@ -6,7 +6,8 @@ extends PanelContainer
 ## Limpar não gera advertência nem retorno. Ferramenta de desenvolvimento: textos fixos em português, sem tradução.
 ## A mesa de som toca cada som do `Sfx.VOL` e ajusta o volume dele na hora (`Sfx.vol`); "Copiar VOL" põe na área de
 ## transferência a constante pronta para colar em `sfx.gd`. A aba Vozes fala cada letra (pelo nome dela, "bê", "efe")
-## ou um texto digitado, na voz escolhida, como numa ligação.
+## ou um texto digitado, na voz escolhida, como numa ligação. A aba Vizinho toca na hora cada programa do rádio e da
+## TV do vizinho (`Sfx.NEIGHBOR_CLIPS`) e liga ou desliga o aparelho dele sem esperar o sorteio da noite.
 ## O cronômetro (`_time_calls`, aberto ou não) imprime, ao fim de cada ligação, quando cada passo do operador
 ## aconteceu, para medir o ritmo de quem joga contra o robô do `test_shift --human` (o `print` vai para
 ## `user://logs/godot.log`).
@@ -20,6 +21,9 @@ const LETTERS := {"a": "a", "b": "bê", "c": "cê", "d": "dê", "e": "é", "f": 
 	"t": "tê", "u": "u", "v": "vê", "w": "dáblio", "x": "xis", "y": "ípsilon", "z": "zê", "ç": "cê cedilha", "á": "á",
 	"â": "â", "ã": "ã", "é": "é", "ê": "ê", "í": "í", "ó": "ó", "ô": "ô", "õ": "õ", "ú": "ú"}
 const LETTERS_PER_ROW := 10
+const NEIGHBOR_NAMES := {"news": "Noticiário", "soap": "Novela", "show": "Auditório", "match": "Futebol", "ads": "Comerciais",
+	"film": "Filme", "calm": "Música calma", "hit": "Música agitada"}   # os tipos do `Sfx.NEIGHBOR_CLIPS`
+const NEIGHBOR_HOURS := 2   ## quantas horas o vizinho fica, ligado pelo painel
 const KIND_NAMES := ["transferência", "emergência", "trote", "informação", "discador"]   # PhoneCall.Kind
 
 var C: GameContent = GameData.CONTENT
@@ -31,6 +35,7 @@ var _emergency: OptionButton
 var _emergencies: Array[EmergencyCall] = []   ## na ordem do seletor: as escritas e depois os moldes
 var _freeze: CheckButton
 var _mix := {}   ## id do som -> [controle, rótulo do volume]
+var _neighbor: Label   ## a aba Vizinho: o que toca e o plano da noite
 var _voice: OptionButton   ## a voz da aba Vozes (as chaves de `SfxSynth.VOICE`)
 var _say: LineEdit
 var _speaking := 0   ## a fala da aba Vozes em andamento (uma nova corta a anterior)
@@ -145,6 +150,8 @@ func _ready() -> void:
 		_mixer(id)
 	_box = %Voices
 	_voices()
+	_box = %Neighbor
+	_neighbors()
 
 
 ## A aba Vozes: a voz, o alfabeto (cada letra fala o nome dela) e uma caixa de texto.
@@ -170,6 +177,21 @@ func _voices() -> void:
 	_say.text_submitted.connect(func(t: String): _speak(t))
 	_box.add_child(_say)
 	_row([["Falar", func(): _speak(_say.text)]])
+
+
+## A aba Vizinho: ligar e desligar o aparelho dele agora, os sons do aparelho e cada programa, um botão por som.
+func _neighbors() -> void:
+	_neighbor = _label("")
+	_row([["Ligar a TV", func(): Sfx.neighbor_switch(main.minutes, false, NEIGHBOR_HOURS)],
+		["Ligar o rádio", func(): Sfx.neighbor_switch(main.minutes, true, NEIGHBOR_HOURS)],
+		["Desligar", func(): Sfx.neighbor_switch(main.minutes, false, 0)]])
+	_label("Sons do aparelho")
+	_row([["Ligar", Sfx.neighbor_listen.bind("on")], ["Sintonizar", Sfx.neighbor_listen.bind("tune_radio")],
+		["Trocar canal", Sfx.neighbor_listen.bind("tune_tv")], ["Desligar", Sfx.neighbor_listen.bind("off")]])
+	_label("Programas (40 s cada)")
+	for kind: String in Sfx.NEIGHBOR_CLIPS:
+		_row(Sfx._neighbor_ids(kind).map(func(id: String) -> Array:
+			return ["%s %s" % [NEIGHBOR_NAMES[kind], id.get_slice("_", 1)], Sfx.neighbor_listen.bind(id)]))
 
 
 ## Fala `text` na voz escolhida, no ritmo de `Conversation.say` (letra a letra; mais devagar na pontuação).
@@ -238,6 +260,14 @@ func _process(delta: float) -> void:
 	if not main.eavesdrop.grudges.is_empty():
 		ears.append("denúncias: %s" % main.eavesdrop.grudges)
 	_ears.text = "\n".join(ears) if not ears.is_empty() else "nenhuma conversa conectada"
+	var plan := PackedStringArray()
+	for s: Array in Sfx._neighbor_plan:
+		plan.append("%s das %s às %s" % ["rádio" if s[2] else "TV", Main.fmt(s[0]), Main.fmt(s[1])])
+	var now: String = "tocando: " + Sfx._neighbor_now if Sfx.neighbor.playing else "calado"
+	var tonight: String = ", ".join(plan) if not plan.is_empty() else "o vizinho não liga mais hoje"
+	var missing: String = "" if Sfx.streams.has("nb_on") else "\nSONS NÃO IMPORTADOS: dê foco ao editor do Godot"
+	_neighbor.text = "%s\nplano da noite: %s\nUm programa atrás do outro só com o turno correndo, nas noites %d a %d. Volume: neighbor, na mesa de som.%s" % [
+		now, tonight, Main.NEIGHBOR_NIGHTS.x, Main.NEIGHBOR_NIGHTS.y, missing]
 
 
 ## Cronômetro: marca cada passo na primeira vez que acontece (s desde que tocou; na emergência, também a barra) e

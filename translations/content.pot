@@ -5663,15 +5663,15 @@ msgid "Ele disse que era urgente. Fiz bem em não passar? Não sei."
 msgstr ""
 
 #: data/nights/night_02.tres
-msgid "Disseram que a senhora ia na quermesse hoje à tarde e não apareceu, hein!"
+msgid "A senhora foi na quermesse hoje à tarde?"
 msgstr ""
 
 #: data/nights/night_02.tres
-msgid "Acabei dormindo, desculpe."
+msgid "Ia, mas acabei dormindo."
 msgstr ""
 
 #: data/nights/night_02.tres
-msgid "Tá perdoado. Mas a pamonha acabou, viu?"
+msgid "Ih, moça! E a pamonha acabou, viu?"
 msgstr ""
 
 #: data/nights/night_02.tres
@@ -5683,11 +5683,11 @@ msgid "Hum. Tá bom."
 msgstr ""
 
 #: data/nights/night_02.tres
-msgid "A quermesse hoje à tarde foi uma beleza, a senhora perdeu."
+msgid "A senhora foi na quermesse hoje à tarde? Foi uma beleza."
 msgstr ""
 
 #: data/nights/night_02.tres
-msgid "Que pena! Como foi?"
+msgid "Não pude ir. Como foi?"
 msgstr ""
 
 #: data/nights/night_02.tres
@@ -17807,7 +17807,7 @@ msgid "Daqui eu só vejo a mesa."
 msgstr ""
 
 #: data/content.tres
-msgid "Ah, coitado. Depois dá uma espiada na janela."
+msgid "Ah, coitada. Depois dá uma espiada na janela."
 msgstr ""
 
 #: data/content.tres
@@ -18255,7 +18255,7 @@ msgid "Ah, pode ser essa mesmo."
 msgstr ""
 
 #: data/content.tres
-msgid "Não, moço, não é aí."
+msgid "Não, moça, não é aí."
 msgstr ""
 
 #: data/content.tres
@@ -18267,7 +18267,7 @@ msgid "Esse não é quem eu pedi!"
 msgstr ""
 
 #: data/content.tres
-msgid "Opa, acho que o senhor ligou errado."
+msgid "Opa, acho que a senhora ligou errado."
 msgstr ""
 
 #: data/content.tres
@@ -18275,7 +18275,7 @@ msgid "Ih, quem atendeu não foi quem eu pedi."
 msgstr ""
 
 #: data/content.tres
-msgid "Moço, essa voz eu não conheço."
+msgid "Moça, essa voz eu não conheço."
 msgstr ""
 
 #: data/content.tres

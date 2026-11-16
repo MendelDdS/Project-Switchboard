@@ -22,6 +22,9 @@ const DAY_GRADE := {"shadow_lift": Vector3(-0.004, 0.002, 0.012), "light_tint": 
 
 ## Já saiu da tela inicial nesta sessão: os recomeços (`Main.restart`, que recarrega esta cena) vão direto ao jogo.
 static var playing := false
+## A cena que entra surge do preto (`FADE` s): posto por quem sai escurecendo (a tela do fim da noite, `Ending`).
+static var fade_in := false
+const FADE := 0.6
 
 @onready var _box: SubViewportContainer = $Box
 @onready var _view: SubViewport = $Box/View
@@ -34,6 +37,19 @@ func _enter_tree() -> void:
 
 
 func _ready() -> void:
+	if fade_in:
+		fade_in = false
+		var veil := ColorRect.new()   # (por cima: o `modulate` do `Box` não passa pelo shader da gradação)
+		veil.color = Color.BLACK
+		veil.mouse_filter = MOUSE_FILTER_IGNORE
+		veil.set_anchors_preset(PRESET_FULL_RECT)
+		add_child(veil)
+		(func() -> void:   # (dois quadros depois: o primeiro leva o tempo de carregar a cena e comia o fade inteiro)
+			for i in 2:
+				await get_tree().process_frame
+			var t := create_tween()
+			t.tween_property(veil, "color:a", 0.0, FADE)
+			t.tween_callback(veil.queue_free)).call()
 	if _view.get_child_count() == 0:   # (o `test_keys` já põe o jogo dentro)
 		_view.add_child(load("res://scenes/main.tscn" if playing else "res://scenes/title_screen.tscn").instantiate())
 	# o projeto amplia a 960×540 (para o `main.tscn` sozinho e os testes); aqui, a janela fica em pixels da tela

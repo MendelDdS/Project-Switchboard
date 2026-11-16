@@ -314,6 +314,7 @@ var _car_in := [20.0, 32.0]          # quanto falta para o próximo de cada mão
 var _car_next := ["", ""]            # o modelo do próximo de cada mão (vazio: sorteado; o painel de debug escolhe)
 var _walk_in := 3.0      # quanto falta para o próximo (s)
 var _bar_in := 12.0      # quanto falta para alguém sair do bar (s)
+var _bar_leaving := false   # quem sai agora pela porta é um freguês do balcão
 var _behind_in := 8.0    # quanto falta para alguém passar atrás de uma janela acesa do prédio de tijolos (s)
 var _flats: Array = []   # as janelas do prédio de tijolos à vista ([px da tela, índice]), para o brilho das acesas (`_draw_over`)
 var _smoke_in := 40.0    # para alguém sair para fumar (s)
@@ -1151,6 +1152,12 @@ func _events(delta: float) -> void:
 		_bar_in = _rng.randf_range(BAR_EVERY.x, BAR_EVERY.y) / BUSY[weekday()]
 		if crowd > 0.0 and _bar_t < 0.0:
 			_bar_t = 0.0
+	var due := _bar_due()   # o freguês que vai embora sai pela porta (sumia do balcão de uma vez)
+	if _bar_patrons < 0 or due > _bar_patrons:
+		_bar_patrons = due
+	elif due < _bar_patrons and _bar_t < 0.0:
+		_bar_t = 0.0
+		_bar_leaving = true
 	if _bar_t >= 0.0:   # a porta do bar aberta: a pessoa sai e segue pela calçada, junto das fachadas
 		var was := _bar_t
 		_bar_t += delta
@@ -1158,6 +1165,11 @@ func _events(delta: float) -> void:
 			var w := _walker()
 			w["z"] = STREET["far"] - 0.5
 			w["t"] = ((BAR_DOOR.x + BAR_DOOR.y) / 2.0 * w["dir"] + WALK_SPAN) / (2.0 * WALK_SPAN)   # (x vai de um lado ao outro pelo t, vezes o sentido)
+			if _bar_leaving:   # o último do balcão, com o casaco e o chapéu que tinha lá (`_draw_shopfront`)
+				_bar_leaving = false
+				_bar_patrons -= 1
+				w.merge({"dress": false, "h": 1.0, "bag": false, "hat": "fedora" if _bar_patrons % 2 == 0 else "",
+					"coat": Pal.WALK_COATS[(_bar_patrons * 3 + 1) % Pal.WALK_COATS.size()], "skin": Pal.WALK_SKIN[_bar_patrons % Pal.WALK_SKIN.size()]}, true)
 			_add_walker(w)
 		if _bar_t >= BAR_SEC:
 			_bar_t = -1.0

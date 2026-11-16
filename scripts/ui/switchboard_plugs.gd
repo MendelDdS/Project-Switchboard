@@ -327,7 +327,7 @@ func _draw_rope(e: int, shadow: bool) -> void:
 		var key := [pts, lights, col, thin, braid]
 		if not _rope_arts.has(key):
 			if _rope_arts.size() > 40:
-				_rope_arts.clear()
+				PixelArt._evict(_rope_arts)
 			_rope_arts[key] = _rope_image(pts, lights, col, thin, braid)
 		_ci.draw_texture(_rope_arts[key][1], _rope_arts[key][0])
 	else:
@@ -870,7 +870,7 @@ func _elbow_rim(pose: Vector3, around: bool) -> ImageTexture:
 	var key := Vector4(pose.x, pose.y, pose.z, 1.0 if around else 0.0)
 	if not _elbow_rims.has(key):
 		if _elbow_rims.size() > 256:
-			_elbow_rims.clear()
+			PixelArt._evict(_elbow_rims)
 		var rows: Array = _elbow(pose)[0]
 		var size := Vector2i((rows[0] as String).length(), rows.size())
 		var inside := func(x: int, y: int) -> bool:

@@ -137,7 +137,7 @@ func _cut(tex: ImageTexture, at: Vector2, masks: Array) -> ImageTexture:
 	if _cuts.has(key):
 		return _cuts[key]
 	if _cuts.size() > 128:
-		_cuts.clear()
+		PixelArt._evict(_cuts)
 	var img := tex.get_image()
 	for y in img.get_height():
 		for x in img.get_width():
@@ -159,7 +159,7 @@ func _halo_for(size: Vector2, round: bool, hollow: bool, parts: Array[Rect2] = [
 	if _halos.has(key):
 		return _halos[key]
 	if _halos.size() > 128:   # a barra de agravamento muda de largura: não guarda todas
-		_halos.clear()
+		PixelArt._evict(_halos)
 	var cells := Vector2i(ceili((size.x + 2.0 * SPREAD) / BLOCK), ceili((size.y + 2.0 * SPREAD) / BLOCK))
 	var img := Image.create(cells.x, cells.y, false, Image.FORMAT_LA8)
 	var inside := Rect2(Vector2(SPREAD, SPREAD), size)

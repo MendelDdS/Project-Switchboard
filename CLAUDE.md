@@ -36,8 +36,9 @@ detalhe no comentário do código, o porquê no `HISTORICO.md`. Atualize os `CLA
   fita por cima (Recomeçar e Voltar ao menu perguntam, `PauseMenu._ask`; plano: `PLANO_MENUS.md`), o relatório num memorando (`ReportView`: timbre, serviços prestados, advertências com o carimbo da gravidade,
   parecer à mão, rubrica e o carimbo redondo do conceito, `_grade_stamp`, girado pixel a pixel e em lugar sorteado).
 - Botão de resposta (`ChoiceButton`): fala curta do operador (`CHOICE_*`; a frase inteira, `OP_*`, vai para a
-  conversa); ação do jogador entre colchetes ("[Oferecer outro lugar]").
-- A telefonista é Maria: quem fala com ela usa o feminino ("a senhora", "moça", "minha filha"), também no en e no es.
+  conversa); ação do jogador entre colchetes ("[Oferecer outro lugar]"). A do roteiro (principal ou da noite) sai em âmbar (`StoryChoiceButton`, opção com `story`).
+- A telefonista é Maria: quem fala com ela usa o feminino ("a senhora", "moça", "minha filha"), também no en e no es. Só quem a conhece fala como quem sabe quem ela é; os outros falam com a telefonista.
+- O nome de quem liga só aparece depois de a pessoa se apresentar (`PhoneCall.label`: "Dona Ivone" é "Senhora" até dizer o nome numa fala, `heard`, ou pela B1).
 - Nomes de pessoas e lugares na ordem natural ("Nome Sobrenome"). Quem liga tem nome e sobrenome sem apelido nem
   tratamento (`TransferCall.caller_name`; nos moldes, `GameContent.caller_names`; o `test_content` cobra). Lista telefônica: uma letra por página dupla, aba
   de índice; a observação (`DirectoryEntry.note`) só diz quem atende quando o nome não diz. Todo número serve para
@@ -78,7 +79,7 @@ detalhe no comentário do código, o porquê no `HISTORICO.md`. Atualize os `CLA
   Luz com forma: camada somada (ADD) com a força no `modulate`. Parâmetro de shader entra no estado comparado.
 - **Som**: tudo sintetizado ao iniciar (`SfxSynth.build()`, em pedaços no `WorkerThreadPool` em alta prioridade, um
   `RandomNumberGenerator` por pedaço; **nada de chamar função a cada amostra** num laço de som), menos o ambiente gravado (chuva, tempestade, vento, grilos, trovão: gravações CC0 do Freesound em
-  `audio/ambience/`, preparadas por `tools/ambiente/preparar.py`, `Sfx.RECORDED`). Tocado pelo autoload
+  `audio/ambience/`, preparadas por `tools/ambiente/preparar.py`, `Sfx.RECORDED`) e o rádio e a TV do vizinho pela parede (`audio/neighbors/`, fala inventada, músicas e filmes sintetizados por `tools/vizinhos/gerar.py`, nada gravado nem imitado; `Sfx.neighbors`: a noite dele é sorteada, `_plan_neighbor`: liga só com a mesa em silêncio, sintoniza, fica uma a três horas com um programa atrás do outro, o da hora, `NEIGHBOR_TV`/`NEIGHBOR_RADIO`, e desliga; programa novo: `PROGRAMS` no gerador e a conta em `NEIGHBOR_CLIPS`; de um lado, nas noites 1 a 13, `Main.NEIGHBOR_NIGHTS`). Tocado pelo autoload
   `Sfx`; `Sfx.play_at(id, screen_x)` para som com lugar na tela. **Volume só por `Sfx.fade`/`Sfx._tween`** (uma
   mudança nova cancela a anterior). Barramentos em `default_bus_layout.tres` (Ambience com sidechain em Voices,
   Voices, Effects, Rub, Phone, Wind: o vento, que mede a rajada da folhinha, `Sfx.gust`).
@@ -119,7 +120,7 @@ detalhe no comentário do código, o porquê no `HISTORICO.md`. Atualize os `CLA
     rode só quando mudar a estrutura do roteiro, `requires`, marcadores, ligações da noite, horários; fala só de texto, o `test_content`). Rode depois de mudar agenda, fim de ligação, mesa ou cabos.
 - Opções do jogo: `-- --seed=N`, `--night=N` (sem ler nem gravar o save), `--weather=X`, `--lang=X`, `--pace=N`, `--flags=a,b`.
 - **Painel de debug** (F1, `DebugPanel`, só em build de debug): toca ligações, mexe no relógio, clima, luz, noites,
-  viaturas e advertências, mostra a eficiência ao vivo, cronometra os passos de cada ligação no log; mesa de som (`Sfx.vol`) e aba de vozes. O que mexe no Main fica
+  viaturas e advertências, mostra a eficiência ao vivo, cronometra os passos de cada ligação no log; mesa de som (`Sfx.vol`), aba de vozes e aba Vizinho (toca na hora cada programa do rádio e da TV dele, liga e desliga o aparelho). O que mexe no Main fica
   em funções públicas dele (`ring`, `drop`, `drop_all`, `set_weather`, `start_ending`...).
 - **Captura** (`tools/shot.tscn`, com tela, **uma de cada vez, janela pequena no canto**):
   `Godot --resolution 160x90 --position 0,0 --quit-after 1500 --path . tools/shot.tscn -- --hour=22:30 --weather=rain --out=build/x.png`.
@@ -154,7 +155,7 @@ detalhe no comentário do código, o porquê no `HISTORICO.md`. Atualize os `CLA
   alternativa do mesmo ramo (`TransferCall.alt_target`, `DirectoryEntry.category`, `GameData.alternative`).
 - **Escuta** (`Eavesdrop`): chave de escuta por linha (`Exchange.key`); a conversa ouvida vem do motivo (`Motive`) ou
   das falas escritas (`TransferCall.overheard`); palavras-chave `[tipo:texto]` (`Clue`) vão para as anotações da
-  lista (`Progress.clues`); a suspeita (`PhoneCall.suspicion`, `LISTEN_SEC`, `HUSH`, desconfiança `wary`) leva ao
+  lista (`Progress.clues`), só da noite das fitas em diante (`Eavesdrop._asked`; antes ninguém pediu nada a ela); a suspeita (`PhoneCall.suspicion`, `LISTEN_SEC`, `HUSH`, desconfiança `wary`) leva ao
   silêncio, à pergunta e à denúncia (`_denounce`), cobrada no relatório da noite seguinte (`Supervisor.fault_later`; `nights` adia mais).
   O ritmo da fala (`PACE`) e a suspeita andam juntos: mudou um, confira o outro.
 - **Interurbano**: troncos 901–906 (`GameData.TRUNKS`), a telefonista de lá (`Main._trunk`), o número de lá

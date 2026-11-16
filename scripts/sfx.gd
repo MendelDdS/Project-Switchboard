@@ -1,6 +1,7 @@
 extends Node
 ## Autoload `Sfx`: toca, mixa e cuida do ambiente de todos os sons do jogo, sintetizados ao iniciar por `SfxSynth`,
-## menos o ambiente gravado (`RECORDED`, em `audio/ambience/`, preparado por `tools/ambiente/preparar.py`).
+## menos o ambiente gravado (`RECORDED`, em `audio/ambience/`, preparado por `tools/ambiente/preparar.py`) e o rádio e
+## a TV do vizinho (`NEIGHBOR_CLIPS`, em `audio/neighbors/`, sintetizados por `tools/vizinhos/gerar.py`).
 ## Barramentos (default_bus_layout.tres): Ambience (clima, zumbido, chiado), Voices (sílabas), Effects (o resto); Phone
 ## (a banda da linha telefônica) vai para Voices e leva as vozes de quem liga (`SfxSynth.VOICE`, "bus").
 ## Clima (`set_weather`): "rain" só chuva (e a tempestade por cima, com ela forte); "fog" grilos; "clear" brisa e grilos.
@@ -10,7 +11,7 @@ const VOL := {
 	"tick": -24.0, "knob_tick": -20.0, "pencil": -13.0, "ring": -9.0, "ringback": -13.0, "dial_key": -17.0, "dial_full": -16.0, "dial_pulse": -19.0, "busy": -15.0, "sit": -13.0,
 	"cut": -2.0, "static": -11.0, "crackle": -14.0, "thump": -5.0, "drop": -12.0, "set_paper": -27.0, "set_metal": -27.0, "blind": -17.0, "gulp": -19.0, "bike_bell": -24.0, "car_door": -21.0, "rub": -13.0, "cord_stop": -16.0, "cord_tap": -17.0, "cord_knock": -19.0, "cord_snag": -18.0, "cord_snap": -21.0, "unroll": -8.0,
 	"typing": -13.0, "printer": -14.0, "punch": -8.0, "snap": -12.0, "tape_out": -16.0, "tape_in": -8.0, "tape_door": -10.0, "tape_key": -11.0, "tape_pop": -9.0, "feed": -11.0, "read": -14.0, "shred": -10.0, "deny": -14.0,
-	"chime": -11.0, "shift_bell": -13.0, "car": -15.0, "car_near": -13.0, "car_wet": -14.0, "car_wet_near": -12.0, "thunder": -8.0,
+	"neighbor": -8.0, "chime": -11.0, "shift_bell": -13.0, "car": -15.0, "car_near": -13.0, "car_wet": -14.0, "car_wet_near": -12.0, "thunder": -8.0,
 	"bell": -15.0, "speaker": -12.0, "sabia": -24.0, "rattle": -17.0, "glass_hit": 0.0, "footfall": -24.0, "flyers": -22.0, "spray": -27.0, "flare": -20.0, "blast": -12.0, "gunfire": -20.0, "latch": -22.0, "unfurl": -16.0, "army": -6.0, "dog": -27.0, "dog_low": -28.0, "lamp_tick": -27.0,
 }
 ## Volume (dB) dos sons de ambiente em cada clima; o que não aparece fica mudo.
@@ -58,6 +59,25 @@ const VARIED := ["plug_in", "plug_out", "thump", "drop", "cord_stop", "cord_tap"
 const LAMP_BUZZ := -44.0
 ## Gravações reais (Freesound, CC0; as fontes em `tools/ambiente/preparar.py`) no lugar dos sintetizados: o id no jogo,
 ## e o arquivo é `audio/ambience/<id>.ogg` ("~" vira "_"). Os loops tocam em laço; o trovão, uma das quatro versões.
+## O rádio e a TV do vizinho, pela parede (`neighbors`). Os sons: o tipo e quantos há de cada
+## (`audio/neighbors/<tipo>_<n>.ogg`; "calm" e "hit" são as músicas do rádio, calmas e agitadas), mais o aparelho na
+## mão dele: "on", "off", "tune_radio" e "tune_tv".
+const NEIGHBOR_CLIPS := {"news": 3, "soap": 3, "show": 3, "match": 2, "ads": 2, "film": 4, "calm": 3, "hit": 4}
+## O que passa na TV em cada hora do turno (a primeira, das 18h às 19h; a última vale daí em diante).
+const NEIGHBOR_TV := [["show", "film", "ads"], ["show", "soap", "ads"], ["soap", "news", "ads"], ["news", "film", "ads"], ["film", "match", "ads"], ["film", "news"]]
+## E no rádio: antes das 22h (`NEIGHBOR_LATE`, min de turno) e depois, quando é só música.
+const NEIGHBOR_RADIO := [["hit", "calm", "ads", "news"], ["calm", "hit"]]
+const NEIGHBOR_LATE := 240.0
+## A noite do vizinho (`_plan_neighbor`): a chance de ele nem ligar o aparelho; até quando liga (min de turno; fica
+## uma, duas ou três horas, até `NEIGHBOR_END`); a chance de ser o rádio; a de, tendo desligado antes das 22h, ligar
+## o rádio depois para ouvir música; e a de mexer no botão entre um programa e o seguinte.
+const NEIGHBOR_NONE := 0.15
+const NEIGHBOR_ON := 270.0
+const NEIGHBOR_END := 355.0
+const NEIGHBOR_RADIO_CHANCE := 0.4
+const NEIGHBOR_AGAIN := 0.35
+const NEIGHBOR_ZAP := 0.3
+const NEIGHBOR_X := 0.0   # de que lado da tela fica a parede do vizinho
 const RECORDED := ["rain", "storm", "breeze", "crickets", "thunder", "thunder~1", "thunder~2", "thunder~3"]
 ## A tempestade (chuva forte com vento) entra por cima da chuva a partir de STORM_FROM de força (`set_rain`) e chega
 ## inteira na mais forte.
@@ -130,6 +150,13 @@ var _takes := {}   # id -> quantas versões ele tem (`_take`), dos sons com "~1"
 var vol := VOL.duplicate()   ## o volume em uso; a mesa de som do debug mexe nele (o `VOL` é o padrão)
 var pool: Array[AudioStreamPlayer] = []
 var pool_2d: Array[AudioStreamPlayer2D] = []   # para `play_at` (som que vem de um lugar da tela)
+var neighbor: AudioStreamPlayer2D   # o rádio ou a TV do vizinho, de um lado só (`neighbors`)
+var _neighbor_plan: Array = []      # as vezes em que ele liga o aparelho na noite: [liga, desliga (min de turno), é o rádio]
+var _neighbor_queue: Array[String] = []   # o que toca em seguida, um som atrás do outro
+var _neighbor_on := false           # o aparelho ligado
+var _neighbor_played: Array[String] = []   # o que já passou na noite (não repete enquanto houver outro)
+var _neighbor_now := ""             # o som que está tocando (o painel de debug mostra)
+var _neighbor_last := ""            # o tipo do último programa (o seguinte é de outro tipo, se houver)
 var rain: AudioStreamPlayer
 var storm: AudioStreamPlayer      # a chuva forte com vento, por cima da chuva (`STORM_FROM`)
 var breeze: AudioStreamPlayer     # no barramento Wind, que mede a rajada (`gust`)
@@ -191,6 +218,20 @@ func _ready() -> void:
 		p.panning_strength = PAN
 		add_child(p)
 		pool_2d.append(p)
+	var clips: Array[String] = ["on", "off", "tune_radio", "tune_tv"]
+	for kind: String in NEIGHBOR_CLIPS:
+		clips.append_array(_neighbor_ids(kind))
+	for id in clips:
+		var path := "res://audio/neighbors/%s.ogg" % id
+		if ResourceLoader.exists(path):   # (som novo só existe depois de o editor importar)
+			streams["nb_" + id] = load(path)
+	neighbor = AudioStreamPlayer2D.new()
+	neighbor.attenuation = 0.0
+	neighbor.max_distance = 100000.0
+	neighbor.panning_strength = 1.5   # (bem mais de lado que os sons da mesa: vem de outra sala)
+	neighbor.process_mode = Node.PROCESS_MODE_PAUSABLE   # (o aparelho dele para na pausa, com o turno)
+	neighbor.bus = &"Ambience"
+	add_child(neighbor)
 	rain = _make_loop("rain")
 	storm = _make_loop("storm")
 	breeze = _make_loop("breeze")
@@ -285,6 +326,8 @@ func start_ambience(w: String) -> void:
 		p.play()
 	fade(hum, HUM_DB, 2.0)
 	_lamp_on = true
+	neighbor.stop()
+	_plan_neighbor()
 	set_weather(w, 2.0)
 
 
@@ -293,7 +336,112 @@ func stop_ambience(sec: float) -> void:
 	for p in [breeze, crickets, hum, lamp_buzz]:
 		fade(p, -80.0, sec)
 	_tween(self, "_rain_db", -80.0, sec)
+	_tween(neighbor, "volume_db", -80.0, sec)
 	fade(hiss, -80.0, minf(sec, 1.0))
+
+
+## Sorteia a noite do vizinho: se liga o aparelho, quando, por quanto tempo e qual (às vezes fica até tarde; às
+## vezes desliga cedo e liga o rádio depois das 22h).
+func _plan_neighbor() -> void:
+	_neighbor_plan.clear()
+	_neighbor_queue.clear()
+	_neighbor_played.clear()
+	_neighbor_on = false
+	if _rng.randf() < NEIGHBOR_NONE:
+		return
+	var on := _rng.randf_range(0.0, NEIGHBOR_ON)
+	var off := minf(on + 60.0 * _rng.randi_range(1, 3), NEIGHBOR_END)
+	_neighbor_plan.append([on, off, _rng.randf() < NEIGHBOR_RADIO_CHANCE])
+	if off < NEIGHBOR_LATE and _rng.randf() < NEIGHBOR_AGAIN:
+		on = NEIGHBOR_LATE + _rng.randf_range(0.0, 40.0)
+		_neighbor_plan.append([on, minf(on + _rng.randf_range(40.0, 110.0), NEIGHBOR_END), true])
+
+
+## O rádio ou a TV do vizinho, baixo, pela parede: `minutes` de turno, e `quiet`, a mesa em silêncio. Na hora
+## sorteada (`_plan_neighbor`) ele liga o aparelho (só num silêncio da mesa), sintoniza e fica: um programa atrás do
+## outro, o da hora (`NEIGHBOR_TV`, `NEIGHBOR_RADIO`), por baixo das vozes como o resto do ambiente, até desligar.
+func neighbors(minutes: float, quiet: bool) -> void:
+	if neighbor.playing:
+		return
+	if not _neighbor_queue.is_empty():
+		_neighbor_play(_neighbor_queue.pop_front())
+		return
+	if _neighbor_plan.is_empty():
+		return
+	var s: Array = _neighbor_plan[0]
+	if minutes < float(s[0]):
+		return
+	if minutes >= float(s[1]):   # a hora de desligar (o programa que estava no meio foi até o fim)
+		_neighbor_plan.pop_front()
+		if _neighbor_on:
+			_neighbor_on = false
+			_neighbor_play("off")
+		return
+	var radio: bool = s[2]
+	var tune := "tune_radio" if radio else "tune_tv"
+	if not _neighbor_on:
+		if not quiet:
+			return
+		_neighbor_on = true
+		_neighbor_queue.assign(["on", tune])
+	elif _rng.randf() < NEIGHBOR_ZAP:
+		_neighbor_queue.append(tune)
+	_neighbor_queue.append(_neighbor_pick(minutes, radio))
+	_neighbor_play(_neighbor_queue.pop_front())
+
+
+## (Painel de debug) Toca agora um som do vizinho, largando o que tocava e o que vinha depois.
+func neighbor_listen(id: String) -> void:
+	_neighbor_queue.clear()
+	neighbor.stop()
+	_neighbor_play(id)
+
+
+## (Painel de debug) O vizinho liga o aparelho agora, aos `minutes` de turno, e fica `hours` horas; 0 horas: desliga.
+func neighbor_switch(minutes: float, radio: bool, hours: int) -> void:
+	_neighbor_plan.clear()
+	neighbor_listen("on" if hours > 0 else ("off" if _neighbor_on else ""))
+	_neighbor_on = hours > 0
+	if _neighbor_on:
+		_neighbor_plan.append([minutes, minutes + 60.0 * hours, radio])
+		_neighbor_queue.assign(["tune_radio" if radio else "tune_tv", _neighbor_pick(minutes, radio)])
+
+
+## Os sons de um tipo de programa (`NEIGHBOR_CLIPS`).
+func _neighbor_ids(kind: String) -> Array[String]:
+	var out: Array[String] = []
+	for k in int(NEIGHBOR_CLIPS[kind]):
+		out.append("%s_%d" % [kind, k + 1])
+	return out
+
+
+## O programa seguinte: um dos que passam a esta hora, que ainda não passou na noite e, havendo, de outro tipo.
+func _neighbor_pick(minutes: float, radio: bool) -> String:
+	var kinds: Array = NEIGHBOR_RADIO[int(minutes >= NEIGHBOR_LATE)] if radio else NEIGHBOR_TV[mini(int(minutes / 60.0), NEIGHBOR_TV.size() - 1)]
+	var all: Array[String] = []
+	for kind: String in kinds:
+		all.append_array(_neighbor_ids(kind))
+	var fresh := all.filter(func(id: String) -> bool: return id not in _neighbor_played)
+	if fresh.is_empty():
+		fresh = all
+	var other := fresh.filter(func(id: String) -> bool: return id.get_slice("_", 0) != _neighbor_last)
+	if not other.is_empty():
+		fresh = other
+	var id: String = fresh[_rng.randi() % fresh.size()]
+	_neighbor_played.append(id)
+	_neighbor_last = id.get_slice("_", 0)
+	return id
+
+
+func _neighbor_play(id: String) -> void:
+	if not streams.has("nb_" + id):
+		return
+	var screen := get_viewport().get_visible_rect().size
+	neighbor.position = Vector2(NEIGHBOR_X * screen.x, screen.y / 2.0)
+	neighbor.stream = streams["nb_" + id]
+	_neighbor_now = id
+	_tween(neighbor, "volume_db", vol["neighbor"], 0.0)
+	neighbor.play()
 
 
 ## Troca o clima (os sons do anterior somem aos poucos).

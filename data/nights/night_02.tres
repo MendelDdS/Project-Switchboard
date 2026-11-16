@@ -14,8 +14,8 @@
 
 [sub_resource type="Resource" id="ChatReply_00_0"]
 script = ExtResource("9_reply")
-text = "Acabei dormindo, desculpe."
-follow = "Tá perdoado. Mas a pamonha acabou, viu?"
+text = "Ia, mas acabei dormindo."
+follow = "Ih, moça! E a pamonha acabou, viu?"
 tone = 1
 
 [sub_resource type="Resource" id="ChatReply_00_1"]
@@ -27,12 +27,12 @@ tone = 2
 [sub_resource type="Resource" id="ChatTopic_00"]
 script = ExtResource("8_chat")
 requires = PackedStringArray("prometeu_quermesse")
-line = "Disseram que a senhora ia na quermesse hoje à tarde e não apareceu, hein!"
+line = "A senhora foi na quermesse hoje à tarde?"
 replies = Array[ExtResource("9_reply")]([SubResource("ChatReply_00_0"), SubResource("ChatReply_00_1")])
 
 [sub_resource type="Resource" id="ChatReply_01_0"]
 script = ExtResource("9_reply")
-text = "Que pena! Como foi?"
+text = "Não pude ir. Como foi?"
 follow = "Teve até sanfoneiro da capital!"
 tone = 1
 
@@ -45,7 +45,7 @@ tone = 2
 [sub_resource type="Resource" id="ChatTopic_01"]
 script = ExtResource("8_chat")
 requires = PackedStringArray("!prometeu_quermesse")
-line = "A quermesse hoje à tarde foi uma beleza, a senhora perdeu."
+line = "A senhora foi na quermesse hoje à tarde? Foi uma beleza."
 replies = Array[ExtResource("9_reply")]([SubResource("ChatReply_01_0"), SubResource("ChatReply_01_1")])
 
 [sub_resource type="Resource" id="S_homem1"]

@@ -5664,16 +5664,16 @@ msgid "Ele disse que era urgente. Fiz bem em não passar? Não sei."
 msgstr "Dijo que era urgente. ¿Hice bien en no pasarlo? No sé."
 
 #: data/nights/night_02.tres
-msgid "Disseram que a senhora ia na quermesse hoje à tarde e não apareceu, hein!"
-msgstr "¡Dijeron que usted iba a la kermés esta tarde y no apareció, eh!"
+msgid "A senhora foi na quermesse hoje à tarde?"
+msgstr "¿Usted fue a la kermés esta tarde?"
 
 #: data/nights/night_02.tres
-msgid "Acabei dormindo, desculpe."
-msgstr "Me quedé dormido, perdón."
+msgid "Ia, mas acabei dormindo."
+msgstr "Iba a ir, pero me quedé dormida."
 
 #: data/nights/night_02.tres
-msgid "Tá perdoado. Mas a pamonha acabou, viu?"
-msgstr "Está perdonado. Pero las humitas se acabaron, ¿eh?"
+msgid "Ih, moça! E a pamonha acabou, viu?"
+msgstr "¡Uy, señorita! Y las humitas se acabaron, ¿eh?"
 
 #: data/nights/night_02.tres
 msgid "Não deu."
@@ -5684,12 +5684,12 @@ msgid "Hum. Tá bom."
 msgstr "Mm. Está bien."
 
 #: data/nights/night_02.tres
-msgid "A quermesse hoje à tarde foi uma beleza, a senhora perdeu."
-msgstr "La kermés de esta tarde estuvo preciosa, usted se la perdió."
+msgid "A senhora foi na quermesse hoje à tarde? Foi uma beleza."
+msgstr "¿Usted fue a la kermés esta tarde? Estuvo preciosa."
 
 #: data/nights/night_02.tres
-msgid "Que pena! Como foi?"
-msgstr "¡Qué pena! ¿Cómo estuvo?"
+msgid "Não pude ir. Como foi?"
+msgstr "No pude ir. ¿Cómo estuvo?"
 
 #: data/nights/night_02.tres
 msgid "Teve até sanfoneiro da capital!"
@@ -17808,7 +17808,7 @@ msgid "Daqui eu só vejo a mesa."
 msgstr "Desde aquí solo veo la mesa."
 
 #: data/content.tres
-msgid "Ah, coitado. Depois dá uma espiada na janela."
+msgid "Ah, coitada. Depois dá uma espiada na janela."
 msgstr "Ay, pobre. Después eche un vistazo por la ventana."
 
 #: data/content.tres
@@ -18256,8 +18256,8 @@ msgid "Ah, pode ser essa mesmo."
 msgstr "Ah, puede ser esa misma."
 
 #: data/content.tres
-msgid "Não, moço, não é aí."
-msgstr "No, joven, no es ahí."
+msgid "Não, moça, não é aí."
+msgstr "No, señorita, no es ahí."
 
 #: data/content.tres
 msgid "Hã? Não é com essa pessoa que eu quero falar."
@@ -18268,7 +18268,7 @@ msgid "Esse não é quem eu pedi!"
 msgstr "¡Este no es a quien pedí!"
 
 #: data/content.tres
-msgid "Opa, acho que o senhor ligou errado."
+msgid "Opa, acho que a senhora ligou errado."
 msgstr "Epa, creo que me comunicó mal."
 
 #: data/content.tres
@@ -18276,8 +18276,8 @@ msgid "Ih, quem atendeu não foi quem eu pedi."
 msgstr "Uy, quien contestó no es a quien pedí."
 
 #: data/content.tres
-msgid "Moço, essa voz eu não conheço."
-msgstr "Joven, esa voz no la conozco."
+msgid "Moça, essa voz eu não conheço."
+msgstr "Señorita, esa voz no la conozco."
 
 #: data/content.tres
 msgid "Não é esse número, não."

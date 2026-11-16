@@ -22,6 +22,8 @@ extends Node
 
 signal clue_heard(clue: Clue)
 
+const TAPES := "b4_fitas"   ## a norma das fitas: dela em diante a escuta anota (`_asked`)
+
 const LISTEN_SEC := 40.0   # segundos ouvindo até a suspeita chegar a 1 (a conversa toda dura 45–90 s)
 const CLICK := 0.08        # o estalo de cada vez que a chave sobe
 const HUSH := 0.5          # daqui, com ele ouvindo, eles percebem algo e a conversa normal para (`_react`)
@@ -145,7 +147,7 @@ func tick(delta: float) -> void:
 func _heard(t: Talk) -> void:
 	main.flags.apply("escutou_%d" % main.night_no)
 	if t.ear.transcript.is_empty():
-		t.ear.sys(T.text(T.Key.SYS_LISTENING) % [t.call.line, tr(t.call.caller), _other(t.call)])
+		t.ear.sys(T.text(T.Key.SYS_LISTENING) % [t.call.line, tr(t.call.label()), _other(t.call)])
 	main.phone.show_call(t.ear)
 
 
@@ -246,7 +248,7 @@ func _caught(t: Talk) -> void:
 	last.transcript = ear.transcript
 	if ear.on_line:
 		main.phone.show_call(last)
-	await _say(last, GameData.pick(C.overheard_caught), c.caller, c.voice, true)
+	await _say(last, GameData.pick(C.overheard_caught), c.label(), c.voice, true)
 	if main.exchange.line(n) == Exchange.Line.CONN:
 		last.sys(T.text(T.Key.SYS_BOTH_HUNG_UP))
 		main.talk_over(n)
@@ -259,7 +261,7 @@ func _caught(t: Talk) -> void:
 func _talk(t: Talk) -> void:
 	var c := t.call
 	var ear := t.ear
-	var who := [tr(c.caller), _other(c)]
+	var who := [tr(c.label()), _other(c)]
 	var place := GameData.entry(str(c.dest_num))
 	var voices := [c.voice, GameData.voice_of(place) if place != null else "m"]
 	var data: TransferCall = c.data if c.data is TransferCall else null
@@ -309,8 +311,16 @@ func _talk(t: Talk) -> void:
 ## ela fica sublinhada.
 func _clue(ear: PhoneCall, li: int, word: String, kind: String) -> void:
 	var c := call_of(ear.line)
-	if c != null:
+	if c != null and _asked():
 		note(c, ear, li, word, kind)
+
+
+## Alguém já pediu a Maria o que ela ouve: as palavras-chave da escuta só são anotadas das fitas em diante (`TAPES`,
+## a noite em que a norma começa; antes, o lápis riscava sem ninguém ter pedido nada). Com as normas desligadas (o
+## debug e os testes), sempre.
+func _asked() -> bool:
+	var r := main.bureaucracy.rule(TAPES)
+	return not Bureaucracy.enabled or r == null or main.night_no >= r.from_night
 
 
 ## Anota a palavra-chave `word` (`kind`) dita na ligação `c` (a escutada ou a que o operador fez pelo discador, das
@@ -324,7 +334,7 @@ func note(c: PhoneCall, ear: PhoneCall, li: int, word: String, kind: String) -> 
 	k.call = c
 	k.night = main.night_no
 	k.minutes = main.minutes
-	k.caller = c.caller
+	k.caller = c.label()
 	k.number = str(c.dest_num)
 	for old in clues:   # a mesma palavra já anotada: fica com a marca que o operador deu a ela
 		if old.kind == k.kind and old.word.to_lower() == k.word.to_lower():

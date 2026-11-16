@@ -22,10 +22,16 @@ func _ready() -> void:
 	for n in [_title, _question, _restart]:
 		n.modulate.a = 0.0
 	_restart.disabled = true   # no lugar desde o começo, transparente: escondido, entrar depois subia o texto
+	_restart.mouse_filter = Control.MOUSE_FILTER_IGNORE   # (invisível, ainda tapava o clique no discador, embaixo dele)
 	_restart.pressed.connect(func() -> void:
 		if _to_menu or Progress.replay > 0:   # (a noite rejogada não tem seguinte)
 			GameView.playing = false
-		Main.restart())
+		_restart.disabled = true
+		GameView.fade_in = true   # o que vem depois surge do preto, em vez de piscar
+		var t := create_tween().set_parallel()
+		for n in [_title, _question, _restart]:
+			t.tween_property(n, "modulate:a", 0.0, GameView.FADE)
+		t.chain().tween_callback(Main.restart))
 
 
 ## `more`: ainda há uma próxima noite (o progresso já foi salvo pelo Main). `text`: o texto da noite para a tela
@@ -82,4 +88,5 @@ func play(report: ShiftReport, more: bool, text: StoryText = null, memo := true)
 		create_tween().tween_property(_question, "modulate:a", 1.0, 2.5)
 		await get_tree().create_timer(2.4, false).timeout
 	_restart.disabled = false
+	_restart.mouse_filter = Control.MOUSE_FILTER_STOP
 	create_tween().tween_property(_restart, "modulate:a", 1.0, 1.5)

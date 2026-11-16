@@ -460,7 +460,7 @@ func _cable_at(pts: PackedVector2Array, w: int, edge: float, tones := [], shade 
 	var key := [pts, w, edge, tones, shade]
 	if not _cable_art.has(key):
 		if _cable_art.size() > 16:   # a tela mudou de tamanho
-			_cable_art.clear()
+			PixelArt._evict(_cable_art)
 		_cable_art[key] = _cable_image(pts, w, edge, tones, shade)
 	return _cable_art[key]
 
@@ -856,7 +856,7 @@ func _card(text: String, sz: Vector2i) -> Image:
 	if _cards.has(key):
 		return _cards[key]
 	if _cards.size() > 200:   # a tela mudou de tamanho: o relógio também
-		_cards.clear()
+		PixelArt._evict(_cards)
 	var img := Image.create(maxi(1, sz.x), maxi(1, sz.y), false, Image.FORMAT_RGBA8)
 	img.fill(Pal.FLIP_CARD[1])
 	img.fill_rect(Rect2i(0, 0, sz.x, 1), Pal.FLIP_CARD[2])
@@ -1236,7 +1236,7 @@ func _project(key: Array, art: Callable, q: PackedVector2Array, sz: Vector2i) ->
 	var full := [key, at, Vector2i(ceili(box.end.x), ceili(box.end.y)), _hom_light]
 	if not _projected.has(full):
 		if _projected.size() > 40:   # a tela mudou de tamanho: tudo muda junto
-			_projected.clear()
+			PixelArt._evict(_projected)
 		var img: Image = art.call(sz)
 		var inv := _hom.inverse()
 		var out := Image.create(maxi(1, ceili(box.end.x) - at.x), maxi(1, ceili(box.end.y) - at.y), false, Image.FORMAT_RGBA8)
@@ -1399,7 +1399,7 @@ func _mug_art(w: int, h: int, ry: int, rb: int, drunk: int, place: float) -> Ima
 	if _mugs.has(key):
 		return _mugs[key]
 	if _mugs.size() > 48:   # (a janela mudou de tamanho, ou a luminária piscou por todos os degraus)
-		_mugs.clear()
+		PixelArt._evict(_mugs)
 	var low := float(drunk) / MUG_SIPS   # o quanto o café já baixou
 	var hw := 9   # a alça, para fora do lado direito
 	var img := Image.create(w + hw, h + ry + rb + 1, false, Image.FORMAT_RGBA8)

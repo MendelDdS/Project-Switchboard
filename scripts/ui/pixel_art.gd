@@ -26,15 +26,21 @@ const LIGHT := Vector2(-0.7071, -0.7071)   # de onde vem a luz das peças redond
 ## certo o jogo fica bem abaixo (umas 40 peças redondas numa noite); o plug virando ao entrar na tomada monta uma imagem
 ## por quadro e o enche em algumas dezenas de cabos (`_evict`).
 const CACHE_MAX := 512
+const KEEP_SEC := 0.5   ## quanto as texturas de um cache esvaziado ainda vivem (`_evict`)
 
 
 ## Esvazia um cache de texturas e manda tudo se redesenhar: o desenho guarda só o RID da textura, que some com o
 ## cache, e a camada que não se redesenha (as chapas dos bancos, os plugs guardados) mostrava um retângulo branco.
+## As texturas de antes ficam vivas (`_kept`) até o redesenho passar: soltas na hora, o que já tinha sido desenhado
+## com elas neste quadro piscava branco (com um plug na mão, que gira e enche o cache a cada poucos segundos).
+static var _kept := []
 static func _evict(cache: Dictionary) -> void:
-	cache.clear()
 	var tree := Engine.get_main_loop() as SceneTree
 	if tree != null and tree.root != null:
+		_kept.append(cache.duplicate())
 		tree.root.propagate_call.call_deferred(&"queue_redraw")
+		tree.create_timer(KEEP_SEC, false).timeout.connect(_kept.clear)
+	cache.clear()
 
 
 ## A fonte gravada no painel da mesa comutadora (o estado de cada linha, a legenda, as chapas; também o letreiro do
