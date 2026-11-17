@@ -322,10 +322,17 @@ var _bike_in := 45.0     # para passar uma bicicleta (s)
 var _buses := -1         # quantos horários do ônibus já passaram (-1: ainda não contado)
 var _taxis := -1         # quantos táxis da noite já pararam no hotel (-1: ainda não contado)
 var _taxi_next := false  # o próximo da mão de lá é o táxi que para no hotel
+var _siren_lead := 0.0   # quanto falta para a viatura da sirene poder aparecer (s; `_siren_far`)
+var _far_siren: AudioStreamPlayer2D   # a sirene de longe, tocando
 var _police_next := false   # o próximo da mão de lá é a viatura que para no hotel (`police`)
 var _curfew_next := false   # o próximo da mão de lá é a viatura do toque de recolher (`curfew`)...
 var _curfew_sent := false   # ...que já foi chamada
 ## As cenas que deixam marca (`scene_at`): passada a hora, a marca fica (os papéis no chão, a tinta, a banca fechada).
+const SCENE_LEN := 300.0   ## nenhuma cena dura mais que isso (s): depois, os sons marcados dela não são mais conferidos
+const SIREN_LEAD := 5.0   ## a sirene se ouve tantos s antes de a viatura aparecer
+const SIREN_FAR_DB := -14.0   ## a de perto começa tanto abaixo e cresce até a viatura parar
+## A sirene de rotor (`siren_hz`; `tools/rua/gerar.py`, `SIREN`, que imprime `start` e `top`, o ciclo no regime).
+const SIREN := {"period": 4.0, "on": 1.2, "hi": 1000.0, "lo": 200.0, "tau_up": 0.55, "tau_down": 3.0, "down": 700.0, "start": 492.0, "top": 943.0}
 const MARKS := ["flyers", "graffiti", "paint", "newsstand", "moving", "stone", "closed"]
 const LASTING := ["graffiti", "paint", "newsstand", "moving", "stone", "banner"]   ## ...e as que ficam nas noites seguintes (`left_behind`)
 const SPRAY_EVERY := 1.1   ## de quanto em quanto tempo um jato do spray (s)
@@ -961,6 +968,7 @@ func _events(delta: float) -> void:
 		if _beat_t == 0.0:
 			_onlookers()
 	elif _beat_t >= 0.0:
+		_beating_sounds(_beat_t, minf(_beat_t + delta, Beating.END), x)
 		_beat_t = minf(_beat_t + delta, Beating.END)
 	if _look_t < 0.0 and not lookout_at.is_empty() and minutes >= lookout_at[0]:   # o vigia (`LOOKOUT_*`): na hora (passada, fica para a próxima)
 		_look_t = 0.0 if minutes < lookout_at.pop_front() + 2.0 else -1.0
@@ -976,6 +984,10 @@ func _events(delta: float) -> void:
 	for k: String in _scene_t.keys():   # o relógio de cada uma já começada
 		var was: float = _scene_t[k]
 		_scene_t[k] = was + delta
+		if was < SCENE_LEN:   # os sons marcados da cena (a porta, o apito, as ordens, o bebê, a porta de aço)
+			for cue: Array in _scene_cues(k):
+				if was < cue[0] and _scene_t[k] >= cue[0]:
+					Sfx.play_at(cue[1], x, cue[2])
 		if k == "chase" and Chase.footfalls(was, _scene_t[k]) > 0:   # os passos da corrida na calçada
 			Sfx.play_at("footfall", x, 0.0, _rng.randf_range(0.9, 1.1))
 		if k == "arrest" and Arrest.footfalls(was, _scene_t[k]) > 0:   # os passos dele, mais fortes quanto mais perto, de sola dura
@@ -988,6 +1000,8 @@ func _events(delta: float) -> void:
 			flare_lit.emit()
 		if k == "flyers" and Flyers.THROWS.any(func(at: float) -> bool: return was < at and _scene_t[k] >= at):   # cada maço jogado, os papéis batendo no ar
 			Sfx.play_at("flyers", x)
+		if k == "flyers" and Flyers.HONKS.any(func(at: float) -> bool: return was < at and _scene_t[k] >= at):   # o carro buzinando enquanto jogam
+			Sfx.play_at("st_horn", x)
 		if k == "graffiti" and was >= Graffiti.SHAKE - delta:   # a lata sacudida e os jatos do spray
 			var tag: float = _scene_t[k]
 			if was < Graffiti.SHAKE and tag >= Graffiti.SHAKE:
@@ -1008,6 +1022,12 @@ func _events(delta: float) -> void:
 				Sfx.play_at("latch", x)
 			if was < Banner.release() and _scene_t[k] >= Banner.release():
 				Sfx.play_at("unfurl", x)
+			var before := maxf(0.05, Banner.release() + Banner.ROCKETS.x)   # o rojão de doze tiros (onze e um forte no fim): um antes de ele pôr a bandeira...
+			if was < before and _scene_t[k] >= before:
+				Sfx.play_at("st_rocket", x)
+			var after := Banner.release() + Banner.ROCKETS.y   # ...e outro depois, com outros doze (o mesmo som duas vezes denunciava)
+			if was < after and _scene_t[k] >= after:
+				Sfx.play_at("st_rocket2", x)
 		if k == "paint" and was < Graffiti.SET_DOWN and _scene_t[k] >= Graffiti.SET_DOWN:   # o balde no chão
 			Sfx.play_at("set_metal", x, 6.0, 0.7)
 	var ct := minf(_scene_t.get("stone", -1.0), Stone.END)   # a pedra voando e caindo (a cada quadro) e o trincado (uma vez)
@@ -1016,9 +1036,10 @@ func _events(delta: float) -> void:
 		_crack.queue_redraw()
 	var scene := minutes >= beating - 3.0 and _beat_t < Beating.END
 	var quiet: bool = _scene_t.get("chase", INF) < Chase.END or _scene_t.get("raid", INF) < Raid.end() or _scene_t.has("arrest")   # (a corrida atravessa a mão de lá, a batida para a rua e o homem de sobretudo atravessa: nenhum carro novo)
+	_siren_lead -= delta
 	for lane in CAR_LANES.size():   # um carro por vez em cada mão, cada uma no seu tempo
 		_car_in[lane] -= delta
-		if quiet:
+		if quiet or lane == 0 and _siren_lead > 0.0:   # (a sirene ainda vem longe: a viatura não aparece antes dela, `_siren_far`)
 			continue
 		if _car_in[lane] <= 0.0 and not scene and lane == 0 and _scene_car != "" and _car_next[lane] == "":
 			_cars.append(_scene_car_of(_scene_car, x))
@@ -1050,6 +1071,7 @@ func _events(delta: float) -> void:
 			if sweep:   # devagar, sem o ronco de passagem agora (ele vem no meio, `CURFEW_SOUND`), e quem está na rua nota
 				_cars[-1].merge({"police": true, "taxi": false, "rack": false, "tones": Pal.CAR_TONES[5], "sweep": true, "sec": CURFEW_SEC,
 					"roar": Vector2(CURFEW_SOUND, CURFEW_PITCH)}, true)
+				Sfx.play_at("st_megaphone", x)   # o aviso pelo megafone dela, do tamanho da passagem, e as janelas batendo
 				for w: Dictionary in _walkers:
 					if not w.get("bike", false) and not w.get("dog", false):
 						w["hurry"] = -_rng.randf_range(CURFEW_REACT.x, CURFEW_REACT.y)
@@ -1062,6 +1084,8 @@ func _events(delta: float) -> void:
 			var was: float = c["s"] - TAXI_STOP.x
 			c["s"] += delta
 			var p: float = c["s"] - TAXI_STOP.x
+			if c.has("siren"):
+				_siren(c, was, p, x)
 			for slam: float in c.get("slams", [GUEST.y]):
 				if was < slam and p >= slam:
 					Sfx.play_at("car_door", x)
@@ -1138,6 +1162,7 @@ func _events(delta: float) -> void:
 	if minutes >= police and minutes < police + 30.0 and not _police_next and not _cars.any(func(c: Dictionary) -> bool: return c.has("police")):   # a viatura da noite (`PATROL_*`): a próxima da mão de lá, uma vez
 		police = INF
 		_police_next = true
+		_siren_far(x)
 		if _cars.all(func(c: Dictionary) -> bool: return c["lane"] != 0):
 			_car_in[0] = 0.0
 	_stray_in -= delta
@@ -1221,6 +1246,72 @@ func _taxi_times() -> Array[float]:
 
 ## Quem vem pela calçada quando a cena da rua começa (`Beating.ONLOOKERS`): cada um chega ao seu lugar quando ela
 ## esquenta (`Beating.WATCH`).
+## Os sons do espancamento entre `was` e `now` (s da cena): cada pancada (`Beating.HITS`: o cassetete ou o chute), o
+## gemido de quem apanha numa sim, noutra não, e os gritos de quem assiste (`Beating.CRIES`).
+func _beating_sounds(was: float, now: float, x: float) -> void:
+	for i in Beating.HITS.size():
+		var at: float = Beating.HITS[i][0]
+		if was < at and now >= at:
+			Sfx.play_at("st_kick" if Beating.HITS[i][1] == 1 else "st_blow", x)
+			if i % 2 == 0:
+				Sfx.play_at("st_groan", x)
+	for cry: Array in Beating.CRIES:
+		if was < cry[0] and now >= cry[0]:
+			Sfx.play_at(cry[1], x)
+
+
+## Os sons marcados da cena `kind` ([quando (s), o som, dB]...), no roteiro dela (`SOUNDS`, `sounds()`).
+func _scene_cues(kind: String) -> Array:
+	match kind:
+		"chase":
+			return Chase.SOUNDS
+		"raid":
+			return Raid.SOUNDS
+		"moving":
+			return Moving.sounds()
+		"newsstand":
+			return Newsstand.sounds()
+		"banner":
+			return Banner.FAR
+	return []
+
+
+## A sirene vindo de longe (a batida, a viatura da noite 7): `SIREN_LEAD` s antes de o carro aparecer, para dar tempo
+## de olhar a janela.
+func _siren_far(x: float) -> void:
+	_siren_lead = SIREN_LEAD
+	_far_siren = Sfx.play_at("st_siren_far", x)
+
+
+## A sirene da viatura `c` (`siren`: o tom dela), que anda de `was` a `p` s (0: quando para): entrando na rua, a de
+## perto no lugar da de longe, no mesmo ponto do ciclo, crescendo até ela parar; parada, é desligada e o rotor perde
+## o giro, da altura em que estava (`siren_hz`). ponytail: na pausa o som segue e a cena não; ele é curto.
+func _siren(c: Dictionary, was: float, p: float, x: float) -> void:
+	if was <= -TAXI_STOP.x and p > -TAXI_STOP.x:
+		var w := Sfx.play_at("st_siren", x, SIREN_FAR_DB, c["siren"])
+		if w == null:   # (som novo, ainda não importado pelo editor)
+			return
+		if is_instance_valid(_far_siren) and _far_siren.playing:
+			w.seek(fmod(_far_siren.get_playback_position(), SIREN["period"]))
+			Sfx.hush(_far_siren, TAXI_STOP.x)
+		Sfx._tween(w, "volume_db", w.volume_db - SIREN_FAR_DB, TAXI_STOP.x)
+		c["wail"] = w
+	if was < 0.0 and p >= 0.0 and c.has("wail"):
+		var w: AudioStreamPlayer2D = c["wail"]
+		Sfx.play_at("st_siren_down", x, 0.0, c["siren"] * siren_hz(w.get_playback_position()) / SIREN["down"])
+		Sfx.hush(w, 0.12)
+		c.erase("wail")
+
+
+## A altura da sirene de rotor (Hz) a `t` s do começo do som dela: o motor ligado `on` s a cada `period`, o giro
+## subindo para `hi` e, solto, caindo para `lo` (os números de `tools/rua/gerar.py`, `SIREN`).
+static func siren_hz(t: float) -> float:
+	var p := fmod(t, SIREN["period"])
+	if p < SIREN["on"]:
+		return SIREN["hi"] - (SIREN["hi"] - SIREN["start"]) * exp(-p / SIREN["tau_up"])
+	return SIREN["lo"] + (SIREN["top"] - SIREN["lo"]) * exp(-(p - SIREN["on"]) / SIREN["tau_down"])
+
+
 func _onlookers() -> void:
 	for spot: Vector2 in Beating.ONLOOKERS:
 		var w := _walker()
@@ -1395,9 +1486,9 @@ func _scene_car_of(kind: String, x: float) -> Dictionary:
 			_scene_t["newsstand"] = 0.0
 		"raid":   # o camburão, que encosta logo depois da porta do hotel, e a viatura atrás dele (chega `Raid.LATE` s depois)
 			c.merge({"kind": Raid.VAN, "tones": Pal.CAR_TONES[5], "raid": true, "raid_van": true, "stop": true, "s": 0.0, "wait": Raid.wait(0),
-				"slams": Raid.slams(0), "z": Raid.PARK.y, "mid": Raid.VAN_MID})   # (já vêm pela linha do meio-fio e só freiam: encostando no caminho, pareciam deslizar de lado)
+				"slams": Raid.slams(0), "z": Raid.PARK.y, "mid": Raid.VAN_MID, "siren": 1.0})   # (já vêm pela linha do meio-fio e só freiam: encostando no caminho, pareciam deslizar de lado)
 			var patrol := c.merged({"kind": Raid.PATROL, "police": true, "s": -Raid.LATE, "wait": Raid.wait(1), "slams": Raid.slams(1),
-				"mid": Raid.PATROL_MID, "spin": 370.0}, true)   # (a sirene no tempo dela)
+				"mid": Raid.PATROL_MID, "spin": 370.0, "siren": 1.07}, true)   # (e meio tom acima da do camburão: são duas)   # (a sirene no tempo dela)
 			patrol.erase("raid_van")
 			_cars.append(patrol)
 			_scene_t["raid"] = 0.0
@@ -1436,6 +1527,8 @@ func _start_scene(kind: String) -> void:
 		return
 	if kind in ["speaker", "flyers", "newsstand", "parade", "moving", "raid"]:
 		_scene_car = kind
+		if kind == "raid":
+			_siren_far(PixelArt.bounds(_glass).get_center().x / maxf(1.0, size.x) if _glass.size() > 2 else 0.9)
 		if _cars.all(func(c: Dictionary) -> bool: return c["lane"] != 0):
 			_car_in[0] = 0.0
 		return
@@ -1513,7 +1606,7 @@ func _patrol_car() -> Dictionary:
 	var slams := []
 	for i in 2:
 		slams.append_array([PATROL_OUT[i] + 0.6, PATROL_BACK[i] + GUEST.z + 0.4])
-	return {"police": true, "taxi": false, "rack": false, "tones": Pal.CAR_TONES[5], "wait": PATROL_WAIT, "slams": slams, "z": PATROL_Z}
+	return {"police": true, "taxi": false, "rack": false, "tones": Pal.CAR_TONES[5], "wait": PATROL_WAIT, "slams": slams, "z": PATROL_Z, "siren": 1.0}
 
 
 ## A viatura da presa (`Arrest`): para na mão de cá, em frente ao prédio, e não sai mais.

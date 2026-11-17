@@ -24,6 +24,11 @@ const SYMBOL: Array[String] = [
 	"XXXXXXXXXXXXX",
 ]
 const DOOR := -0.7     ## a porta do apartamento, a partir de onde ele para no gradil (m; o meio da porta de `APT`, `Background._banner_x`)
+const ROCKETS := Vector2(-3.0, 3.0)   ## os rojões de doze tiros (`st_rocket`, `st_rocket2`: onze normais e um último mais grave e forte), a tantos s de ele soltar o rolo (`release`): um antes, outro com a bandeira posta
+## Mais tarde, rojões bem longe, de outros bairros (`Background._scene_cues`: [quando (s desde a luz acender), o som,
+## dB]): três, espalhados pelas duas horas de jogo que sobram até o fim do turno, às 6h (às ~4h25, ~5h02 e ~5h38; 1 min
+## de jogo são 1,33 s), nunca no mesmo intervalo; o último mais fraco.
+const FAR := [[33.0, "st_rocket_far", 0.0], [83.0, "st_rocket_far2", 0.0], [131.0, "st_rocket_far", -3.0]]
 const OUT_AT := 0.6    ## quando ele aparece na porta (s depois da luz)
 const WALK := 1.0      ## m/s, sem pressa
 const FALL := 3.9      ## m/s²: o pano desenrolando cai mais devagar que o peso solto (o rolo freia), ~0,75 s até o fim

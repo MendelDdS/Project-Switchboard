@@ -16,6 +16,9 @@ const KEYS_PER_CYCLE := 8
 ## O rapaz: o caminho (x, z) e os instantes em que ele olha para trás (s, quanto tempo).
 const YOUNG_PATH: Array[Vector2] = [Vector2(11.0, 5.0), Vector2(6.5, 8.4), Vector2(-5.4, 8.8)]
 const LOOKS: Array[Vector2] = [Vector2(1.7, 0.35), Vector2(3.1, 0.3)]
+## Os sons (`Background._scene_cues`: [quando (s), o som, dB]): a porta do hotel batendo atrás do rapaz e o apito dos
+## homens chegando e quando perdem o rastro (os gritos deles saíram a pedido).
+const SOUNDS := [[5.0, "st_door", 0.0], [6.8, "st_whistle", 0.0], [9.6, "st_whistle", 0.0]]
 const MEN_START := [5.8, 6.3]   ## quando cada homem aparece (s): o rapaz já entrou (~4,9 s), e eles não o veem
 
 static var _tracks := {}

@@ -79,7 +79,7 @@ detalhe no comentário do código, o porquê no `HISTORICO.md`. Atualize os `CLA
   Luz com forma: camada somada (ADD) com a força no `modulate`. Parâmetro de shader entra no estado comparado.
 - **Som**: tudo sintetizado ao iniciar (`SfxSynth.build()`, em pedaços no `WorkerThreadPool` em alta prioridade, um
   `RandomNumberGenerator` por pedaço; **nada de chamar função a cada amostra** num laço de som), menos o ambiente gravado (chuva, tempestade, vento, grilos, trovão: gravações CC0 do Freesound em
-  `audio/ambience/`, preparadas por `tools/ambiente/preparar.py`, `Sfx.RECORDED`) e o rádio e a TV do vizinho pela parede (`audio/neighbors/`, fala inventada, músicas e filmes sintetizados por `tools/vizinhos/gerar.py`, nada gravado nem imitado; `Sfx.neighbors`: a noite dele é sorteada, `_plan_neighbor`: liga só com a mesa em silêncio, sintoniza, fica uma a três horas com um programa atrás do outro, o da hora, `NEIGHBOR_TV`/`NEIGHBOR_RADIO`, e desliga; programa novo: `PROGRAMS` no gerador e a conta em `NEIGHBOR_CLIPS`; de um lado, nas noites 1 a 13, `Main.NEIGHBOR_NIGHTS`). Tocado pelo autoload
+  `audio/ambience/`, preparadas por `tools/ambiente/preparar.py`, `Sfx.RECORDED`) e o rádio e a TV do vizinho pela parede (`audio/neighbors/`, fala inventada, músicas e filmes sintetizados por `tools/vizinhos/gerar.py`, nada gravado nem imitado; `Sfx.neighbors`: a noite dele é sorteada, `_plan_neighbor`: liga só com a mesa em silêncio, sintoniza, fica uma a três horas com um programa atrás do outro, o da hora, `NEIGHBOR_TV`/`NEIGHBOR_RADIO`, e desliga; programa novo: `PROGRAMS` no gerador e a conta em `NEIGHBOR_CLIPS`; de um lado, nas noites 1 a 13, `Main.NEIGHBOR_NIGHTS`) e os gritos, a buzina e a sirene das cenas da rua (`audio/street/`, `tools/rua/gerar.py`, `Sfx.STREET`, "st_<id>"; o rojão da bandeira é gravação CC0 do Freesound, montada por ele). Tocado pelo autoload
   `Sfx`; `Sfx.play_at(id, screen_x)` para som com lugar na tela. **Volume só por `Sfx.fade`/`Sfx._tween`** (uma
   mudança nova cancela a anterior). Barramentos em `default_bus_layout.tres` (Ambience com sidechain em Voices,
   Voices, Effects, Rub, Phone, Wind: o vento, que mede a rajada da folhinha, `Sfx.gust`).
@@ -227,7 +227,7 @@ detalhe no comentário do código, o porquê no `HISTORICO.md`. Atualize os `CLA
   `load_main([1, 2, 3])`.
 - Ritmo por nível (`Pace`, 9 níveis; `Pace.next` pelo conceito; o último é o limite; do 6 ao 9 o mesmo `mean_gap` do 5, com mais picos).
 - Cenas na rua da vista: `Night.street_events` (`StreetEvent`: `kind`, `at`, `every`; o Main chama
-  `Background.schedule`). A 3: o policial (`scripts/ui/beating.gd`); a 7: a viatura estacionada no hotel (`PATROL_*`);
+  `Background.schedule`). As curtas (`Main.STREET_HELD`) esperam a mesa calar e seguram as ligações novas enquanto começam (`_street_hold`, `street_busy`). A 3: o policial (`scripts/ui/beating.gd`); a 7: a viatura estacionada no hotel (`PATROL_*`);
   a 9: o vigia no terraço (`LOOKOUT_*`); 9 a 14: o toque de recolher às 21h, `CURFEW_*`, `_hurry`; 4 a 12: pichação,
   carro de som, panfletos, tinta, corrida, desfile e banca; 13: a batida no hotel às 20h, só com uma fita do hotel na polícia (`Raid`: camburão, viatura,
   cinco presos); 13 e 14: o homem de sobretudo embaixo do poste das 22h às 22h50 (`stranger`); 14: a fuga da família às 20h (`Moving`) e a pedra que trinca a janela às 23h, só sem chances altas (`Stone`, camada

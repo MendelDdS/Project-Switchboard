@@ -26,6 +26,7 @@ const BALCONY_WALK := 2.0   ## da porta até o varal (s)
 
 static var _tracks := {}
 static var _in := {}   # quando cada um entra na Kombi
+static var _sounds := []   # os sons da cena, montados uma vez (`sounds`)
 
 
 ## Quem está na cena no instante `t` (cada um entre aparecer e entrar na Kombi).
@@ -82,6 +83,17 @@ static func wait() -> float:
 static func slams() -> Array:
 	_build_all()
 	return [_in.values().max() + 0.3 - ARRIVE]
+
+
+## Os sons (`Background._scene_cues`: [quando (s), o som, dB]): o bebê chorando baixo quando a família aparece e as
+## malas postas na Kombi quando cada um entra.
+static func sounds() -> Array:
+	_build_all()
+	if _sounds.is_empty():
+		_sounds = [[FAMILY_AT + 0.5, "st_baby", 0.0]]
+		for at: float in _in.values():
+			_sounds.append([at - 0.2, "st_luggage", 0.0])
+	return _sounds
 
 
 ## Para onde quem está na calçada olha (x, m; INF: nada): a família atravessando.

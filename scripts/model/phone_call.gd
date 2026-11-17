@@ -192,7 +192,14 @@ func label() -> String:
 
 ## Quem liga disse `text`: com o próprio nome nela, passa a ser chamado por ele.
 func heard(text: String) -> void:
-	if named == "" and label() != caller and text.contains(caller.get_slice(" ", 1)):
+	if named != "":
+		return
+	var full = data.get("caller_name") if data != null else null   # "Moça" que diz "Aqui é a Generosa Prates"
+	if full and text.contains(full):
+		named = full
+	elif full and text.contains(full.get_slice(" ", 0)):   # "É o Otávio, lembra?": só o primeiro nome
+		named = full.get_slice(" ", 0)
+	elif label() != caller and text.contains(caller.get_slice(" ", 1)):
 		named = caller
 
 

@@ -64,8 +64,6 @@ func say(c: PhoneCall, text: String, pause: float = 0.55, who := "", voice := ""
 	voice = "k" if paren else (voice if voice != "" else c.voice)
 	var prev_vowel := false
 	var pitch := Sfx.pitch_of(who if who != "" else c.caller)
-	if who == "":
-		c.heard(text)
 	for i in text.length():
 		# em espera, a pessoa para de falar até o operador voltar
 		if not c.on_line and not c.closing and not await _until_on_line(c):
@@ -86,6 +84,8 @@ func say(c: PhoneCall, text: String, pause: float = 0.55, who := "", voice := ""
 		if c.ended:
 			c.set_talking(false)
 			return false
+	if who == "":
+		c.heard(text)   # só depois de dita: a fala em que a pessoa se apresenta ainda sai sem o nome, como na B1
 	c.last_talk = main.talk_clock
 	await get_tree().create_timer(pause, false).timeout
 	c.set_talking(false)

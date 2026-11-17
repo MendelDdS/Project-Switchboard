@@ -1833,6 +1833,23 @@ func _initialize() -> void:
 	m._street_check()
 	ok(m.background.scene_at.has("stone") and m.flags.has("rua_stone_%d" % m.night_no), "cena com condição que bate: acontece e fica marcada")
 	m.background.scene_at.erase("stone")
+	# a cena curta da rua espera a mesa calar e, começada, segura as ligações novas (`Main._street_hold`)
+	var short := Night.StreetEvent.new()
+	short.kind = "chase"
+	short.at = m.minutes
+	var was_live: Array = m.live.duplicate()
+	m.live.assign([PhoneCall.new()])
+	m._street(short)
+	m._street_hold()
+	ok(not m.background.scene_at.has("chase") and m.street_busy(), "cena curta com a mesa ocupada: espera, e nada novo toca")
+	m.live.clear()
+	m._street_hold()
+	ok(m.background.scene_at.has("chase") and m._street_held.is_empty() and m.street_busy(), "mesa em silêncio: a cena começa e segura as ligações")
+	m._street_until = -INF
+	ok(not m.street_busy(), "passado o tempo dela, as ligações voltam")
+	m.background.scene_at.erase("chase")
+	m._street_late.clear()
+	m.live.assign(was_live)
 	# a madrugada da última noite: sem o fator sucesso nem como chegar lá, o turno acaba já à meia-noite; com ele, o
 	# veredito é às 4h e o turno segue até o amanhecer
 	var was_night: int = m.night_no

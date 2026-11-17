@@ -5876,10 +5876,6 @@ msgid "Seu Jair"
 msgstr "Seu Jair"
 
 #: data/calls/noite_03_nome.tres
-msgid "Boa noite. Li no jornal que agora tem que dar o nome pra telefonista."
-msgstr "Good evening. I read in the paper that now you have to give the operator your name."
-
-#: data/calls/noite_03_nome.tres
 msgid "Me liga com o Cine Odeon, faz favor."
 msgstr "Put me through to the Cine Odeon, please."
 
@@ -5920,8 +5916,8 @@ msgid "A parte do xerife que prende o governador. Ficou sem pé nem cabeça."
 msgstr "The bit where the sheriff arrests the governor. Now it makes no sense at all."
 
 #: data/calls/noite_03_nome.tres
-msgid "Jair Monteiro. Anota aí, já que agora é obrigado."
-msgstr "Jair Monteiro. Write it down, since it's compulsory now."
+msgid "Boa noite. Vi no jornal que tão pedindo o nome, né? É Jair Monteiro, anota aí, já que agora é obrigado."
+msgstr "Good evening. I saw in the paper you're asking for names now, right? It's Jair Monteiro, write it down, since it's compulsory now."
 
 #: data/nights/night_03.tres
 msgid "Ligar para o Bar do Zé (327) pelo discador"

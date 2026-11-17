@@ -16,6 +16,13 @@ const CLEAR_SEC := 40.0                 # o som e a cor indo para a noite limpa 
 const DIARY_WAIT := 15                  # no fim do turno, o diário aberto escrevendo e riscando, até tantos segundos...
 const DIARY_HOLD := 2.5                 # ...e depois aberto mais estes, para ler, antes do memorando
 const WEATHERS := ["rain", "fog", "clear"]   # clima sorteado no começo do turno (`-- --weather=fog` força um)
+## As cenas curtas da rua, que quem está atendendo perderia (`_street_hold`): esperam a mesa calar por até
+## `STREET_WAIT` min do jogo, nada novo toca de `STREET_LEAD` min antes da hora delas até `STREET_QUIET` min depois de
+## começarem. As compridas ou presas ao relógio (toque de recolher, sinalizador, vigia, combate) ficam na hora.
+const STREET_HELD := ["beating", "speaker", "flyers", "graffiti", "paint", "chase", "parade", "raid", "moving", "police", "newsstand"]
+const STREET_WAIT := 20.0
+const STREET_LEAD := 3.0
+const STREET_QUIET := 18.0
 const QUIET_SHARE := 0.35              # mesa vazia por tanto do maior intervalo do ritmo (`Pace.call_gap`): toca uma a mais
 const GIVE_UP_SEC := 60.0               # quem liga desiste se ninguém atende (as do roteiro aguentam 1,5x; retornos, 0,75x)
 const FREE_FOR_STORY := 3.0            # min de jogo até a conversa num destino que uma ligação do roteiro vai pedir terminar (`_free_dest_for`)
@@ -68,6 +75,9 @@ var live: Array[PhoneCall] = []    ## tocando ou em andamento (podem ser várias
 var emergencies: Array[PhoneCall] = []
 var _called_back: Array[StoryCall] = []   # as ligações cujo `callback` já entrou na agenda nesta noite (uma vez cada)
 var _street_waiting: Array = []    ## cenas da rua com `requires`: conferidas na hora delas (`_street_check`)
+var _street_held: Array = []       ## cenas curtas da rua esperando a mesa calar (`_street_hold`, `STREET_HELD`)
+var _street_late: Array = []       ## as delas que já passaram da hora esperando: começam na hora em que a mesa calar
+var _street_until := -INF          ## até quando a cena que começou segura as ligações novas (min do turno)
 var _verdict := false              ## a conta do golpe da última noite já foi feita (`_coup_verdict`)
 var _pending_n := 0                ## registros esperando no caderno, da última vez (a tira nova faz barulho)
 var ending := false
@@ -291,8 +301,12 @@ func _load_night() -> void:
 	report.end = shift_end
 
 
-## Põe a cena da rua `e` no cenário (as que voltam, de tantos em tantos minutos até o fim do turno).
+## Põe a cena da rua `e` no cenário (as que voltam, de tantos em tantos minutos até o fim do turno). As curtas
+## (`STREET_HELD`) esperam a hora delas e a mesa em silêncio (`_street_hold`).
 func _street(e: Night.StreetEvent) -> void:
+	if e.kind in STREET_HELD and e.every <= 0.0:
+		_street_held.append(e)
+		return
 	var at := e.at
 	while at < night.shift_end:
 		background.schedule(e.kind, SHIFT_START_HOUR * 60 + at)
@@ -472,6 +486,7 @@ func _process(delta: float) -> void:
 		_coup_verdict()   # (antes da agenda e das cenas da rua: a ligação da cúpula e a bandeira da 15 pedem o final)
 		_run_schedule()
 		_street_check()
+		_street_hold()
 		if night_no >= NEIGHBOR_NIGHTS.x and night_no <= NEIGHBOR_NIGHTS.y:
 			Sfx.neighbors(minutes, live.is_empty())
 		_update_line_timers()
@@ -995,6 +1010,30 @@ func _late(c: PhoneCall) -> bool:   # (pela hora do roteiro: a que só foi adiad
 	return c.beat != null and c.beat.at >= last_call
 
 
+## As cenas curtas da rua (`STREET_HELD`) na hora delas: com a mesa ocupada, esperam ela calar (até `STREET_WAIT` min)
+## e começam nessa hora; começada, a cena segura as ligações novas por `STREET_QUIET` min (`street_busy`): quem atende
+## ou registra não tem como olhar a janela.
+func _street_hold() -> void:
+	for e: Night.StreetEvent in _street_held.duplicate():
+		if minutes < e.at:
+			continue
+		if not (live.is_empty() and dialing.call == null) and minutes < e.at + STREET_WAIT:
+			if not e in _street_late:
+				_street_late.append(e)
+			continue
+		_street_held.erase(e)
+		# (a que não esperou fica na hora marcada: com o relógio posto adiante, o cenário decide se ela já passou)
+		background.schedule(e.kind, SHIFT_START_HOUR * 60 + (minutes if e in _street_late else e.at))
+		if minutes <= e.at + STREET_WAIT + 1.0:   # (com o relógio posto bem adiante ela já passou: não segura nada)
+			_street_until = minutes + STREET_QUIET
+
+
+## Uma cena curta da rua está para começar (`STREET_LEAD` min antes), esperando a mesa calar ou acabou de começar:
+## nada novo toca (`_run_schedule`).
+func street_busy() -> bool:
+	return minutes < _street_until or _street_held.any(func(e: Night.StreetEvent): return minutes >= e.at - STREET_LEAD)
+
+
 func _run_schedule() -> void:
 	if sched.is_empty():
 		return
@@ -1022,7 +1061,7 @@ func _run_schedule() -> void:
 	# não empilhar ligações sobre quem já está sobrecarregado; as outras esperam uma entrada livre.
 	var hush := (c.story or c.retry != PhoneCall.Retry.NONE) and not live.is_empty() and minutes < c.latest
 	# numa "missão" do roteiro, nenhuma outra toca até ela acabar
-	if on_mission():
+	if on_mission() or street_busy():   # (nem com uma cena curta da rua começando: `_street_hold`)
 		hush = true
 	# no máximo `MAX_EMERGENCIES` ao mesmo tempo: a próxima espera uma delas desligar e ter o socorro
 	if (c.kind == PhoneCall.Kind.EMERGENCY or c.data is TransferCall and c.data.turns != null) and in_progress().size() >= MAX_EMERGENCIES:
@@ -1050,7 +1089,7 @@ func on_mission() -> bool:
 ## hora, `Schedule.filler`). Não com uma do roteiro para tocar (elas pedem a mesa em silêncio) nem depois da última ligação.
 func _fill_quiet() -> void:
 	_quiet_from = minutes
-	if minutes >= last_call or night.quiet_from >= 0.0 and minutes >= night.quiet_from \
+	if minutes >= last_call or night.quiet_from >= 0.0 and minutes >= night.quiet_from or street_busy() \
 			or sched.any(func(x: PhoneCall): return x.at < minutes + Schedule.STORY_GAP):
 		return
 	var c := plan.filler()

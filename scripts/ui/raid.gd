@@ -40,6 +40,10 @@ const LINE := 1.0      ## m/s, a fila dos presos
 const DOOR_SEC := Vector2(0.5, 0.4)   ## quanto a porta da cabine leva abrindo e fechando (s)
 const REAR_SEC := Vector2(1.0, 0.7)   ## e cada porta do cofre
 const REAR_OPEN := Vector2(265.0, 95.0)   ## o quanto cada porta do cofre abre (graus: a de cá dobra rente ao lado, a de lá fica para trás)
+## Os sons além da sirene e das portas (`Background._scene_cues`: [quando (s), o som, dB]): a ordem e o apito quando
+## entram, as ordens lá dentro (mais baixas) a cada andar que acende, uma mulher pedindo baixo (sem choro), e as ordens na saída.
+const SOUNDS := [[9.0, "st_order", 0.0], [10.5, "st_whistle", 0.0], [19.0, "st_order", -7.0], [26.0, "st_order", -7.0], [33.5, "st_plea", -5.0],
+	[46.5, "st_order", 0.0], [49.0, "st_plea", 0.0], [52.5, "st_order", 0.0], [55.0, "st_plea", 0.0], [58.0, "st_order", 0.0]]
 const EXIT := 46.0     ## quando a fila sai do hotel (s)
 const SPACE := 2.8     ## de um preso para o outro na fila (s)
 const CLIMB := 2.4     ## o tempo de cada um subindo e entrando no cofre (s)

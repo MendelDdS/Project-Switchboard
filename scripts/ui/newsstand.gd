@@ -71,6 +71,12 @@ static func slams() -> Array:
 	return [OUT[0] + 0.5 - ARRIVE, OUT[1] + 0.5 - ARRIVE, _lid.y + LID_SEC.y - ARRIVE, _in[0] + 0.3 - ARRIVE, _in[1] + 0.3 - ARRIVE]
 
 
+## O som (`Background._scene_cues`: [quando (s), o som, dB]): a porta de aço descendo (`SHUT_SEC`, o tamanho do som) e batendo no chão.
+static func sounds() -> Array:
+	_build_all()
+	return [[_shut.x, "st_shutter", 0.0]]
+
+
 ## Para onde quem está na calçada olha (x, m; INF: nada): a banca, enquanto os homens estão nela.
 static func focus(t: float) -> float:
 	_build_all()

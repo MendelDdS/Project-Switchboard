@@ -3927,3 +3927,157 @@ Chaves:
     acompanham; "Tá perdoado" saiu. Na varredura das conversas fiadas: "Ah, coitado" virou "coitada" e as reclamações
     de destino errado ("moço", "o senhor ligou errado") foram para o feminino; en e es juntos. Regra: só quem conhece
     Maria fala como quem sabe quem ela é (o nome dela só aparece nas ligações do roteiro e na Cecília).
+612. #bug #conversa #nome "Generosa Prates ligou no terceiro dia e se identificou, mas o nome no console continuou
+    'Moça'". O nome ouvido (`PhoneCall.heard`) só valia para quem vinha com tratamento ("Dona Ivone"); quem vem como
+    "Moça" ou "Rapaz" não tinha de onde tirar o nome. A conversa do roteiro ganhou `PrankCall.caller_name` (como o
+    `TransferCall`) e o `heard` passa a valer para qualquer ligação cuja fala traga o nome inteiro (Generosa nas
+    noites 3 e 16, Otávio na 3). O nome entra depois da fala dita, como na B1: a fala da apresentação ainda sai sem ele.
+613. #bug #conversa #nome #roteiro "Seu Jair ligou na noite 3 sem se identificar, o nome no console estava 'Seu Jair'"
+    e "ele poderia introduzir a fala de outra forma, tipo 'Vi no jornal que tão pedindo o nome né? É Jair Monteiro,
+    anota aí, ...'". O nome: o `heard` antigo via "Jair" na fala e punha o `caller` inteiro ("Seu Jair") já na própria
+    fala; com o 612, o nome completo dito vira "Jair Monteiro", e só depois da fala. A fala (`noite_03_nome`): a
+    apresentação virou "Boa noite. Vi no jornal que tão pedindo o nome, né? É Jair Monteiro, anota aí, já que agora é
+    obrigado." e a abertura perdeu o "Li no jornal que agora tem que dar o nome pra telefonista", que dizia o mesmo
+    logo em seguida; en e es juntos.
+614. #bug #conversa #nome "aproveite e verifique se tem outros casos desse". Varredura de todas as ligações de
+    `data/` atrás de quem se apresenta e continua com o rótulo genérico. Consertados: Generosa nas noites 6 e 10
+    ("É a Generosa Prates"), Otávio na 5 ("É o Otávio, lembra?"), Miguel nas noites 6, 7, 8, 12, 14 e 16 ("É o
+    Miguel", `caller_name = "Miguel"`) e o correspondente da Gazeta na 15 ("é o Álvaro"). Para isso o `heard` aceita
+    também só o primeiro nome do `caller_name` e mostra o que foi dito (o nome inteiro ou o primeiro). Ficaram de
+    fora, de propósito: o nome falso do Miguel no trote da noite 3 e as apresentações secas da B1 ("Davi Correia."),
+    que são fala do roteiro e ficam para o usuário decidir.
+615. #rua #vista #som #ritmo "Todos os eventos que aconteceram na rua eu não consegui ver pois estava ocupado atendendo
+    ligação ou preenchendo o caderno" (pensou em sons e em menos ligações todas as noites; aceitou a sugestão de não
+    mexer no ritmo geral) e "adicione num artefato os sons novos [...] algumas pessoas possam gritar no momento do
+    espancamento, o carro dos panfletos passar buzinando, a sirene da polícia chegando e parando quando parar [...]
+    boa qualidade, com um pouco de eco para realmente parecer que vem da rua". Feito: (1) as cenas curtas
+    (`Main.STREET_HELD`) esperam a mesa calar, até `STREET_WAIT` min, e nada novo toca de `STREET_LEAD` min antes até
+    `STREET_QUIET` min depois de começarem (`_street_hold`, `street_busy`); as presas ao relógio ou compridas (toque
+    de recolher, sinalizador, vigia, combate, pedra, bandeira) ficam na hora. (2) Sons novos, sintetizados em
+    `tools/rua/gerar.py` com a voz do gerador dos vizinhos e o eco da rua (`street`: as batidas das fachadas, o resto
+    espalhado e o vidro), em `audio/street/` (`Sfx.STREET`, "st_<id>"): gritos de mulher e protestos de homem de quem
+    assiste (`Beating.CRIES`), pancadas e gemidos (`Background._beating_sounds`), a buzina da Brasília
+    (`Flyers.HONKS`) e a sirene de rotor da viatura da noite 7 e da batida da 13: de longe `SIREN_LEAD` s antes de o
+    carro aparecer, a de perto no mesmo ponto do ciclo crescendo até ele parar e, parada, desligada, o rotor perdendo
+    o giro da altura em que estava (`_siren`, `siren_hz`; na batida, a da viatura meio tom acima). A viatura do fim
+    da presa continua sem som (pedido antigo). O eco saiu mais curto que a primeira versão (cauda de 1 s). Ficou de
+    fora o "primeiro som mais forte" das outras cenas (pichação, corrida, tinta): os sons novos fazem esse papel nas
+    três cenas pedidas.
+616. #rua #som "Os sons ficaram muito bons, mas o espancamento faltou algo, talvez mais pessoas gritando em paralelo,
+    mais converseiro durante o espancamento". O converseiro de quem assiste (`st_commotion`, 17 s: sete pessoas falando
+    alto ao mesmo tempo, a fala inventada dos vizinhos depressa e em frases curtas, com gritos soltos, mais alto nas
+    pancadas e morrendo quando o homem é arrastado; `commotion` em `tools/rua/gerar.py`) começa logo depois do
+    primeiro protesto, e os gritos de `Beating.CRIES` dobraram, uns por cima dos outros.
+617. #rua #som "Menos gritos femininos juntos, escutei vários dos mesmos gritos femininos e ficou estranho. Remova
+    alguns gritos, espace outros e crie variações". Os gritos de mulher do espancamento caíram de 5 para 3, a mais de
+    4 s um do outro (`Beating.CRIES`); no converseiro, de sorteados para dois, de duas mulheres diferentes e longe um
+    do outro; e são agora cinco versões de três vozes (`scream` com altura, boca e duração por mulher), nunca a mesma
+    duas vezes seguidas (`Sfx._take`, para todo som com três versões ou mais).
+618. #rua #som "Teria outros eventos que daria pra colocar sons?" e, das sete sugestões, ficaram seis (da pedra na
+    janela, "apenas a pedra mesmo": sem grito antes nem passos depois). "No evento da bandeira do final [...] som de
+    algumas pessoas comemorando, algumas mais próximas e outras mais distantes, batendo palma e panela, mas sem muita
+    bagunça". Feito, no mesmo gerador e com o mesmo eco: o megafone do toque de recolher com as janelas batendo
+    (`st_megaphone`, do tamanho da passagem da viatura); na corrida, a porta do hotel, os gritos dos homens e o apito
+    (`Chase.SOUNDS`); na batida, ordens e apito na entrada, ordens mais baixas lá dentro a cada andar, uma mulher
+    pedindo e chorando e as ordens na saída dos presos (`Raid.SOUNDS`); na fuga, o bebê chorando baixo e as malas na
+    Kombi (`Moving.sounds`); na banca, a porta de aço descendo (`Newsstand.sounds`, sem som para o cadeado); na
+    bandeira, a comemoração (`st_cheer`, 20 s: perto, três pessoas, umas palmas e uma panela; longe, outras vozes,
+    palmas e outra panela só pelo eco; começa com um grito, enche e morre). Os sons marcados de cada cena tocam por
+    `Background._scene_cues`. Não sugeridos de novo: som no homem de sobretudo, no vigia e na viatura do fim da presa.
+619. #rua #som As observações escritas na página dos sons (campo abaixo de cada cena montada, pedido pelo usuário):
+    bandeira, "não gostei dos gritos, as palmas poderiam ser mais distantes" (saíram os gritos de alegria de cada
+    pessoa; palmas só longe, uma panela a meia distância e outra longe, e um "êêê" de várias vozes de outra rua, só
+    pelo eco); toque de recolher, "repetir a mesma 'frase' [...] vai parecer um aviso gravado" (a mesma frase três
+    vezes, igual); corrida, "tire os gritos, o apito deixe mais baixo e mais estridente" (`Chase.SOUNDS` sem gritos; o
+    apito mais agudo, com menos ar, a -25 dB); batida, "a mulher chorando [...] tá parecendo um sopro" (`weep`: o
+    choro com voz, um lamento que treme e cai e os soluços, no lugar do `sob` de ar); fuga, "o bebê parece uma criança
+    de 10 anos fingindo chorar" (bebê de colo: boca curta, voz aguda e apertada, resmungos antes, o ar puxado com voz);
+    banca, "a porta de aço parece um chocalho" (saíram os estalos agudos: o ronco grave da chapa no trilho e a pancada).
+620. #rua #som Segunda rodada de observações na página: megafone e corrida "Aprovado"; batida, "poderia ser só um
+    choramingo, não gritando e chorando" (`plea`: gemidos curtos de boca quase fechada, sem frase, a -22 dB); fuga,
+    "o bebê chorando mais lentamente e mais baixo" (choros mais espaçados e brandos, a -24 dB); bandeira, "eu falei
+    que não devia ficar bagunçado. As palmas precisam ficar mais distantes, menos gente" (uma coisa de cada vez e tudo
+    longe: três palmas, uma panela, um "êêê" de poucas vozes ao fundo, duas palmas e a panela morrendo); banca, "mais
+    constante e não trepidante" (o ronco da chapa contínuo, sem a modulação das lâminas).
+621. #rua #som Terceira rodada na página: espancamento, panfletos, viatura e banca "Aprovado" (com megafone e
+    corrida, já aprovados); batida, "continuo não gostando da mulher chorando, está parecendo um cachorro" (o choro
+    sintetizado saiu depois de três tentativas, sopro, grito e cachorro: a mulher só pede baixo, em fala inventada,
+    `plea`); fuga, "diminua um pouco o volume e mantenha o bebê chorando por mais tempo" (12 s, a -27 dB); bandeira,
+    "as palmas e as batidas de panela precisam ficar mais distantes" (duas vezes o eco da rua, quase sem agudos, a
+    -16 dB). Lição: choro de adulto sintetizado com esta voz não convence; não tentar de novo sem pedido.
+622. #rua #som Quarta rodada na página: batida e fuga "Aprovado" (todas as cenas aprovadas, menos a bandeira);
+    bandeira, "Ficou muito ruim. As palmas e as batidas estão com um grave muito forte, além da batida estar com uma
+    distorção que parece manter o som constante ao invés de parecer batida". O "mais distante" da rodada anterior
+    tinha sido feito abafando (eco dobrado e só os graves), o que deixou o grave e emendou o som comprido da panela.
+    Agora a distância vem do volume e do eco: sem o grave (passa-altas em 500 Hz), a panela é quase só o estalo
+    (`clank`, 90 ms) e passa por menos eco que as palmas. Lição: longe não é abafado; som com cauda mais eco vira som
+    contínuo.
+623. #rua #som #saiu "Vamos trocar o som da bandeira na varanda. Vamos adicionar fogos de três tiros um pouco antes do
+    homem colocar a bandeira, depois que ele colocar, mais um fogos". Saiu a comemoração (`st_cheer`: palmas, panela
+    e vozes, refeita quatro vezes sem agradar) e entrou o rojão de três tiros (`st_rocket`: o chiado da subida e três
+    estouros no alto com o eco), 4 s antes de ele soltar o rolo e 3 s depois (`Banner.ROCKETS`).
+624. #rua #som O rojão: "Não gostei, não tem estalo, eco e não precisa ser tão abafado". Ele passava pelo `street` dos
+    sons da rua (o vidro da janela e um eco curto). Agora é som de céu aberto, fora do `street`: o estalo seco e
+    claro em cada tiro, o eco voltando dos prédios cinco vezes (de 0,2 a 1,9 s, cada vez mais fraco e mais surdo) e
+    rolando pela cidade (cauda de 2,6 s), sem passa-baixas.
+625. #rua #som O rojão pela descrição do usuário ("exatamente três disparos [...] estampido inicial extremamente
+    rápido, seco, forte [...] graves encorpados [...] breve eco [...] intervalos irregulares de 1,5 a 2 s [...]
+    pequenas variações [...] leve ambiência noturna [...] deve soar como uma gravação real"). Refeito pela física do
+    estouro (`bang`: a onda de choque de Friedlander, os gases em banda larga perdendo os agudos, o baque e a
+    saturação do microfone; `outdoors`: o chão, três ecos sorteados e uma cauda sutil), em 44,1 kHz (`RATES`), três
+    estouros a 1,5 a 2 s, cada um com força, tamanho e eco sorteados, sem o chiado da subida. Continua sendo síntese:
+    se não convencer, o caminho é uma gravação CC0, como a chuva e o trovão (`tools/ambiente/preparar.py`).
+626. #rua #som O rojão: "Não parece uma explosão de fogos, e os tiros são mais juntos, são dois tiros seguidos o
+    terceiro mais demorado". Depois de três sínteses recusadas, o rojão virou gravação, como a chuva e o trovão:
+    Freesound 347906, de juliojunior77 ("Fogos de artifício, rojão", CC0), de onde `tools/rua/gerar.py` (`ROCKET`,
+    `source`: baixa a prévia sozinho para `build/rua/fontes/`) tira três estouros sozinhos e limpos, escolhidos pelo
+    espectrograma (outros vêm em dobro ou com gente falando no eco), e os põe em 0, 0,3 e 1,25 s. É o único som
+    gravado de `audio/street/`. No jogo, 2,5 s antes de o pano descer (antes 4) e 3 s depois (`Banner.ROCKETS`).
+    Lição: estouro sintetizado não convence; para som de impacto real, gravação CC0.
+627. #rua #som O rojão gravado: "Faltou o eco". A gravação foi feita em lugar aberto e quase não tem. O gerador põe:
+    os três tiros voltando três vezes (0,62, 1,45 e 2,1 s depois, cada volta mais fraca e mais surda, `ROCKET.echoes`)
+    e uma cauda rolando pela cidade (`roll`). O som passou de 2,8 para 5,8 s; os instantes no jogo não mudaram.
+628. #rua #som "O que você melhoraria no som dos fogos?" e, das cinco sugestões, "Faça 1, 2 e 3". (1) O segundo rojão
+    da cena é outro trio de estouros da mesma gravação, noutro passo (`st_rocket2`, `ROCKETS` no gerador): o mesmo som
+    duas vezes em seis segundos denunciava. (2) Para comparar na página, a versão B com o eco de verdade: Freesound
+    613673, de unfa ("Three Outdoor Clean Explosions", CC0), três estouros com ~3 s do eco da cidade cada, sem eco
+    posto pelo gerador (`TRIALS`, só na pasta de ouvir; o jogo fica com a versão A até o usuário escolher). (3) Fonte
+    melhor: os originais pedem conta no Freesound; postos à mão em `build/rua/fontes/<código>.wav|flac`, o gerador os
+    usa no lugar da prévia. Na 347906 o pico de todos os estouros bate no mesmo teto (limitador do gravador), sem
+    corte duro; a 613673 não tem isso. Ficaram de fora, por ora: a janela tremendo a cada tiro e o chiado da subida.
+629. #rua #som O eco do rojão: "não era pra ser assim, por camadas, mas sim contínuo e o volume diminuindo". Saíram as
+    três voltas separadas (`echoes`); o eco da versão A é uma cauda só, colada em cada tiro, que vai morrendo em ~3 s,
+    os agudos primeiro (`roll`, em `rocket`). A versão B (eco da própria gravação) não mudou. Lição: eco de estouro ao
+    ar livre é cauda contínua, não repetição.
+630. #rua #som O rojão: "Melhorou, mas os fogos parecem tiros. Eles deveriam ter mais força, intensidade, um estralo
+    potente". O estouro seco da gravação de rojão (347906), sozinho, é fino. Cada tiro agora junta, alinhados no pico,
+    o corpo e o eco de verdade de um estouro de fogos numa cidade (613673, de unfa, que era a "versão B" da
+    comparação) com o estalo do rojão por cima, o grave abaixo de 140 Hz reforçado e a saturação suave de quem grava
+    alto (`POWER`, `rocket` no gerador); a cauda contínua ficou fraca, só colando os três ecos. As versões A e B da
+    página saíram: ficou uma só, a do jogo, a -6 dB (antes -8).
+631. #rua #som O rojão: "Ótimo, melhorou muito! [...] adicione mais um tiro, então seriam três tiros rápidos e o último
+    tiro mais grave e forte que vem um pouco depois". Quatro tiros (`ROCKETS`): três rápidos (0, 0,27 e 0,58 s, mais
+    fracos) e o último a 1,5 s, o maior estouro da gravação tocado 16% mais devagar (mais grave) e na força toda; o
+    segundo rojão da cena, o mesmo desenho com outros estalos e noutro passo.
+632. #rua #som O rojão: "os três primeiros tiros mais juntos e o último mais demorado". Os três rápidos em 0, 0,17 e
+    0,36 s (antes até 0,58) e o último a 1,9 s (antes 1,5); no segundo rojão, 0, 0,2, 0,37 e 2,05 s. No jogo o
+    primeiro rojão começa 3 s antes de o pano descer (antes 2,5), para o tiro forte continuar caindo um segundo antes.
+633. #rua #som O rojão: "Os três primeiros tiros podem ser próximos, mas com intervalo de tempo um pouco diferente para
+    dar mais naturalidade. O último tiro mais forte está bom". Os três rápidos em 0, 0,13 e 0,41 s (intervalos de 0,13
+    e 0,28 s; antes 0,17 e 0,19, quase iguais); no segundo rojão, 0, 0,25 e 0,39 s (0,25 e 0,14). O último não mudou.
+634. #rua #som O rojão: "vamos adicionar 11 tiros ao invés de 3, verifiquei e são 12 tiros, 11 normais e 1 forte, os 11
+    podem estourar em paralelo". O rojão é de doze tiros (`BURST`, `burst_shots` no gerador): onze normais sorteados
+    pela semente do som em ~1,5 s (35% de chance de o próximo vir colado, a 0,02 a 0,07 s; senão a 0,1 a 0,3 s), cada
+    um com força e tom próprios e eco mais curto (onze ecos inteiros engoliam o forte), e o forte 0,85 a 1,05 s depois
+    do último. Conferido: o forte é o pico do som (0,80 contra 0,64 dos onze). No jogo o primeiro rojão começa 3,5 s
+    antes de o pano descer (`Banner.ROCKETS`).
+635. #rua #som O rojão: "Junte mais as 11, algumas estourando de uma vez e espaçando um pouquinho mais o tiro forte".
+    Os onze em menos de um segundo (55% de chance de o próximo estourar junto, a até 0,03 s; senão a 0,06 a 0,16 s) e
+    o forte 1,15 a 1,35 s depois do último (antes 0,85 a 1,05). Juntos, os onze se somavam até o tamanho do forte: a
+    força de cada um baixou (0,32 a 0,55). No jogo o primeiro rojão volta a começar 3 s antes de o pano descer.
+636. #rua #som "Use esse mesmo som, e deixe bem distante para tocar mais tarde depois da bandeira, tocar pelo menos umas
+    3x depois da bandeira, num intervalo de 3h". Os mesmos dois rojões de doze tiros, de bem longe (`far_rocket` no
+    gerador, com a semente do original: sem os agudos, o ataque amolecido, mais eco que som direto;
+    `st_rocket_far`/`st_rocket_far2`, a -19 dB), três vezes depois da bandeira (`Banner.FAR`, por
+    `Background._scene_cues`): por volta das 4h25, 5h02 e 5h38 do jogo. Não cabem 3 h: a bandeira é às 4h e o turno
+    da última noite acaba às 6h, então os três ficam nas duas horas que sobram.

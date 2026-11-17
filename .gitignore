@@ -12,3 +12,6 @@ graphify-out/
 
 # Referências e rascunhos locais
 private/
+
+# Cache do Python das ferramentas
+__pycache__/

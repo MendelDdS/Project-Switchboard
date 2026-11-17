@@ -19,6 +19,10 @@ const STEP := 0.21  ## o quanto se anda por quadro da passada (4 quadros por pas
 ## As pancadas: [o instante do golpe (s), 0 cassetete ou 1 chute]. Irregulares, com pausas.
 const HITS := [[11.3, 0], [11.9, 0], [12.5, 0], [13.5, 0], [14.05, 0], [14.6, 0], [15.6, 1], [16.6, 0], [17.15, 0],
 	[18.1, 1], [18.9, 0], [19.45, 0]]
+## Quem assiste grita (s; o som, `Sfx.STREET`): o homem protesta quando o policial agarra a gola, o converseiro de todos
+## começa logo depois (16 s, até ele ser arrastado) e, nas pancadas, protestos e três gritos de mulher bem espaçados (juntos, os mesmos gritos se repetiam).
+const CRIES := [[8.7, "st_shout"], [8.9, "st_commotion"], [11.6, "st_scream"], [13.1, "st_shout"], [14.6, "st_shout"], [16.0, "st_scream"],
+	[17.6, "st_shout"], [19.9, "st_scream"]]
 const WATCH := 8.7   ## quando quem está na calçada para e se afasta para assistir (o policial agarra a gola)...
 const BACK_OFF := 4.5   ## ...até ficar a tantos metros da briga
 ## Quem vem pela calçada quando a cena começa, para ter quem assista: [onde está quando para (x, m), o sentido].

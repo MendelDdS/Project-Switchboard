@@ -11,6 +11,7 @@ const Beating := preload("res://scripts/ui/beating.gd")
 const CAR := "brasilia"
 const CAR_SEC := 10.0   ## quanto o carro leva passando (~13 km/h)
 const THROWS: Array[float] = [1.8, 3.5, 5.2, 6.9]   ## quando jogam cada maço (s; a janela anda com o carro, `_window_x`)
+const HONKS: Array[float] = [0.6, 2.6, 4.3, 6.0, 8.2]   ## quando o carro buzina (s): chama a rua para os papéis
 const PER_THROW := 11
 const WINDOW := Vector3(3.3, 7.1, 1.25)   ## a janela de trás do lado da calçada: m atrás da frente, z e altura
 const GRAVITY := 9.8

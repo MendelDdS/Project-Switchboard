@@ -12,6 +12,7 @@ const VOL := {
 	"cut": -2.0, "static": -11.0, "crackle": -14.0, "thump": -5.0, "drop": -12.0, "set_paper": -27.0, "set_metal": -27.0, "blind": -17.0, "gulp": -19.0, "bike_bell": -24.0, "car_door": -21.0, "rub": -13.0, "cord_stop": -16.0, "cord_tap": -17.0, "cord_knock": -19.0, "cord_snag": -18.0, "cord_snap": -21.0, "unroll": -8.0,
 	"typing": -13.0, "printer": -14.0, "punch": -8.0, "snap": -12.0, "tape_out": -16.0, "tape_in": -8.0, "tape_door": -10.0, "tape_key": -11.0, "tape_pop": -9.0, "feed": -11.0, "read": -14.0, "shred": -10.0, "deny": -14.0,
 	"neighbor": -8.0, "chime": -11.0, "shift_bell": -13.0, "car": -15.0, "car_near": -13.0, "car_wet": -14.0, "car_wet_near": -12.0, "thunder": -8.0,
+	"st_scream": -15.0, "st_shout": -18.0, "st_groan": -19.0, "st_blow": -15.0, "st_kick": -15.0, "st_megaphone": -12.0, "st_whistle": -25.0, "st_door": -16.0, "st_order": -16.0, "st_plea": -20.0, "st_baby": -27.0, "st_luggage": -17.0, "st_shutter": -13.0, "st_rocket": -6.0, "st_rocket2": -6.0, "st_rocket_far": -19.0, "st_rocket_far2": -19.0, "st_commotion": -14.0, "st_horn": -15.0, "st_siren_far": -19.0, "st_siren": -9.0, "st_siren_down": -9.0,
 	"bell": -15.0, "speaker": -12.0, "sabia": -24.0, "rattle": -17.0, "glass_hit": 0.0, "footfall": -24.0, "flyers": -22.0, "spray": -27.0, "flare": -20.0, "blast": -12.0, "gunfire": -20.0, "latch": -22.0, "unfurl": -16.0, "army": -6.0, "dog": -27.0, "dog_low": -28.0, "lamp_tick": -27.0,
 }
 ## Volume (dB) dos sons de ambiente em cada clima; o que não aparece fica mudo.
@@ -78,6 +79,11 @@ const NEIGHBOR_RADIO_CHANCE := 0.4
 const NEIGHBOR_AGAIN := 0.35
 const NEIGHBOR_ZAP := 0.3
 const NEIGHBOR_X := 0.0   # de que lado da tela fica a parede do vizinho
+## Os sons das cenas da rua com voz, buzina e sirene (`audio/street/`, sintetizados por `tools/rua/gerar.py` com o eco
+## da rua; tocados como "st_<id>" pelo `Background`). Os rojões são gravação (Freesound, CC0), montados pelo mesmo gerador.
+const STREET := ["scream", "scream~1", "scream~2", "scream~3", "scream~4", "shout", "shout~1", "shout~2", "groan", "groan~1", "groan~2", "blow", "blow~1",
+	"kick", "commotion", "horn", "horn~1", "horn~2", "siren_far", "siren", "siren_down",
+	"megaphone", "whistle", "whistle~1", "door", "order", "order~1", "order~2", "plea", "plea~1", "baby", "luggage", "luggage~1", "shutter", "rocket", "rocket2", "rocket_far", "rocket_far2"]
 const RECORDED := ["rain", "storm", "breeze", "crickets", "thunder", "thunder~1", "thunder~2", "thunder~3"]
 ## A tempestade (chuva forte com vento) entra por cima da chuva a partir de STORM_FROM de força (`set_rain`) e chega
 ## inteira na mais forte.
@@ -193,6 +199,7 @@ var _ring_on := false
 var _ring_timer: Timer
 var _ring_player: AudioStreamPlayer2D
 var _bells := {}       # linhas chamando -> lugar da tomada na tela (0..1)
+var _last_take := {}   # a versão tocada por último de cada som (`_take`)
 var _ring_turn := 0
 
 
@@ -203,6 +210,10 @@ func _ready() -> void:
 		var s: AudioStreamOggVorbis = load("res://audio/ambience/%s.ogg" % id.replace("~", "_"))
 		s.loop = not id.begins_with("thunder")
 		streams[id] = s
+	for id: String in STREET:
+		var path := "res://audio/street/%s.ogg" % id.replace("~", "_")
+		if ResourceLoader.exists(path):   # (som novo só existe depois de o editor importar)
+			streams["st_" + id] = load(path)
 	for key: String in streams:
 		if "~" in key:
 			var base := key.get_slice("~", 0)
@@ -317,7 +328,11 @@ func _start(p: Node, id: String, db: float, pitch: float) -> void:
 
 ## Uma das versões do som, sorteada: `id`, `id~1`, `id~2`... (as do carro, `SfxSynth.CAR_TAKES`; contadas em `_takes`).
 func _take(id: String) -> String:
-	var k := _rng.randi() % int(_takes.get(id, 1))
+	var n := int(_takes.get(id, 1))
+	var k := _rng.randi() % n
+	if n > 2 and k == int(_last_take.get(id, -1)):   # (nunca a mesma duas vezes seguidas: o mesmo grito repetido soava falso)
+		k = (k + 1) % n
+	_last_take[id] = k
 	return id if k == 0 else "%s~%d" % [id, k]
 
 
@@ -571,6 +586,14 @@ func _rub_hi_db(v: float) -> float:
 
 func fade(p: AudioStreamPlayer, db: float, t: float) -> void:
 	_tween(p, "volume_db", db, t)
+
+
+## Cala `p` (AudioStreamPlayer ou AudioStreamPlayer2D) em `t` s e o para: o som comprido que acaba antes do fim (a sirene).
+func hush(p: Node, t: float) -> void:
+	_tween(p, "volume_db", -60.0, t)
+	get_tree().create_timer(t + 0.05, false).timeout.connect(func() -> void:
+		if p.volume_db <= -59.0:   # (se já toca outro som, o volume é o dele)
+			p.stop())
 
 
 ## Leva `prop` de `o` até `v` em `t` s, cancelando a mudança anterior do mesmo volume: duas ao mesmo tempo, a mais
