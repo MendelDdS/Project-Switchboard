@@ -14,6 +14,7 @@ signal resumed
 const BOARD := preload("res://scripts/ui/title_board.gd")   ## (a lâmpada das opções e a letra grande da tela inicial)
 const SLIDE := 12.0   ## de quantos px à esquerda a coluna das configurações entra (`_slide_in`)
 const SLIDE_SEC := 0.14
+const ASK_DIM := 0.6   ## quanto o turno escurece atrás da pergunta sozinha (`ask`)
 const BUS_SLIDERS := {"Ambience": "%Ambience", "Voices": "%Voices", "Effects": "%Effects"}
 
 var _settings_only := false   ## aberto sem pausar (tela inicial, bilhete do supervisor): Voltar fecha tudo
@@ -22,6 +23,7 @@ var _saved := {}              ## configurações ao abrir a tela: Voltar volta p
 var _asking := ""            ## a ação esperando a tecla nova (`_input`)
 var _slide: Tween
 var _confirm := Callable()   ## o que perde a noite, esperando o Sim (`_ask`)
+var _alone := false          ## a pergunta veio sem o menu (`ask`): o Não volta ao turno
 
 @onready var _column_at: Vector2 = %Settings.position
 
@@ -123,6 +125,8 @@ func _logo() -> void:
 func open() -> void:
 	_settings_only = false
 	_backdrop = true
+	_alone = false
+	color.a = 0.0
 	_logo()
 	get_tree().paused = true
 	visible = true
@@ -159,9 +163,26 @@ func _ask(key: T.Key, action: Callable) -> void:
 	%No.grab_focus()
 
 
-## Voltar (ou Esc): na pergunta, volta ao menu; nas configurações, descarta o que mudou.
+## A pergunta sozinha, sem o menu, por cima do turno pausado e escurecido (Encerrar turno): o Sim continua o jogo e
+## faz `action`; o Não, ou o Esc, só continua. `args` preenche as lacunas da pergunta.
+func ask(key: T.Key, action: Callable, args := []) -> void:
+	open()
+	_alone = true
+	color.a = ASK_DIM
+	%Screen.visible = false
+	$Version.visible = false
+	_ask(key, func():
+		resume()
+		action.call())
+	if not args.is_empty():
+		%Question.text = T.text(key) % args
+
+
+## Voltar (ou Esc): na pergunta, volta ao menu (a sozinha, ao turno); nas configurações, descarta o que mudou.
 func _back() -> void:
-	if %Ask.visible:
+	if %Ask.visible and _alone:
+		resume()
+	elif %Ask.visible:
 		_show_settings(false)
 	elif %Settings.visible:
 		close_settings()

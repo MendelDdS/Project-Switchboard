@@ -13,7 +13,7 @@ peça (medidas, cores, o que foi tentado e saiu) está em `docs/mapa-ui-detalhad
   olhos, `_cm`) para a tela. A parede do fundo fica a `Z0 × WALL_K`; a parede da direita tem o ponto de fuga dela
   (`SIDE_VP`, `_svp`, `_side_pt`) e as contas de luz pela janela pegam o meio do vão (`_wall_x`). Nunca acerte a
   perspectiva elemento por elemento: pense a cena e passe pela câmera.
-- A tela é uma mesa de trabalho: no alto da esquerda o horário num papel com fita (`ShiftPlate`) e a placa da
+- A tela é uma mesa de trabalho: no alto da esquerda o aviso do diário (`%DiaryNote`) e, do fim das ligações em diante, o botão Encerrar turno num papel com fita (`ShiftPlate`; o horário do turno saiu a pedido), e a placa da
   companhia; embaixo, a mesa comutadora (441×238: o painel das tomadas, `SIZE`, e a coluna do lado, `SIDE_W`) com a prateleira (`Shelf`) e a frente do console (`%Desk`, com a
   miniatura do painel, `ConsoleMini`); à direita a sala e as ferramentas (`Tools`, o papel sai do objeto dele na mesa,
   `Tools.origin` = `Background.prop_rect`; sem abas); embaixo de tudo, o painel do operador (`PhonePanel`, 150 px, fora
@@ -57,7 +57,7 @@ peça (medidas, cores, o que foi tentado e saiu) está em `docs/mapa-ui-detalhad
   2-3-2-3) e, nas longas à vista, inclinações limpas (1:1, 1:2, 2:1, 1:3...; `clean_slope`); vértice em pixel inteiro
   (`_snap`), a beira e o brilho dela saem da mesma reta deslocada em px inteiros; linha fina sobre superfície em
   perspectiva desenhada depois da projeção (`_tex_pt`, `_pixel_line`). Luz em degraus e pontilhado foram recusados.
-- Luz nos objetos: cada um escurece pela distância à poça (`_shade`, `_pool`, `FRONT_LIGHT`); **os papéis trocam de tom
+- Luz nos objetos: cada um escurece pela distância à poça (`_shade`, `_pool`, `FRONT_LIGHT`; a poça esticada para a direita, `SIDE_LIGHT`, a mesma conta no tampo, no escuro da sala e nos dois shaders); **os papéis trocam de tom
   na rampa** (`_still`, `_paper_step`, `Pal.lit`, `PAPER_RAMPS`), não escurecem por cima; o metal pequeno fica num
   degrau só (`_lit_image`). A luminária piscando ou esquentando não redesenha: é o shader (`_noir`, `FLICK_DARK`).
 - Objetos que abrem ferramentas: `prop_clicked(id)` → `Tools.set_tab`, **ao soltar o botão** (ao apertar, o papel

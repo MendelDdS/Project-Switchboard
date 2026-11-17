@@ -9,6 +9,7 @@ uniform vec2 center;                              // o meio da poça de luz na m
 uniform vec2 radius = vec2(615.0, 248.0);         // até onde a luz vai antes do escuro todo (`GLOOM_R`)
 uniform float inner = 0.25;                       // dentro dessa fração do raio, nada de escuro (`GLOOM_IN`)
 uniform float front = 1.6;                        // para a frente da mesa a luz vai essa vez mais longe (`FRONT_LIGHT`)
+uniform float side = 1.5;                         // e para a direita, a poça esticada (`SIDE_LIGHT`)
 uniform vec4 noir : source_color;                 // o escuro frio e a força dele (`NOIR`)
 uniform float extra = 0.0;                        // o escuro a mais da luminária piscando ou ainda fria
 uniform vec2 spot;                                // a luz da arandela do quadro de avisos: o meio dela (px)...
@@ -26,6 +27,7 @@ void vertex() {
 
 void fragment() {
 	vec2 q = (pos - center) / radius;
+	q.x /= q.x > 0.0 ? side : 1.0;
 	float k = smoothstep(inner, 1.0, length(q) / mix(1.0, front, smoothstep(0.0, 0.5, q.y)));
 	float near = 1.0 - smoothstep(0.0, 1.0, distance(pos, window_at) / reach);
 	float lit = 1.0 - spot_k * (1.0 - smoothstep(0.35, 1.0, length((pos - spot) / spot_r)));

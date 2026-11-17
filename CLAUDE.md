@@ -178,7 +178,7 @@ detalhe no comentário do código, o porquê no `HISTORICO.md`. Atualize os `CLA
   pelos marcadores; o balanço `at_close`), tudo por demanda (nada antes de alguém avisar); a carta lida fica guardada
   nele (o clique abre); o presente da Cecília no treinamento; a página de cada noite no save (`Progress.diary`, `Diary.page`), folheadas
   pelas dobras nos cantos de baixo; no fim do turno abre sozinho antes do memorando (`Main.DIARY_WAIT`; no fim do jogo, a última página antes do "Fim", uma linha por final); tarefa nova
-  põe o lápis em cima dele (`Background.diary_new`). O plano em etapas: `HISTORICO` 564.
+  põe o lápis em cima dele (`Background.diary_new`); o lápis soa quando ela escreve, risca ou marca (`Diary.written`) e, com o diário fechado, a fita marca-página "Diário atualizado" aparece no alto, acima da mesa comutadora (`%DiaryNote`, `diary_note.gd`, `Main._diary_notice`). O plano em etapas: `HISTORICO` 564.
 - Fim de ligação: `end_call(c, PhoneCall.End.*)` → `c.record` → `Notebook.add()`; o caderno registra com um clique no
   tipo (`register(T.Key.TYPE_*)`). A conversa do roteiro (`PrankCall` com `beat`) é ligação comum no caderno (com `prank`, trote). `TransferCall.busy_line`: o destino dá ocupado na primeira tentativa.
 - **Despacho** (`Dispatch`, `CityMap`, `CardMachines`, `PunchCard`): marcar o trecho no mapa imprime o cartão (dois cliques: o primeiro só datilografa, `CardMachines.draft`; o anel da moldura aproxima, `_knob`);
@@ -251,7 +251,7 @@ detalhe no comentário do código, o porquê no `HISTORICO.md`. Atualize os `CLA
   denúncias, chuvas. A última noite ou a demissão limpa o save. Cada noite começada deixa a cópia do save (`Progress.keep`, `night_file`) e "Rejogar noite" na tela inicial a joga de novo sem gravar nada (`Progress.replay`, `%NightMenu`; as cópias ficam depois do fim do jogo). Formato com versão (`Progress.VERSION`): mudou o tipo
   ou o sentido de um campo, suba e converta no `load_saved`; o que não dá para ler fica ao lado (`aside`).
 - Agenda (`Schedule`, constantes no topo de `main.gd` e `schedule.gd`; emergência do roteiro conta no espaçamento das sorteadas): a ligação do roteiro espera a mesa em silêncio (`STORY_WAIT`); numa missão do roteiro (a ligação dele na mesa, a conversa dele escutada, a do discador) nada novo toca (`Main.on_mission`); intervalo
-  `Pace.call_gap`; nada novo depois de `last_call` (23:40; a do roteiro marcada depois toca, `_story_late`) e, depois, o botão Encerrar turno; `GIVE_UP_SEC` 60 s;
+  `Pace.call_gap`; nada novo depois de `last_call` (23:40; a do roteiro marcada depois toca, `_story_late`) e, depois, o botão Encerrar turno (pergunta antes, no papel da pausa, com quantas tarefas do diário seguem abertas, `PauseMenu.ask`); `GIVE_UP_SEC` 60 s;
   conversa fiada (`ChatTopic`, `Conversation.smalltalk`) só do cotidiano, nunca na ligação do roteiro (`PhoneCall.story`).
   Ligações escritas da noite (`Night.calls`: quem comenta a manchete, quem procura um parente preso) entram no
   sorteio em vagas de transferência (`Schedule._random_calls`), com `requires` conferido na hora de tocar; não são missão; as que já podem tocar ganham vaga primeiro. Fregueses que lembram: a primeira ligação marca o desfecho (`if_connected`/`if_dropped`/`if_missed`) e a volta, noites depois, vem em duas versões (`noite_NN_<nome>_bem`/`_mal`). A que vira

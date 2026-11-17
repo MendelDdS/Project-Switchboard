@@ -2327,6 +2327,7 @@ func _noir_params() -> void:
 	m.set_shader_parameter("radius", GLOOM_R)
 	m.set_shader_parameter("inner", GLOOM_IN)
 	m.set_shader_parameter("front", FRONT_LIGHT)
+	m.set_shader_parameter("side", SIDE_LIGHT)
 	m.set_shader_parameter("noir", NOIR)
 	m.set_shader_parameter("extra", lamp_dark())
 	m.set_shader_parameter("spot", _board_spot())
@@ -2369,6 +2370,8 @@ func _gloom_center() -> Vector2:
 ## fica no desenho da sala, que não se redesenha quando ela pisca).
 func _gloom(p: Vector2, c: Vector2, steady := false) -> float:
 	var q := (p - c) / GLOOM_R
+	if q.x > 0.0:
+		q.x /= SIDE_LIGHT
 	var k := smoothstep(GLOOM_IN, 1.0, q.length() / lerpf(1.0, FRONT_LIGHT, smoothstep(0.0, 0.5, q.y)))
 	var lit := 1.0   # a arandela do quadro de avisos
 	if _board.has_area():
@@ -2387,6 +2390,7 @@ func light(m: ShaderMaterial) -> void:
 	m.set_shader_parameter("size", size)
 	m.set_shader_parameter("center", _gloom_center())
 	m.set_shader_parameter("radius", GLOOM_R * LAMP_LIGHT.x)
+	m.set_shader_parameter("side", SIDE_LIGHT)
 	m.set_shader_parameter("gain", LAMP_LIGHT.y)
 	m.set_shader_parameter("add", LAMP_LIGHT.z)
 	m.set_shader_parameter("tint", Pal.LAMP_POOL)

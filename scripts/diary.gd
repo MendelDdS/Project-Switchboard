@@ -10,6 +10,7 @@ enum State { OPEN, DONE, FAILED }
 
 signal changed   ## as tarefas mudaram (`tasks`)
 signal added     ## entrou tarefa nova: o lápis atravessado em cima do diário da mesa, até abrir
+signal written   ## Maria escreveu, riscou ou marcou com X: o som do lápis (`Main`)
 
 const TAPES_RULE := "b4_fitas"   ## a norma das fitas traz a tarefa de entregá-las
 
@@ -50,10 +51,18 @@ func refresh() -> void:
 	if out == tasks and not wrote:
 		return
 	var fresh := wrote or out.any(func(t: Dictionary) -> bool: return not tasks.any(func(o: Dictionary) -> bool: return o.id == t.id))
+	var marked := out.any(func(t: Dictionary) -> bool: return tasks.any(func(o: Dictionary) -> bool: return o.id == t.id and o.state != t.state))
 	tasks = out
 	changed.emit()
 	if fresh:
 		added.emit()
+	if fresh or marked:   # (a conta do que falta na rotina não: muda a cada ficha, que já tem o som dela)
+		written.emit()
+
+
+## Quantas tarefas seguem em aberto (a pergunta de Encerrar turno, `Main.end_shift`).
+func open_count() -> int:
+	return tasks.filter(func(t: Dictionary) -> bool: return t.state == State.OPEN).size()
 
 
 ## Escreve as anotações da noite que chegaram na hora (`DiaryLine.due`); devolve se escreveu alguma.

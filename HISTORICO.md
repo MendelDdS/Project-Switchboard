@@ -4081,3 +4081,52 @@ Chaves:
     `st_rocket_far`/`st_rocket_far2`, a -19 dB), três vezes depois da bandeira (`Banner.FAR`, por
     `Background._scene_cues`): por volta das 4h25, 5h02 e 5h38 do jogo. Não cabem 3 h: a bandeira é às 4h e o turno
     da última noite acaba às 6h, então os três ficam nas duas horas que sobram.
+637. #turno #interface "Pra encerrar o turno, vamos adicionar uma confirmação [...] questionando se o jogador concluiu
+    todas as tarefas". O botão Encerrar turno pergunta antes, no papel com fita da pausa, sozinho por cima do turno
+    pausado e escurecido (`PauseMenu.ask`, `ASK_DIM`; `Main.end_shift` pergunta, `_end_now` encerra): "Encerrar o
+    turno? Confira no diário se concluiu todas as tarefas da noite." (`ASK_END_SHIFT`, pt, en, es), com o Não em foco;
+    o Não ou o Esc voltam ao turno. Com fita sem destino segue o aviso das fitas, sem pergunta; o fim sozinho à
+    meia-noite, com tudo registrado, não pergunta (ninguém apertou nada). Captura: `shot.gd --screen=end`.
+638. #diario #interface "Preciso que você sugira algo que ajude o jogador [a entender] que é importante ele usar o
+    diário para ver coisas da história". Sugerido, esperando a escolha do usuário: (1) a dica de baixo na primeira
+    anotação de pedido da noite ("Maria anotou um pedido no diário, tecla 5"), junto do lápis que já existe; (2) a
+    dica do começo do turno (`HINT_WAIT_CALLS`) fala das teclas 1 a 4 e não cita o diário: incluir; (3) a pergunta
+    de Encerrar turno dizendo quantos pedidos seguem abertos; (4) o diário pulsando, como os papéis pendentes,
+    quando um pedido com prazo está perto de vencer.
+639. #diario #som #interface "Gostaria de adicionar um som de escrita toda vez que preencher algo no diário" e, das
+    sugestões do 638, "gostaria do 2 e 3". O lápis já soava na tarefa e na anotação novas; agora também quando ela
+    risca ou marca com X (`Diary.written`; a conta do que falta na rotina não, que muda a cada ficha), 3 dB mais alto,
+    e não em dobro com o diário aberto (lá o som é o da página, `diary_view`). (2) Fora do treinamento e sem carta, a
+    dica do começo do turno ganha "No diário (tecla 5) ficam as tarefas e os pedidos da noite." (`HINT_DIARY`). (3) A
+    pergunta de Encerrar turno diz quantas tarefas seguem em aberto (`Diary.open_count`, `ASK_END_SHIFT_OPEN`: "Ainda
+    há tarefas em aberto no diário: 2."; sem nenhuma, "Não há tarefas em aberto no diário.").
+640. #luz #sala #objetos "A zona onde o diário, café e relógio estão, está muito escura, se der para sugerir alguma
+    melhoria de iluminação". Sugerido, esperando a escolha: (1) a luz da luminária indo mais longe para a direita,
+    como já vai para a frente (`FRONT_LIGHT`); (2) a luz da rua pela janela mais forte nesse canto do tampo; (3) o
+    mostrador do relógio de palhetas com a lampadinha dele, clareando a caneca e o diário (hoje ele não tem luz, 589).
+    A luminária à vista não foi proposta: saiu a pedido (47).
+641. #luz #sala #objetos Das sugestões do 640, "prefiro o ponto 1": a poça de luz da luminária esticada 1,5 vez para a
+    direita (`SIDE_LIGHT`), a mesma conta nos objetos (`_pool_d`), nas faixas do tampo (`_desk_row`), no escuro da
+    sala (`_gloom`, `room_noir.gdshader`) e na luz da luminária (`lamp_light.gdshader`): o diário, a caneca e o
+    relógio saem do escuro; a parede e o batente da janela quase não mudam (a poça só cresce para o lado).
+    Capturas: `build/zona_antes_depois.png`.
+642. #diario #interface "Sobre o diário, quando houver qualquer mudança, mostrar uma mensagem no topo, acima da mesa
+    comutadora, 'Diário atualizado'". Um papel com fita ao lado do do turno (`%DiaryNote`, `Main._diary_notice`,
+    `DIARY_UPDATED`, pt, en, es), que aparece por 6 s (`DIARY_NOTE_SEC`) junto com o som do lápis (`Diary.written`:
+    tarefa ou anotação nova, riscada ou com X), só com o diário fechado; a conta do que falta na rotina não avisa
+    (mudaria a cada ligação). Captura: `shot.gd --diarynote`. Sobre o ponto 2 do 639: o papel das dicas do manual
+    (`HintSlot`) está escondido a pedido (249), então a frase nova do diário na dica do começo não aparece na tela
+    enquanto ele não voltar; este aviso é o que o jogador vê.
+643. #diario #interface #turno #saiu "Eu gostaria de mudar design de papel, sugira" (o aviso "Diário atualizado" era um
+    papel com fita igual ao do turno). Sugeridos: a fita marca-página do diário, um retalho de folha pautada na letra
+    de Maria com o lápis, só a letra sem fundo e a etiqueta de fita crepe; feitas as duas primeiras com capturas, e
+    "gostei da opção 1": a fita no pano vinho da capa do diário, letra creme, pesponto nas beiras e a ponta em V
+    (`scripts/ui/diary_note.gd`). O retalho pautado saiu. No mesmo pedido: "removesse essa plaquinha de Turno, ela é
+    informativa mas não serve de nada, é estática sem função": o papel com o horário do turno saiu (`ShiftHours`,
+    `SHIFT_HOURS`); o papel com fita só aparece do fim das ligações em diante, com o botão Encerrar turno
+    (`%ShiftPlate`), e o aviso do diário fica no canto de cima, acima da mesa comutadora.
+644. #debug #amanhecer #noite15 "O debug do amanhecer não funciona mais, quando ativo ele automaticamente abre o diário
+    e encerra o dia". O botão pulava para as 4h da noite 15 sem marcador nenhum: a conta do golpe (`Main._coup_verdict`,
+    posta às 4h depois do botão) dava o golpe falhado, e golpe falhado encerra o turno ali. Agora o botão liga os
+    marcadores de um golpe vencido (`DebugPanel.DAWN_FLAGS`, `_go_night(n, at, with)`): o veredito de verdade roda,
+    vence, e o turno segue até as 6h com a bandeira e o letreiro. O `test_story` confere que esses marcadores vencem.

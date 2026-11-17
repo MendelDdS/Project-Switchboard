@@ -14,6 +14,7 @@ const LAST_CALL_BEFORE := 20.0          # ...até `Night.shift_end`; tantos minu
 										# e aparece o botão Encerrar turno; quem está na linha no fim é atendido até o fim
 const CLEAR_SEC := 40.0                 # o som e a cor indo para a noite limpa quando a chuva ou a névoa param (`Night.clears_at`)
 const DIARY_WAIT := 15                  # no fim do turno, o diário aberto escrevendo e riscando, até tantos segundos...
+const DIARY_NOTE_SEC := 6.0             # o aviso "Diário atualizado" no alto, acima da mesa comutadora, fica tantos segundos
 const DIARY_HOLD := 2.5                 # ...e depois aberto mais estes, para ler, antes do memorando
 const WEATHERS := ["rain", "fog", "clear"]   # clima sorteado no começo do turno (`-- --weather=fog` força um)
 ## As cenas curtas da rua, que quem está atendendo perderia (`_street_hold`): esperam a mesa calar por até
@@ -93,6 +94,7 @@ const SAW_SHEET := "viu_folha_registro"
 const SAW_TRUNK := "viu_interurbano"   # a primeira ligação interurbana: a dica de como completar
 const SAW_TOLL := "viu_tarifacao"   # o primeiro bilhete de tarifação: a dica do carimbo e da caixinha
 
+var _diary_note: Tween   # o aviso "Diário atualizado" aparecendo e sumindo (`_diary_notice`)
 var _taught_done := false
 var _taught_multi := false
 var _taught_ring := false
@@ -108,7 +110,7 @@ var talk_clock := 0.0              ## segundos de jogo (param na pausa); medem o
 
 @onready var background: Background = %Background
 @onready var _end_shift: Button = %EndShift
-@onready var _shift_hours: Label = %ShiftHours
+@onready var _shift_plate: Control = %ShiftPlate   # o papel com fita do botão Encerrar turno: só aparece com ele
 @onready var board: Switchboard = %Board
 @onready var badges: Control = %Badges   ## os broches na prateleira (`scripts/ui/badges.gd`)
 @onready var shelf_dialer: Control = %Dialer   ## o discador na prateleira (`scripts/ui/dialer.gd`; de perto, o pop-up `%DialView`)
@@ -146,8 +148,6 @@ func _enter_tree() -> void:
 
 
 func _ready() -> void:
-	_shift_hours.auto_translate_mode = Node.AUTO_TRANSLATE_MODE_DISABLED   # (as horas da noite: a última vai até as 6h)
-	_shift_hours.text = T.text(T.Key.SHIFT_HOURS) % [fmt(0.0), fmt(shift_end)]
 	weather = night.weather if night.weather != "" else WEATHERS.pick_random()
 	for a in OS.get_cmdline_user_args():
 		if a.begins_with("--weather=") and a.get_slice("=", 1) in WEATHERS:
@@ -225,9 +225,11 @@ func _ready() -> void:
 	diary.changed.connect(func():
 		tools.diary.notes = diary.notes
 		tools.diary.tasks = diary.tasks)
-	diary.added.connect(func():   # Maria anotou: o lápis fica atravessado no diário da mesa até abrir
-		background.diary_new = true
-		Sfx.play_at("pencil", _across(background.prop_rect(Tools.DIARY).get_center().x), -6.0))
+	diary.added.connect(func(): background.diary_new = true)   # Maria anotou: o lápis fica atravessado no diário da mesa até abrir
+	diary.written.connect(func():   # o lápis dela toda vez que escreve, risca ou marca (aberto, o som é o da página, `diary_view`)
+		if not (tools.open and tools.tab == Tools.DIARY):
+			Sfx.play_at("pencil", _across(background.prop_rect(Tools.DIARY).get_center().x), -3.0)
+			_diary_notice())
 	shelf_dialer.dialing = dialing
 	%DialView.dialing = dialing
 	shelf_dialer.clicked.connect(func(): if running and not ending and _taught("dialer"): %DialView.visible = not %DialView.visible)   # o de perto, por cima do painel
@@ -241,8 +243,7 @@ func _ready() -> void:
 	_intro.setup(night_no, night, progress != null, report.low_before > 0, bureaucracy.tapes.last,
 		progress.aside if progress else "", flags, bureaucracy.codes.code(night_no) if b3 in bureaucracy.live() else "",
 		_tonight())
-	for n: CanvasItem in [_shift_hours.get_parent().get_parent(), phone]:   # o turno aparece quando começa (`_start_shift`)
-		n.modulate.a = 0.0
+	phone.modulate.a = 0.0   # o console aparece quando o turno começa (`_start_shift`)
 	if is_training():   # o treinamento começa com o FONE já na entrada 1
 		board.plugged(0, 1)
 	if progress != null and night_no > 1:   # o jornal da manhã, com o que aconteceu na noite anterior
@@ -384,9 +385,7 @@ static func fmt(m: float) -> String:
 
 
 func _notification(what: int) -> void:
-	if what == NOTIFICATION_TRANSLATION_CHANGED and _shift_hours:
-		_shift_hours.text = T.text(T.Key.SHIFT_HOURS) % [fmt(0.0), fmt(shift_end)]
-	elif what == NOTIFICATION_PREDELETE:
+	if what == NOTIFICATION_PREDELETE:
 		# cada opção de fala leva a própria ligação (`fn.bind(c)`): sem soltar, as ainda vivas ficariam presas umas
 		# nas outras a cada `restart`
 		for c in live:
@@ -405,6 +404,16 @@ func _teach(flag: String, key: T.Key) -> void:
 		return
 	flags.apply(flag)
 	hint(T.text(key))
+
+
+## O aviso "Diário atualizado" no alto, por `DIARY_NOTE_SEC` s: Maria escreveu ou riscou algo com o diário fechado.
+func _diary_notice() -> void:
+	if _diary_note:
+		_diary_note.kill()
+	_diary_note = create_tween()
+	_diary_note.tween_property(%DiaryNote, "modulate:a", 1.0, 0.2)
+	_diary_note.tween_interval(DIARY_NOTE_SEC)
+	_diary_note.tween_property(%DiaryNote, "modulate:a", 0.0, 0.6)
 
 
 func warn(t: String) -> void:
@@ -440,14 +449,14 @@ func _tonight() -> Array:
 # ================================================================ laço principal
 
 func _start_shift() -> void:
-	for n: CanvasItem in [_shift_hours.get_parent().get_parent(), phone]:
-		create_tween().tween_property(n, "modulate:a", 1.0, _intro.FADE_SEC)
+	create_tween().tween_property(phone, "modulate:a", 1.0, _intro.FADE_SEC)
 	Sfx.start_ambience(weather)
 	background.warm_up()
 	running = true
 	bureaucracy.night_started()
 	radio.say(T.text(T.Key.RADIO_PATROL))
-	hint(T.text(T.Key.HINT_LETTER if background.letter else T.Key.HINT_WAIT_CALLS))
+	var first := T.text(T.Key.HINT_LETTER if background.letter else T.Key.HINT_WAIT_CALLS)
+	hint(first if is_training() or background.letter else first + " " + T.text(T.Key.HINT_DIARY))   # (no treinamento o diário ainda vem)
 	if is_training():
 		_taught_done = true   # a lâmpada vermelha ela ensina
 		training.start(night)
@@ -501,10 +510,10 @@ func _process(delta: float) -> void:
 		var can_end := minutes >= last_call and not ending
 		if night.clears_at >= 0.0 and minutes >= night.clears_at and weather != "clear":   # a chuva ou a névoa pararam
 			set_weather("clear", CLEAR_SEC)
-		if can_end and not _end_shift.visible:   # a campainha da plaqueta: o turno já pode ser encerrado
-			Sfx.play_at("shift_bell", _across(_shift_hours.get_global_rect().get_center().x))
+		if can_end and not _end_shift.visible:   # a campainha: o turno já pode ser encerrado (do canto onde o botão aparece)
+			Sfx.play_at("shift_bell", _across(_shift_plate.get_parent_control().global_position.x + 40.0))
 		_end_shift.visible = can_end
-		_shift_hours.visible = not _end_shift.visible
+		_shift_plate.visible = can_end
 		var hour := floori(minutes / 60.0)
 		if hour > _hour:   # a badalada do relógio a cada hora cheia (vem do relógio de flip da mesa) e o sino da igreja
 			Sfx.play_at("chime", _across(background.clock_x))
@@ -1548,7 +1557,8 @@ func _tapes_open() -> bool:
 
 ## Botão Encerrar turno (a partir de `last_call`): quem ainda está na linha ou tocando fica sem resposta, como se o
 ## operador desligasse (advertência, `Supervisor.call_ended`); o que falta registrar conta como sem registro. Com fita
-## sem destino na mesa, não encerra: abre a pilha e avisa.
+## sem destino na mesa, não encerra: abre a pilha e avisa. Antes de encerrar, pergunta (o papel da pausa, `PauseMenu.ask`),
+## dizendo quantas tarefas do diário seguem em aberto: o que ficou por fazer não se faz mais.
 func end_shift() -> void:
 	if ending:
 		return
@@ -1556,6 +1566,12 @@ func end_shift() -> void:
 		hint(T.text(T.Key.HINT_TAPES))
 		background.tapes_clicked.emit()
 		return
+	Sfx.ring_stop()   # (como na pausa)
+	var left := diary.open_count()   # (com o botão à vista as normas já se resolveram: sobram os pedidos e a rotina)
+	_pause.ask(T.Key.ASK_END_SHIFT_OPEN if left > 0 else T.Key.ASK_END_SHIFT, _end_now, [left] if left > 0 else [])
+
+
+func _end_now() -> void:
 	dialing.hang_up()
 	for c in live.duplicate():
 		end_call(c, PhoneCall.End.SHIFT_OVER)

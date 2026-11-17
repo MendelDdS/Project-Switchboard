@@ -40,10 +40,6 @@ END_TRAINING_TITLE,Fim do treinamento,End of training,Fin del entrenamiento
 END_TRAINING_TEXT,"Na segunda-feira, às 18:00, a central é sua.","On Monday at 18:00, the switchboard is yours.","El lunes, a las 18:00, la central es suya."
 END_GAME_TITLE,Fim,The end,Fin
 NEXT_NIGHT,Próxima noite,Next night,Siguiente noche
-SHIFT_HOURS,"Turno
-%s–%s","Shift
-%s–%s","Turno
-%s–%s"
 BOARD_INPUTS,ENTRADAS · FONE,INPUTS · HEADSET,ENTRADAS · AURICULAR
 BOARD_OUTPUTS,SAÍDAS · CABO DE CONEXÃO,OUTPUTS · PATCH CORD,SALIDAS · CABLE DE CONEXIÓN
 CONSOLE_IDLE,Aguardando chamada,Waiting for a call,Esperando llamada
@@ -143,6 +139,7 @@ SYS_YOU_ENDED,(Você encerrou a ligação.),(You ended the call.),(Usted termin�
 SYS_NOBODY_ANSWERED,(Ninguém atendeu. A pessoa desistiu.),(Nobody answered. The caller gave up.),(Nadie contestó. La persona desistió.)
 SYS_TIRED_WAITING,(Cansou de esperar e desligou.),(Got tired of waiting and hung up.),(Se cansó de esperar y colgó.)
 HINT_WAIT_CALLS,"Aguarde as chamadas. A lista, o mapa e despacho, as fichas e o registro abrem pelos objetos na mesa (ou teclas 1 a 4).","Wait for calls. The directory, map & dispatch, the log sheets and the call log open from the desk (or keys 1 to 4).","Espere las llamadas. La guía, el mapa y despacho, las fichas y el registro se abren desde la mesa (o teclas 1 a 4)."
+HINT_DIARY,No diário (tecla 5) ficam as tarefas e os pedidos da noite.,The diary (key 5) keeps tonight's tasks and requests.,En el diario (tecla 5) quedan las tareas y los pedidos de la noche.
 HINT_LETTER,Deixaram uma carta para você em cima do diário.,Someone left you a letter on top of the diary.,Le dejaron una carta encima del diario.
 HINT_INFO,Pedido de informação: confira a lista telefônica antes de responder.,Information request: check the phone directory before answering.,Pedido de información: revise la guía telefónica antes de responder.
 HINT_EMERGENCY,"A barra mostra a situação piorando e só para com o socorro completo a caminho (fora da linha, o rádio avisa). Mande o que as respostas pedirem: protocolo no despacho.","The bar shows the situation getting worse and only stops once full help is on the way (off the line, the radio warns you). Send what the answers call for: protocol in dispatch.","La barra muestra la situación empeorando y solo se detiene con toda la ayuda en camino (fuera de la línea, la radio avisa). Envíe lo que pidan las respuestas: protocolo en el despacho."
@@ -200,6 +197,7 @@ TAB_NEWS,Jornal da manhã,Morning paper,Diario de la mañana
 TAB_LETTER,Carta,Letter,Carta
 TAB_DIARY,Diário,Diary,Diario
 DIARY_DATE,"%s, %d de outubro","%s, October %d","%s, %d de octubre"
+DIARY_UPDATED,Diário atualizado,Diary updated,Diario actualizado
 DIARY_TASKS,Tarefas,To do,Tareas
 DIARY_NOTES,Anotações,Notes,Notas
 DIARY_LEFT,(faltam %d),(%d left),(faltan %d)
@@ -556,5 +554,7 @@ SIGN_CLOSE,Assine para encerrar,Sign to finish,Firme para terminar
 SIGN_OPERATOR,Telefonista,Operator,Telefonista
 PAUSE_ASK_RESTART,Recomeçar a noite? Tudo o que foi feito nela se perde.,Restart the night? Everything done in it will be lost.,¿Reiniciar la noche? Todo lo hecho en ella se pierde.
 PAUSE_ASK_MENU,Voltar ao menu? A noite em andamento se perde; o jogo salvo continua do começo dela.,Back to the menu? The night in progress will be lost; the saved game resumes from its start.,¿Volver al menú? La noche en curso se pierde; la partida guardada sigue desde su comienzo.
+ASK_END_SHIFT,Encerrar o turno? Não há tarefas em aberto no diário.,End the shift? There are no open tasks in the diary.,¿Terminar el turno? No hay tareas pendientes en el diario.
+ASK_END_SHIFT_OPEN,Encerrar o turno? Ainda há tarefas em aberto no diário: %d.,End the shift? There are still open tasks in the diary: %d.,¿Terminar el turno? Aún hay tareas pendientes en el diario: %d.
 ASK_YES,Sim,Yes,Sí
 ASK_NO,Não,No,No

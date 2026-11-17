@@ -37,6 +37,7 @@ extends Node
 ##   --letter               a carta da noite já lida (aberta, sem o lacre; os pedidos dela entram no diário)
 ##   --ending               encerra o turno (o diário abre sozinho; no fim do jogo, a última página)
 ##   --logs=3               tantos registros esperando no caderno (as tiras no bloco de fichas, pulsando)
+##   --diarynote            o aviso "Diário atualizado" no alto, acima da mesa comutadora
 ##   --unread               fala nova no registro: a folha nova presa por cima na prancheta
 ##   --toll                 um interurbano contando no calculógrafo, dois bilhetes na mesa (um carimbado) e três na caixinha
 ##   --clues                palavras-chave ouvidas (uma marcada, uma riscada, uma ouvida duas vezes) e a lista nas anotações
@@ -44,6 +45,7 @@ extends Node
 ##                          report (o relatório com advertências;
 ##                          --rating=great|good|fair|poor o conceito, padrão poor, a segunda noite seguida;
 ##                          --ask, com pause: a pergunta de Recomeçar a noite;
+##                          end, a pergunta de Encerrar turno;
 ##                          --warned, com intro, o bilhete depois de uma noite Insuficiente; --tapenote, com o resumo das
 ##                          fitas da noite anterior, da B4; --aside, o aviso do save que não deu para ler, `Progress.aside`)
 ##   --street=sol,1         com --tool=despacho: o mouse no trecho 1 da Rua do Sol (a rua inteira de leve e os números)
@@ -393,6 +395,8 @@ func _ready() -> void:
 			m.dispatch.city.queue_redraw()
 		if _args["card"] == "closed":   # o cartão na mesa e o despacho guardado: a unidade da mesa com o cartão saindo
 			m.tools.close()
+	if _args.has("diarynote"):   # o aviso "Diário atualizado" no alto
+		m._diary_notice()
 	match _args.get("screen", ""):
 		"note":   # o recado do supervisor relido pelo quadro de avisos
 			m._intro.reread(m.background.prop_rect(Background.NOTE_ID))
@@ -402,6 +406,8 @@ func _ready() -> void:
 			m.pause()
 			if _args.has("ask"):
 				m._pause.get_node("%RestartNight").pressed.emit()
+		"end":   # a pergunta de Encerrar turno, por cima do turno
+			m.end_shift()
 		"settings":   # a coluna das configurações ao lado do menu da pausa; --only: abertas pelo bilhete, sem o menu
 			m.pause()
 			if _args.has("only"):

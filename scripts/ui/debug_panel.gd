@@ -24,6 +24,10 @@ const LETTERS_PER_ROW := 10
 const NEIGHBOR_NAMES := {"news": "Noticiário", "soap": "Novela", "show": "Auditório", "match": "Futebol", "ads": "Comerciais",
 	"film": "Filme", "calm": "Música calma", "hit": "Música agitada"}   # os tipos do `Sfx.NEIGHBOR_CLIPS`
 const NEIGHBOR_HOURS := 2   ## quantas horas o vizinho fica, ligado pelo painel
+## O que o botão do amanhecer liga: o golpe vencido. Sem marcadores, a conta das 4h (`Main._coup_verdict`) dá o golpe
+## falhado, e o turno acaba ali, sem amanhecer.
+const DAWN_FLAGS := [Main.Rebellion.HOTEL, Main.Rebellion.IGNORED, Main.Rebellion.HOSPITAL, Main.Rebellion.PARISH,
+	Main.Rebellion.TAPE_SEBASTIAO, Main.Rebellion.TRAP_WARNED]
 const KIND_NAMES := ["transferência", "emergência", "trote", "informação", "discador"]   # PhoneCall.Kind
 
 var C: GameContent = GameData.CONTENT
@@ -138,7 +142,7 @@ func _ready() -> void:
 		func(): main.background.schedule("stranger", main.background.minutes + Background.MAN_WALK)]])
 	_section("Noites", func(): _go_night(1))
 	_row([["◀ Noite anterior", func(): _go_night(main.night_no - 1)], ["Próxima noite ▶", func(): _go_night(main.night_no + 1)]])
-	_row([["Amanhecer (última noite, 4h)", func(): _go_night(C.nights.size(), 10 * 60.0)]])
+	_row([["Amanhecer (última noite, 4h)", func(): _go_night(C.nights.size(), Main.VERDICT, DAWN_FLAGS)]])
 	_section("Viaturas e caderno", _clear_units_notebook)
 	_row([["Viaturas livres", func(): main.dispatch.reset()], ["Registrar pendências", _register_all]])
 	_row([["Limpar advertências", func(): main.report.faults.clear()], ["Apagar progresso", Progress.clear]])
@@ -214,9 +218,9 @@ func _set_weather(w: String) -> void:
 
 
 ## Recomeça o jogo na noite `n` (setores, ritmo e roteiro dela), sem ler nem gravar o progresso salvo (como
-## `-- --night=N`), com o relógio em `at` (min do turno; o amanhecer da última noite começa às 4h). "Limpar" volta
-## para a noite 1.
-func _go_night(n: int, at := 0.0) -> void:
+## `-- --night=N`), com o relógio em `at` (min do turno; o amanhecer da última noite começa às 4h) e os marcadores
+## `with` ligados. "Limpar" volta para a noite 1.
+func _go_night(n: int, at := 0.0, with := []) -> void:
 	var tree := get_tree()
 	tree.paused = false
 	Sfx.ring_stop()
@@ -227,6 +231,8 @@ func _go_night(n: int, at := 0.0) -> void:
 	# no lugar do Main de agora, no mesmo pai: no jogo ele fica dentro da tela do `GameView` (posto na raiz, saía fora
 	# dela, na resolução da janela, e quebrava o layout); sozinho, ele é a cena atual
 	main.get_parent().add_child(next)
+	for f: String in with:   # (depois de entrar na árvore: o `Main._enter_tree` começa os marcadores do zero)
+		next.flags.apply(f)
 	if tree.current_scene == main:
 		tree.current_scene = next
 	main.queue_free()

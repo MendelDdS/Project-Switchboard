@@ -143,4 +143,5 @@ func _initialize() -> void:
 	ok(epi.letter_for(_f([R.FINALS[R.Final.FAILURE]])) != "" and epi.letter_for(_f([R.FINALS[R.Final.SUCCESS]])) == "", "epílogo: a carta do supervisor só no fracasso")
 	ok(C.nights[14].ending_for(_f([R.FINALS[R.Final.SUCCESS]])).title != "" and C.nights[14].ending_for(_f([R.FINALS[R.Final.FAILURE]])) == null,
 		"noite 15: o encontro com Sebastião só no sucesso")
+	ok(R.won(_f(DebugPanel.DAWN_FLAGS), 16), "debug: o botão do amanhecer começa com o golpe vencido (o turno não acaba às 4h)")
 	finish("fator sucesso")

@@ -11,6 +11,9 @@ const DESK_SPILL := 30.0   ## até onde as luzes acesas dos objetos (a unidade d
 const POOL_HOT := Vector2(0.42, 0.16)
 const SHADE_MAX := 0.3   ## o mais escuro que um objeto da mesa fica, longe da poça de luz (`_shade`)
 const FRONT_LIGHT := 1.6   ## da poça para a frente da mesa, a luz vai essa vez mais longe (`_shade`, `_noir_params`): a fileira da frente ficava escura demais
+## Para a direita da poça a luz vai essa vez mais longe (a poça esticada para lá: `_pool_d`, `_desk_row`, `_gloom`,
+## `_noir_params`, `light`): o canto do diário, da caneca e do relógio ficava escuro demais.
+const SIDE_LIGHT := 1.5
 const DESK_RAG := 0.16     ## o quanto a borda de cada faixa de luz do tampo anda de uma linha para outra, em raios da poça (`_desk_row`)
 const PAPER_RAG := 0.12    ## o mesmo nos papéis da mesa, na luz parada (`_lit_at`)
 const WALL_PAD := 2.0           ## a folga dos objetos da mesa até a parede da direita (x da sala)
@@ -1000,6 +1003,8 @@ func _shade(x: float, z: float) -> float:
 func _pool_d(x: float, z: float) -> float:
 	var p := _pool()
 	var v := Vector2((x - p.x) / POOL_R, (z - p.y) / (POOL_R * 0.5))
+	if v.x > 0.0:
+		v.x /= SIDE_LIGHT
 	return v.length() / _reach(v.y)
 
 
@@ -1096,7 +1101,7 @@ func _desk_row(y: float, h: float, x0: float, x1: float, z: float, bands: Array,
 			# a borda da faixa parecia o contorno de uma luz em degraus
 			rag = (Vector2(fposmod(sin(y * 12.9898 + i) * 43758.55, 1.0), fposmod(sin(y * 78.233 + i) * 43758.55, 1.0)) - Vector2(0.5, 0.5)) * DESK_RAG * u
 		var a := maxf(x0, roundf(cx - half + rag.x))
-		var b := minf(x1, roundf(cx + half + rag.y))
+		var b := minf(x1, roundf(cx + (half + rag.y) * SIDE_LIGHT))   # (para a direita a poça é esticada)
 		if b > a:
 			_p(a, y, b - a, h, cols[i])
 

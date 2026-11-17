@@ -1248,10 +1248,20 @@ func _initialize() -> void:
 	await frames(2)
 	ok(task.call("roteiro_0").state == Main.Diary.State.OPEN and task.call("roteiro_2").state == Main.Diary.State.OPEN, "pedidos que se contradizem entram os dois")
 	ok(m.diary.tasks[0].id == "roteiro_0", "os pedidos do roteiro vêm antes das normas e da rotina")
+	m.tools.close()
+	var pencil := [0]   # o som do lápis: toda vez que ela escreve, risca ou marca
+	var count := func() -> void: pencil[0] += 1
+	m.diary.written.connect(count)
 	m.flags.apply("fez_teste")
 	m.minutes += 2.0
 	await frames(2)
+	m.diary.written.disconnect(count)
 	ok(task.call("roteiro_0").state == Main.Diary.State.DONE, "cumprido pelo marcador: riscado na hora")
+	ok(pencil[0] == 1 and m.diary.open_count() == m.diary.tasks.filter(func(t: Dictionary) -> bool: return t.state == Main.Diary.State.OPEN).size(),
+		"riscar e marcar com X também é escrever: o lápis soa uma vez")
+	ok(m.get_node("%DiaryNote").modulate.a > 0.0, "e o aviso \"Diário atualizado\" aparece no alto, com o diário fechado")
+	_key(KEY_5)   # (aberto de novo, como estava)
+	await frames(2)
 	ok(task.call("roteiro_1").state == Main.Diary.State.FAILED, "prazo vencido sem cumprir: X")
 	ok(task.call("roteiro_2").state == Main.Diary.State.OPEN, "o de não fazer espera o turno encerrado")
 	m.minutes = m.last_call + 1.0
