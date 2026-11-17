@@ -42,8 +42,9 @@ const TAPE_YAW := [-5.0, 4.0, -2.0, 7.0]
 const LETTER_W := 19.0   ## a largura do envelope da carta (uns 12 cm), em cima do diário...
 const LETTER_D := 0.62   ## ...e o fundo dele, em fração do fundo do jornal dobrado
 const DIARY_W := 20.0   ## o diário de Maria, no lugar do jornal (que foi para o quadro de avisos): a largura (uns 13 cm, um caderno pequeno), o fundo (fração do tampo) e a grossura
-const DIARY_D := 0.12
-const DIARY_H := 1.5
+const DIARY_D := 0.2    # (era 0,12, o fundo do jornal dobrado: uma tira deitada, que mal se via; um caderno é mais fundo que largo)
+const DIARY_H := 2.5    # (era 1,5)
+const DIARY_GAP := 5.0  ## a folga do bloco de fichas até ele (no meio do lugar do jornal, ficava no canto escuro da direita)
 const NEWS_W := 25.0   ## o lugar do diário na fileira da frente, o do jornal dobrado que ficava ali (na escala dos objetos, uns 16 cm): com 32, o calculógrafo não cabia do lado
 const UNIT_TILT := 0.11
 const UNIT_D := 0.3
@@ -158,6 +159,7 @@ var card_out := false  ## há um cartão perfurado na mesa: ele sai da fenda da 
 var news := false    ## o jornal da manhã está pregado no quadro de avisos (da segunda noite em diante; `Main.set_news`)
 var letter := false   ## há carta na noite (`Night.letter_for`, `Main`): um envelope lacrado em cima do diário...
 var letter_read := false   ## ...que, aberta, volta sem o lacre
+var note := true   ## há recado do supervisor (`Night.note_for`, `Main`): pregado no quadro de avisos; sem ele (o epílogo do golpe vencido), nada ali
 var diary_new := false   ## Maria anotou tarefa nova: o lápis atravessado em cima do diário até ele abrir (`Main`, `Diary.added`)
 var written := 0     ## fichas registradas na noite: o lápis fica num lugar do bloco a cada uma (`PENCIL`)
 var tapes_out: Array = []   ## as fitas tiradas do gravador na noite (B4, posto pelo gravador), cada uma pelo destino (`Tape.To`: 0 a fita, 1 o pacote branco de Sebastião, 2 o amarelo das autoridades): empilhadas ao lado do bloco de fichas até o fim do turno
@@ -301,7 +303,7 @@ func _draw_desk_props() -> void:
 	if _here(Tools.TOLL):
 		_draw_calculograph(cx, _at(CALC_AT))
 	# papel tem 1 px de beira (mais grosso, parecia tábua)
-	var dx: float = near[1] + (NEWS_W - DIARY_W) * k / 2.0
+	var dx: float = minf(near[1] + (NEWS_W - DIARY_W) * k / 2.0, near[0] + (PAD_W + DIARY_GAP) * k)   # mais para a esquerda, perto do bloco
 	if _here(Tools.DIARY):
 		_flat(Tools.DIARY, dx, _at(0.07), DIARY_W * k, _deep(DIARY_D * k), DIARY_H * k, Pal.BOOK_LEAVES.darkened(0.2), _art_diary, [],
 			deg_to_rad(-4.0), _diary_marks.bind(diary_new))

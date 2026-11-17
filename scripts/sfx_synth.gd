@@ -1115,7 +1115,8 @@ func _build_ring() -> void:
 
 ## O relógio da sala: a badalada de gongo de mola a cada hora cheia ("chime": a batida do martelo excita os modos
 ## inarmônicos do arame enrolado, que soam longos) e a campainha de latão quando o turno pode ser encerrado
-## ("shift_bell": duas batidas rápidas, agudas e curtas).
+## ("shift_bell": duas batidas rápidas, agudas e curtas) e o despertador dele na hora marcada de uma tarefa do diário
+## ("alarm").
 func _build_clock() -> void:
 	_begin(2.6)
 	var hit := PackedFloat32Array()
@@ -1131,6 +1132,19 @@ func _build_clock() -> void:
 	hits[int(0.17 * RATE)] = 0.8
 	_w = _modes(hits, [[1480.0, 0.5, 1.0], [3720.0, 0.15, 0.35], [6150.0, 0.05, 0.12]])
 	_end("shift_bell")
+	# o despertador: quatro "bip bip" de piezo, cada bip firme (sobe em 3 ms, segura e solta num rabicho curto, em vez
+	# de morrer desde o começo, que soava como estalo), a fundamental com um pouco do 2º e do 3º harmônicos e a caixinha
+	# de plástico ressoando por cima
+	_begin(3.0)
+	for k in 4:
+		for b in 2:
+			var s0 := int((k * 0.62 + b * 0.16) * RATE)
+			for i in int(0.13 * RATE):
+				var t := float(i) / RATE
+				var env := minf(t / 0.003, 1.0) if t < 0.085 else exp(-(t - 0.085) / 0.012)
+				_w[s0 + i] += (sin(TAU * 2048.0 * t) + 0.22 * sin(TAU * 4096.0 * t) + 0.3 * sin(TAU * 6144.0 * t)) * env
+	_w = _biquad(_w, "bp", 2300.0, 0.9)
+	_end("alarm")
 
 
 ## Soma de modos de vibração excitados por `x`: cada um [frequência, decaimento (s), ganho], normalizado pelo pico

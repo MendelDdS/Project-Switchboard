@@ -13,7 +13,7 @@ peça (medidas, cores, o que foi tentado e saiu) está em `docs/mapa-ui-detalhad
   olhos, `_cm`) para a tela. A parede do fundo fica a `Z0 × WALL_K`; a parede da direita tem o ponto de fuga dela
   (`SIDE_VP`, `_svp`, `_side_pt`) e as contas de luz pela janela pegam o meio do vão (`_wall_x`). Nunca acerte a
   perspectiva elemento por elemento: pense a cena e passe pela câmera.
-- A tela é uma mesa de trabalho: no alto da esquerda o aviso do diário (`%DiaryNote`) e, do fim das ligações em diante, o botão Encerrar turno num papel com fita (`ShiftPlate`; o horário do turno saiu a pedido), e a placa da
+- A tela é uma mesa de trabalho: no alto da esquerda o aviso do diário (`%DiaryNote`, na rampa `Pal.DIARY_RIBBON`; o papel do horário do turno e o botão Encerrar turno ali saíram a pedido: o botão fica no diário, `DiaryView.can_end`, e uma seta âmbar sobe e desce em cima do diário da mesa, `%DiaryArrow`, `Main.ARROW`), e a placa da
   companhia; embaixo, a mesa comutadora (441×238: o painel das tomadas, `SIZE`, e a coluna do lado, `SIDE_W`) com a prateleira (`Shelf`) e a frente do console (`%Desk`, com a
   miniatura do painel, `ConsoleMini`); à direita a sala e as ferramentas (`Tools`, o papel sai do objeto dele na mesa,
   `Tools.origin` = `Background.prop_rect`; sem abas); embaixo de tudo, o painel do operador (`PhonePanel`, 150 px, fora

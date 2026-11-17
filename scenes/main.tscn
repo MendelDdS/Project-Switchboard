@@ -98,6 +98,13 @@ desk = NodePath("../../../Layout/Rows/Columns/Left/Desk")
 board = NodePath("../../../Layout/Rows/Columns/Left/Board")
 dust = NodePath("../../../Dust")
 
+[node name="DiaryArrow" type="TextureRect" parent="."]
+unique_name_in_owner = true
+visible = false
+texture_filter = 1
+layout_mode = 0
+mouse_filter = 2
+
 [node name="Layout" type="MarginContainer" parent="." unique_id=206193978]
 layout_mode = 1
 anchors_preset = 15
@@ -134,25 +141,6 @@ layout_mode = 2
 size_flags_vertical = 3
 mouse_filter = 2
 theme_override_constants/separation = 9
-
-[node name="ShiftPlate" type="PanelContainer" parent="Layout/Rows/Columns/Left/TopLeft"]
-unique_name_in_owner = true
-visible = false
-layout_mode = 2
-size_flags_vertical = 0
-theme_type_variation = &"TapedNote"
-
-[node name="HBox" type="HBoxContainer" parent="Layout/Rows/Columns/Left/TopLeft/ShiftPlate"]
-layout_mode = 2
-theme_override_constants/separation = 8
-
-[node name="EndShift" type="Button" parent="Layout/Rows/Columns/Left/TopLeft/ShiftPlate/HBox"]
-unique_name_in_owner = true
-visible = false
-layout_mode = 2
-size_flags_vertical = 4
-theme_type_variation = &"AmberButton"
-text = "END_SHIFT"
 
 [node name="DiaryNote" type="Control" parent="Layout/Rows/Columns/Left/TopLeft"]
 unique_name_in_owner = true

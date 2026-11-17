@@ -59,6 +59,15 @@ func call_started(c: PhoneCall) -> Array:
 	return []
 
 
+## Feito o pedido, a dica: o nome do lugar sublinhado na fala de quem liga e o aviso na fita do alto (`Main.notice`).
+## A conversa das próprias autoridades (só Sebastião a quer gravada) não é para lugar suspeito.
+func request_made(c: PhoneCall) -> Array:
+	if c.meta.has("b4") and not (c.beat != null and c.beat.authority):
+		c.underline_word(TranslationServer.translate(c.destination))
+		desk.main.notice(T.text(T.Key.NOTE_SUSPECT))
+	return []
+
+
 ## A chave de escuta subiu com fita no gravador: a fita passa a gravar esta conversa.
 func listening(n: int, on: bool) -> void:
 	var c := desk.main.eavesdrop.call_of(n)

@@ -139,3 +139,19 @@ unique_name_in_owner = true
 visible = false
 layout_mode = 2
 script = ExtResource("11_diary")
+
+[node name="EndShift" type="Button" parent="Body/Paper/Margin/Diary"]
+visible = false
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.25
+anchor_top = 1.0
+anchor_right = 0.25
+anchor_bottom = 1.0
+offset_left = -68.0
+offset_top = -46.0
+offset_right = 68.0
+offset_bottom = -16.0
+focus_mode = 0
+theme_type_variation = &"EndShiftButton"
+text = "END_SHIFT"

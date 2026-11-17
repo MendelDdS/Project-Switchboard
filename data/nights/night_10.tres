@@ -203,7 +203,7 @@ call = ExtResource("j_irma")
 
 [sub_resource type="Resource" id="T_0"]
 script = ExtResource("dt_diary_task")
-text = "Pedir à Casa Paroquial (120) abrigo para as famílias"
+text = "Solicitar à Casa Paroquial (120) abrigo para as famílias"
 requires = PackedStringArray("cecilia_pediu_10")
 done = PackedStringArray("paroquia_10")
 until = 359.0

@@ -3572,7 +3572,8 @@ func _draw_cork_board(r: Rect2) -> void:
 	_pinned.clear()
 	if news:
 		_pinned[Tools.NEWS] = Rect2(o + Vector2(pad, pad - 1.0), Vector2(40, 52))
-	_pinned[NOTE_ID] = Rect2(o + Vector2(pad + 48.0, pad + 1.0), Vector2(36, 44))
+	if note:
+		_pinned[NOTE_ID] = Rect2(o + Vector2(pad + 48.0, pad + 1.0), Vector2(36, 44))
 	if "cartaz_quermesse" in details:
 		_pinned["cartaz_quermesse"] = Rect2(o + Vector2(sz.x - pad - POSTER_W * 2.0, pad - 2.0), Vector2(POSTER_W * 2.0, 56))
 	var slot := 0

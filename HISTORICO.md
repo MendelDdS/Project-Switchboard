@@ -4130,3 +4130,70 @@ Chaves:
     posta às 4h depois do botão) dava o golpe falhado, e golpe falhado encerra o turno ali. Agora o botão liga os
     marcadores de um golpe vencido (`DebugPanel.DAWN_FLAGS`, `_go_night(n, at, with)`): o veredito de verdade roda,
     vence, e o turno segue até as 6h com a bandeira e o letreiro. O `test_story` confere que esses marcadores vencem.
+645. #epilogo #supervisor #diario #interface #turno #luz #saiu Quatro pedidos. (1) "No epílogo o supervisor continua
+    aparecendo; se o golpe foi sucesso, ele teria sido desligado da telefonia": a mensagem do fim da noite 15 com o
+    golpe vencido ("algo como 'A telefonia está fechada temporariamente, mas você decide voltar, a cidade precisa
+    continuar conectada', você sugere") virou "A central está fechada por enquanto. Você decide voltar mesmo assim: a
+    cidade precisa continuar conectada." (`END_NIGHT_WON`, pt, en, es; vale na vitória amarga, que mostrava o "Amanhã, às
+    18:00, a central é sua de novo"; no sucesso sem custo a tela continua sendo o encontro com Sebastião, texto do
+    usuário, não mexido); e "o dia do epílogo começa somente com o papel, sem assinatura do supervisor nem recado, tudo
+    em branco, e Maria só precisa assinar": o recado do epílogo com `golpe_venceu` ficou vazio (saiu o "Não há recado
+    do supervisor. Na mesa, um bilhete da companhia..."), e sem recado a folha timbrada vem sem o departamento da
+    supervisão, a noite datilografada, a rubrica e a tachinha (`SupervisorNote._texts`), e nada vai para o quadro de
+    avisos (`Background.note`). O memorando do fim da noite 15 (o relatório, com a rubrica dele) não foi pedido e ficou.
+    (2) "Aumente a altura do diário e traga ele mais para a esquerda": o objeto da mesa, mais fundo (`DIARY_D` 0,12 →
+    0,2) e mais grosso (`DIARY_H` 1,5 → 2,5), encostado no bloco de fichas (`DIARY_GAP`). (3) "A etiqueta de 'Diário
+    atualizado' fica escura lá no topo, dê mais brilho": a fita numa rampa mais clara do mesmo pano
+    (`Pal.DIARY_RIBBON`). (4) "Ao invés do 'Encerrar turno' no topo da tela, um botão dentro do diário; quando o turno
+    encerrar, uma setinha subindo e descendo suavemente apontando para o diário de cima para baixo": o papel com fita e
+    o botão do alto saíram (`ShiftPlate`, `EndShift`); o botão fica no pé da página das tarefas de hoje
+    (`DiaryView.can_end`, `end_pressed`, no papel, `InkButton`, numa linha só) e a seta âmbar em cima do diário da
+    mesa (`%DiaryArrow`, `Main.ARROW`, pixel a pixel pelo `PixelArt.ms()`); a campainha do fim das ligações soa do
+    diário. A pergunta de confirmação (637) continua.
+646. #diario #interface #turno Correções do 645: "A seta precisa ser maior e sem a ponta quadrada, apenas o triângulo":
+    a seta virou só o triângulo âmbar, de 33 × 17 px (era a seta com haste, de 13 × 14; `Main.ARROW`, `ARROW_GAP` 2).
+    "O botão encerrar turno pode ser mais bonito, com fundo verde": variação de tema nova, `EndShiftButton` (sobre a
+    `GreenButton`): a face verde mais funda, a letra creme, a beira em relevo que afunda ao apertar e a sombra no
+    papel; o botão cresceu para 136 × 30.
+647. #diario #missao #agenda #noite4 "Na noite quatro há uma missão para passar uma mensagem [a senha ao hotel, 305] às
+    20:30, mas com a quantidade de ligações acabei deixando passar, pois literalmente esqueci." Pediu sugestão.
+    Sugerido, esperando a escolha do usuário: (1) o despertador do relógio de flip toca na hora marcada da tarefa, a
+    fita do alto mostra a tarefa e a seta aponta o diário enquanto a janela dura; (2) a mesa segura as ligações novas
+    nos primeiros minutos da janela (como nas cenas curtas da rua, `_street_hold`); (3) só o aviso antes da hora
+    (a fita cinco minutos antes); (4) alargar a janela da senha (mexe no roteiro). Recomendado: 1 e 2 juntos, valendo
+    para toda tarefa com hora marcada (a 15 tem três: 21h, 21h e 22h).
+648. #diario #missao #agenda #noite4 #som Escolha do 647: "como é uma missão, no ponto 2 vamos manter um intervalo sem
+    ligações, de 20:15 até 21:15. Implemente o ponto 1, com um bip bip de despertador e a fita no alto, mas sem a seta.
+    Não implemente ponto 3 nem 4." A tarefa do diário ganhou a hora marcada (`DiaryTask.from`) e a folga sem ligações
+    (`quiet`, minutos antes da hora e depois do prazo): na senha da noite 4, `from` 150 (20:30) e `quiet` 15, com o
+    prazo às 21h, dá o intervalo das 20:15 às 21:15 (`Night.quiet_at`: a agenda não sorteia nada ali, quem foi adiada
+    para dentro dele espera, a do roteiro toca; só para quem sabe a senha, `requires`). Na hora, o relógio de flip toca
+    três "bip bip" ("alarm", sintetizado) e a fita do alto mostra a tarefa no lugar de "Diário atualizado" até ela ser
+    cumprida ou o prazo passar (`Diary.alarm`, `Main._task_alarm`, `DiaryNote.text`); sem seta. Só a noite 4 tem os
+    campos preenchidos; as tarefas de hora marcada da 15 (21h e 22h) ficaram como estavam (às 21h o aviso é o
+    sinalizador do roteiro).
+649. #diario #noite4 #texto "'Dizer a senha' fica estranho, não teria outra frase mais formal?" Sugeridas três; escolhida a
+    3: a tarefa da noite 4 virou "Ligar para o Hotel Serena (305) às 20:30 e informar a senha" (en, es). A anotação
+    depois de cumprida ("Às oito e meia, disse a senha ao hotel.") ficou como estava. Na mesma conversa, "Há mais
+    missões que merecem isso [o despertador e o intervalo]?": apontadas as duas de hora marcada da noite 15 (21h e
+    22h), esperando a escolha; as outras não têm hora marcada ou são escolhas que o jogador descobre sozinho.
+650. #diario #missao #agenda #noite15 "Faça para as duas indicadas": as duas tarefas de hora marcada da noite 15 (o
+    "Começou." das 21h, nas duas versões, e a "Canção da Madrugada" das 22h) ganharam o despertador e a fita
+    (`from` 180 e 240) e a folga curta (`quiet` 5): sem sorteadas das 20:55 às 22:35; as do roteiro continuam tocando
+    (recusar as das autoridades é parte da missão). Só para quem leu a carta (a tarefa só entra no diário lida). A fita
+    não passa da largura da coluna da mesa comutadora (`DiaryNote.MAX_W`; a frase em espanhol da noite 4 foi encurtada).
+651. #diario #texto #fitas #dica #som Três pedidos. (1) "Melhore as frases, deixe-as mais formais, esse 'dizer', 'pedir'
+    ficaram muito informais": as tarefas do diário com esses verbos mudaram (pt, en, es): na 15, "Ligar para o 120 e o
+    288 [291] às 21:00 e informar: 'Começou.'" e "Solicitar à rádio (390), às 22:00, a 'Canção da Madrugada'" (no
+    molde "Ligar para... e informar" ela não cabia na fita); na 10, "Solicitar à Casa Paroquial (120) abrigo para as
+    famílias"; nas normas, "Solicitar nome e sobrenome de quem liga" (B1) e "Solicitar o código das autoridades" (B3).
+    (2) "Sobre as missões que duram o turno inteiro, seria bom dar dicas, como por exemplo: nos dias que as
+    autoridades pedirem para gravar ligações de determinado estabelecimento, sublinhar o nome do local e mostrar a
+    fita lá em cima dizendo algo como 'Ligação para lugar suspeito'": na ligação marcada (`TransferCall.suspicious`,
+    com a B4 valendo: o bar nas noites 7, 8 e 14, o hotel na 8 e na 14), feito o pedido, o nome do lugar fica
+    sublinhado na fala de quem liga e a fita do alto mostra "Ligação para lugar suspeito" por 6 s
+    (`rule_tapes.request_made`, `PhoneCall.underline_word`, `Main.notice`, `NOTE_SUSPECT`); as das próprias autoridades
+    (a Alta Cúpula na 12, que só Sebastião quer gravada) não. O aviso "(Ligação marcada pelas autoridades: grave a
+    conversa.)" no começo da ligação continua. Outras dicas do mesmo tipo sugeridas, esperando a escolha.
+    (3) "Melhore o som do despertador": quatro "bip bip" de piezo em 2048 Hz, cada bip firme (sobe em 3 ms, segura
+    85 ms e solta num rabicho curto), com o 2º e o 3º harmônicos, no lugar dos três pares que morriam desde o começo.

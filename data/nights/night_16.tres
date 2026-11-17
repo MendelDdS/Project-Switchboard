@@ -34,7 +34,7 @@ again = false
 
 [sub_resource type="Resource" id="Note_won"]
 script = ExtResource("5_text")
-text = "Não há recado do supervisor. Na mesa, um bilhete da companhia, sem assinatura: \"A central segue funcionando. Atenda como sempre.\""
+text = ""
 requires = PackedStringArray("golpe_venceu")
 
 [sub_resource type="Resource" id="Letter_fracasso"]

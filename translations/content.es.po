@@ -6424,8 +6424,8 @@ msgid "Já estou fechando. Aqui só tem graxa e parafuso."
 msgstr "Ya estoy cerrando. Aquí solo hay grasa y tornillos."
 
 #: data/nights/night_04.tres
-msgid "Dizer a senha ao Hotel Serena (305) às 20:30"
-msgstr "Decir la contraseña al Hotel Serena (305) a las 20:30"
+msgid "Ligar para o Hotel Serena (305) às 20:30 e informar a senha"
+msgstr "Llamar al Hotel Serena (305) a las 20:30 y dar la contraseña"
 
 #: data/nights/night_04.tres
 msgid "Comunicar à delegacia (184) conversa suspeita"
@@ -9112,8 +9112,8 @@ msgid "Ninguém... só o meu filho."
 msgstr "Nadie... solo mi hijo."
 
 #: data/nights/night_10.tres
-msgid "Pedir à Casa Paroquial (120) abrigo para as famílias"
-msgstr "Pedir a la Casa Parroquial (120) refugio para las familias"
+msgid "Solicitar à Casa Paroquial (120) abrigo para as famílias"
+msgstr "Solicitar a la Casa Parroquial (120) refugio para las familias"
 
 #: data/nights/night_10.tres
 msgid "Descobrir onde está o Otávio, para a Generosa"
@@ -11308,16 +11308,16 @@ msgid "Não passar a polícia nem a Alta Cúpula"
 msgstr "No pasar a la policía ni a la Alta Cúpula"
 
 #: data/nights/night_15.tres
-msgid "21h: dizer \"Começou.\" ao 120 e ao 288"
-msgstr "21h: decir \"Empezó.\" al 120 y al 288"
+msgid "Ligar para o 120 e o 288 às 21:00 e informar: \"Começou.\""
+msgstr "Llamar al 120 y al 288 a las 21:00 e informar: \"Empezó.\""
 
 #: data/nights/night_15.tres
-msgid "21h: dizer \"Começou.\" ao 120 e ao 291"
-msgstr "21h: decir \"Empezó.\" al 120 y al 291"
+msgid "Ligar para o 120 e o 291 às 21:00 e informar: \"Começou.\""
+msgstr "Llamar al 120 y al 291 a las 21:00 e informar: \"Empezó.\""
 
 #: data/nights/night_15.tres
-msgid "22h: pedir a \"Canção da Madrugada\" à rádio (390)"
-msgstr "22h: pedir la \"Canção da Madrugada\" a la radio (390)"
+msgid "Solicitar à rádio (390), às 22:00, a \"Canção da Madrugada\""
+msgstr "22:00: solicitar la \"Canção da Madrugada\" a la radio (390)"
 
 #: data/nights/night_15.tres
 msgid "Avisar o bar (327) sobre o Sebastião"
@@ -12046,10 +12046,6 @@ msgstr "¡Hasta la próxima!"
 #: data/nights/night_16.tres
 msgid "O supervisor deixou um recado: \"Escala normal. Nenhuma ocorrência a registrar.\""
 msgstr "El supervisor dejó una nota: \"Turno normal. Ninguna novedad que registrar.\""
-
-#: data/nights/night_16.tres
-msgid "Não há recado do supervisor. Na mesa, um bilhete da companhia, sem assinatura: \"A central segue funcionando. Atenda como sempre.\""
-msgstr "No hay nota del supervisor. En la mesa, un papel de la compañía, sin firma: \"La central sigue funcionando. Atienda como siempre.\""
 
 #: data/nights/night_16.tres
 msgid "À operadora do turno da noite,\n\nEm nome da diretoria, parabenizo pela conduta exemplar durante os acontecimentos da última noite. A central de São Sotero manteve as comunicações das autoridades quando mais se precisou delas. Esse serviço não será esquecido.\n\nAtenciosamente,\nO Supervisor"

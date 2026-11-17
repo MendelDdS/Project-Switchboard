@@ -116,6 +116,16 @@ func _story_tasks(out: Array[Dictionary], closed: bool) -> void:
 		out.append({"id": "roteiro_%d" % i, "text": tr(t.text), "src": t.text, "ui": false, "left": -1, "state": state})
 
 
+## A tarefa do roteiro com hora marcada (`DiaryTask.from`) que chegou e segue em aberto, como Maria anotou (em
+## português; "": nenhuma): o despertador e a fita do alto (`Main._task_alarm`).
+func alarm() -> String:
+	for i: int in _story:
+		var t: Night.DiaryTask = main.night.tasks[i]
+		if _story[i] == State.OPEN and t.from >= 0.0 and main.minutes >= t.from:
+			return t.text
+	return ""
+
+
 ## A página da noite como ficou, para o save (`Progress.diary`): as tarefas, as anotações e a carta lida, sem o texto
 ## traduzido, que volta por `text_of`.
 func page() -> Dictionary:

@@ -35,8 +35,9 @@ func _ready() -> void:
 
 
 ## `more`: ainda há uma próxima noite (o progresso já foi salvo pelo Main). `text`: o texto da noite para a tela
-## preta (null: o de sempre). `memo` falso: sem o relatório (o fim do jogo), a mesa escurece de vez.
-func play(report: ShiftReport, more: bool, text: StoryText = null, memo := true) -> void:
+## preta (null: o de sempre). `memo` falso: sem o relatório (o fim do jogo), a mesa escurece de vez. `won`: o golpe
+## venceu nesta noite, e a central fica fechada; quem volta amanhã é Maria, por conta dela.
+func play(report: ShiftReport, more: bool, text: StoryText = null, memo := true, won := false) -> void:
 	if report.fired():
 		_title.text = T.text(T.Key.END_FIRED_TITLE)
 		_question.text = T.text(T.Key.END_FIRED_TEXT)
@@ -47,7 +48,7 @@ func play(report: ShiftReport, more: bool, text: StoryText = null, memo := true)
 		_restart.text = T.text(T.Key.NEXT_NIGHT)
 	elif more:
 		_title.text = T.text(T.Key.END_NIGHT_TITLE) % report.night
-		_question.text = T.text(T.Key.END_NIGHT_TEXT)
+		_question.text = T.text(T.Key.END_NIGHT_WON if won else T.Key.END_NIGHT_TEXT)
 		_restart.text = T.text(T.Key.NEXT_NIGHT)
 	elif text != null:   # o fim do jogo: o final
 		_title.text = T.text(T.Key.END_GAME_TITLE)

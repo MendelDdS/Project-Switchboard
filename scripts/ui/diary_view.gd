@@ -6,9 +6,11 @@ extends Control
 ## À direita, as anotações dela (`Diary.notes`), escritas do mesmo jeito, depois das tarefas que não couberam à
 ## esquerda; a carta lida fica guardada entre as páginas, a ponta para fora no alto da direita (o clique abre).
 ## As noites que passaram (`pages`, do `Progress.diary`) ficam antes, como ficaram: folheia-se pelas dobras nos cantos
-## de baixo (a da esquerda volta, a da direita avança), que dobram mais com o mouse em cima.
+## de baixo (a da esquerda volta, a da direita avança), que dobram mais com o mouse em cima. No pé da página das
+## tarefas de hoje, do fim das ligações em diante, o botão Encerrar turno (`can_end`, `end_pressed`).
 
 signal letter_open(text: String)   ## clicou na carta guardada: `text`, em português
+signal end_pressed   ## clicou em Encerrar turno (`Main.end_shift`, que pergunta antes)
 
 const DIARY := preload("res://scripts/diary.gd")
 const TOP := 62.0         ## a primeira pauta das tarefas (em cima, a data e o título da página)
@@ -39,6 +41,10 @@ var pages := {}:   ## noite -> a página dela como ficou (`Diary.page`): as noit
 	set(v):
 		pages = v
 		queue_redraw()
+var can_end := false:   ## o turno já pode ser encerrado (o Main põe): o botão no pé da página de hoje
+	set(v):
+		can_end = v
+		_end_button()
 var _shown := {}   # id -> o que está na página: {"chars" escritas, "state" traçado, "mark" do traço em andamento (0 a 1)}
 var page_w := 0.0
 var _at := -1          # a noite aberta (-1: a de hoje)
@@ -59,8 +65,18 @@ func _settle(list: Array[Dictionary]) -> void:
 func _ready() -> void:
 	visibility_changed.connect(func():   # (abre sempre na noite de hoje)
 		_at = -1
+		_end_button()
 		set_process(is_visible_in_tree()))
+	$EndShift.pressed.connect(end_pressed.emit)
 	set_process(false)
+
+
+## O botão Encerrar turno só na página de hoje.
+## ponytail: fica por cima das duas últimas pautas da página das tarefas; noite com tarefas até o pé dela (nenhuma
+## hoje), limitar a lista à pauta de cima do botão.
+func _end_button() -> void:
+	if is_node_ready():
+		$EndShift.visible = can_end and _at == -1
 
 
 ## Escreve ou risca a primeira tarefa que ainda não está na página como deveria; nada a fazer, para.
@@ -128,6 +144,7 @@ func _gui_input(e: InputEvent) -> void:
 			var nights := _nights()
 			var n: int = nights[nights.find(_night_shown()) + (1 if h == 1 else -1)]
 			_at = -1 if n == night else n
+			_end_button()
 			_hover = _corner_at(e.position)   # (na primeira ou na última, a dobra daquele lado some)
 			Sfx.play("page")
 			set_process(true)

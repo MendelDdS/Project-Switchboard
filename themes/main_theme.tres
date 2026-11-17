@@ -1015,6 +1015,50 @@ gradient = SubResource("MenuSlider_grab_lit_g")
 width = 5
 height = 13
 
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_end_n"]
+content_margin_left = 10.0
+content_margin_top = 4.0
+content_margin_right = 10.0
+content_margin_bottom = 4.0
+bg_color = Color(0.360784, 0.603922, 0.298039, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 4
+border_width_bottom = 4
+border_color = Color(0.184314, 0.352941, 0.172549, 1)
+shadow_color = Color(0.16470589, 0.13725491, 0.09803922, 0.6)
+shadow_size = 1
+shadow_offset = Vector2(1, 2)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_end_h"]
+content_margin_left = 10.0
+content_margin_top = 4.0
+content_margin_right = 10.0
+content_margin_bottom = 4.0
+bg_color = Color(0.427451, 0.682353, 0.356863, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 4
+border_width_bottom = 4
+border_color = Color(0.184314, 0.352941, 0.172549, 1)
+shadow_color = Color(0.16470589, 0.13725491, 0.09803922, 0.6)
+shadow_size = 1
+shadow_offset = Vector2(1, 2)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_end_p"]
+content_margin_left = 10.0
+content_margin_top = 6.0
+content_margin_right = 10.0
+content_margin_bottom = 2.0
+bg_color = Color(0.298039, 0.513725, 0.25098, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.184314, 0.352941, 0.172549, 1)
+shadow_color = Color(0.16470589, 0.13725491, 0.09803922, 0.75)
+shadow_size = 1
+
 [resource]
 default_font = ExtResource("1_vu6l5")
 default_font_size = 11
@@ -1108,6 +1152,14 @@ DimLabel/base_type = &"Label"
 DimLabel/colors/font_color = Color(0.6039216, 0.5686275, 0.47843137, 1)
 FormPanel/base_type = &"PanelContainer"
 FormPanel/styles/panel = SubResource("StyleBoxFlat_quqgn")
+EndShiftButton/base_type = &"GreenButton"
+EndShiftButton/colors/font_color = Color(0.960784, 0.933333, 0.847059, 1)
+EndShiftButton/colors/font_focus_color = Color(0.960784, 0.933333, 0.847059, 1)
+EndShiftButton/colors/font_hover_color = Color(0.960784, 0.933333, 0.847059, 1)
+EndShiftButton/colors/font_pressed_color = Color(0.960784, 0.933333, 0.847059, 1)
+EndShiftButton/styles/hover = SubResource("StyleBoxFlat_end_h")
+EndShiftButton/styles/normal = SubResource("StyleBoxFlat_end_n")
+EndShiftButton/styles/pressed = SubResource("StyleBoxFlat_end_p")
 GreenButton/base_type = &"Button"
 GreenButton/colors/font_color = Color(0.10980392, 0.08235294, 0.047058824, 1)
 GreenButton/colors/font_disabled_color = Color(0.10980392, 0.08235294, 0.047058824, 0.4)

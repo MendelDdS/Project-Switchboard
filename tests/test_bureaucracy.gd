@@ -553,6 +553,8 @@ func _initialize() -> void:
 	var t4: Array = m.bureaucracy.rule("b4_fitas").tests
 	var sus := await _call(t4[0])
 	ok(_said(sus, T.text(T.Key.SYS_RECORD_REQUEST)), "o aviso das autoridades")
+	ok(sus.transcript.any(func(l): return l.get("marks", []).size() == 1 and "Pensão Dona Cota" in l["text"])
+		and m.get_node("%DiaryNote").text == T.text(T.Key.NOTE_SUSPECT), "ligação marcada: o lugar sublinhado no pedido e o aviso na fita do alto")
 	await _connect(sus, 312)
 	m.listen()
 	ok(m.eavesdrop.listening(sus.line) and not tp.recording(), "escutando com fita, sem a REC: não grava")

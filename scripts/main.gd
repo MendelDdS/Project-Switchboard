@@ -15,6 +15,29 @@ const LAST_CALL_BEFORE := 20.0          # ...até `Night.shift_end`; tantos minu
 const CLEAR_SEC := 40.0                 # o som e a cor indo para a noite limpa quando a chuva ou a névoa param (`Night.clears_at`)
 const DIARY_WAIT := 15                  # no fim do turno, o diário aberto escrevendo e riscando, até tantos segundos...
 const DIARY_NOTE_SEC := 6.0             # o aviso "Diário atualizado" no alto, acima da mesa comutadora, fica tantos segundos
+## A seta que aponta o diário da mesa, de cima para baixo, quando o turno já pode ser encerrado (o botão fica nele),
+## só o triângulo (com a haste, pequena, mal se via): o desenho, a folga até o objeto, o quanto sobe e desce (px) e o tempo de um vaivém (s).
+const ARROW := [
+	"ooooooooooooooooooooooooooooooooo",
+	"o###############################o",
+	".o#############################o.",
+	"..o###########################o..",
+	"...o#########################o...",
+	"....o#######################o....",
+	".....o#####################o.....",
+	"......o###################o......",
+	".......o#################o.......",
+	"........o###############o........",
+	".........o#############o.........",
+	"..........o###########o..........",
+	"...........o#########o...........",
+	"............o#######o............",
+	".............o#####o.............",
+	"..............o###o..............",
+	"................o................"]
+const ARROW_GAP := 2.0
+const ARROW_BOB := 5.0
+const ARROW_SEC := 1.2
 const DIARY_HOLD := 2.5                 # ...e depois aberto mais estes, para ler, antes do memorando
 const WEATHERS := ["rain", "fog", "clear"]   # clima sorteado no começo do turno (`-- --weather=fog` força um)
 ## As cenas curtas da rua, que quem está atendendo perderia (`_street_hold`): esperam a mesa calar por até
@@ -94,7 +117,8 @@ const SAW_SHEET := "viu_folha_registro"
 const SAW_TRUNK := "viu_interurbano"   # a primeira ligação interurbana: a dica de como completar
 const SAW_TOLL := "viu_tarifacao"   # o primeiro bilhete de tarifação: a dica do carimbo e da caixinha
 
-var _diary_note: Tween   # o aviso "Diário atualizado" aparecendo e sumindo (`_diary_notice`)
+var _diary_note: Tween   # o aviso "Diário atualizado" aparecendo e sumindo (`notice`)
+var _alarm := ""   # a tarefa com hora marcada que a fita do alto mostra agora (`_task_alarm`)
 var _taught_done := false
 var _taught_multi := false
 var _taught_ring := false
@@ -109,8 +133,7 @@ var _hour := 0   ## a última hora cheia em que o relógio bateu (horas desde o 
 var talk_clock := 0.0              ## segundos de jogo (param na pausa); medem o silêncio na linha (PhoneCall.last_talk)
 
 @onready var background: Background = %Background
-@onready var _end_shift: Button = %EndShift
-@onready var _shift_plate: Control = %ShiftPlate   # o papel com fita do botão Encerrar turno: só aparece com ele
+@onready var _diary_arrow: TextureRect = %DiaryArrow   # a seta em cima do diário da mesa, com o turno podendo ser encerrado
 @onready var board: Switchboard = %Board
 @onready var badges: Control = %Badges   ## os broches na prateleira (`scripts/ui/badges.gd`)
 @onready var shelf_dialer: Control = %Dialer   ## o discador na prateleira (`scripts/ui/dialer.gd`; de perto, o pop-up `%DialView`)
@@ -189,7 +212,8 @@ func _ready() -> void:
 	phone.transfer_pressed.connect(transfer)
 	phone.hangup_pressed.connect(hangup)
 	phone.listen_pressed.connect(listen)
-	_end_shift.pressed.connect(end_shift)
+	tools.diary.end_pressed.connect(end_shift)   # o botão Encerrar turno, no pé da página do diário
+	_diary_arrow.texture = PixelArt.art(ARROW, {"#": Pal.AMBER, "o": Pal.INK})
 	_intro.start_pressed.connect(_start_shift)
 	_intro.skip_pressed.connect(_skip_training)
 	_intro.settings_pressed.connect(_pause.open_settings)
@@ -229,7 +253,7 @@ func _ready() -> void:
 	diary.written.connect(func():   # o lápis dela toda vez que escreve, risca ou marca (aberto, o som é o da página, `diary_view`)
 		if not (tools.open and tools.tab == Tools.DIARY):
 			Sfx.play_at("pencil", _across(background.prop_rect(Tools.DIARY).get_center().x), -3.0)
-			_diary_notice())
+			notice())
 	shelf_dialer.dialing = dialing
 	%DialView.dialing = dialing
 	shelf_dialer.clicked.connect(func(): if running and not ending and _taught("dialer"): %DialView.visible = not %DialView.visible)   # o de perto, por cima do painel
@@ -253,6 +277,7 @@ func _ready() -> void:
 	tools.letter.today = letter
 	diary.letter = letter
 	background.letter = letter != ""
+	background.note = night.note_for(flags) != ""   # (sem recado, a folha em branco não vai para o quadro)
 	if progress != null:
 		background.damp = progress.rains   # a mancha de umidade da sala, das noites de chuva
 	# noite de entrega de um setor: o mapa se abre para o bairro novo na primeira vez que aparece
@@ -406,14 +431,38 @@ func _teach(flag: String, key: T.Key) -> void:
 	hint(T.text(key))
 
 
-## O aviso "Diário atualizado" no alto, por `DIARY_NOTE_SEC` s: Maria escreveu ou riscou algo com o diário fechado.
-func _diary_notice() -> void:
+## Um aviso na fita do alto, acima da mesa comutadora, por `DIARY_NOTE_SEC` s: sem `text`, "Diário atualizado" (Maria
+## escreveu ou riscou algo com o diário fechado); com ele (já traduzido), a dica de uma regra (a ligação para lugar
+## suspeito, `rule_tapes`). A tarefa da hora marcada (`_task_alarm`) fica.
+func notice(text := "") -> void:
+	if _alarm != "":   # (a fita está com a tarefa da hora marcada)
+		return
 	if _diary_note:
 		_diary_note.kill()
+	%DiaryNote.text = text
 	_diary_note = create_tween()
 	_diary_note.tween_property(%DiaryNote, "modulate:a", 1.0, 0.2)
 	_diary_note.tween_interval(DIARY_NOTE_SEC)
 	_diary_note.tween_property(%DiaryNote, "modulate:a", 0.0, 0.6)
+
+
+## A hora marcada de uma tarefa do diário chegou (`Diary.alarm`): o despertador do relógio toca e a fita do alto
+## mostra a tarefa, no lugar de "Diário atualizado", até ela ser cumprida ou o prazo passar.
+func _task_alarm() -> void:
+	var due := diary.alarm()
+	if due == _alarm:
+		return
+	_alarm = due
+	if _diary_note:
+		_diary_note.kill()
+	_diary_note = create_tween()
+	if due != "":
+		%DiaryNote.text = due
+		Sfx.play_at("alarm", _across(background.clock_x))
+		_diary_note.tween_property(%DiaryNote, "modulate:a", 1.0, 0.2)
+	else:
+		_diary_note.tween_property(%DiaryNote, "modulate:a", 0.0, 0.6)
+		_diary_note.tween_callback(func(): %DiaryNote.text = "")
 
 
 func warn(t: String) -> void:
@@ -510,10 +559,16 @@ func _process(delta: float) -> void:
 		var can_end := minutes >= last_call and not ending
 		if night.clears_at >= 0.0 and minutes >= night.clears_at and weather != "clear":   # a chuva ou a névoa pararam
 			set_weather("clear", CLEAR_SEC)
-		if can_end and not _end_shift.visible:   # a campainha: o turno já pode ser encerrado (do canto onde o botão aparece)
-			Sfx.play_at("shift_bell", _across(_shift_plate.get_parent_control().global_position.x + 40.0))
-		_end_shift.visible = can_end
-		_shift_plate.visible = can_end
+		var book := background.prop_rect(Tools.DIARY)
+		if can_end != tools.diary.can_end:   # o turno já pode ser encerrado: a campainha, do diário, onde fica o botão
+			tools.diary.can_end = can_end
+			if can_end:
+				Sfx.play_at("shift_bell", _across(book.get_center().x))
+		# a seta em cima do diário da mesa, subindo e descendo devagar (pixel a pixel; o papel aberto a tapa)
+		_diary_arrow.visible = can_end and book.has_area()
+		if _diary_arrow.visible:
+			var bob := (sin(PixelArt.ms() / 1000.0 * TAU / ARROW_SEC) * 0.5 + 0.5) * ARROW_BOB
+			_diary_arrow.position = Vector2(book.get_center().x - _diary_arrow.size.x / 2.0, book.position.y - _diary_arrow.size.y - ARROW_GAP - bob).round()
 		var hour := floori(minutes / 60.0)
 		if hour > _hour:   # a badalada do relógio a cada hora cheia (vem do relógio de flip da mesa) e o sino da igreja
 			Sfx.play_at("chime", _across(background.clock_x))
@@ -523,6 +578,7 @@ func _process(delta: float) -> void:
 		radio.minutes = minutes
 		_nag()
 		diary.refresh()
+		_task_alarm()
 		if tools.open and tools.tab == Tools.DIARY:
 			background.diary_new = false
 		if background.letter and background.letter_read and not tools.open:   # lida, a carta vai para dentro do diário
@@ -1046,7 +1102,7 @@ func street_busy() -> bool:
 func _run_schedule() -> void:
 	if sched.is_empty():
 		return
-	if not live.is_empty():
+	if not live.is_empty() or night.quiet_at(minutes, flags):   # (no intervalo de uma missão com hora marcada, nenhuma a mais)
 		_quiet_from = minutes
 	elif minutes - _quiet_from >= pace.call_gap.y * QUIET_SHARE:
 		_fill_quiet()
@@ -1071,6 +1127,10 @@ func _run_schedule() -> void:
 	var hush := (c.story or c.retry != PhoneCall.Retry.NONE) and not live.is_empty() and minutes < c.latest
 	# numa "missão" do roteiro, nenhuma outra toca até ela acabar
 	if on_mission() or street_busy():   # (nem com uma cena curta da rua começando: `_street_hold`)
+		hush = true
+	# nem no intervalo de uma missão com hora marcada (`Night.quiet_at`: as sorteadas já ficam fora dele na agenda; aqui,
+	# quem foi adiada para dentro dele ou liga de novo); a do roteiro toca
+	if c.beat == null and night.quiet_at(minutes, flags):
 		hush = true
 	# no máximo `MAX_EMERGENCIES` ao mesmo tempo: a próxima espera uma delas desligar e ter o socorro
 	if (c.kind == PhoneCall.Kind.EMERGENCY or c.data is TransferCall and c.data.turns != null) and in_progress().size() >= MAX_EMERGENCIES:
@@ -1583,6 +1643,8 @@ func start_ending() -> void:
 		return
 	ending = true
 	running = false
+	tools.diary.can_end = false   # (o diário abre sozinho daqui a pouco, já sem o botão)
+	_diary_arrow.visible = false
 	%DialView.hide()
 	Sfx.ring_stop()
 	Sfx.stop_ambience(5.0)
@@ -1599,6 +1661,7 @@ func start_ending() -> void:
 			report.add(f["id"], f["time"], f["detail"], f.get("sev", -1), f.get("text", -1))
 	supervisor.shift_over()
 	diary.refresh()   # (o turno encerrado: as normas pelas advertências da noite, a rotina pendente com X)
+	_task_alarm()   # (a fita da hora marcada sai com o turno)
 	if saving:
 		progress.diary[night_no] = diary.page()
 		if report.fired() or last:
@@ -1629,4 +1692,4 @@ func start_ending() -> void:
 	await get_tree().create_timer(DIARY_HOLD * (3.0 if last else 1.0), false).timeout
 	tools.close()
 	await get_tree().create_timer(1.0, false).timeout
-	_ending.play(report, not last, night.ending_for(flags), not last)   # (o fim do jogo, o epílogo ou a presa: sem relatório)
+	_ending.play(report, not last, night.ending_for(flags), not last, flags.has(Rebellion.WON))   # (o fim do jogo, o epílogo ou a presa: sem relatório)

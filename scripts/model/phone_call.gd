@@ -227,6 +227,15 @@ func underline(i: int, length: int) -> void:
 	transcript_changed.emit()
 
 
+## Sublinha `word` nas falas de quem liga em que ela aparece (o lugar que as autoridades mandaram gravar, `rule_tapes`).
+func underline_word(word: String) -> void:
+	for l in transcript:
+		var at := String(l["text"]).find(word)
+		if l["cls"] == "" and at >= 0 and word != "":
+			l["marks"] = l.get("marks", []) + [[at, at + word.length()]]
+	transcript_changed.emit()
+
+
 func sys(text: String) -> void:
 	add_line("", text, "sys")
 

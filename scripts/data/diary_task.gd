@@ -11,6 +11,11 @@ extends Resource
 ## Cumprida com estes marcadores (`StoryFlags.allows`: todos; com `done_any`, qualquer um deles).
 @export var done: PackedStringArray = []
 @export var done_any := false
+## A hora marcada (minutos do turno; -1: sem): chegando, o despertador do relógio toca e a fita do alto mostra a
+## tarefa até ela se resolver (`Diary.alarm`, `Main._task_alarm`)...
+@export var from := -1.0
+## ...e, com ela, tantos minutos sem ligação nova antes da hora e depois do prazo (`Night.quiet_at`; 0: toca tudo).
+@export var quiet := 0.0
 @export var until := -1.0      ## minutos do turno: passou sem cumprir, X (-1: sem prazo; o X vem com o turno fechando)
 @export var at_close := false  ## só se resolve no turno encerrado (o pedido de não fazer algo): cumprida ou X
 

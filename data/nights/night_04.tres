@@ -156,9 +156,11 @@ call = ExtResource("j_dinamite")
 
 [sub_resource type="Resource" id="T_0"]
 script = ExtResource("dt_diary_task")
-text = "Dizer a senha ao Hotel Serena (305) às 20:30"
+text = "Ligar para o Hotel Serena (305) às 20:30 e informar a senha"
 requires = PackedStringArray("sabe_senha_3")
 done = PackedStringArray("senha_hotel_4")
+from = 150.0
+quiet = 15.0
 until = 180.0
 
 [sub_resource type="Resource" id="T_1"]

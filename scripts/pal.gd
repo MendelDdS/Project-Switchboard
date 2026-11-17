@@ -50,6 +50,7 @@ const PENCIL_ERASER: Array[Color] = [Color("c08a80"), Color("a86a62"), Color("7a
 const PENCIL_LEAD := Color("2a2620")
 ## O diário de Maria (`Tools.DIARY`): a capa de pano vinho (luz, meio, sombra), a página e a letra dela a lápis.
 const DIARY_COVER: Array[Color] = [Color("8a4440"), Color("66302d"), Color("43201e")]
+const DIARY_RIBBON: Array[Color] = [Color("d2665f"), Color("b04a45"), Color("7e302d")]   ## a fita marca-página dele (o aviso "Diário atualizado"): o mesmo pano, na luz
 const DIARY_PAGE := Color("e6dbbb")
 const DIARY_FLAP := Color("f5eed8")    ## o canto dobrado do diário: a ponta virada, na ponta que pega a luz...
 const DIARY_EDGE := Color("b8aa84")    ## ...a beira da folha nela...

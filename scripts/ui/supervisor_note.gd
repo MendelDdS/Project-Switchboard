@@ -3,17 +3,19 @@ extends PanelContainer
 ## O recado do supervisor da noite num bilhete do papel timbrado do memorando (`ReportView`): o fone e o nome da
 ## companhia em vermelho, o fio duplo, a noite datilografada (`[typed]`), o recado à mão na caneta azul (`[hand]`,
 ## `PaperInk`), a rubrica dele e as fibras do papel; no alto, a tachinha com que ele fica pregado no quadro de avisos
-## (`Background._draw_pinned_note`). O mesmo papel na tela de abertura (`Intro`, com os botões embaixo) e lido de novo
+## (`Background._draw_pinned_note`; sem recado, a folha em branco, que não vai para o quadro). O mesmo papel na tela de abertura (`Intro`, com os botões embaixo) e lido de novo
 ## pelo quadro (`Intro.reread`). No pé, à esquerda, o "Ciente" de Maria (`sign_field`): assinado, o turno começa.
 
 signal signed
 
 const INK := preload("res://scripts/ui/paper_ink.gd")
 const TACK := 9   ## a tachinha no alto (px)
+const BLANK_H := 88.0   ## a altura do lugar do recado na folha em branco (px; umas seis linhas)
 
 var _n := 0
 var _night: Night
 var _flags: StoryFlags
+var _tack := true   ## a tachinha no alto (a folha em branco não tem)
 var _extra := PackedStringArray()   ## os parágrafos a mais (o aviso da noite decisiva, as fitas, o código), já traduzidos
 
 
@@ -63,14 +65,23 @@ func _texts() -> void:
 		var of := GameData.CONTENT.nights.size()   # "Noite 7 de 15" (a hora fica no relógio do turno); o epílogo, sem o "de"
 		date = T.text(T.Key.INTRO_NIGHT_OF) % [_n, of, GameData.date_text(_n)] if _n <= of \
 			else T.text(T.Key.INTRO_NIGHT) % [_n, GameData.date_text(_n), Main.fmt(0.0)]
-	%Date.text = "[typed]%s[/typed]" % date
-	var note := tr(_night.note_for(_flags))
+	# sem recado (o epílogo do golpe vencido: o supervisor foi desligado da companhia), a folha timbrada em branco, sem
+	# o departamento dele, a noite datilografada nem a rubrica: só o "Ciente" de Maria
+	var blank := _night.note_for(_flags) == ""
+	%Date.text = "" if blank else "[typed]%s[/typed]" % date
+	for n: CanvasItem in [$Margin/VBox/Foot/Signed, $Margin/VBox/Head/HeadText/Department]:   # (no lugar, transparentes: escondidos, a folha encolhia)
+		n.modulate.a = 0.0 if blank else 1.0
+	_tack = not blank   # (em branco, ela não vai para o quadro)
+	queue_redraw()
+	%Text.custom_minimum_size.y = BLANK_H if blank else 0.0
+	var note := "" if blank else tr(_night.note_for(_flags))   # (o `tr("")` devolve o cabeçalho do `.po`)
 	for p in _extra:
 		note += "\n\n" + p
-	%Text.text = "[hand]%s[/hand]" % note
+	%Text.text = "[hand]%s[/hand]" % note.strip_edges()
 
 
 ## As fibras do papel (as do memorando, `ReportView.fibers`) e a tachinha vermelha no alto do meio, a do quadro.
 func _draw() -> void:
 	ReportView.fibers(self, size, 0)
-	draw_texture(PixelArt.disc(TACK, [[4.0, Pal.POSTER_TACK[0], Pal.POSTER_TACK[1], Pal.POSTER_TACK[2]]]), Vector2(floorf((size.x - TACK) / 2.0), -3))
+	if _tack:
+		draw_texture(PixelArt.disc(TACK, [[4.0, Pal.POSTER_TACK[0], Pal.POSTER_TACK[1], Pal.POSTER_TACK[2]]]), Vector2(floorf((size.x - TACK) / 2.0), -3))

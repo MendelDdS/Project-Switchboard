@@ -396,7 +396,7 @@ func _ready() -> void:
 		if _args["card"] == "closed":   # o cartão na mesa e o despacho guardado: a unidade da mesa com o cartão saindo
 			m.tools.close()
 	if _args.has("diarynote"):   # o aviso "Diário atualizado" no alto
-		m._diary_notice()
+		m.notice()
 	match _args.get("screen", ""):
 		"note":   # o recado do supervisor relido pelo quadro de avisos
 			m._intro.reread(m.background.prop_rect(Background.NOTE_ID))

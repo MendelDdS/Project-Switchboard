@@ -36,6 +36,7 @@ END_FIRED_TITLE,Você foi demitida.,You've been fired.,Usted fue despedida.
 END_FIRED_TEXT,Duas noites seguidas com conceito insuficiente. A companhia telefônica agradece seus serviços.,Two consecutive nights rated unsatisfactory. The telephone company thanks you for your service.,Dos noches seguidas con calificación insuficiente. La compañía telefónica le agradece sus servicios.
 END_NIGHT_TITLE,Fim da noite %d,End of night %d,Fin de la noche %d
 END_NIGHT_TEXT,"Amanhã, às 18:00, a central é sua de novo.","Tomorrow at 18:00, the switchboard is yours again.","Mañana, a las 18:00, la central es suya otra vez."
+END_NIGHT_WON,A central está fechada por enquanto. Você decide voltar mesmo assim: a cidade precisa continuar conectada.,The exchange is closed for now. You decide to come back anyway: the town needs to stay connected.,La central está cerrada por ahora. Usted decide volver de todos modos: la ciudad necesita seguir conectada.
 END_TRAINING_TITLE,Fim do treinamento,End of training,Fin del entrenamiento
 END_TRAINING_TEXT,"Na segunda-feira, às 18:00, a central é sua.","On Monday at 18:00, the switchboard is yours.","El lunes, a las 18:00, la central es suya."
 END_GAME_TITLE,Fim,The end,Fin
@@ -197,6 +198,7 @@ TAB_NEWS,Jornal da manhã,Morning paper,Diario de la mañana
 TAB_LETTER,Carta,Letter,Carta
 TAB_DIARY,Diário,Diary,Diario
 DIARY_DATE,"%s, %d de outubro","%s, October %d","%s, %d de octubre"
+NOTE_SUSPECT,Ligação para lugar suspeito,Call to a suspect place,Llamada a un lugar sospechoso
 DIARY_UPDATED,Diário atualizado,Diary updated,Diario actualizado
 DIARY_TASKS,Tarefas,To do,Tareas
 DIARY_NOTES,Anotações,Notes,Notas
@@ -204,10 +206,10 @@ DIARY_LEFT,(faltam %d),(%d left),(faltan %d)
 DIARY_LOGS,Registrar as ligações na ficha,Log the calls on the sheet,Registrar las llamadas en la ficha
 DIARY_TICKETS,Carimbar e guardar os bilhetes,Stamp and file the toll tickets,Sellar y guardar los boletos
 DIARY_TAPES,Entregar as fitas,Hand over the tapes,Entregar las cintas
-DIARY_B1,Pedir nome e sobrenome de quem liga,Ask callers for their full name,Pedir nombre y apellido a quien llama
+DIARY_B1,Solicitar nome e sobrenome de quem liga,Ask callers for their full name,Solicitar nombre y apellido a quien llama
 DIARY_B2_BAR,Não passar ligações para o Bar do Zé,No calls through to the Bar do Zé,No pasar llamadas al Bar do Zé
 DIARY_B2_RADIO_TV,Não passar ligações para a rádio nem para a TV,No calls through to the radio or the TV,No pasar llamadas a la radio ni a la TV
-DIARY_B3,Pedir o código das autoridades,Ask the authorities for the code,Pedir el código a las autoridades
+DIARY_B3,Solicitar o código das autoridades,Ask the authorities for the code,Solicitar el código a las autoridades
 DIARY_B4,Gravar as conversas marcadas,Record the flagged calls,Grabar las conversaciones marcadas
 TAB_TOLL,Calculógrafo,Toll timer,Tarificador
 BLIND_CLOSE,Fechar a persiana,Close the blind,Bajar la persiana
@@ -427,10 +429,7 @@ COLORS_NORMAL,Normais,Default,Normales
 COLORS_RED_GREEN,Daltonismo (vermelho e verde),Red-green colorblind,Daltonismo (rojo y verde)
 KEYS_PRESS,Aperte uma tecla,Press a key,Pulse una tecla
 APPLY,Aplicar,Apply,Aplicar
-END_SHIFT,"Encerrar
-turno","End
-shift","Terminar
-turno"
+END_SHIFT,Encerrar turno,End shift,Terminar turno
 FAULT_SHIFT_HUNG_UP,Encerrou o turno com alguém na linha,Ended the shift with someone on the line,Terminó el turno con alguien en la línea
 OBS_SHIFT_ENDED,Turno encerrado durante a ligação.,Shift ended during the call.,Turno terminado durante la llamada.
 HINT_MIDNIGHT,"Fim do turno. Registre o que falta na ficha e guarde os bilhetes, ou encerre o turno.","End of shift. Log what's left on the log sheet and file the tickets, or end the shift.","Fin del turno. Registre lo que falta en la ficha y guarde las boletas, o termine el turno."

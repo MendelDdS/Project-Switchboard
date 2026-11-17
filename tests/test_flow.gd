@@ -294,6 +294,7 @@ func _initialize() -> void:
 		var in_order := ats.duplicate()
 		in_order.sort()
 		ok(ats == in_order and ats.all(func(a): return a >= 0.0 and a < n.shift_end), "agenda em ordem: " + n.resource_path)
+		ok(plan.calls.all(func(c: PhoneCall): return c.beat != null or not n.quiet_at(c.at, null)), "nenhuma sorteada no intervalo da missão com hora marcada: " + n.resource_path)
 		ok(plan.calls.all(func(c: PhoneCall): return c.story or c.at < last),
 			"sorteadas antes da última ligação: " + n.resource_path)
 		var fixed := plan.calls.filter(func(c: PhoneCall): return c.story)
@@ -1241,11 +1242,21 @@ func _initialize() -> void:
 	var night_tasks := m.night.tasks
 	m.minutes = 100.0
 	var story_asks: Array[Night.DiaryTask] = [request.call("fez_teste", -1.0, false), request.call("nunca_teste", m.minutes + 1.0, false), request.call("!fez_teste", -1.0, true)]
+	story_asks.append(request.call("alarme_teste", m.minutes + 50.0, false))   # com hora marcada, que já chegou
+	story_asks[3].from = m.minutes - 1.0
+	story_asks[3].quiet = 15.0
 	m.night.tasks = story_asks
 	await frames(2)
-	ok(task.call("roteiro_0").is_empty(), "o pedido só entra com o marcador de quem pediu")
+	ok(task.call("roteiro_0").is_empty() and m._alarm == "", "o pedido só entra com o marcador de quem pediu")
 	m.flags.apply("pediu_teste")
 	await frames(2)
+	var ribbon: Control = m.get_node("%DiaryNote")
+	ok(m._alarm == "alarme_teste" and ribbon.text == "alarme_teste" and ribbon.modulate.a > 0.0, "hora marcada: o despertador toca e a fita do alto mostra a tarefa")
+	ok(m.night.quiet_at(m.minutes, m.flags) and m.night.quiet_at(m.minutes + 60.0, m.flags) and not m.night.quiet_at(m.minutes + 70.0, m.flags),
+		"e a mesa fica sem ligação nova de antes da hora até depois do prazo")
+	m.flags.apply("alarme_teste")
+	await frames(2)
+	ok(m._alarm == "" and task.call("roteiro_3").state == Main.Diary.State.DONE, "cumprida a tarefa, a fita sai")
 	ok(task.call("roteiro_0").state == Main.Diary.State.OPEN and task.call("roteiro_2").state == Main.Diary.State.OPEN, "pedidos que se contradizem entram os dois")
 	ok(m.diary.tasks[0].id == "roteiro_0", "os pedidos do roteiro vêm antes das normas e da rotina")
 	m.tools.close()
@@ -1269,6 +1280,7 @@ func _initialize() -> void:
 	ok(task.call("roteiro_2").state == Main.Diary.State.FAILED, "no turno encerrado, o de não fazer descumprido leva X")
 	m.flags.apply("!fez_teste")
 	m.flags.apply("!pediu_teste")
+	m.flags.apply("!alarme_teste")
 	m.night.tasks = night_tasks
 	m.diary._story.clear()
 	# as abas dos dias anteriores: a página guardada (`Diary.page`) sem o texto, que volta no idioma de agora

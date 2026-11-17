@@ -563,25 +563,31 @@ at_close = true
 
 [sub_resource type="Resource" id="T_1"]
 script = ExtResource("dt_diary_task")
-text = "21h: dizer \"Começou.\" ao 120 e ao 288"
+text = "Ligar para o 120 e o 288 às 21:00 e informar: \"Começou.\""
 requires = PackedStringArray("!fita_armas_entregue")
 letter = true
 done = PackedStringArray("sinal_centro_15", "sinal_serra_15")
+from = 180.0
+quiet = 5.0
 until = 240.0
 
 [sub_resource type="Resource" id="T_2"]
 script = ExtResource("dt_diary_task")
-text = "21h: dizer \"Começou.\" ao 120 e ao 291"
+text = "Ligar para o 120 e o 291 às 21:00 e informar: \"Começou.\""
 requires = PackedStringArray("fita_armas_entregue")
 letter = true
 done = PackedStringArray("sinal_centro_15", "sinal_serra_15")
+from = 180.0
+quiet = 5.0
 until = 240.0
 
 [sub_resource type="Resource" id="T_3"]
 script = ExtResource("dt_diary_task")
-text = "22h: pedir a \"Canção da Madrugada\" à rádio (390)"
+text = "Solicitar à rádio (390), às 22:00, a \"Canção da Madrugada\""
 letter = true
 done = PackedStringArray("musica_15")
+from = 240.0
+quiet = 5.0
 until = 270.0
 
 [sub_resource type="Resource" id="T_4"]

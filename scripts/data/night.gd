@@ -94,6 +94,13 @@ func letter_for(f: StoryFlags) -> String:
 	return ""
 
 
+## No minuto `m` a mesa fica sem ligação nova: a missão com hora marcada do diário (`DiaryTask.quiet`, a senha da
+## noite 4), de antes da hora até depois do prazo, com os marcadores `f` deixando a tarefa entrar.
+func quiet_at(m: float, f: StoryFlags) -> bool:
+	return tasks.any(func(t: DiaryTask) -> bool:
+		return t.quiet > 0.0 and t.from >= 0.0 and m >= t.from - t.quiet and m < t.until + t.quiet and (f == null or f.allows(t.requires)))
+
+
 ## O texto do fim do turno com os marcadores `f` (null sem nenhum que bata).
 func ending_for(f: StoryFlags) -> StoryText:
 	for v in endings:
