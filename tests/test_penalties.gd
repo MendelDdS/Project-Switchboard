@@ -491,4 +491,12 @@ func _initialize() -> void:
 	ok(_faults("register_missing") == unreg + 1, "sem registro só a que já tinha acabado")
 	ok(_faults("toll_forgotten") == forgot + 1, "bilhete esquecido na mesa: advertência leve")
 	ok(not m.tools.diary.can_end and not arrow.visible, "turno encerrado: sem o botão e sem a seta")
+	# a noite do golpe vencido: a central fechada depois do texto do final, e o memorando sem a rubrica do supervisor
+	var met: Resource = C.nights[-1].endings.filter(func(t: Resource): return "final_sucesso" in t.requires)[0]
+	m.report.low_before = 0   # (demitida, a tela seria a da demissão)
+	m.report.faults.clear()
+	m._ending.play(m.report, true, met, true, true)   # (os textos saem antes da primeira espera)
+	ok(m._ending._question.text == tr(met.text) + "\n\n" + T.text(T.Key.END_NIGHT_WON), "golpe vencido sem mortos: o encontro e a central fechada")
+	view.show_report(m.report, true)
+	ok(view._unsigned, "golpe vencido: o memorando sem a rubrica do supervisor")
 	finish("consequências e relatório")

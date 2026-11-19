@@ -6443,7 +6443,7 @@ msgid "Comunicar à delegacia (184) conversa suspeita"
 msgstr ""
 
 #: data/nights/night_04.tres
-msgid "Às oito e meia, disse a senha ao hotel."
+msgid "Às oito e meia, informei a senha ao hotel."
 msgstr ""
 
 #: data/nights/night_04.tres

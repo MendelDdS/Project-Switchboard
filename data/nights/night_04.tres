@@ -172,7 +172,7 @@ at_close = true
 
 [sub_resource type="Resource" id="N_0"]
 script = ExtResource("dl_diary_line")
-text = "Às oito e meia, disse a senha ao hotel."
+text = "Às oito e meia, informei a senha ao hotel."
 requires = PackedStringArray("senha_hotel_4")
 
 [sub_resource type="Resource" id="N_1"]

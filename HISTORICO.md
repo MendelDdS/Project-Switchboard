@@ -4277,3 +4277,20 @@ Chaves:
     hospital); nos dois fechos do epílogo, "a porta do quarto" virou "a porta da sala" e "na ala 3C" virou "no
     ambulatório" (a cena do Sebastião no corredor fica). Aprovadas sem mudança: as falas das quatro variações de
     emergência, as treze falas escutadas sem a hora sorteada e as marcas de despedida (`overheard_ends`, `Motive.ends`).
+658. #diario #noite4 #texto #som #bug Dois acertos das pendências antigas. (1) "No caso, ficaria 'informei a senha', não
+    somente 'informei'": a anotação do diário da noite 4 virou "Às oito e meia, informei a senha ao hotel." (pt, en,
+    es; a tarefa já dizia "informar a senha", item 649). (2) O aviso "8 resources still in use at exit" na compilação
+    do hook: "Ao invés de ignorar, não tem como simplesmente consertar?" Eram os sons em laço (chuva, tempestade,
+    vento, grilos e os sintetizados) que o servidor de áudio ainda não tinha soltado ao fechar: ele só solta mixando, e
+    com a máquina ocupada os 50 ms fixos do `Sfx._exit_tree` passavam sem nenhuma mixagem. Agora a saída espera as
+    mixagens (`EXIT_MIXES`, no máximo meio segundo): sem esperar, vazava em 3 de 6 saídas; esperando, em 0 de 36 com
+    seis jogos fechando ao mesmo tempo.
+659. #epilogo #supervisor #relatorio #debug #dica Respostas às pendências antigas. "4.1. Quero": no golpe vencido sem
+    mortos, a tela do fim da noite 15 mostra o encontro com Sebastião (texto dele, intacto) e, depois, a frase da
+    central fechada, como na vitória amarga (`Ending.play`, `END_NIGHT_WON`). "4.2. Remova a rubrica para esse caso":
+    o memorando da noite do golpe vencido vem sem a rubrica do supervisor, só a linha em branco
+    (`ReportView.show_report(r, unsigned)`); o título e o parecer à mão ficaram. "Poderia adicionar no debug o som do
+    alarme?": já estava, na Mesa de som do F1 ("▶ alarm", com o volume). "Se isso faz parte de uma missão, então tem
+    que ter a dica": a "Ligação das autoridades" continua na noite 12 (as duas ligações para a Alta Cúpula). Captura:
+    `shot.gd --screen=report --signed` (a tela do fim da noite; com `--night=15 --flags=golpe_venceu,final_sucesso`, a
+    do golpe vencido).

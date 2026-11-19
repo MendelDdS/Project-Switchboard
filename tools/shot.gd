@@ -46,6 +46,8 @@ extends Node
 ##   --screen=id            uma tela por cima: intro (a de início), note (o recado relido pelo quadro), pause, settings,
 ##                          report (o relatório com advertências;
 ##                          --rating=great|good|fair|poor o conceito, padrão poor, a segunda noite seguida;
+##                          --signed: o memorando já assinado, a tela do fim da noite; com --night=15 e
+##                          --flags=golpe_venceu,final_sucesso, as da noite do golpe vencido;
 ##                          --ask, com pause: a pergunta de Recomeçar a noite;
 ##                          end, a pergunta de Encerrar turno;
 ##                          --warned, com intro, o bilhete depois de uma noite Insuficiente; --tapenote, com o resumo das
@@ -437,8 +439,10 @@ func _ready() -> void:
 			for c in ["transfer", "transfer", "transfer", "transfer", "transfer", "transfer", "info", "info", "info", "emergency_ok", "occurrence"]:
 				m.report.credit(c, "20:00")
 			m.report.low_before = 1 if rating == "poor" else 0
-			m._ending.play(m.report, true)
+			m._ending.play(m.report, true, m.night.ending_for(m.flags), true, m.flags.has(m.Rebellion.WON))
 			await get_tree().create_timer(4.0, false).timeout
+			if _args.has("signed"):
+				m._ending._report.closed.emit()
 	await get_tree().create_timer(float(_args.get("wait", "5")), true).timeout   # (conta também na pausa)
 	if _args.has("car"):   # (depois da espera: em `CAR_SEC` ele já teria passado)
 		var kinds: PackedStringArray = _args["car"].split(",")

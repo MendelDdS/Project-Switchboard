@@ -48,6 +48,7 @@ var _hand := INK.new()
 @onready var _body: VBoxContainer = %Body
 @onready var _verdict: RichTextLabel = %Verdict
 var _grade: Control   ## o carimbo do conceito, no pé do memorando
+var _unsigned := false   ## sem a rubrica do supervisor (`show_report`)
 
 
 func _ready() -> void:
@@ -60,12 +61,18 @@ func _ready() -> void:
 		%Rule.draw_rect(Rect2(0, 1, %Rule.size.x, 1), Pal.INK_RED)
 		%Rule.draw_rect(Rect2(0, 3, %Rule.size.x, 1), Pal.INK_RED))
 	%Scribble.draw.connect(func():
+		if _unsigned:
+			return
 		%Scribble.draw_polyline(PackedVector2Array(SCRIBBLE), Pal.PEN, 1.0)
 		%Scribble.draw_polyline(PackedVector2Array(FLOURISH), Color(Pal.PEN, 0.8), 1.0))
 	%Sign.signed.connect(closed.emit)   # Maria assina o "Ciente" e o memorando sai
 
 
-func show_report(r: ShiftReport) -> void:
+## `unsigned`: sem a rubrica do supervisor, só a linha dela em branco (o memorando da noite em que o golpe venceu: ele
+## já não está lá para assinar).
+func show_report(r: ShiftReport, unsigned := false) -> void:
+	_unsigned = unsigned
+	%Scribble.queue_redraw()
 	%Sign.clear()
 	for n in _body.get_children():
 		n.queue_free()

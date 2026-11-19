@@ -60,13 +60,15 @@ func play(report: ShiftReport, more: bool, text: StoryText = null, memo := true,
 		if text.title != "":
 			_title.text = tr(text.title)
 		_question.text = tr(text.text)
+		if more and won:   # (o encontro com Sebastião na 15: a central fechada vem depois dele, como na vitória amarga)
+			_question.text += "\n\n" + T.text(T.Key.END_NIGHT_WON)
 	mouse_filter = Control.MOUSE_FILTER_STOP
 	if not memo:
 		await create_tween().tween_property(self, "color:a", 1.0, 2.5).finished
 	else:
 		create_tween().tween_property(self, "color:a", REPORT_DIM, 3.0)   # o memorando chega na mesa escura, ainda à vista
 		await get_tree().create_timer(3.4, false).timeout
-		_report.show_report(report)
+		_report.show_report(report, won)
 		_report.modulate.a = 0.0
 		_report.visible = true
 		create_tween().tween_property(_report, "modulate:a", 1.0, 1.2)

@@ -85,6 +85,8 @@ const STREET := ["scream", "scream~1", "scream~2", "scream~3", "scream~4", "shou
 	"kick", "commotion", "horn", "horn~1", "horn~2", "siren_far", "siren", "siren_down",
 	"megaphone", "whistle", "whistle~1", "door", "order", "order~1", "order~2", "plea", "plea~1", "baby", "luggage", "luggage~1", "shutter", "rocket", "rocket2", "rocket_far", "rocket_far2"]
 const RECORDED := ["rain", "storm", "breeze", "crickets", "thunder", "thunder~1", "thunder~2", "thunder~3"]
+## Quantas mixagens o `_exit_tree` espera ao fechar o jogo, para o servidor de áudio soltar os sons parados.
+const EXIT_MIXES := 3
 ## A tempestade (chuva forte com vento) entra por cima da chuva a partir de STORM_FROM de força (`set_rain`) e chega
 ## inteira na mais forte.
 const STORM_FROM := 0.5
@@ -274,15 +276,25 @@ func _ready() -> void:
 
 # ------------------------------------------------------------------ reprodução
 
-## Ao fechar o jogo: para todos os sons, solta as gravações e dá ao áudio um instante para largar as reproduções
-## paradas (fechando com som tocando, elas e os sons vazavam na saída: "ObjectDB instances leaked").
+## Ao fechar o jogo: para todos os sons, solta as gravações e espera o áudio largar as reproduções paradas (fechando
+## com som tocando, elas e os sons vazavam na saída: "ObjectDB instances leaked", "resources still in use at exit").
+## O servidor de áudio só as solta mixando (o fim do som num passo, a soltura no seguinte): espera `EXIT_MIXES` passos
+## dele, e não um tempo fixo (com a máquina ocupada, os 50 ms de antes passavam sem ele mixar nenhuma vez).
 func _exit_tree() -> void:
 	for p in get_children():
 		if p is AudioStreamPlayer or p is AudioStreamPlayer2D:
 			p.stop()
 			p.stream = null
 	streams.clear()
-	OS.delay_msec(50)   # ponytail: o servidor de áudio só solta a reprodução parada no próximo passo da mixagem
+	var mixes := 0
+	var last := AudioServer.get_time_since_last_mix()
+	for i in 250:   # (no máximo meio segundo: sem áudio mixando, fecha assim mesmo)
+		if mixes >= EXIT_MIXES:
+			break
+		OS.delay_msec(2)
+		var now := AudioServer.get_time_since_last_mix()
+		mixes += int(now < last)   # (o tempo desde a última mixagem voltou: ele mixou de novo)
+		last = now
 
 
 func play(id: String, db: float = 0.0, pitch: float = 1.0) -> AudioStreamPlayer:
