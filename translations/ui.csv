@@ -198,6 +198,7 @@ TAB_NEWS,Jornal da manhã,Morning paper,Diario de la mañana
 TAB_LETTER,Carta,Letter,Carta
 TAB_DIARY,Diário,Diary,Diario
 DIARY_DATE,"%s, %d de outubro","%s, October %d","%s, %d de octubre"
+NOTE_AUTHORITY,Ligação das autoridades,Call from the authorities,Llamada de las autoridades
 NOTE_SUSPECT,Ligação para lugar suspeito,Call to a suspect place,Llamada a un lugar sospechoso
 DIARY_UPDATED,Diário atualizado,Diary updated,Diario actualizado
 DIARY_TASKS,Tarefas,To do,Tareas

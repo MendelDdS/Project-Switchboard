@@ -65,8 +65,12 @@ func _random_calls(night: Night, pace: Pace, last_call: float, fixed: Array[Phon
 	# com poucas vagas, primeiro as que os marcadores já deixam tocar (das duas versões de um freguês, a que vale)
 	var can := func(st: StoryCall) -> bool: return flags == null or flags.allows(st.requires)
 	var mine := night.calls.filter(can) + night.calls.filter(func(st: StoryCall) -> bool: return not can.call(st))
-	for k in mini(mine.size(), free.size() - n_pranks):
-		own[free[n_pranks + k]] = mine[k]
+	var slots := free.slice(n_pranks)
+	for st: StoryCall in mine:
+		var fits := slots.filter(func(j: int) -> bool: return st.before < 0.0 or ats[j] < st.before)
+		if not fits.is_empty():   # (sem vaga antes da hora dela, não toca)
+			own[fits[0]] = st
+			slots.erase(fits[0])
 	var used := fixed.map(func(f: PhoneCall): return f.caller)
 	targets = fixed.map(func(f: PhoneCall): return f.target) + own.values().map(func(st: StoryCall): return st.call.target)
 	var transfers := C.transfers.filter(func(x): return not x.caller in used and GameData.serves(x))
@@ -88,10 +92,10 @@ func _random_calls(night: Night, pace: Pace, last_call: float, fixed: Array[Phon
 			c.beat = own[i]   # o desfecho liga os marcadores dela, e quem volta a ligar (`StoryCall.callback`)
 		elif randf() < TRANSFER_SHARE:
 			# um número por noite: duas pessoas pedindo o mesmo destino ficariam esperando uma pela outra
-			var fresh := transfers.filter(func(x: TransferCall): return not x.target in targets and not x.alt_target in targets)
+			var fresh := transfers.filter(func(x: TransferCall): return not x.target in targets and not x.alt_target in targets and GameData.answering(x.target, ats[i]))
 			var tc: TransferCall = GameData.trunk_transfer(targets) if night.lesson.is_empty() and randf() < TRUNK_SHARE else null
 			if tc == null:
-				tc = fresh.back() if randf() >= TEMPLATE_CHANCE and not fresh.is_empty() else GameData.template_transfer(targets)
+				tc = fresh.back() if randf() >= TEMPLATE_CHANCE and not fresh.is_empty() else GameData.template_transfer(targets, ats[i])
 			if tc == null and not fresh.is_empty():
 				tc = fresh.back()
 			if tc != null:
@@ -109,8 +113,8 @@ func _random_calls(night: Night, pace: Pace, last_call: float, fixed: Array[Phon
 
 ## A ligação a mais da mesa vazia (`Main._fill_quiet`): uma transferência (de um molde) para um número ainda não
 ## pedido nesta noite; sem número livre, um pedido de informação.
-func filler() -> PhoneCall:
-	var tc := GameData.template_transfer(targets)
+func filler(at := 0.0) -> PhoneCall:
+	var tc := GameData.template_transfer(targets, at)
 	if tc == null:
 		return info_call()
 	targets.append_array([tc.target, tc.alt_target])

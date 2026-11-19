@@ -19,7 +19,7 @@ sets = PackedStringArray()
 
 [sub_resource type="Resource" id="Step_03"]
 script = ExtResource("2_step")
-text = "Eu conheci o seu pai, Maria. O Cristóvão. Eu era menino e ia com o meu pai às reuniões, e o Cristóvão sempre levava cartão telefônico pra mim, antes de serem banidos."
+text = "Eu conheci o seu pai, Maria. O Cristóvão. Eu era menino e ia com o meu pai às reuniões, e o Cristóvão sempre levava gibis pra mim, antes de serem banidos."
 
 [sub_resource type="Resource" id="Step_04"]
 script = ExtResource("2_step")
@@ -43,7 +43,7 @@ requires = PackedStringArray("rosto_5")
 
 [sub_resource type="Resource" id="Step_07"]
 script = ExtResource("2_step")
-text = "Porque você merece saber por quem está fazendo isso. Confie em mim, Maria."
+text = "Você merece saber por quem está fazendo isso. Confie em mim, Maria."
 
 [sub_resource type="Resource" id="Step_08"]
 script = ExtResource("2_step")

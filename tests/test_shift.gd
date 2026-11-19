@@ -262,7 +262,8 @@ func _initialize() -> void:
 				kinds[c.kind] = int(kinds.get(c.kind, 0)) + 1
 				info_run = info_run + 1 if c.kind == PhoneCall.Kind.INFO else 0
 				info_max = maxi(info_max, info_run)
-				ok(not mission, "%s: nada toca numa missão do roteiro (`Main.on_mission`)" % Main.fmt(m.minutes))
+				# (a missão que acaba no mesmo quadro em que a próxima toca não conta: vale a que continua depois dele)
+				ok(not (mission and m.on_mission() and not c.story), "%s: nada toca numa missão do roteiro (`Main.on_mission`)" % Main.fmt(m.minutes))
 				max_quiet = maxf(max_quiet, m.minutes - last_ring)
 				last_ring = m.minutes
 		fall += 1

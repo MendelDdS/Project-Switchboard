@@ -45,11 +45,17 @@ script = ExtResource("2_step")
 kind = 1
 options = PackedStringArray("Miguel, fica longe disso.", "O que mais ele disse?")
 requires = PackedStringArray("miguel_amigo")
+sets = PackedStringArray("miguel_longe_8", "")
 
 [sub_resource type="Resource" id="Step_07"]
 script = ExtResource("2_step")
 text = "Que menino não vai. Mas eu não sou mais menino. Tchau!"
-requires = PackedStringArray("miguel_amigo")
+requires = PackedStringArray("miguel_amigo", "!miguel_longe_8")
+
+[sub_resource type="Resource" id="Step_07b"]
+script = ExtResource("2_step")
+text = "Tá igual à minha mãe. Mas não se preocupa, eu sei me cuidar. Tchau!"
+requires = PackedStringArray("miguel_amigo", "miguel_longe_8")
 
 [sub_resource type="Resource" id="Step_08"]
 script = ExtResource("2_step")
@@ -70,4 +76,4 @@ script = ExtResource("1_call")
 voice = "k"
 caller = "Menino"
 caller_name = "Miguel"
-steps = Array[ExtResource("2_step")]([SubResource("Step_00"), SubResource("Step_01"), SubResource("Step_02"), SubResource("Step_03"), SubResource("Step_04"), SubResource("Step_04b"), SubResource("Step_05"), SubResource("Step_06"), SubResource("Step_07"), SubResource("Step_08"), SubResource("Step_09"), SubResource("Step_10")])
+steps = Array[ExtResource("2_step")]([SubResource("Step_00"), SubResource("Step_01"), SubResource("Step_02"), SubResource("Step_03"), SubResource("Step_04"), SubResource("Step_04b"), SubResource("Step_05"), SubResource("Step_06"), SubResource("Step_07"), SubResource("Step_07b"), SubResource("Step_08"), SubResource("Step_09"), SubResource("Step_10")])

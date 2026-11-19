@@ -14,5 +14,5 @@ destination = "Delegacia de Polícia"
 thanks = "Obrigado."
 overheard = PackedStringArray("Plantão, aqui é o Bastos, na frente do hotel!", "Fala, Bastos!", "Um grupo vindo pela [street:Rua das Palmeiras], com tochas. Vão pro [place:Hotel Serena].", "Quantos homens você tem?", "Três. Manda reforço pela [street:Rua do Sol], que eles não esperam ninguém por ali.", "Vou ver o que dá. Não sai daí.")
 caller_name = "Jorge Bastos"
-name_line = "Jorge Bastos, da polícia."
+name_line = "Aqui é Jorge Bastos, da polícia."
 code_line = "Autorização {code}."

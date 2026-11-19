@@ -15,7 +15,7 @@ options = PackedStringArray("Pois não, senhor presidente.", "Esta é uma linha 
 
 [sub_resource type="Resource" id="Resource_nubhv"]
 script = ExtResource("2_04pg7")
-text = "Eu quero... eu quero pedir uma pizza!"
+text = "Eu quero... eu quero pedir um pastel!"
 options = PackedStringArray()
 
 [sub_resource type="Resource" id="Resource_nkwr5"]

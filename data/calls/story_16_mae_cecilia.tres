@@ -28,7 +28,7 @@ requires = PackedStringArray("final_sucesso", "!custou_gente")
 
 [sub_resource type="Resource" id="Step_05"]
 script = ExtResource("2_step")
-text = "Ontem bateu aqui um rapaz. Me contou o que você fez naquela mesa."
+text = "Hoje bateu aqui um rapaz. Me contou o que você fez naquela mesa."
 requires = PackedStringArray("final_sucesso", "!custou_gente")
 
 [sub_resource type="Resource" id="Step_06"]
@@ -125,11 +125,17 @@ script = ExtResource("2_step")
 kind = 1
 options = PackedStringArray("Eu sinto muito.", "Eu não podia...")
 requires = PackedStringArray("final_fracasso")
+sets = PackedStringArray("", "mae_nao_podia_16")
 
 [sub_resource type="Resource" id="Step_24"]
 script = ExtResource("2_step")
 text = "Sente. Eu também sinto. Toda noite, quando ponho a mesa e sobra um prato."
-requires = PackedStringArray("final_fracasso")
+requires = PackedStringArray("final_fracasso", "!mae_nao_podia_16")
+
+[sub_resource type="Resource" id="Step_24b"]
+script = ExtResource("2_step")
+text = "Não podia. Ninguém podia. E toda noite eu ponho a mesa e sobra um prato."
+requires = PackedStringArray("final_fracasso", "mae_nao_podia_16")
 
 [sub_resource type="Resource" id="Step_25"]
 script = ExtResource("2_step")
@@ -152,11 +158,27 @@ script = ExtResource("2_step")
 kind = 1
 options = PackedStringArray("Me perdoe.", "[Ficar em silêncio]")
 requires = PackedStringArray("final_fracasso")
+sets = PackedStringArray("", "mae_silencio_16")
 
 [sub_resource type="Resource" id="Step_29"]
 script = ExtResource("2_step")
 text = "Não sou eu quem tem que perdoar. Boa noite."
-requires = PackedStringArray("final_fracasso")
+requires = PackedStringArray("final_fracasso", "!mae_silencio_16")
+
+[sub_resource type="Resource" id="Step_29b"]
+script = ExtResource("2_step")
+text = "Não vai falar nada?"
+requires = PackedStringArray("final_fracasso", "mae_silencio_16")
+
+[sub_resource type="Resource" id="Step_29c"]
+script = ExtResource("2_step")
+text = "A Cecília se foi. Enquanto eu estiver neste mundo, eu nunca mais vejo a minha filha."
+requires = PackedStringArray("final_fracasso", "mae_silencio_16")
+
+[sub_resource type="Resource" id="Step_29d"]
+script = ExtResource("2_step")
+text = "E lembre de uma coisa: não é comigo que você tem que se acertar."
+requires = PackedStringArray("final_fracasso", "mae_silencio_16")
 
 [sub_resource type="Resource" id="Step_30"]
 script = ExtResource("2_step")
@@ -166,4 +188,4 @@ kind = 3
 script = ExtResource("1_call")
 voice = "w"
 caller = "Mãe de Cecília"
-steps = Array[ExtResource("2_step")]([SubResource("Step_00"), SubResource("Step_01"), SubResource("Step_02"), SubResource("Step_03"), SubResource("Step_04"), SubResource("Step_05"), SubResource("Step_06"), SubResource("Step_07"), SubResource("Step_08"), SubResource("Step_09"), SubResource("Step_10"), SubResource("Step_11"), SubResource("Step_12"), SubResource("Step_13"), SubResource("Step_14"), SubResource("Step_15"), SubResource("Step_16"), SubResource("Step_17"), SubResource("Step_18"), SubResource("Step_19"), SubResource("Step_20"), SubResource("Step_21"), SubResource("Step_22"), SubResource("Step_23"), SubResource("Step_24"), SubResource("Step_25"), SubResource("Step_26"), SubResource("Step_27"), SubResource("Step_28"), SubResource("Step_29"), SubResource("Step_30")])
+steps = Array[ExtResource("2_step")]([SubResource("Step_00"), SubResource("Step_01"), SubResource("Step_02"), SubResource("Step_03"), SubResource("Step_04"), SubResource("Step_05"), SubResource("Step_06"), SubResource("Step_07"), SubResource("Step_08"), SubResource("Step_09"), SubResource("Step_10"), SubResource("Step_11"), SubResource("Step_12"), SubResource("Step_13"), SubResource("Step_14"), SubResource("Step_15"), SubResource("Step_16"), SubResource("Step_17"), SubResource("Step_18"), SubResource("Step_19"), SubResource("Step_20"), SubResource("Step_21"), SubResource("Step_22"), SubResource("Step_23"), SubResource("Step_24"), SubResource("Step_24b"), SubResource("Step_25"), SubResource("Step_26"), SubResource("Step_27"), SubResource("Step_28"), SubResource("Step_29"), SubResource("Step_29b"), SubResource("Step_29c"), SubResource("Step_29d"), SubResource("Step_30")])

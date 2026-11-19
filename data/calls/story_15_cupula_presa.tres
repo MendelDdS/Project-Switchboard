@@ -14,7 +14,7 @@ seconds = 1.0
 
 [sub_resource type="Resource" id="Step_02"]
 script = ExtResource("2_step")
-text = "Temos as gravações desta mesa. Da noite sete em diante."
+text = "Temos as gravações desta mesa. Desde que o gravador foi instalado."
 
 [sub_resource type="Resource" id="Step_03"]
 script = ExtResource("2_step")

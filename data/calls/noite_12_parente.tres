@@ -14,3 +14,4 @@ target = "237"
 destination = "Sônia Vieira"
 thanks = "Obrigada, moça."
 overheard = PackedStringArray("Sônia? É a Helena. Fica com as crianças amanhã?", "Fico. Você vai pra Capital?", "Vou. Dizem que levaram o Artur pro quartel de lá.", "Quem disse?", "Uma mulher na fila da delegacia. Ela também procura o marido.", "Vai com Deus. E não fala o nome dele em voz alta.")
+overheard_ends = true

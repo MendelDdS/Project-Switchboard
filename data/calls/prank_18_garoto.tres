@@ -10,7 +10,7 @@ text = "(voz grossa) Aqui quem fala é o prefeito. Exijo falar com a telefonista
 [sub_resource type="Resource" id="Step_2"]
 script = ExtResource("2_step")
 kind = 1
-options = PackedStringArray("Sou eu mesma. Pois não, senhor prefeito?", "Quantos anos o senhor tem?")
+options = PackedStringArray("Senhor prefeito, o senhor não devia estar na cama?", "Quantos anos o senhor tem?")
 
 [sub_resource type="Resource" id="Step_3"]
 script = ExtResource("2_step")

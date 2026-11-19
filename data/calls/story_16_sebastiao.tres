@@ -18,7 +18,7 @@ options = PackedStringArray("Que bom ouvir sua voz.", "Está tudo bem aí?")
 
 [sub_resource type="Resource" id="Step_03"]
 script = ExtResource("2_step")
-text = "Está. A rádio toca o que quer desde cedo. Tem gente na praça que não dormiu."
+text = "A rádio toca o que quer desde cedo. Tem gente na praça que não dormiu."
 
 [sub_resource type="Resource" id="Step_04"]
 script = ExtResource("2_step")

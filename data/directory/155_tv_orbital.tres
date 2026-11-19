@@ -9,11 +9,13 @@
 script = ExtResource("2_motive")
 text = "Quero saber qual é o filme de sábado."
 talks = Array[PackedStringArray]([PackedStringArray("Boa noite. É da TV Orbital? Qual é o filme de sábado?", "É, sim. Sábado passa um faroeste, depois do jornal.", "Faroeste! Lá em casa vão gostar. Começa a que horas?", "Logo depois do jornal das {hour}.", "Vou avisar todo mundo. Boa noite.", "Disponha. Boa noite."), PackedStringArray("Boa noite. Vocês já sabem o filme da sessão de sábado?", "Ainda não chegou a fita. Deve ser uma comédia.", "Comédia está bom. Passa no horário de sempre?", "No de sempre, depois do jornal.", "Então está combinado. Agradeço a informação.", "Por nada. Boa noite.")])
+ends = PackedInt32Array(0, 1)
 
 [sub_resource type="Resource" id="Motive_2"]
 script = ExtResource("2_motive")
 text = "A imagem do canal está chuviscando."
-talks = Array[PackedStringArray]([PackedStringArray("Boa noite. A imagem do canal está chuviscando aqui. É problema de vocês?", "Deve ser o tempo. A antena da serra anda falhando com o vento.", "Então não adianta mexer na antena de casa?", "Pode tentar virar um pouco para a serra. Se não melhorar, é daqui.", "Vou tentar, então. Boa noite.", "Boa noite."), PackedStringArray("Boa noite. Sumiu o som do canal faz meia hora.", "Estamos sabendo. O técnico já está mexendo no transmissor.", "Volta ainda hoje?", "Ele disse que até as {hour} resolve.", "Tomara. Não quero perder o fim da novela.", "Vai dar tempo. Boa noite.")])
+talks = Array[PackedStringArray]([PackedStringArray("Boa noite. A imagem do canal está chuviscando aqui. É problema de vocês?", "Deve ser o tempo. A antena da serra anda falhando com o vento.", "Então não adianta mexer na antena de casa?", "Pode tentar virar um pouco para a serra. Se não melhorar, é daqui.", "Vou tentar, então. Boa noite.", "Boa noite."), PackedStringArray("Boa noite. A imagem do canal está chuviscando faz meia hora.", "Estamos sabendo. O técnico já está mexendo no transmissor.", "Volta ainda hoje?", "Ele disse que ainda hoje resolve.", "Tomara. Não quero perder o fim da novela.", "Vai dar tempo. Boa noite.")])
+ends = PackedInt32Array(0, 1)
 
 [sub_resource type="Resource" id="Dial_0_0"]
 script = ExtResource("9_reply")

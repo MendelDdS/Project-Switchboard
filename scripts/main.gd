@@ -319,6 +319,7 @@ func _load_night() -> void:
 	night_no = clampi(night_no, 0, C.nights.size() + 1)   # (a 16, depois da última: o epílogo)
 	night = C.training if night_no == 0 else C.epilogue if night_no > C.nights.size() else C.nights[night_no - 1]
 	GameData.sectors = GameData.sectors_for(night_no) if force_sectors.is_empty() else force_sectors
+	GameData.night_no = night_no
 	pace_level = clampi(forced_pace if forced_pace > 0 else pace_level, 1, C.paces.size())
 	pace = C.paces[pace_level - 1]
 	report.night = night_no
@@ -1161,7 +1162,7 @@ func _fill_quiet() -> void:
 	if minutes >= last_call or night.quiet_from >= 0.0 and minutes >= night.quiet_from or street_busy() \
 			or sched.any(func(x: PhoneCall): return x.at < minutes + Schedule.STORY_GAP):
 		return
-	var c := plan.filler()
+	var c := plan.filler(minutes)
 	c.at = minutes
 	sched.push_front(c)
 

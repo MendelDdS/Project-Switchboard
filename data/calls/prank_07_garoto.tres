@@ -37,7 +37,7 @@ options = PackedStringArray()
 [sub_resource type="Resource" id="Resource_neigq"]
 script = ExtResource("2_qinjy")
 kind = 1
-options = PackedStringArray("Você sabe que trote é crime, não sabe?", "Qual é o seu endereço?")
+options = PackedStringArray("Trote é crime, sabia? Onde você mora?", "Qual é o seu endereço?")
 
 [sub_resource type="Resource" id="Resource_jr7b4"]
 script = ExtResource("2_qinjy")

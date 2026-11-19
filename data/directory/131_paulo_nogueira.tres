@@ -23,7 +23,7 @@ follow = "Está funcionando. Agora, com licença, que estou no meio do jantar."
 [sub_resource type="Resource" id="Dial_0_1"]
 script = ExtResource("9_reply")
 text = "O senhor espera alguma ligação?"
-follow = "De um comprador do terreno. Se ele ligar, pode passar a qualquer hora."
+follow = "Do dono do terreno. Se ele ligar, pode passar a qualquer hora."
 
 [sub_resource type="Resource" id="Dial_0"]
 script = ExtResource("8_chat")
@@ -42,7 +42,7 @@ follow = "Engano a essa hora... Boa noite, então."
 
 [sub_resource type="Resource" id="Dial_1"]
 script = ExtResource("8_chat")
-line = "Alô? Se for sobre o terreno, eu não vendo por menos."
+line = "Alô? Se for sobre o terreno, eu não pago um tostão a mais."
 replies = Array[ExtResource("9_reply")]([SubResource("Dial_1_0"), SubResource("Dial_1_1")])
 
 [resource]

@@ -114,7 +114,7 @@ done = PackedStringArray("fita_sebastiao_12")
 
 [sub_resource type="Resource" id="N_0"]
 script = ExtResource("dl_diary_line")
-text = "O supervisor ligou: reclamação da Alta Cúpula pela noite nove. Vai ficar de olho em mim."
+text = "O supervisor ligou: reclamação da Alta Cúpula pela noite de terça. Vai ficar de olho em mim."
 call = SubResource("S_sup")
 
 [sub_resource type="Resource" id="N_1"]

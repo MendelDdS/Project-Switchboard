@@ -11,6 +11,7 @@ units = PackedStringArray("pol", "amb")
 script = ExtResource("2_case")
 answers = PackedStringArray("", "", "Ninguém se machucou, graças a Deus. Foi só o susto.")
 units = PackedStringArray("pol")
+after = "Tá bom. Vou avisar o pessoal que a polícia tá vindo."
 
 [sub_resource type="Resource" id="Case_3"]
 script = ExtResource("2_case")

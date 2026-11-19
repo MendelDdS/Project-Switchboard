@@ -16,7 +16,7 @@ requires = PackedStringArray("otavio_numero")
 [sub_resource type="Resource" id="Step_02"]
 script = ExtResource("2_step")
 kind = 1
-options = PackedStringArray("E você?", "Que bom, Generosa!")
+options = PackedStringArray("E você?", "Que bom, Generosa! E você, prestou?")
 requires = PackedStringArray("otavio_numero")
 
 [sub_resource type="Resource" id="Step_03"]

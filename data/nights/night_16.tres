@@ -101,14 +101,14 @@ again = false
 script = ExtResource("5_text")
 text = "Maria atende até o fim do turno. Nenhuma linha pede socorro. Lá fora, a bandeira continua na varanda.
 
-De manhã, antes de dormir, ela passa no Hospital São Lucas com uma caneta no bolso: tem um gesso esperando a assinatura dela. No corredor da ala 3C, Sebastião visita os feridos da madrugada. Ele segura a porta do quarto para ela e espera do lado de fora."
+De manhã, antes de dormir, ela passa no Hospital São Lucas com uma caneta no bolso: tem um gesso esperando a assinatura dela. No corredor da ala 3C, Sebastião visita os feridos da madrugada. Ele segura a porta da sala para ela e espera do lado de fora."
 requires = PackedStringArray("final_sucesso", "!custou_gente", "miguel_gesso")
 
 [sub_resource type="Resource" id="End_gesso_amarga"]
 script = ExtResource("5_text")
 text = "Maria atende até o fim do turno. Sebastião não liga. No jornal, a vitória ocupa a primeira página; os nomes dos que não voltaram, a segunda inteira.
 
-De manhã, ela passa no Hospital São Lucas para assinar um gesso na ala 3C. No corredor, Sebastião está sentado num banco, de chapéu na mão. Ele se levanta quando a vê e não diz nada."
+De manhã, ela passa no Hospital São Lucas para assinar um gesso no ambulatório. No corredor, Sebastião está sentado num banco, de chapéu na mão. Ele se levanta quando a vê e não diz nada."
 requires = PackedStringArray("final_sucesso", "custou_gente", "miguel_gesso")
 
 [sub_resource type="Resource" id="N_0"]

@@ -12,8 +12,8 @@ talks = Array[PackedStringArray]([PackedStringArray("Boa noite. Preciso de um ca
 
 [sub_resource type="Resource" id="Motive_54"]
 script = ExtResource("2_motive")
-text = "O último ônibus sai às onze e eu não posso perder."
-talks = Array[PackedStringArray]([PackedStringArray("Boa noite. O último ônibus sai às onze e eu não posso perder.", "Onde você está?", "Na {street}. Dá tempo?", "Dá, se sair já. O carro chega em {wait}.", "Fico esperando no portão, com a mala.", "O motorista buzina duas vezes quando chegar."), PackedStringArray("Boa noite. Preciso pegar o ônibus das onze. É urgente.", "Vai pra capital?", "Vou. Começo num serviço novo amanhã cedo.", "Então vamos correr. Qual o endereço?", "{street}, {house}. A casa da esquina.", "Em {wait} o carro está aí. Deixa a mala no portão.")])
+text = "O último ônibus já vai sair e eu não posso perder."
+talks = Array[PackedStringArray]([PackedStringArray("Boa noite. O último ônibus já vai sair e eu não posso perder.", "Onde você está?", "Na {street}. Dá tempo?", "Dá, se sair já. O carro chega em {wait}.", "Fico esperando no portão, com a mala.", "O motorista buzina duas vezes quando chegar."), PackedStringArray("Boa noite. Preciso pegar o último ônibus. É urgente.", "Vai pra capital?", "Vou. Começo num serviço novo amanhã cedo.", "Então vamos correr. Qual o endereço?", "{street}, {house}. A casa da esquina.", "Em {wait} o carro está aí. Deixa a mala no portão.")])
 
 [sub_resource type="Resource" id="Dial_0_0"]
 script = ExtResource("9_reply")
@@ -57,7 +57,7 @@ follow = "Tem, e todo mundo com mala. A rodoviária nunca vendeu tanta passagem.
 
 [sub_resource type="Resource" id="Ans_taxi_toque"]
 script = ExtResource("8_chat")
-from_night = 10
+from_night = 9
 to_night = 14
 line = "Ponto de táxi, boa noite."
 replies = Array[ExtResource("9_reply")]([SubResource("Ans_taxi_toque_0"), SubResource("Ans_taxi_toque_1")])

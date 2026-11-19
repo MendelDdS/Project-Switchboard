@@ -8,7 +8,7 @@
 [sub_resource type="Resource" id="Motive_25"]
 script = ExtResource("2_motive")
 text = "Preciso de um quarto pra esta noite."
-talks = Array[PackedStringArray]([PackedStringArray("Boa noite. Vocês ainda têm quarto pra hoje?", "Tenho um de solteiro, no andar de cima. Pra quantas noites?", "Só esta. Amanhã cedo eu sigo viagem.", "A diária é com café da manhã, paga na chegada.", "Pode segurar pra mim? Chego em {wait}.", "Seguro até as {hour}. Qual o nome, por favor?"), PackedStringArray("Boa noite. Perdi o último ônibus. Tem onde dormir aí hoje?", "Tem um quarto pequeno, perto da escada. É meio barulhento.", "Não faz mal, é só pra esta noite.", "Então pode vir. A porta fica aberta até as {hour}.", "Aceita pagar amanhã cedo? Hoje estou sem trocado.", "Aceito. Só deixa o documento comigo na chegada.")])
+talks = Array[PackedStringArray]([PackedStringArray("Boa noite. Vocês ainda têm quarto pra hoje?", "Tenho um de solteiro, no andar de cima. Pra quantas noites?", "Só esta. Amanhã cedo eu sigo viagem.", "A diária é com café da manhã, paga na chegada.", "Pode segurar pra mim? Chego em {wait}.", "Seguro, mas não demore. Qual o nome, por favor?"), PackedStringArray("Boa noite. Perdi o último ônibus. Tem onde dormir aí hoje?", "Tem um quarto pequeno, perto da escada. É meio barulhento.", "Não faz mal, é só pra esta noite.", "Então pode vir. A porta ainda está aberta.", "Aceita pagar amanhã cedo? Hoje estou sem trocado.", "Aceito. Só deixa o documento comigo na chegada.")])
 
 [sub_resource type="Resource" id="Motive_26"]
 script = ExtResource("2_motive")
@@ -38,7 +38,7 @@ replies = Array[ExtResource("9_reply")]([SubResource("Answer_0_0"), SubResource(
 [sub_resource type="Resource" id="Answer_1_0"]
 script = ExtResource("9_reply")
 text = "O restaurante ainda está servindo?"
-follow = "Só até as nove. Agora, só o café da recepção."
+follow = "Só até as nove. Depois disso, só o café da recepção."
 
 [sub_resource type="Resource" id="Answer_1_1"]
 script = ExtResource("9_reply")

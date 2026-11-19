@@ -49,6 +49,8 @@ const DialCall := preload("res://scripts/data/dial_call.gd")
 @export var transfer_thanks: PackedStringArray = []
 ## B1: como diz o nome quem só diz quando o operador pede ({name} o nome e sobrenome; `rule_identification.ask_share`).
 @export var name_lines: PackedStringArray = []
+## B1: como se apresenta sozinho, logo depois do "alô", quem não tem fala própria de nome (`TransferCall.name_line`).
+@export var intro_lines: PackedStringArray = []
 ## Interurbanos com lacunas: {to_city} "pra Capital" (`trunk_to`) e {far} o número na outra cidade. Vão para um
 ## tronco sorteado (`GameData.trunk_transfer`).
 @export var trunk_templates: Array[TransferCall] = []

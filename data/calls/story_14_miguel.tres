@@ -23,11 +23,17 @@ script = ExtResource("2_step")
 kind = 1
 options = PackedStringArray("Cumpre a promessa, hein?", "Que bom, Miguel.")
 requires = PackedStringArray("!fita_grupo_c_entregue")
+sets = PackedStringArray("miguel_cumpre_14", "")
 
 [sub_resource type="Resource" id="Step_04"]
 script = ExtResource("2_step")
-text = "Cumpro. Boa noite!"
-requires = PackedStringArray("!fita_grupo_c_entregue")
+text = "Eu vou, sim! E depois vem me visitar, tá bom? Tchau, boa noite!"
+requires = PackedStringArray("!fita_grupo_c_entregue", "miguel_cumpre_14")
+
+[sub_resource type="Resource" id="Step_04b"]
+script = ExtResource("2_step")
+text = "Depois vem me visitar, tá bom? Tchau, boa noite!"
+requires = PackedStringArray("!fita_grupo_c_entregue", "!miguel_cumpre_14")
 
 [sub_resource type="Resource" id="Step_05"]
 script = ExtResource("2_step")
@@ -64,4 +70,4 @@ script = ExtResource("1_call")
 voice = "k"
 caller = "Menino"
 caller_name = "Miguel"
-steps = Array[ExtResource("2_step")]([SubResource("Step_00"), SubResource("Step_01"), SubResource("Step_02"), SubResource("Step_03"), SubResource("Step_04"), SubResource("Step_05"), SubResource("Step_06"), SubResource("Step_07"), SubResource("Step_08"), SubResource("Step_09"), SubResource("Step_10")])
+steps = Array[ExtResource("2_step")]([SubResource("Step_00"), SubResource("Step_01"), SubResource("Step_02"), SubResource("Step_03"), SubResource("Step_04"), SubResource("Step_04b"), SubResource("Step_05"), SubResource("Step_06"), SubResource("Step_07"), SubResource("Step_08"), SubResource("Step_09"), SubResource("Step_10")])

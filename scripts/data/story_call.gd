@@ -9,9 +9,16 @@ extends Resource
 ## Só toca se os marcadores baterem na hora de tocar (StoryFlags): todos ligados; com "!" na frente, desligados.
 ## Ex.: ["prometeu_quermesse", "!senha_hotel_4"].
 @export var requires: PackedStringArray = []
+## Escrita da noite (`Night.calls`): só ganha vaga no sorteio antes desta hora (minutos depois das 18h; -1: qualquer).
+## Para a que fala de uma hora que ainda vai chegar ("chegue antes das nove").
+@export var before := -1.0
 ## Um pedido das autoridades (polícia, Alta Cúpula, supervisor; o roteiro, a partir da noite 7): o que ela pedir passa
 ## sem advertência das burocracias, mesmo contra a regra (só o registro de decisões, `Bureaucracy.before_transfer`).
 @export var authority := false
+## A dica do pedido (`Conversation._hint`): a chave `T.Key` do aviso que a fita do alto mostra quando quem liga pede o
+## lugar, com o nome dele sublinhado na fala ("": nenhuma; a das autoridades já tem a dela). Ex.: "NOTE_SUSPECT", no
+## bar e no hotel da noite 15, que o supervisor manda denunciar.
+@export var ribbon := ""
 
 @export_group("Desfecho")
 ## Marcadores ligados ("nome") ou desligados ("!nome") pelo fim da ligação (`StoryFlags.apply`; `{dest}` vira o número

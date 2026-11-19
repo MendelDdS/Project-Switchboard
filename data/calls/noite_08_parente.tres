@@ -12,4 +12,4 @@ repeat = "A delegacia, moça. É sobre os sete presos."
 target = "184"
 destination = "Delegacia de Polícia"
 thanks = "Obrigada, moça. Ninguém me diz nada."
-overheard = PackedStringArray("Boa noite. O meu marido, Renato Fontes, é um dos sete do porão.", "A senhora é parente? Os nomes não serão divulgados.", "Eu não quero o nome no jornal. Quero saber se ele está vivo.", "Os presos estão sendo ouvidos. Estão bem.", "Posso levar um cobertor? Uma comida?", "Não. E não ligue mais pra cá, senhora.")
+overheard = PackedStringArray("Boa noite. O meu marido, Renato Fontes, é um dos sete do porão.", "Renato Fontes? Os nomes não serão divulgados, senhora.", "Eu não quero o nome no jornal. Quero saber se ele está vivo.", "Os presos estão sendo ouvidos. Estão bem.", "Posso levar um cobertor? Uma comida?", "Não. E não ligue mais pra cá, senhora.")

@@ -9,11 +9,13 @@
 script = ExtResource("2_motive")
 text = "Preciso de um salvo-conduto para viajar."
 talks = Array[PackedStringArray]([PackedStringArray("Boa noite. Preciso de um salvo-conduto para ir à capital.", "O pedido é por escrito, aqui no balcão, com dois documentos.", "Mas é para enterrar minha mãe. Não dá para ser mais rápido?", "Não depende de mim. Venha amanhã às oito, e cedo.", "Está bem. Amanhã às oito.", "Boa noite."), PackedStringArray("Boa noite. Meu salvo-conduto vence amanhã. Como faço para renovar?", "Traga o antigo e o comprovante de trabalho. Sem ele, não renova.", "E se o patrão não quiser assinar?", "Aí não tem viagem.", "Entendi. Passo aí amanhã.", "Passe cedo. A fila dobra a esquina.")])
+ends = PackedInt32Array(0)
 
 [sub_resource type="Resource" id="Motive_2"]
 script = ExtResource("2_motive")
 text = "Quero notícia de um parente que foi detido."
 talks = Array[PackedStringArray]([PackedStringArray("Levaram meu filho ontem, na saída da fábrica. Ninguém diz onde ele está.", "Nome completo e idade.", "Paulo Ferraz, vinte anos. Por favor, ele não fez nada.", "Isso não é comigo. Se houver notícia, mandam avisar.", "E quando vão avisar?", "Quando houver notícia. Boa noite."), PackedStringArray("Meu irmão foi detido no toque de recolher. Posso levar roupa para ele?", "Roupa e comida, só com autorização.", "E a autorização, onde eu peço?", "Aqui mesmo, por escrito. Demora uns dias.", "Uns dias... Está bem. Vou pedir.", "Boa noite.")])
+ends = PackedInt32Array(0, 1)
 
 [sub_resource type="Resource" id="Dial_0_0"]
 script = ExtResource("9_reply")

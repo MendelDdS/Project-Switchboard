@@ -5,5 +5,5 @@
 [resource]
 script = ExtResource("1_4ga4b")
 group = 2
-opening = PackedStringArray("Boa noite. Desculpe a hora.", "Preciso falar com {place}. {reason}")
+opening = PackedStringArray("Boa noite.", "Preciso falar com {place}. {reason}")
 repeat = "Com {place}, por favor."

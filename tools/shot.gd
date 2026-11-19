@@ -13,6 +13,8 @@ extends Node
 ##   --card                 marca um local no mapa e espera o cartão sair impresso (--card=closed: e guarda o despacho)
 ##   --punch                com --card: o cartão perfurado, uma unidade fora e a etiqueta de um trecho no mapa
 ##   --emergency            toca uma emergência e atende (a luz vermelha da unidade, a barra, o rádio)
+##   --story=15_bar         toca e atende a ligação do roteiro da noite cujo arquivo tem esse trecho no nome (com --wait,
+##                          o pedido dela: o lugar sublinhado e a dica na fita do alto)
 ##   --busy                 todos os cabos de conexão em uso e uma transferência esperando: o [Todas as linhas ocupadas]
 ##   --badges=all           os broches na almofada da prateleira (all ou ids com vírgulas, `Badges.ALL`); --badgehover=id:
 ##                          o mouse num deles (a etiqueta); --badgenote=id: o papel da descrição aberto
@@ -292,6 +294,18 @@ func _ready() -> void:
 		m.board.held = 0   # o FONE na linha dela
 		m.board.place(0, m.live[0].line)
 		m.answer()
+	if _args.has("story"):
+		for st: StoryCall in m.night.story:
+			if String(_args["story"]) in st.call.resource_path:
+				var c := PhoneCall.from_script(st.call)
+				c.story = true
+				c.beat = st
+				m.ring(c)
+				await get_tree().create_timer(0.5, false).timeout
+				m.board.held = 0   # o FONE na linha dela
+				m.board.place(0, c.line)
+				m.answer()
+				break
 	if _args.has("badges"):
 		var ids: Array = m.Badges.ALL.keys() if _args["badges"] == "all" else Array((_args["badges"] as String).split(","))
 		var got := {}

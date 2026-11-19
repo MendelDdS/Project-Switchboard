@@ -10,7 +10,7 @@ text = "Moça, quanto é sete vezes oito?"
 [sub_resource type="Resource" id="Step_2"]
 script = ExtResource("2_step")
 kind = 1
-options = PackedStringArray("Cinquenta e seis.", "Isso não é serviço da central.")
+options = PackedStringArray("Cinquenta e seis.", "Cinquenta e seis. Mas isso não é serviço da central.")
 
 [sub_resource type="Resource" id="Step_3"]
 script = ExtResource("2_step")

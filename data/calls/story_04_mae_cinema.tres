@@ -13,5 +13,5 @@ target = "344"
 destination = "Cine Odeon"
 thanks = "Obrigada, minha filha. Deus te pague."
 caller_name = "Neusa Prado"
-name_line = "Neusa Prado. Rápido, por favor!"
-overheard = PackedStringArray("Alô, o cinema? A minha filha está aí, a [person:Lúcia]!", "Calma, senhora. A sessão parou, mas ninguém se machucou aqui.", "E a bomba?", "Foi na [street:Rua do Comércio], no Centro. Aqui só tremeu o vidro.", "Graças a Deus. Diz pra ela vir direto pra casa.")
+name_line = "Aqui é Neusa Prado. Rápido, por favor!"
+overheard = PackedStringArray("Alô, o cinema? A minha filha está aí, a [person:Lúcia]!", "Calma, senhora. A sessão parou, mas ninguém se machucou aqui.", "E a bomba?", "Foi num poste da praça, no Centro. Aqui só tremeu o vidro.", "Graças a Deus. Diz pra ela vir direto pra casa.")

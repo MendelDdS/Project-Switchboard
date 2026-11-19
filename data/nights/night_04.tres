@@ -106,7 +106,7 @@ requires = PackedStringArray("denunciou_bar_4")
 
 [sub_resource type="Resource" id="D_den_04"]
 script = ExtResource("4_step")
-text = "Anotado. A senhora fez bem. Se ele ligar de novo, avise a gente."
+text = "Anotado. A senhora fez bem. Qualquer novidade, avise a gente."
 requires = PackedStringArray("denunciou_bar_4")
 
 [sub_resource type="Resource" id="D_den_05"]
@@ -177,7 +177,7 @@ requires = PackedStringArray("senha_hotel_4")
 
 [sub_resource type="Resource" id="N_1"]
 script = ExtResource("dl_diary_line")
-text = "Contei à delegacia a conversa do bar."
+text = "Precisei contar à delegacia sobre as ligações do bar. Acho que a verdade prevalece, não é?"
 requires = PackedStringArray("denunciou_bar_4")
 
 [sub_resource type="Resource" id="N_2"]
@@ -194,6 +194,13 @@ call = SubResource("E_bom")
 script = ExtResource("dl_diary_line")
 text = "Um senhor perguntou à rádio o que explodiu. Nem a rádio pode dizer."
 call = SubResource("S_radio")
+requires = PackedStringArray("ouviu_radio_4")
+
+[sub_resource type="Resource" id="N_4b"]
+script = ExtResource("dl_diary_line")
+text = "Um senhor pediu a rádio pra saber o que explodiu. Ninguém fala nada."
+call = SubResource("S_radio")
+requires = PackedStringArray("!ouviu_radio_4")
 
 [sub_resource type="Resource" id="N_5"]
 script = ExtResource("dl_diary_line")
@@ -224,4 +231,4 @@ calls = Array[ExtResource("x0_story_call")]([SubResource("J_call_dinamite")])
 news_photo = "armas"
 news_caption = "Caixas como as que sumiram do paiol."
 tasks = Array[ExtResource("dt_diary_task")]([SubResource("T_0"), SubResource("T_1")])
-diary = Array[ExtResource("dl_diary_line")]([SubResource("N_0"), SubResource("N_1"), SubResource("N_2"), SubResource("N_3"), SubResource("N_4"), SubResource("N_5"), SubResource("N_6"), SubResource("N_7")])
+diary = Array[ExtResource("dl_diary_line")]([SubResource("N_0"), SubResource("N_1"), SubResource("N_2"), SubResource("N_3"), SubResource("N_4"), SubResource("N_4b"), SubResource("N_5"), SubResource("N_6"), SubResource("N_7")])

@@ -8,7 +8,7 @@
 [sub_resource type="Resource" id="Motive_43"]
 script = ExtResource("2_motive")
 text = "Quero pôr um anúncio no jornal de amanhã."
-talks = Array[PackedStringArray]([PackedStringArray("Boa noite. Ainda dá pra pôr um anúncio no jornal de amanhã?", "Dá, se for rápido. A página fecha às {hour}.", "É curto. Vende-se bicicleta, quase nova, tratar na {street}.", "Quer pôr o número da casa também?", "Põe, sim. Número {house}.", "Anotado. Paga amanhã aqui no balcão."), PackedStringArray("Boa noite. Queria anunciar que perdi um cachorro.", "Pode ditar. Como ele é?", "Pequeno, {color}, com uma mancha branca no olho.", "Atende por que nome?", "Pipoca. Quem achar, é só levar na {street}.", "Sai amanhã cedo, na página dos classificados.")])
+talks = Array[PackedStringArray]([PackedStringArray("Boa noite. Ainda dá pra pôr um anúncio no jornal de amanhã?", "Dá, se for rápido. A página já está fechando.", "É curto. Vende-se bicicleta, quase nova, tratar na {street}.", "Quer pôr o número da casa também?", "Põe, sim. Número {house}.", "Anotado. Paga amanhã aqui no balcão."), PackedStringArray("Boa noite. Queria anunciar que perdi um cachorro.", "Pode ditar. Como ele é?", "Pequeno, {color}, com uma mancha branca no olho.", "Atende por que nome?", "Pipoca. Quem achar, é só levar na {street}.", "Sai amanhã cedo, na página dos classificados.")])
 
 [sub_resource type="Resource" id="Motive_44"]
 script = ExtResource("2_motive")

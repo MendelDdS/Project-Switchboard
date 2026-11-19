@@ -12,8 +12,8 @@ talks = Array[PackedStringArray]([PackedStringArray("Boa noite. Que filme passa 
 
 [sub_resource type="Resource" id="Motive_11"]
 script = ExtResource("2_motive")
-text = "Esqueci meu guarda-chuva na sessão das oito."
-talks = Array[PackedStringArray]([PackedStringArray("Boa noite. Esqueci um guarda-chuva na sessão das oito.", "O lanterninha recolheu uns três hoje. Como é o seu?", "{color}, com o cabo de madeira curvado.", "Tem um assim aqui na bilheteria.", "Ainda bem. Posso buscar amanhã?", "Pode. É só pedir na bilheteria."), PackedStringArray("Boa noite. Deixei meu guarda-chuva na poltrona, na sessão das oito.", "Em que fileira você sentou?", "Lá no fundo, perto da porta.", "O lanterninha achou um {color} lá atrás.", "Deve ser o meu. Posso buscar amanhã?", "Pode. Fica guardado na bilheteria.")])
+text = "Esqueci meu guarda-chuva na sessão da tarde."
+talks = Array[PackedStringArray]([PackedStringArray("Boa noite. Esqueci um guarda-chuva na sessão da tarde.", "O lanterninha recolheu uns três hoje. Como é o seu?", "{color}, com o cabo de madeira curvado.", "Tem um assim aqui na bilheteria.", "Ainda bem. Posso buscar amanhã?", "Pode. É só pedir na bilheteria."), PackedStringArray("Boa noite. Deixei meu guarda-chuva na poltrona, na sessão da tarde.", "Em que fileira você sentou?", "Lá no fundo, perto da porta.", "O lanterninha achou um {color} lá atrás.", "Deve ser o meu. Posso buscar amanhã?", "Pode. Fica guardado na bilheteria.")])
 
 [sub_resource type="Resource" id="Answer_0_0"]
 script = ExtResource("9_reply")
@@ -57,7 +57,7 @@ follow = "Não tem mais: com o toque de recolher, a última acaba às oito. E é
 
 [sub_resource type="Resource" id="Ans_cine_toque"]
 script = ExtResource("8_chat")
-from_night = 10
+from_night = 9
 to_night = 14
 line = "Cine Odeon, boa noite."
 replies = Array[ExtResource("9_reply")]([SubResource("Ans_cine_toque_0"), SubResource("Ans_cine_toque_1")])

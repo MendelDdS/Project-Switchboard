@@ -13,5 +13,6 @@ target = "305"
 destination = "Hotel Serena"
 thanks = "Obrigada."
 caller_name = "Irene Barbosa"
-name_line = "Irene Barbosa."
+name_line = "Aqui é Irene Barbosa."
 overheard = PackedStringArray("Sou eu de novo. Ele apareceu?", "Apareceu, senhora. Está aqui embaixo, esperando a hora.", "Diz a ele que a [person:irmã] mandou lembrança. Ele sabe o que é.", "Digo. Boa noite, senhora.")
+overheard_ends = true

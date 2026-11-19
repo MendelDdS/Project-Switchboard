@@ -19,7 +19,7 @@ sets = PackedStringArray()
 
 [sub_resource type="Resource" id="Step_03"]
 script = ExtResource("2_step")
-text = "Conheço. Ele conhece você desde pequena, Maria. Pode confiar nele."
+text = "Eu conheço ele. E ele conhece você desde pequena, Maria. Pode confiar nele."
 
 [sub_resource type="Resource" id="Step_04"]
 script = ExtResource("2_step")

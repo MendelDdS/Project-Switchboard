@@ -174,7 +174,13 @@ requires = PackedStringArray("sabe_senha_3")
 [sub_resource type="Resource" id="N_7"]
 script = ExtResource("dl_diary_line")
 text = "Alguém que me conhece desde criança. Quem?"
-requires = PackedStringArray("sabe_senha_3")
+requires = PackedStringArray("sabe_senha_3", "quem_e_3")
+at_close = true
+
+[sub_resource type="Resource" id="N_7b"]
+script = ExtResource("dl_diary_line")
+text = "Ele me chama pelo nome e não diz o dele. Quem é?"
+requires = PackedStringArray("sabe_senha_3", "!quem_e_3")
 at_close = true
 
 [sub_resource type="Resource" id="N_8"]
@@ -192,4 +198,4 @@ dial = Array[ExtResource("x4_dial_call")]([SubResource("D_bar")])
 news_stories = PackedStringArray("Telefônica vai exigir o nome de quem liga\nA partir de hoje, a Companhia Telefônica de São Sotero só completa a ligação de quem disser nome e sobrenome à telefonista. A diretoria fala em \"segurança de todos\" e pede a compreensão dos assinantes.")
 calls = Array[ExtResource("x0_story_call")]([SubResource("J_call_nome")])
 tasks = Array[ExtResource("dt_diary_task")]([SubResource("T_0")])
-diary = Array[ExtResource("dl_diary_line")]([SubResource("N_0"), SubResource("N_1"), SubResource("N_2"), SubResource("N_3"), SubResource("N_4"), SubResource("N_5"), SubResource("N_6"), SubResource("N_7"), SubResource("N_8")])
+diary = Array[ExtResource("dl_diary_line")]([SubResource("N_0"), SubResource("N_1"), SubResource("N_2"), SubResource("N_3"), SubResource("N_4"), SubResource("N_5"), SubResource("N_6"), SubResource("N_7"), SubResource("N_7b"), SubResource("N_8")])

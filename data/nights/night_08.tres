@@ -279,15 +279,29 @@ requires = PackedStringArray("miguel_amigo", "miguel_irmao")
 script = ExtResource("dl_diary_line")
 text = "O Otávio deu um beijo na Generosa. Amanhã ele vai à praça."
 call = SubResource("A_story_08_generosa")
+requires = PackedStringArray("ouviu_praca_8")
+
+[sub_resource type="Resource" id="N_4b"]
+script = ExtResource("dl_diary_line")
+text = "O Otávio deu um beijo na Generosa."
+call = SubResource("A_story_08_generosa")
+requires = PackedStringArray("!ouviu_praca_8")
 
 [sub_resource type="Resource" id="N_5"]
 script = ExtResource("dl_diary_line")
 text = "O Otávio deu um beijo na Generosa. Amanhã ele vai à praça."
 call = SubResource("A_story_08_generosa_recado")
+requires = PackedStringArray("ouviu_praca_8")
+
+[sub_resource type="Resource" id="N_5b"]
+script = ExtResource("dl_diary_line")
+text = "O Otávio deu um beijo na Generosa."
+call = SubResource("A_story_08_generosa_recado")
+requires = PackedStringArray("!ouviu_praca_8")
 
 [sub_resource type="Resource" id="N_6"]
 script = ExtResource("dl_diary_line")
-text = "Tem gente que vai dormir melhor hoje. Foi o que ele disse."
+text = "Tem gente que vai dormir melhor hoje."
 requires = PackedStringArray("hospital_8")
 at_close = true
 
@@ -306,4 +320,4 @@ story = Array[ExtResource("x1_story_call")]([SubResource("S_seb"), SubResource("
 dial = Array[ExtResource("x11_dial_call")]([SubResource("D_joana"), SubResource("D_hotel")])
 calls = Array[ExtResource("x1_story_call")]([SubResource("J_call_jornal"), SubResource("J_call_parente")])
 tasks = Array[ExtResource("dt_diary_task")]([SubResource("T_1")])
-diary = Array[ExtResource("dl_diary_line")]([SubResource("N_0"), SubResource("N_1"), SubResource("N_2"), SubResource("N_3"), SubResource("N_4"), SubResource("N_5"), SubResource("N_6"), SubResource("N_7")])
+diary = Array[ExtResource("dl_diary_line")]([SubResource("N_0"), SubResource("N_1"), SubResource("N_2"), SubResource("N_3"), SubResource("N_4"), SubResource("N_4b"), SubResource("N_5"), SubResource("N_5b"), SubResource("N_6"), SubResource("N_7")])

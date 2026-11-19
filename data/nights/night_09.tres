@@ -16,6 +16,7 @@
 [ext_resource type="Resource" path="res://data/calls/story_09_baleado.tres" id="x1_story_09_baleado"]
 [ext_resource type="Resource" path="res://data/calls/story_09_mae_atropelado.tres" id="x2_story_09_atropelada"]
 [ext_resource type="Resource" path="res://data/calls/story_09_briga.tres" id="x3_story_09_briga"]
+[ext_resource type="Resource" path="res://data/calls/story_09_briga_caiu.tres" id="x3c_story_09_briga_caiu"]
 [ext_resource type="Resource" path="res://data/calls/noite_09_toque.tres" id="j_toque"]
 [ext_resource type="Resource" path="res://data/calls/noite_09_geraldo_bem.tres" id="j_geraldo_bem"]
 [ext_resource type="Resource" path="res://data/calls/noite_09_geraldo_mal.tres" id="j_geraldo_mal"]
@@ -124,6 +125,14 @@ script = ExtResource("x1_story_call")
 at = 290.0
 call = ExtResource("x3_story_09_briga")
 again = false
+requires = PackedStringArray("!tomada_caiu")
+
+[sub_resource type="Resource" id="E_bric"]
+script = ExtResource("x1_story_call")
+at = 290.0
+call = ExtResource("x3c_story_09_briga_caiu")
+again = false
+requires = PackedStringArray("tomada_caiu")
 
 [sub_resource type="Resource" id="J_call_toque"]
 script = ExtResource("x1_story_call")
@@ -171,6 +180,11 @@ script = ExtResource("dl_diary_line")
 text = "Briga na rua por causa da rádio. Uns gritavam viva, outros batiam."
 call = SubResource("E_bri")
 
+[sub_resource type="Resource" id="N_4b"]
+script = ExtResource("dl_diary_line")
+text = "Meu Deus, hoje teve briga na rua de novo."
+call = SubResource("E_bric")
+
 [sub_resource type="Resource" id="N_5"]
 script = ExtResource("dl_diary_line")
 text = "Fiz o que ele pediu. Espero que valha alguma coisa."
@@ -200,10 +214,10 @@ script = ExtResource("1_night")
 note = "O supervisor deixou um recado: \"Com o toque de recolher, a noite promete: emergência vem primeiro.\""
 street_events = Array[ExtResource("2_event")]([SubResource("ev_0"), SubResource("ev_1")])
 news_if = Array[ExtResource("x0_story_text")]([SubResource("News_grupos"), SubResource("News_comandante")])
-story = Array[ExtResource("x1_story_call")]([SubResource("S_seb"), SubResource("S_aut0"), SubResource("S_aut1"), SubResource("S_aut1a"), SubResource("S_aut2"), SubResource("S_aut2a"), SubResource("E_car"), SubResource("E_bal"), SubResource("E_atr"), SubResource("E_bri")])
+story = Array[ExtResource("x1_story_call")]([SubResource("S_seb"), SubResource("S_aut0"), SubResource("S_aut1"), SubResource("S_aut1a"), SubResource("S_aut2"), SubResource("S_aut2a"), SubResource("E_car"), SubResource("E_bal"), SubResource("E_atr"), SubResource("E_bri"), SubResource("E_bric")])
 news_stories = PackedStringArray("Toque de recolher às nove da noite\nA partir de hoje, ninguém fica na rua depois das 21h sem salvo-conduto, por ordem da Alta Cúpula. Bares e cinemas fecham às oito e meia. Quem for pego na rua responde na delegacia.")
 calls = Array[ExtResource("x1_story_call")]([SubResource("J_call_toque"), SubResource("J_call_geraldo_bem"), SubResource("J_call_geraldo_mal")])
 news_photo = "rua"
 news_caption = "Rua do Centro às nove e cinco."
 tasks = Array[ExtResource("dt_diary_task")]([SubResource("T_0"), SubResource("T_1")])
-diary = Array[ExtResource("dl_diary_line")]([SubResource("N_0"), SubResource("N_1"), SubResource("N_2"), SubResource("N_3"), SubResource("N_4"), SubResource("N_5"), SubResource("N_6")])
+diary = Array[ExtResource("dl_diary_line")]([SubResource("N_0"), SubResource("N_1"), SubResource("N_2"), SubResource("N_3"), SubResource("N_4"), SubResource("N_4b"), SubResource("N_5"), SubResource("N_6")])

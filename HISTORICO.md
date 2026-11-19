@@ -4197,3 +4197,83 @@ Chaves:
     conversa.)" no começo da ligação continua. Outras dicas do mesmo tipo sugeridas, esperando a escolha.
     (3) "Melhore o som do despertador": quatro "bip bip" de piezo em 2048 Hz, cada bip firme (sobe em 3 ms, segura
     85 ms e solta num rabicho curto), com o 2º e o 3º harmônicos, no lugar dos três pares que morriam desde o começo.
+652. #dica #fitas #autoridades #bloqueio Escolha das dicas do 651 para as missões do turno inteiro: "1 [linha bloqueada].
+    Pode sublinhar, mas sem mensagem no topo, pois já vai ter um botão de opção"; "2 [ligações das autoridades]. Nesse
+    caso é interessante, pois é uma escolha"; "3 [bar e hotel na noite 15]. Sim, interessante adicionar". Feito: no
+    número bloqueado (o bar nas noites 5 e 6, a rádio e a TV na 14 e na 15) só o nome sublinhado na fala
+    (`rule_blocked.request_made`); na ligação das autoridades (`StoryCall.authority`, nas noites 9, 12 e 15), o nome
+    sublinhado e a fita "Ligação das autoridades" (`Conversation._hint`, `NOTE_AUTHORITY`); no bar e no hotel da noite
+    15, a fita "Ligação para lugar suspeito" (`StoryCall.ribbon`, a chave do aviso, fora das traduções das falas). O
+    sublinhado acha o nome inteiro ou o começo dele, sem olhar maiúsculas ("a delegacia", da Delegacia de Polícia).
+    Captura: `shot.gd --story=15_bar --wait=9` (toca e atende a ligação do roteiro com esse trecho no nome do arquivo).
+653. #vista #janela #desempenho "Deixe o balançar da árvore do lado de fora mais suave com o vento": as folhas tremiam,
+    cada uma por si, e pior quanto mais tempo o jogo ficava aberto: a rajada entrava na velocidade do balanço dentro da
+    fase (`t * (1.4 + gust)`), e com o tempo grande cada mudança dela pulava a fase (~22 saltos por segundo em cada
+    folha do alto, vários de mais de 1 px, medido aos 10 min). Agora a velocidade é fixa e a fase vem do lugar da
+    folha na copa: uma onda lenta que atravessa a árvore para o lado do vento, as vizinhas juntas (`SWAY`,
+    `_draw_shrub`; menos de 1 salto por segundo, nunca de mais de 1 px). A rajada continua aumentando o balanço e
+    empurrando a copa.
+654. #bug #conversa #nome #burocracia #roteiro "Na noite 5 uma senhora liga pedindo para passar para a delegacia, mas
+    ela não fala o nome e sobrenome e a telefonista não pede. Está correto?" Não: das ligações fora do roteiro sem fala
+    própria de nome (`TransferCall.name_line`), 40% só dizem quando a Maria pede (o botão) e as outras 60% passavam
+    por identificadas sem dizer nada, sem botão e sem o nome na conversa (a Rosa Medeiros, `noite_05_parente`; 91 das
+    escritas e as dos moldes). Escolhido "Dizer sozinha com a fala genérica": essas se apresentam logo depois do "alô"
+    com uma fala comum ("Aqui é {name}.", "Meu nome é {name}.", `GameContent.intro_lines`), menos quem já diz o nome
+    inteiro no próprio pedido (a Ivone, o Geraldo e o Raimundo que voltam), que não repete nem é cobrado
+    (`rule_identification.call_started`). E "eu já havia pedido pra você corrigir isso ... algumas pessoas
+    simplesmente falam o nome sem nenhum tipo de apresentação, nenhum 'Aqui é xxx'" (as apresentações secas do roteiro,
+    deixadas de fora no 614): as 57 falas de nome ditas sozinhas ganharam o "Aqui é" ("Aqui é Davi Correia.", "Aqui é
+    Jorge Bastos, da polícia."; en "This is", es "Habla"); a do Sebastião no acordo da noite 6 saiu, porque ele abre
+    com "Maria, é o Sebastião". A do Jair (613) já se apresentava; as do Sebastião que recusa (noites 1 e 2) nunca são
+    ditas. O nome seco continua só como resposta a quem pediu (`name_lines`).
+655. #roteiro #conversa #revisao "Preciso que você verifique todas as frases e ajuste conversas sem contexto, sem
+    sentido ou que não se encaixam no momento do jogo. Se houver, use Skills". Seis leituras em paralelo de todo o
+    `data/` (noites 0–5, 6–8, 9–12, 13–16, ligações comuns, lista com moldes e conversa fiada), ~105 apontamentos
+    conferidos nos arquivos. Ajustados os 75 claros, com en e es: sete conversas escutadas que começavam pela fala
+    de quem atende e saíam na boca trocada (o "alô" do destino já é posto pelo `Eavesdrop`: Otávio e a rádio na 2 e
+    na 5, Generosa na 8, na 12 e na 16, a padaria da 15); a Cecília ensinando o botão Encerrar turno no papel da
+    parede (agora, no pé da página do diário) e "traz um casaco amanhã" (o turno é na segunda); o obituário com
+    "trinta anos" (oito, como no treinamento); respostas que só casavam com uma das opções (Sebastião e Cecília na 5,
+    a delegacia na 4, Sebastião na 16, o trote da geladeira); o número repetido errado (`transfer_21`, `transfer_35`),
+    o nome trocado na conversa (`transfer_49`, `transfer_02`), agradecimentos que contradiziam o pedido ou eram
+    ditos depois de o lugar atender; horas que só valiam numa parte do turno ("sessão das oito", "ônibus das dez",
+    "fecho às dez"/"às onze", "o último ônibus sai às onze", "que é Natal" em outubro); o pronome sem referente nas
+    variações de emergência (11, 27, 3); "Obrigado" na voz de mulher (Teresa Lima) e os agradecimentos sorteados sem
+    olhar a voz, agora neutros; "meu chapa" dito a Maria pelo bar; um molde que se apresentava como "Sebastião
+    Falcão" (agora Severino Lacerda); motivo e conversa que não batiam (funerária, delegacia, TV, posto, bilhar,
+    farmácia); o atendimento do toque de recolher do cinema e do táxi valendo da noite 9 (era da 10). Ficou para o
+    usuário decidir (48 pendências no artefato "Revisão das falas", https://claude.ai/artifact/FJ9SKvQcxsiYiaLCf3ApS2, a pedido no lugar de um `.md`: cada uma com as saídas para marcar e um campo de sugestão, gravados na coleção `decisoes`): o que muda a história (as cartas da 11, o enterro da
+    Cecília, as falas da mãe dela no epílogo) e o que pede mecânica (tirar do sorteio as ligações para lugar
+    fechado ou fora de hora: hotel lacrado, bar e bilhar no toque de recolher, o Otávio internado; `{hour}` sorteada
+    sem olhar o relógio; a despedida automática depois de uma fala que já fecha a conversa). De carona: as respostas
+    das ligações escritas da noite não saíam em âmbar e davam erro no log (`c.data in main.night.calls`, agora
+    `c.beat != null`) e o `test_shift` acusava a ligação que toca no mesmo quadro em que a missão acaba.
+656. #roteiro #agenda #escuta #despacho #diario As 48 pendências da revisão das falas (item 655), respondidas pelo usuário
+    no artefato; 47 aplicadas, a do gesso do Miguel no epílogo ficou aberta (ele perguntou por que Maria vai ao
+    hospital se o menino já está em casa). **Mecânica** (pedida por ele nos cartões): a variação de emergência troca
+    também a piora e o "depois" (`EmergencyCase.after`, `worsening`..., `GameData.with_case`: a avó trancada no
+    banheiro, o pai no poço, a batida sem feridos, o poste de pé); a conversa escrita que já acaba em despedida ou em
+    "desliga" não ganha a despedida sorteada (`TransferCall.overheard_ends`, `Motive.ends`; 24 ligações e 9 conversas
+    da lista marcadas); o sorteio das ligações comuns olha a noite e a hora do lugar (`GameData.answering`: casa
+    vazia pelo `answers_until`, o Otávio da 9 em diante; `DirectoryEntry.curfew`, o bar e o bilhar fechados das 20h30
+    em diante nas noites 9 a 14, `GameData.CURFEW`); a escrita da noite com hora limite (`StoryCall.before`: a pensão
+    da 14 e a mercearia da 15 só até as 20h30). **Falas**, as escolhas dele: no trote da geladeira as duas respostas
+    caem e há uma terceira, que ameaça chamar a polícia (o menino desliga, e o diário muda); o diário só anota o que
+    foi dito a Maria, com a versão cheia para quem escutou a fala (`overheard_flags`: `ouviu_fita_2`, `ouviu_radio_4`,
+    `ouviu_praca_8`) ou perguntou (`quem_e_3`); respostas próprias por opção (Miguel nas noites 8 e 14, a mãe da
+    Cecília no fracasso: "Não podia. Ninguém podia." e, no silêncio, a fala que ele rascunhou); o homem das armas
+    virou Onofre Duarte (havia dois Anselmos); a Cecília é enterrada no sábado às quatro da tarde (regra dele: morreu
+    num dia, enterro no outro à tarde), e jornal, ligação e funerária falam disso no passado; a briga da noite 9 e a
+    segunda ordem da Cúpula na 15 ganharam a versão de quando a tomada da rádio fracassou ou a primeira ordem não
+    chegou (`story_09_briga_caiu`, `story_15_cupula_retomada_tv_cortada`); a carta da 11 promete dizer a música (a
+    da 15 diz) e apresenta Cristóvão como o pai; saiu "os jornais vão chamar Maria de heroína" do fim da 15; gibis no
+    lugar do cartão telefônico, pastel no lugar da pizza, "noite de terça" e "desde que o gravador foi instalado" no
+    lugar de "noite nove" e "noite sete"; treze falas escutadas sem a hora sorteada quando ela é de hoje; cinco
+    sobrenomes sorteados trocados (Valadares, Prates, Teles, Paiva, Monteiro). **Ficou como estava**, explicado a ele:
+    "Meia-noite. Desliguei a mesa" é do diário do epílogo (noite 16, turno até a meia-noite), não da 15.
+657. #roteiro #epilogo O gesso do Miguel e as três listas da conferência das falas (item 656), respondidas pelo usuário
+    na página: o encontro do gesso **continua no hospital**, e o Miguel diz por que volta lá ("Amanhã de manhã eu volto
+    no São Lucas, pro médico olhar a perna!"; ele já estava em casa desde a 14, e o usuário estranhou Maria ir ao
+    hospital); nos dois fechos do epílogo, "a porta do quarto" virou "a porta da sala" e "na ala 3C" virou "no
+    ambulatório" (a cena do Sebastião no corredor fica). Aprovadas sem mudança: as falas das quatro variações de
+    emergência, as treze falas escutadas sem a hora sorteada e as marcas de despedida (`overheard_ends`, `Motive.ends`).

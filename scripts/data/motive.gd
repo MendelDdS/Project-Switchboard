@@ -12,3 +12,5 @@ extends Resource
 ## se ele não atender, quem atende é outro do mesmo ramo (`GameData.alternative`). Lacunas sorteadas por conversa
 ## (`TalkFill`: {hour}, {wait}...) mudam o que se ouve de uma vez para outra. Vazio: só o murmúrio.
 @export var talks: Array[PackedStringArray] = []
+## As de `talks` (índices) que já acabam em despedida: sem a sorteada depois (`TransferCall.overheard_ends`).
+@export var ends: PackedInt32Array = []

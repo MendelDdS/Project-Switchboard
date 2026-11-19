@@ -8,7 +8,7 @@
 [sub_resource type="Resource" id="Motive_23"]
 script = ExtResource("2_motive")
 text = "Meu tio faleceu agora há pouco."
-talks = Array[PackedStringArray]([PackedStringArray("Boa noite. Meu tio faleceu agora há pouco, em casa.", "Meus sentimentos. O médico já veio atestar?", "Já veio. Disse que foi o coração.", "Então eu mando o carro buscar. Qual é o endereço?", "{street}, {house}. A casa do portão {color}.", "Chegamos em {wait}. Separe uma roupa pra ele."), PackedStringArray("Boa noite. Minha avó faleceu agora há pouco.", "Meus sentimentos. Foi em casa ou no hospital?", "Em casa, dormindo. O médico já veio.", "Vocês querem o velório em casa ou na capela?", "Em casa. Ela morava na {street}, {house}.", "Então levo as coisas pra lá em {wait}.")])
+talks = Array[PackedStringArray]([PackedStringArray("Boa noite. Meu tio faleceu agora há pouco, em casa.", "Meus sentimentos. O médico já veio atestar?", "Já veio. Disse que foi o coração.", "Então eu mando o carro buscar. Qual é o endereço?", "{street}, {house}. A casa do portão {color}.", "Chegamos em {wait}. Separe uma roupa pra ele."), PackedStringArray("Boa noite. Meu tio faleceu agora há pouco.", "Meus sentimentos. Foi em casa ou no hospital?", "Em casa, dormindo. O médico já veio.", "Vocês querem o velório em casa ou na capela?", "Em casa. Ele morava na {street}, {house}.", "Então levo as coisas pra lá em {wait}.")])
 
 [sub_resource type="Resource" id="Motive_24"]
 script = ExtResource("2_motive")
@@ -48,7 +48,7 @@ replies = Array[ExtResource("9_reply")]([SubResource("Answer_1_0"), SubResource(
 [sub_resource type="Resource" id="Ans_funeraria_cecilia_0"]
 script = ExtResource("9_reply")
 text = "É sobre a Cecília, da central do Alto da Serra."
-follow = "A telefonista? O enterro foi hoje às dez, no municipal. Veio pouca gente: a mãe e duas colegas."
+follow = "A telefonista? O enterro foi hoje às quatro da tarde, no municipal. Veio pouca gente: a mãe e duas colegas."
 
 [sub_resource type="Resource" id="Ans_funeraria_cecilia_1"]
 script = ExtResource("9_reply")

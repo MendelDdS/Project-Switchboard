@@ -37,5 +37,7 @@ extends Resource
 @export var closes := -1.0
 ## A última noite em que alguém atende o discador (depois, toca e ninguém atende; a Cecília, que largou o setor).
 @export var answers_until := 99
+## Fecha as portas no toque de recolher (`GameData.CURFEW`): nas noites dele, nenhuma ligação comum para cá depois da hora.
+@export var curfew := false
 ## A noite em que o número deixa de existir (0: nunca).
 @export var gone_from := 0

@@ -227,12 +227,21 @@ func underline(i: int, length: int) -> void:
 	transcript_changed.emit()
 
 
-## Sublinha `word` nas falas de quem liga em que ela aparece (o lugar que as autoridades mandaram gravar, `rule_tapes`).
-func underline_word(word: String) -> void:
+## Sublinha o lugar `place` nas falas de quem liga em que ele aparece (o que as autoridades mandaram gravar ou
+## bloquearam, o das próprias autoridades: `rule_tapes`, `rule_blocked`, `Conversation._hint`): o nome inteiro ou o
+## começo dele, sem olhar maiúsculas ("a delegacia", da Delegacia de Polícia; "a Rádio Serena", da Rádio Serena AM).
+func underline_word(place: String) -> void:
+	var parts := place.split(" ", false)
 	for l in transcript:
-		var at := String(l["text"]).find(word)
-		if l["cls"] == "" and at >= 0 and word != "":
-			l["marks"] = l.get("marks", []) + [[at, at + word.length()]]
+		if l["cls"] != "":
+			continue
+		for n in range(parts.size(), 0, -1):
+			var w := " ".join(parts.slice(0, n))
+			var at := String(l["text"]).findn(w)
+			if at >= 0 and (n > 1 or w.length() >= 4):   # (uma palavra só, curta, acharia pedaço de outra)
+				if not [at, at + w.length()] in l.get("marks", []):   # (uma vez só)
+					l["marks"] = l.get("marks", []) + [[at, at + w.length()]]
+				break
 	transcript_changed.emit()
 
 

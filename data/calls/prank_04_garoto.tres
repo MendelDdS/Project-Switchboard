@@ -5,13 +5,13 @@
 
 [sub_resource type="Resource" id="Resource_sxff0"]
 script = ExtResource("2_0ij11")
-text = "Alô, é da central? A sua geladeira está funcionando?"
+text = "Alô, é da central? A sua geladeira está andando?"
 options = PackedStringArray()
 
 [sub_resource type="Resource" id="Resource_pu52b"]
 script = ExtResource("2_0ij11")
 kind = 1
-options = PackedStringArray("Aqui é a central telefônica.", "Que brincadeira é essa?")
+options = PackedStringArray("Está, sim. Por quê?", "Está, sim. Que pergunta é essa?")
 
 [sub_resource type="Resource" id="Resource_t5qvf"]
 script = ExtResource("2_0ij11")

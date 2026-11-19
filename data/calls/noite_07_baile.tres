@@ -13,4 +13,4 @@ repeat = "Lúcia Pereira. Um, quatro, sete."
 target = "147"
 destination = "Lúcia Pereira"
 thanks = "Obrigada, moça!"
-overheard = PackedStringArray("Lúcia? É a Dalva. Você chegou bem em casa ontem?", "Cheguei. Saí antes da revista, por sorte. E você?", "Me revistaram a bolsa inteira. Até o batom abriram.", "E o Zeca? Vi levarem ele.", "Estava sem documento. Passou a noite lá. A mãe dele está desesperada.", "Nunca mais vou a baile na praça. Nunca mais.")
+overheard = PackedStringArray("Lúcia? É a Dalva. Você chegou bem em casa ontem?", "Cheguei. Saí antes da revista, por sorte. E você?", "Me revistaram a bolsa inteira. Até o batom abriram.", "E o Zeca? Soube que levaram ele.", "Estava sem documento. Passou a noite lá. A mãe dele está desesperada.", "Nunca mais vou a baile na praça. Nunca mais.")

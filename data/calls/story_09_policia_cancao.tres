@@ -14,4 +14,4 @@ destination = "Delegacia de Polícia"
 thanks = "Obrigado."
 overheard = PackedStringArray("Bastos falando. Os ouvintes estão ligando: a rádio tocou a [other:Canção da Madrugada].", "A proibida? Manda fechar aquilo agora!", "Estou indo.")
 caller_name = "Jorge Bastos"
-name_line = "Jorge Bastos, da polícia."
+name_line = "Aqui é Jorge Bastos, da polícia."

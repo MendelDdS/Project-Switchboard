@@ -385,6 +385,10 @@ const HEDGE := 200   ## as folhas da cerca viva embaixo dela, até o batente de 
 ## As rajadas de vento no arbusto: as duas ondas lentas que as fazem (rad/s) e quanto elas empurram a copa para a
 ## esquerda (px da tela no alto dela).
 const GUST := Vector3(0.23, 0.071, 2.5)
+## O balanço das folhas: uma onda lenta que atravessa a copa para o lado do vento (rad/s e rad por largura do vão: as
+## vizinhas vão juntas) e o quanto cada folha sai do passo dela (rad). (A rajada entrava na velocidade, `t * (1.4 +
+## gust)`: com o tempo grande, cada mudança dela pulava a fase e as folhas tremiam, cada uma por si.)
+const SWAY := Vector3(1.1, 9.0, 0.5)
 ## As folhas que a rajada arranca: de quanto em quanto tempo cada uma pode sair (s), quanto dura o voo e até onde vai
 ## para a esquerda (px da tela); só sai se a rajada está forte nessa hora (`LOOSE_GUST`) e fora da névoa, sem vento.
 const LOOSE: Array[float] = [31.0, 47.0, 73.0]
@@ -5247,7 +5251,7 @@ func _draw_shrub() -> void:
 		var w := Vector2((SHRUB.x + dx) * gw, gh * (1.0 - hgt) + rng.randf_range(-1.0, 1.0))
 		var p := (_side_pt(w, WALL_D + 8.0) - _view_at) * 2.0   # do lado de fora, atrás do vidro
 		var k := clampf(_side_pt(w + Vector2(0, 1)).y - _side_pt(w).y, 0.8, 1.6)   # a escala da parede ali
-		var sway := roundf((sin(t * (1.4 + gust) + i * 0.7) * (1.0 + gust) - gust * GUST.z) * wind * maxf(hgt, 0.0) / SHRUB.z * 1.5)
+		var sway := roundf((sin(t * SWAY.x + dx * SWAY.y + sin(i * 0.7) * SWAY.z) * (1.0 + gust) - gust * GUST.z) * wind * maxf(hgt, 0.0) / SHRUB.z * 1.5)
 		var lit := clampf(maxf(hgt, 0.0) / SHRUB.z * 0.45 + up * 0.3 + 0.2 + (dx / maxf(0.01, r)) * 0.1 + rng.randf_range(-0.14, 0.12), 0.0, 0.99)
 		var c: Color = (tones[int(lit * tones.size())] as Color).lerp(Pal.SHRUB_FLASH, f * 0.5)
 		# o sol baixo: as folhas acendem de verde-amarelo, mais nos tufos do alto e na beira de cima de cada um, e as

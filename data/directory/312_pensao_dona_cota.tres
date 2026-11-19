@@ -13,7 +13,7 @@ talks = Array[PackedStringArray]([PackedStringArray("Boa noite. Tem quarto pra h
 [sub_resource type="Resource" id="Motive_60"]
 script = ExtResource("2_motive")
 text = "Quero saber se tem vaga pra dois pernoitarem."
-talks = Array[PackedStringArray]([PackedStringArray("Boa noite. Tem vaga pra duas pessoas? É só pra pernoitar.", "Pra dois tem o quarto da frente, com duas camas.", "Ótimo. A gente chegou no último ônibus e não tem onde ficar.", "Então venham logo, que a rua aqui fica escura depois das {hour}.", "Precisa levar alguma coisa? Documento?", "Só o documento, pra anotar no livro de hóspedes."), PackedStringArray("Boa noite. Tem quarto pra duas pessoas, só esta noite?", "Tem, mas só com uma cama de casal.", "Somos dois irmãos. Não tem com duas camas?", "Posso pôr um colchão no chão. Serve?", "Serve, sim. Chegamos em {wait}.", "Vou deixar a luz da frente acesa pra vocês.")])
+talks = Array[PackedStringArray]([PackedStringArray("Boa noite. Tem vaga pra duas pessoas? É só pra pernoitar.", "Pra dois tem o quarto da frente, com duas camas.", "Ótimo. A gente chegou no último ônibus e não tem onde ficar.", "Então venham logo, que a rua aqui fica escura.", "Precisa levar alguma coisa? Documento?", "Só o documento, pra anotar no livro de hóspedes."), PackedStringArray("Boa noite. Tem quarto pra duas pessoas, só esta noite?", "Tem, mas só com uma cama de casal.", "Somos dois irmãos. Não tem com duas camas?", "Posso pôr um colchão no chão. Serve?", "Serve, sim. Chegamos em {wait}.", "Vou deixar a luz da frente acesa pra vocês.")])
 
 [sub_resource type="Resource" id="Answer_0_0"]
 script = ExtResource("9_reply")

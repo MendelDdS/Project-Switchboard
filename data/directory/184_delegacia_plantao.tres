@@ -8,12 +8,14 @@
 [sub_resource type="Resource" id="Motive_1"]
 script = ExtResource("2_motive")
 text = "Quero fazer uma queixa."
-talks = Array[PackedStringArray]([PackedStringArray("Boa noite. Arrombaram o portão da minha garagem e levaram a bicicleta.", "Queixa de furto é pessoalmente, aqui no balcão.", "A esta hora? A rua está escura feito breu.", "Então venha amanhã cedo. Anote a hora em que notou.", "Notei agora há pouco, umas {hour}.", "Está certo. Amanhã cedo, com documento."), PackedStringArray("Boa noite. O vizinho de cima está batendo na parede faz uma hora.", "É briga ou é barulho?", "Barulho, eu acho. Mas não deixa ninguém dormir.", "Barulho é com o síndico. Se virar briga, ligue de novo.", "O síndico mora fora. Vou aguentar, então.", "Boa noite.")])
+talks = Array[PackedStringArray]([PackedStringArray("Boa noite. Arrombaram o portão da minha garagem e levaram a bicicleta.", "Queixa de furto é pessoalmente, aqui no balcão.", "A esta hora? A rua está escura feito breu.", "Então venha amanhã cedo. Anote a hora em que notou.", "Notei agora há pouco, quando cheguei em casa.", "Está certo. Amanhã cedo, com documento."), PackedStringArray("Boa noite. O vizinho de cima está batendo na parede faz uma hora.", "É briga ou é barulho?", "Barulho, eu acho. Mas não deixa ninguém dormir.", "Barulho é com o síndico. Se virar briga, ligue de novo.", "O síndico mora fora. Vou aguentar, então.", "Boa noite.")])
+ends = PackedInt32Array(1)
 
 [sub_resource type="Resource" id="Motive_2"]
 script = ExtResource("2_motive")
-text = "Perdi meus documentos."
+text = "É sobre uns documentos perdidos."
 talks = Array[PackedStringArray]([PackedStringArray("Boa noite. Meu pai perdeu a carteira com os documentos no ônibus.", "Alguém entregou uma aqui hoje à tarde. Qual o nome?", "Pedro Lopes. A carteira é marrom, de couro.", "É essa mesma. Ele vem buscar, com outro documento.", "Ele vai amanhã, então. Agradeço muito.", "Boa noite."), PackedStringArray("Boa noite. Perdi a carteira de trabalho. Preciso dar parte?", "Precisa, para tirar a segunda via.", "E eu faço isso aí, à noite?", "De noite só flagrante. Venha amanhã de manhã.", "Amanhã de manhã, então.", "Traga duas testemunhas, se tiver.")])
+ends = PackedInt32Array(0)
 
 [sub_resource type="Resource" id="Dial_0_0"]
 script = ExtResource("9_reply")

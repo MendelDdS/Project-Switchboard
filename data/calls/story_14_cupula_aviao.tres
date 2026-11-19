@@ -14,5 +14,5 @@ destination = "Alta Cúpula"
 thanks = "Obrigado."
 overheard = PackedStringArray("Boa noite. Valadares falando, da residência.", "Pode falar, a linha é nossa.", "O ministro não dorme aqui hoje. A gente leva ele pro [place:Centro] às [time:onze], pela [street:Rua do Comércio].", "E de lá?", "De lá, um avião no [place:campo de aviação], às [time:quatro] da manhã. Sem luz na pista, sem plano de voo.", "Quem sabe disso?", "Eu, você e o piloto. Que continue assim.")
 caller_name = "Henrique Valadares"
-name_line = "Henrique Valadares, da residência oficial."
+name_line = "Aqui é Henrique Valadares, da residência oficial."
 code_line = "Autorização {code}."

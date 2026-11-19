@@ -13,7 +13,7 @@ talks = Array[PackedStringArray]([PackedStringArray("Boa noite. Meu neto está c
 [sub_resource type="Resource" id="Motive_21"]
 script = ExtResource("2_motive")
 text = "Preciso de um remédio pra dor de dente."
-talks = Array[PackedStringArray]([PackedStringArray("Boa noite. Estou com uma dor de dente que não aguento.", "É no dente de cima ou de baixo? Está inchado?", "De baixo, no fundo. Inchou um pouco o rosto.", "Tenho um comprimido pra dor. Mas amanhã procura o dentista.", "Vou, sim. Posso passar aí agora?", "Pode. E enquanto isso, compressa fria no rosto."), PackedStringArray("Boa noite. Lá em casa ninguém dorme por causa de uma dor de dente.", "Já tentou cravo? Põe um no dente que alivia.", "Já, e não adiantou. Precisa de remédio mesmo.", "Então eu separo um analgésico. Vem buscar até as {hour}.", "Chego em {wait}. Deus lhe pague.", "Vem pela porta do lado, que a da frente já fechou.")])
+talks = Array[PackedStringArray]([PackedStringArray("Boa noite. Estou com uma dor de dente que não aguento.", "É no dente de cima ou de baixo? Está inchado?", "De baixo, no fundo. Inchou um pouco o rosto.", "Tenho um comprimido pra dor. Mas amanhã procura o dentista.", "Vou, sim. Posso passar aí agora?", "Pode. E enquanto isso, compressa fria no rosto."), PackedStringArray("Boa noite. Lá em casa ninguém dorme por causa de uma dor de dente.", "Já tentou cravo? Põe um no dente que alivia.", "Já, e não adiantou. Precisa de remédio mesmo.", "Então eu separo um analgésico. Vem buscar logo.", "Chego em {wait}. Deus lhe pague.", "Vem pela porta do lado, que a da frente já fechou.")])
 
 [sub_resource type="Resource" id="Motive_22"]
 script = ExtResource("2_motive")

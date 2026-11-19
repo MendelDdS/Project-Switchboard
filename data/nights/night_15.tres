@@ -27,6 +27,7 @@
 [ext_resource type="Resource" path="res://data/calls/story_15_telhado.tres" id="m_telhado"]
 [ext_resource type="Resource" path="res://data/calls/story_15_ferido.tres" id="m_ferido"]
 [ext_resource type="Resource" path="res://data/calls/story_15_cupula_retomada_tv.tres" id="m_cupula_retomada_tv"]
+[ext_resource type="Resource" path="res://data/calls/story_15_cupula_retomada_tv_cortada.tres" id="m_cupula_retomada_tv_cortada"]
 [ext_resource type="Resource" path="res://data/calls/story_15_capital.tres" id="m_capital"]
 [ext_resource type="Resource" path="res://data/calls/story_15_capital_volta.tres" id="m_capital_volta"]
 [ext_resource type="Resource" path="res://data/calls/story_15_muro.tres" id="m_muro"]
@@ -74,6 +75,7 @@ if_missed = PackedStringArray("desobedeceu_ferrovia_15")
 script = ExtResource("3_story")
 at = 110.0
 call = ExtResource("c_story_15_bar")
+ribbon = "NOTE_SUSPECT"
 if_connected = PackedStringArray("ligou_suspeito_15")
 if_elsewhere = PackedStringArray("ligou_suspeito_15")
 if_dropped = PackedStringArray("ligou_suspeito_15")
@@ -90,6 +92,7 @@ again = false
 script = ExtResource("3_story")
 at = 160.0
 call = ExtResource("c_story_15_hotel")
+ribbon = "NOTE_SUSPECT"
 if_connected = PackedStringArray("ligou_suspeito_15")
 if_elsewhere = PackedStringArray("ligou_suspeito_15")
 if_dropped = PackedStringArray("ligou_suspeito_15")
@@ -199,6 +202,19 @@ if_connected = PackedStringArray("obedeceu_retomada_tv_15")
 if_elsewhere = PackedStringArray("desobedeceu_retomada_tv_15")
 if_dropped = PackedStringArray("desobedeceu_retomada_tv_15")
 if_missed = PackedStringArray("desobedeceu_retomada_tv_15")
+requires = PackedStringArray("!desobedeceu_retomada_radio_15")
+
+[sub_resource type="Resource" id="M_tvc"]
+script = ExtResource("3_story")
+at = 415.0
+call = ExtResource("m_cupula_retomada_tv_cortada")
+authority = true
+again = false
+if_connected = PackedStringArray("obedeceu_retomada_tv_15")
+if_elsewhere = PackedStringArray("desobedeceu_retomada_tv_15")
+if_dropped = PackedStringArray("desobedeceu_retomada_tv_15")
+if_missed = PackedStringArray("desobedeceu_retomada_tv_15")
+requires = PackedStringArray("desobedeceu_retomada_radio_15")
 
 [sub_resource type="Resource" id="M_capital_volta"]
 script = ExtResource("3_story")
@@ -447,7 +463,7 @@ text = "Bar do Zé! (ao fundo, gente cantando)"
 
 [sub_resource type="Resource" id="D_bar_01"]
 script = ExtResource("2_step")
-text = "Telefonista? É você? Fecharam o bar às onze, mas a gente já voltou. Escuta só."
+text = "Telefonista? É você? Fecharam o bar às onze, e à meia-noite a gente já estava de volta. Escuta só."
 
 [sub_resource type="Resource" id="D_bar_02"]
 script = ExtResource("2_step")
@@ -529,7 +545,7 @@ requires = PackedStringArray("fita_armas_entregue")
 
 [sub_resource type="Resource" id="End_sucesso"]
 script = ExtResource("5_text")
-text = "Às seis, quando a rendição chega, Sebastião está esperando na calçada da frente, embaixo da bandeira. Ele tira o chapéu, como o pai dele fazia nas reuniões, e diz que Cristóvão teria orgulho.\n\nOs jornais da tarde vão chamar Maria de heroína. Ali na calçada, ele só aperta a mão dela e demora a soltar."
+text = "Às seis, quando a rendição chega, Sebastião está esperando na calçada da frente, embaixo da bandeira. Ele tira o chapéu, como o pai dele fazia nas reuniões, e diz que Cristóvão teria orgulho.\n\nAli na calçada, ele só aperta a mão dela e demora a soltar."
 title = "Amanhece"
 requires = PackedStringArray("final_sucesso", "!custou_gente")
 
@@ -548,6 +564,7 @@ caption = "O camburão na porta do Bar do Zé."
 [sub_resource type="Resource" id="J_call_padaria"]
 script = ExtResource("3_story")
 call = ExtResource("j_padaria")
+before = 150.0
 
 [sub_resource type="Resource" id="J_call_parente"]
 script = ExtResource("3_story")
@@ -673,7 +690,7 @@ shift_end = 720.0
 clears_at = 360.0
 quiet_from = 600.0
 note = "O supervisor deixou um recado: \"Ordem das autoridades: as linhas da Rádio Serena e da TV Orbital estão bloqueadas. Transferir qualquer ligação para elas é crime, sujeito a prisão. Quem ligar para o bar ou para o hotel, denuncie na delegacia (184). Ligação para a delegacia ou para a Alta Cúpula passa na hora, sem demora. Última noite do período: o relatório de hoje vai para a diretoria.\""
-story = Array[ExtResource("3_story")]([SubResource("Story_presa"), SubResource("S_pol1"), SubResource("S_bar"), SubResource("S_radio"), SubResource("S_hotel"), SubResource("S_cup1"), SubResource("S_pol2"), SubResource("S_cup2"), SubResource("S_cup2a"), SubResource("S_tv"), SubResource("S_celeste"), SubResource("S_pol3"), SubResource("M_ze"), SubResource("M_radio"), SubResource("M_telhado"), SubResource("M_ferido"), SubResource("M_tv"), SubResource("M_capital"), SubResource("M_muro"), SubResource("M_sobretudo"), SubResource("V_gazeta"), SubResource("V_padaria"), SubResource("V_obrigado")])
+story = Array[ExtResource("3_story")]([SubResource("Story_presa"), SubResource("S_pol1"), SubResource("S_bar"), SubResource("S_radio"), SubResource("S_hotel"), SubResource("S_cup1"), SubResource("S_pol2"), SubResource("S_cup2"), SubResource("S_cup2a"), SubResource("S_tv"), SubResource("S_celeste"), SubResource("S_pol3"), SubResource("M_ze"), SubResource("M_radio"), SubResource("M_telhado"), SubResource("M_ferido"), SubResource("M_tv"), SubResource("M_tvc"), SubResource("M_capital"), SubResource("M_muro"), SubResource("M_sobretudo"), SubResource("V_gazeta"), SubResource("V_padaria"), SubResource("V_obrigado")])
 street_events = Array[ExtResource("2_event")]([SubResource("ev_0"), SubResource("ev_1"), SubResource("ev_2")])
 endings = Array[ExtResource("5_text")]([SubResource("End_sucesso"), SubResource("End_presa")])
 letters = Array[ExtResource("5_text")]([SubResource("letter_15"), SubResource("letter_15a")])

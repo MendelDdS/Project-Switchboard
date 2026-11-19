@@ -135,6 +135,7 @@ caption = "A porta do Hotel Serena, com o lacre da delegacia."
 [sub_resource type="Resource" id="J_call_pensao"]
 script = ExtResource("3_story")
 call = ExtResource("j_pensao")
+before = 150.0
 
 [sub_resource type="Resource" id="J_call_parente"]
 script = ExtResource("3_story")

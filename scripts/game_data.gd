@@ -12,6 +12,12 @@ const SECTOR_NIGHTS := {3: 1, 1: 5, 2: 10}
 ## Setores atendidos no turno atual (Main define ao carregar a noite); a mesa, a lista e as ligações só usam os
 ## números deles. Polícia, bombeiros e hospital (despacho) valem para a cidade toda.
 static var sectors: Array = [1, 2, 3]
+## A noite do turno atual (Main define ao carregar a noite): o sorteio das ligações comuns olha por ela quem ainda
+## atende (`answering`).
+static var night_no := 0
+## O toque de recolher: as noites dele e a hora (minutos depois das 18h) em que os lugares de `DirectoryEntry.curfew`
+## fecham as portas.
+const CURFEW := Vector3(9, 14, 150.0)
 
 
 ## O primeiro dia do jogo: a noite 1 é a de segunda-feira, 8 de outubro de 1973; cada noite, um dia depois. O
@@ -41,6 +47,13 @@ static func sectors_for(night: int) -> Array:
 
 static func in_service(number: String) -> bool:
 	return number != "" and (int(number.left(1)) in sectors or is_trunk(number))
+
+
+## Alguém ainda atende no número a esta hora (minutos depois das 18h) da noite: a casa não ficou vazia
+## (`answers_until`) nem o lugar fechou pelo toque de recolher (`curfew`). Ligação comum para lá não é sorteada.
+static func answering(number: String, at: float) -> bool:
+	var e := entry(number)
+	return e == null or night_no <= e.answers_until and not (e.curfew and night_no >= CURFEW.x and night_no <= CURFEW.y and at >= CURFEW.z)
 
 
 ## A transferência pede só números dos setores atendidos (o pedido e a alternativa).
@@ -139,9 +152,9 @@ static func fill(template: String, vars: Dictionary) -> String:
 
 ## Transferência montada a partir de um molde, para um contato dos setores atendidos fora de `exclude` (números já
 ## usados no turno). Nulo se não sobrar nenhum.
-static func template_transfer(exclude: Array = []) -> TransferCall:
+static func template_transfer(exclude: Array = [], at := 0.0) -> TransferCall:
 	var places := CONTENT.directory.filter(func(d: DirectoryEntry):
-		return d.spoken != "" and not d.motives.is_empty() and not d.dispatch_only and in_service(d.number))
+		return d.spoken != "" and not d.motives.is_empty() and not d.dispatch_only and in_service(d.number) and answering(d.number, at))
 	var fresh := places.filter(func(d: DirectoryEntry): return not d.number in exclude)
 	if fresh.is_empty():
 		return null   # todos os lugares já foram pedidos nesta noite
@@ -166,7 +179,9 @@ static func template_transfer(exclude: Array = []) -> TransferCall:
 	t.target = e.number
 	t.destination = e.name
 	t.thanks = pick(CONTENT.transfer_thanks)
-	t.overheard = motive.talks.pick_random() if not motive.talks.is_empty() else PackedStringArray()
+	var talk := randi() % motive.talks.size() if not motive.talks.is_empty() else -1
+	t.overheard = motive.talks[talk] if talk >= 0 else PackedStringArray()
+	t.overheard_ends = talk in motive.ends
 	var alt := alternative(e, exclude)
 	if alt != null:   # às vezes não atende (`PhoneCall.away`): o operador oferece outro do mesmo ramo
 		t.alt_target = alt.number
@@ -232,8 +247,8 @@ static func template_emergency(from: EmergencyCall = null) -> EmergencyCall:
 	return e
 
 
-## Sorteia um dos casos da emergência (`cases`): as respostas do caso trocam as do roteiro e as unidades
-## passam a ser as dele. Sem casos, devolve a própria emergência.
+## Sorteia um dos casos da emergência (`cases`): as respostas do caso trocam as do roteiro, as unidades passam a ser
+## as dele e, se ele as tiver, a piora e o "depois". Sem casos, devolve a própria emergência.
 static func with_case(e: EmergencyCall) -> EmergencyCall:
 	if e.cases.is_empty():
 		return e
@@ -245,6 +260,9 @@ static func with_case(e: EmergencyCall) -> EmergencyCall:
 			answers[i] = k.answers[i]
 	out.answers = answers
 	out.units = k.units
+	for p in ["after", "worsening", "worsening_answer", "critical", "critical_answer", "lost", "lost_answer"]:
+		if k.get(p) != "":
+			out.set(p, k.get(p))
 	out.cases = []
 	return out
 

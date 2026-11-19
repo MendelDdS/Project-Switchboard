@@ -31,7 +31,7 @@ text = "Amanhã é o dia. Hoje eu só preciso que você aguente firme."
 [sub_resource type="Resource" id="Step_06"]
 script = ExtResource("2_step")
 kind = 1
-options = PackedStringArray("Ela não falou o meu nome. Nem lá.", "O que você precisa?")
+options = PackedStringArray("Ela não falou o meu nome. Nem lá.", "E hoje, o que eu faço?")
 sets = PackedStringArray("nome_14", "")
 
 [sub_resource type="Resource" id="Step_07"]

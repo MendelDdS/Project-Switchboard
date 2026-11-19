@@ -75,11 +75,13 @@ func call_started(c: PhoneCall) -> Array:
 	return [{"snaps": rhythm(desk.night)} if t.secret_signal == SNAPS else t.secret_signal]
 
 
-## Depois do pedido: o aviso do bloqueio do número pedido (ou até que hora está liberado).
+## Depois do pedido: o aviso do bloqueio do número pedido (ou até que hora está liberado), com o nome do lugar
+## sublinhado na fala de quem liga (sem aviso na fita do alto: o botão de avisar o bloqueio já aparece).
 func request_made(c: PhoneCall) -> Array:
 	var n := _asked(c)
 	if not n in blocked:
 		return []
+	c.underline_word(TranslationServer.translate(c.destination))
 	var until := _window(n)
 	if until != "" and desk.main.minutes < _at(until):
 		_when_closes(c, n)

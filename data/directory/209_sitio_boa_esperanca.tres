@@ -13,7 +13,7 @@ talks = Array[PackedStringArray]([PackedStringArray("Boa noite. Queria encomenda
 [sub_resource type="Resource" id="Motive_07"]
 script = ExtResource("2_motive")
 text = "Meu filho trabalha lá e ainda não voltou pra casa."
-talks = Array[PackedStringArray]([PackedStringArray("Boa noite. Meu filho trabalha aí e ainda não voltou pra casa.", "O rapaz do curral? Ficou até mais tarde por causa de uma vaca.", "Ai, que susto. Está tudo bem com ele?", "Está, sim. A vaca pariu agora há pouco e ele ajudou.", "E como ele volta a essa hora? A estrada está escura.", "Levo ele de charrete daqui a {wait}."), PackedStringArray("Boa noite. Meu filho ainda está aí no sítio?", "Está. Ficou consertando a cerca que o boi derrubou.", "A janta dele está esfriando. Ele demora?", "Falta pouco. Ele disse que chega antes das {hour}.", "Pede pra ele vir pela estrada, não pelo mato.", "Pode deixar. Empresto a lanterna pra ele.")])
+talks = Array[PackedStringArray]([PackedStringArray("Boa noite. Meu filho trabalha aí e ainda não voltou pra casa.", "O rapaz do curral? Ficou até mais tarde por causa de uma vaca.", "Ai, que susto. Está tudo bem com ele?", "Está, sim. A vaca pariu agora há pouco e ele ajudou.", "E como ele volta a essa hora? A estrada está escura.", "Levo ele de charrete daqui a {wait}."), PackedStringArray("Boa noite. Meu filho ainda está aí no sítio?", "Está. Ficou consertando a cerca que o boi derrubou.", "A janta dele está esfriando. Ele demora?", "Falta pouco. Ele disse que não demora.", "Pede pra ele vir pela estrada, não pelo mato.", "Pode deixar. Empresto a lanterna pra ele.")])
 
 [sub_resource type="Resource" id="Dial_0_0"]
 script = ExtResource("9_reply")

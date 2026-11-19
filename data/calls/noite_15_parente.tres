@@ -13,4 +13,5 @@ repeat = "Alberto Ramos, moça."
 target = "168"
 destination = "Alberto Ramos"
 thanks = "Obrigada, moça."
-overheard = PackedStringArray("Alberto? É a Marlene. Levaram o Tadeu. Estava no Bar do Zé.", "Eu li no jornal. Quatro presos. Ele é um deles?", "É. Disseram que gravaram ele falando ao telefone.", "Gravaram? Quem grava telefone?", "Não sei. Mas alguém ouviu, Alberto. Alguém ouviu.", "Então desliga. Desliga agora, Marlene.")
+overheard = PackedStringArray("Alberto? É a Marlene. Levaram o Tadeu. Estava no Bar do Zé.", "Eu soube. Quatro presos. Ele é um deles?", "É. Disseram que gravaram ele falando ao telefone.", "Gravaram? Quem grava telefone?", "Não sei. Mas alguém ouviu, Alberto. Alguém ouviu.", "Então desliga. Desliga agora, Marlene.")
+overheard_ends = true

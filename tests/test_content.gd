@@ -239,6 +239,7 @@ func _initialize() -> void:
 		ok(p.steps.back().kind == PrankStep.Kind.END, "trote termina: " + p.resource_path)
 	for i in C.nights.size():
 		var n := C.nights[i]
+		ok(n.story.all(func(st: StoryCall): return st.ribbon == "" or T.Key.has(st.ribbon)), "dica do pedido com chave que não existe: " + n.resource_path)
 		ok(n.story.all(func(st: StoryCall): return st.call is TransferCall or st.call is EmergencyCall or st.call is PrankCall),
 			"ligações do roteiro com roteiro escrito: " + n.resource_path)
 		# as escritas que entram no sorteio: transferências para um número do setor atendido, fora dos do roteiro da noite
@@ -342,6 +343,7 @@ func _initialize() -> void:
 	_check_flags()
 	_check_po()
 	_check_street()
+	_check_draw()
 	finish("conteúdo")
 
 
@@ -407,3 +409,24 @@ func _check_street() -> void:
 	var end: float = beating.END
 	ok(beating.officer(end)["x"] > 11.0 and beating.victim(end)["x"] > 10.0, "o policial e o homem saem da vista")
 	ok(beating.drops(end).all(func(d: Array) -> bool: return d[1] == 0.0), "o sangue todo no chão no fim")
+
+
+## O sorteio das ligações comuns: nada para lugar fechado pelo toque de recolher ou casa vazia (`GameData.answering`),
+## a escrita da noite antes da hora limite dela (`StoryCall.before`) e a variação de emergência com a piora dela.
+func _check_draw() -> void:
+	var C: GameContent = GameData.CONTENT
+	for no in [10, 14, 15]:
+		GameData.night_no = no
+		var n: Night = C.nights[no - 1]
+		for k in 20:
+			var plan := Schedule.build(n, C.paces[4], n.shift_end - Main.LAST_CALL_BEFORE)
+			ok(plan.calls.all(func(c: PhoneCall): return c.kind != PhoneCall.Kind.TRANSFER or c.story or c.beat != null or GameData.answering(c.target, c.at)),
+				"nenhuma sorteada para lugar fechado ou vazio, noite %d" % no)
+			ok(plan.calls.all(func(c: PhoneCall): return c.beat == null or c.beat.before < 0.0 or c.at < c.beat.before), "escrita da noite antes da hora limite, noite %d" % no)
+	GameData.night_no = 10
+	ok(not GameData.answering("327", 200.0) and GameData.answering("327", 100.0) and not GameData.answering("361", 0.0), "bar fechado no toque de recolher, casa do Otávio vazia")
+	GameData.night_no = 0
+	var well: EmergencyCall = load("res://data/calls/emergency_14_mal_subito_rua_do_sol_530.tres").duplicate()
+	well.cases = [well.cases[1]]
+	var got := GameData.with_case(well)
+	ok(got.worsening == well.cases[0].worsening and got.worsening != well.worsening and got.after == well.after, "a variação da emergência troca a piora e mantém o resto")

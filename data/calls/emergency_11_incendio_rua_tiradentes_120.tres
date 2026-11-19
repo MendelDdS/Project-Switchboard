@@ -14,7 +14,7 @@ units = PackedStringArray("bomb", "amb")
 
 [sub_resource type="Resource" id="Case_3"]
 script = ExtResource("2_case")
-answers = PackedStringArray("", "", "Ele saiu, mas queimou as mãos tentando apagar!")
+answers = PackedStringArray("", "", "O seu Osório, o dono, saiu, mas queimou as mãos tentando apagar!")
 units = PackedStringArray("bomb", "amb")
 
 [resource]

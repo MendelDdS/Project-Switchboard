@@ -11,6 +11,12 @@ units = PackedStringArray("amb")
 script = ExtResource("2_case")
 answers = PackedStringArray("", "Tá, ouço ele gemendo... mas ele caiu dentro do poço do quintal! Não dá pra descer!", "")
 units = PackedStringArray("amb", "bomb")
+worsening = "Ele parou de gemer lá embaixo!"
+worsening_answer = "Não... eu grito e ele não responde."
+critical = "Não ouço mais nada lá embaixo!"
+critical_answer = "Não dá pra ver daqui de cima! Tá escuro lá embaixo!"
+lost = "Ele não responde mais... vocês demoraram demais."
+lost_answer = "O vizinho desceu com uma corda... ele não respira."
 
 [resource]
 script = ExtResource("1_emerg")

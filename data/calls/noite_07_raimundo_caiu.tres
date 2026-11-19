@@ -14,3 +14,4 @@ target = "184"
 destination = "Delegacia de Polícia"
 thanks = "Obrigado, moça."
 overheard = PackedStringArray("Boa noite. O meu filho, José Teles, está aí desde o baile. Liguei mais cedo e caiu.", "José Teles... Está sendo ouvido. Sai quando acabar.", "Acabar o quê? Ninguém me diz nada!", "Volte amanhã, senhor. De dia.", "Ele tem dezessete anos!", "Boa noite, senhor. Não insista.")
+overheard_ends = true

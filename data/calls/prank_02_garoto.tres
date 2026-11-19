@@ -37,7 +37,7 @@ options = PackedStringArray()
 [sub_resource type="Resource" id="Resource_5ph6k"]
 script = ExtResource("2_r5i6j")
 kind = 1
-options = PackedStringArray("Esta é uma linha de serviço, garoto.", "Onde você está ligando?")
+options = PackedStringArray("Esta é uma linha de serviço, garoto.", "De onde você está ligando?")
 
 [sub_resource type="Resource" id="Resource_vdss1"]
 script = ExtResource("2_r5i6j")

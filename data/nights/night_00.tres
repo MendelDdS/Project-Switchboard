@@ -495,7 +495,7 @@ text = "E o fim do turno: às 23:40 a central para de receber ligação nova."
 
 [sub_resource type="Resource" id="Lesson_86"]
 script = ExtResource("2_lesson")
-text = "Aí, no papel do horário colado na parede, aparece o botão Encerrar turno."
+text = "Aí aparece o botão Encerrar turno."
 
 [sub_resource type="Resource" id="Lesson_87"]
 script = ExtResource("2_lesson")
@@ -523,7 +523,7 @@ nudges = PackedStringArray("É o caderninho vinho, ali na mesa. Ou aperta o 5.")
 
 [sub_resource type="Resource" id="Lesson_88d"]
 script = ExtResource("2_lesson")
-text = "Na página da esquerda vão as tarefas: o que te pedirem, você escreve ali e risca quando fizer."
+text = "Na página da esquerda vão as tarefas: o que te pedirem, você escreve ali e risca quando fizer. É no pé dela que aparece o botão Encerrar turno."
 
 [sub_resource type="Resource" id="Lesson_88e"]
 script = ExtResource("2_lesson")
@@ -531,7 +531,7 @@ text = "Na da direita, o que acontecer na noite. Escreve pra você mesma, que ni
 
 [sub_resource type="Resource" id="Lesson_89"]
 script = ExtResource("2_lesson")
-text = "Por hoje é isso. A mesa é sua, e a noite é calma. Ah, e traz um casaco amanhã: central gela de madrugada. O meu mora pendurado na cadeira."
+text = "Por hoje é isso. A mesa é sua, e a noite é calma. Ah, e traz um casaco na segunda: central gela de madrugada. O meu mora pendurado na cadeira."
 
 [sub_resource type="Resource" id="Lesson_89a"]
 script = ExtResource("2_lesson")
@@ -573,7 +573,7 @@ text = "Alto da Serra, Cecília falando. Viu? É assim que você me acha."
 [sub_resource type="Resource" id="Dial_c2"]
 script = ExtResource("6_step")
 kind = 1
-options = PackedStringArray("Valeu, Cecília!", "Obrigada, Cecília!", "Até a próxima!")
+options = PackedStringArray("Brigada, Cecília!", "Obrigada, Cecília!", "Até a próxima!")
 
 [sub_resource type="Resource" id="Dial_c3"]
 script = ExtResource("6_step")

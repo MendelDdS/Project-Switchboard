@@ -53,6 +53,13 @@ outcomes = PackedStringArray("dropped", "elsewhere")
 script = ExtResource("dl_diary_line")
 text = "Um menino perguntou se eu tinha geladeira. Caí feito uma boba."
 call = SubResource("A_story_01_miguel_trote")
+requires = PackedStringArray("!reclamou_trote_1")
+
+[sub_resource type="Resource" id="N_2b"]
+script = ExtResource("dl_diary_line")
+text = "Um menino perguntou se eu tinha geladeira. Ameacei chamar a polícia e ele desligou."
+call = SubResource("A_story_01_miguel_trote")
+requires = PackedStringArray("reclamou_trote_1")
 
 [sub_resource type="Resource" id="N_3"]
 script = ExtResource("dl_diary_line")
@@ -64,4 +71,4 @@ script = ExtResource("1_night")
 note = "Seu turno termina à meia-noite. Atenda as chamadas, conecte-as corretamente e registre todas as ocorrências."
 smalltalk = Array[ExtResource("8_chat")]([SubResource("ChatTopic_00")])
 story = Array[ExtResource("x0_story_call")]([SubResource("S_homem"), SubResource("A_story_01_miguel_trote")])
-diary = Array[ExtResource("dl_diary_line")]([SubResource("N_0"), SubResource("N_1"), SubResource("N_2"), SubResource("N_3")])
+diary = Array[ExtResource("dl_diary_line")]([SubResource("N_0"), SubResource("N_1"), SubResource("N_2"), SubResource("N_2b"), SubResource("N_3")])

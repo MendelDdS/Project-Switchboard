@@ -10,7 +10,7 @@ text = "Alô, central? Quero falar com o meu tio."
 [sub_resource type="Resource" id="Step_01"]
 script = ExtResource("2_step")
 kind = 1
-options = PackedStringArray("Seu nome e sobrenome, por favor.", "Quem é o seu tio?")
+options = PackedStringArray("Seu nome e sobrenome, por favor.", "E quem quer falar com ele?")
 
 [sub_resource type="Resource" id="Step_02"]
 script = ExtResource("2_step")

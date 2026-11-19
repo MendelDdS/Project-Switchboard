@@ -186,6 +186,7 @@ func _transfer(c: PhoneCall) -> void:
 	for l in t.opening:
 		if not await say(c, l):
 			return
+	_hint(c)
 	if not await main.bureaucracy.request_made(c):   # o que as burocracias pedem depois do pedido (o código...)
 		return
 	# a conversa fiada vem depois, se o operador demorar (Main._nag)
@@ -193,6 +194,17 @@ func _transfer(c: PhoneCall) -> void:
 	c.state_changed.emit()
 	main.on_transfer_waiting(c)
 	transfer_choices(c)
+
+
+## A dica do pedido numa ligação do roteiro em que o jogador escolhe o que fazer: o nome do lugar sublinhado na fala de
+## quem liga e o aviso na fita do alto (`Main.notice`). A das autoridades (`StoryCall.authority`: passar ou cortar) e a
+## que a noite marca (`StoryCall.ribbon`). A marcada para gravar tem a dela (`rule_tapes.request_made`) e a do número
+## bloqueado só sublinha (`rule_blocked.request_made`: o botão de avisar o bloqueio já aparece).
+func _hint(c: PhoneCall) -> void:
+	if c.beat == null or not (c.beat.authority or c.beat.ribbon != ""):
+		return
+	c.underline_word(tr(c.destination))
+	main.notice(T.text(T.Key[c.beat.ribbon] if c.beat.ribbon != "" else T.Key.NOTE_AUTHORITY))
 
 
 ## A que vira emergência (`TransferCall.turns`), esperando a transferência sem ela sair (`Main._nag`, no lugar da
@@ -504,7 +516,7 @@ func play_steps(c: PhoneCall, steps: Array[PrankStep]) -> bool:
 				if not await wait(c, st.seconds):
 					return false
 			PrankStep.Kind.OPERATOR:
-				var i := await choose(c, Array(st.options), c.story or c.data is DialCall or c.data in main.night.calls)
+				var i := await choose(c, Array(st.options), c.story or c.data is DialCall or c.beat != null)   # (a escrita da noite: `Night.calls`)
 				if i < 0:
 					return false
 				if i < st.sets.size():

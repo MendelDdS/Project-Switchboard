@@ -19,15 +19,23 @@ text = "A senhora tem geladeira em casa?"
 [sub_resource type="Resource" id="Step_03"]
 script = ExtResource("2_step")
 kind = 1
-options = PackedStringArray("Tenho. Por quê?", "Isso é trote?")
+options = PackedStringArray("Tenho. Por quê?", "Tenho, sim. O que tem?", "Se isso for trote, eu chamo a polícia, menino!")
+sets = PackedStringArray("", "", "reclamou_trote_1")
 
 [sub_resource type="Resource" id="Step_04"]
 script = ExtResource("2_step")
 text = "Então corre, que ela tá fugindo!"
+requires = PackedStringArray("!reclamou_trote_1")
 
 [sub_resource type="Resource" id="Step_05"]
 script = ExtResource("2_step")
 text = "Hahaha!"
+requires = PackedStringArray("!reclamou_trote_1")
+
+[sub_resource type="Resource" id="Step_05b"]
+script = ExtResource("2_step")
+text = "Não, moça! Desculpa, vou desligar!"
+requires = PackedStringArray("reclamou_trote_1")
 
 [sub_resource type="Resource" id="Step_06"]
 script = ExtResource("2_step")
@@ -38,4 +46,4 @@ script = ExtResource("1_call")
 voice = "k"
 caller = "Menino"
 prank = true
-steps = Array[ExtResource("2_step")]([SubResource("Step_00"), SubResource("Step_01"), SubResource("Step_02"), SubResource("Step_03"), SubResource("Step_04"), SubResource("Step_05"), SubResource("Step_06")])
+steps = Array[ExtResource("2_step")]([SubResource("Step_00"), SubResource("Step_01"), SubResource("Step_02"), SubResource("Step_03"), SubResource("Step_04"), SubResource("Step_05"), SubResource("Step_05b"), SubResource("Step_06")])

@@ -15,22 +15,30 @@ extends BureaucracyRule
 
 @export_enum("Nenhuma:-1", "Leve:0", "Média:1", "Grave:2", "Gravíssima:3") var message_penalty := -1
 ## Das ligações fora do roteiro que diriam o nome sem fala própria (YES sem `name_line`), a parte que só diz quando o
-## operador pede (uma das `GameContent.name_lines`): ele precisa cobrar.
+## operador pede (uma das `GameContent.name_lines`): ele precisa cobrar. As outras se apresentam sozinhas (`intro_lines`).
 @export_range(0.0, 1.0) var ask_share := 0.4
 
 
 ## Estado da identificação em `c.meta["b1"]`: "unasked" (ninguém pediu), "asking" (pedindo agora), "ok", "refused".
+## Quem diz sozinho e não tem fala própria (fora do roteiro): já disse o nome no pedido (`opening`), só diz quando o
+## operador pede (`ask_share`) ou se apresenta com uma fala comum (`GameContent.intro_lines`). (Antes, estes passavam
+## por identificados sem dizer nada, e sem o botão de pedir.)
 func call_started(c: PhoneCall) -> Array:
 	var t := c.data as TransferCall
 	if t == null:
 		return []
-	if t.identify == TransferCall.Identify.YES and t.name_line == "" and not c.story and randf() < ask_share:
-		c.meta["b1_line"] = GameData.fill(GameData.pick(GameData.CONTENT.name_lines), {"name": t.caller_name})
-	if t.identify == TransferCall.Identify.YES and not c.meta.has("b1_line"):
-		c.meta["b1"] = "ok"
-		return [t.name_line, {"named": t.caller_name}] if t.name_line != "" else []
-	c.meta["b1"] = "unasked"
-	return []
+	if t.identify != TransferCall.Identify.YES:
+		c.meta["b1"] = "unasked"
+		return []
+	var line := t.name_line
+	if line == "" and not c.story and not "".join(t.opening).contains(t.caller_name):
+		if randf() < ask_share:
+			c.meta["b1_line"] = GameData.fill(GameData.pick(GameData.CONTENT.name_lines), {"name": t.caller_name})
+			c.meta["b1"] = "unasked"
+			return []
+		line = GameData.fill(GameData.pick(GameData.CONTENT.intro_lines), {"name": t.caller_name})
+	c.meta["b1"] = "ok"
+	return [line, {"named": t.caller_name}] if line != "" else []
 
 
 func before_transfer(c: PhoneCall, d: int) -> Verdict:

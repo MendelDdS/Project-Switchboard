@@ -13,5 +13,6 @@ target = "390"
 destination = "Rádio Serena AM"
 thanks = "Obrigado."
 caller_name = "Osvaldo Rezende"
-name_line = "Osvaldo Rezende."
+name_line = "Aqui é Osvaldo Rezende."
 overheard = PackedStringArray("Rádio? Aqui é um ouvinte. O que foi que explodiu?", "Não podemos dar a notícia, senhor. Ordem de cima.", "Nem dizer onde foi?", "Nem isso. Fique em casa esta noite. É tudo o que eu posso dizer.")
+overheard_flags = PackedStringArray("", "ouviu_radio_4", "", "")

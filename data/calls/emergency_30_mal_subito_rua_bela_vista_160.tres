@@ -9,8 +9,15 @@ units = PackedStringArray("amb")
 
 [sub_resource type="Resource" id="Case_2"]
 script = ExtResource("2_case")
-answers = PackedStringArray("", "Ela se trancou no banheiro e caiu lá dentro! A porta não abre!", "")
+answers = PackedStringArray("", "Ela se trancou no banheiro e caiu lá dentro! A porta não abre!", "Não dá pra ver! Mas a fala dela tava toda enrolada.")
 units = PackedStringArray("amb", "bomb")
+after = "Tá. Vou ficar na porta, falando com ela."
+worsening = "Ela parou de responder lá dentro!"
+worsening_answer = "Não sei! Só ouço um ronco atrás da porta."
+critical = "Ouvi um baque lá dentro! Acho que ela bateu a cabeça!"
+critical_answer = "Não dá pra ver! A porta não abre!"
+lost = "Ela não responde mais... eu chamo, chamo... Vocês demoraram demais."
+lost_answer = "O vizinho arrombou a porta. Ela respira bem fraquinho, caída no chão."
 
 [resource]
 script = ExtResource("1_emerg")

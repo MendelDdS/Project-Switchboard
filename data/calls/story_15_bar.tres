@@ -13,5 +13,6 @@ target = "327"
 destination = "Bar do Zé"
 thanks = "Valeu."
 caller_name = "Davi Correia"
-name_line = "Davi Correia."
+name_line = "Aqui é Davi Correia."
 overheard = PackedStringArray("Zé, é o Davi.", "Hoje não é dia de conversa, Davi.", "Só pra dizer que estamos prontos. Todo mundo na [street:Rua das Acácias].", "Então desliga e vai. Quando der meia-noite, liga de novo.")
+overheard_ends = true

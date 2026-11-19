@@ -29,6 +29,8 @@ enum Group {
 ## Vazio: só o murmúrio das vozes, sem texto. A conversa anda ouvindo ou não: o que o operador não ouviu, perdeu; não
 ## acaba antes da última fala e, depois dela, eles se despedem e desligam.
 @export var overheard: PackedStringArray = []
+## A última fala de `overheard` já é a despedida (ou um "desliga"): o `Eavesdrop` não acrescenta a sorteada.
+@export var overheard_ends := false
 ## Marcadores ligados (`StoryFlags.apply`) quando o operador ouve todas as falas de `overheard` (o roteiro sabe que
 ## aquela conversa foi ouvida).
 @export var overheard_sets: PackedStringArray = []

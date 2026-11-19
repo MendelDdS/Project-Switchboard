@@ -99,6 +99,13 @@ outcomes = PackedStringArray("dropped", "elsewhere")
 script = ExtResource("dl_diary_line")
 text = "Um rapaz ofereceu uma música na rádio pra moça de fita amarela. Nem o nome dela ele sabe."
 call = SubResource("A_story_02_otavio_radio")
+requires = PackedStringArray("ouviu_fita_2")
+
+[sub_resource type="Resource" id="N_2b"]
+script = ExtResource("dl_diary_line")
+text = "Um rapaz pediu a rádio pra oferecer uma música a uma moça do Alto da Serra."
+call = SubResource("A_story_02_otavio_radio")
+requires = PackedStringArray("!ouviu_fita_2")
 
 [sub_resource type="Resource" id="N_3"]
 script = ExtResource("dl_diary_line")
@@ -121,4 +128,4 @@ news_stories = PackedStringArray("Panfletos contra a Alta Cúpula aparecem na es
 calls = Array[ExtResource("3_story")]([SubResource("J_call_panfleto")])
 news_photo = "papeis"
 news_caption = "Folhas recolhidas na plataforma da estação."
-diary = Array[ExtResource("dl_diary_line")]([SubResource("N_0"), SubResource("N_1"), SubResource("N_2"), SubResource("N_3"), SubResource("N_4")])
+diary = Array[ExtResource("dl_diary_line")]([SubResource("N_0"), SubResource("N_1"), SubResource("N_2"), SubResource("N_2b"), SubResource("N_3"), SubResource("N_4")])

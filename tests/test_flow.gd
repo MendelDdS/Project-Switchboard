@@ -302,7 +302,8 @@ func _initialize() -> void:
 		ok(plan.calls.all(func(c: PhoneCall): return c in fixed or fixed.all(func(f): return absf(c.at - f.at) >= Schedule.STORY_GAP)),
 			"sorteadas longe das do roteiro: " + n.resource_path)
 		var ems: Array = plan.calls.filter(func(c: PhoneCall): return c.kind == PhoneCall.Kind.EMERGENCY).map(func(c): return c.at)
-		ok(range(1, ems.size()).all(func(i): return ems[i] - ems[i - 1] >= Schedule.EMERGENCY_GAP), "emergências espaçadas: " + n.resource_path)
+		# (na mesma hora: as duas versões de uma do roteiro, e só uma toca, pelo `requires`)
+		ok(range(1, ems.size()).all(func(i): return ems[i] == ems[i - 1] or ems[i] - ems[i - 1] >= Schedule.EMERGENCY_GAP), "emergências espaçadas: " + n.resource_path)
 	for c in m.find_children("*", "Control", true, false):
 		if c is BaseButton or c is Slider:
 			ok(c.mouse_default_cursor_shape == Control.CURSOR_POINTING_HAND, "sem cursor de dedo: %s" % m.get_path_to(c))

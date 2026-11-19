@@ -254,7 +254,7 @@ func _caught(t: Talk) -> void:
 		main.talk_over(n)
 
 
-## A conversa dos dois: o "alô" de quem atende e as falas escritas, que fecham com a despedida (`C.overheard_bye`) e
+## A conversa dos dois: o "alô" de quem atende e as falas escritas, que fecham com a despedida (`C.overheard_bye`; ou a delas, `overheard_ends`) e
 ## eles desligam; sem elas, o cumprimento de quem ligou (se atendeu uma pessoa) e o murmúrio até o fim do `Pace.talk_len`.
 ## Um fala, o outro responde. Cada fala escrita ouvida liga o marcador dela (`TransferCall.overheard_flags`); ouvidas
 ## todas, os da ligação (`overheard_sets`).
@@ -269,7 +269,8 @@ func _talk(t: Talk) -> void:
 	var hello := place.hello if place != null and place.hello != "" else GameData.pick(C.overheard_hello)
 	var lines := PackedStringArray([hello]) + written
 	if not written.is_empty():
-		lines.append_array([GameData.pick(C.overheard_bye), GameData.pick(C.overheard_bye_back)])
+		if not data.overheard_ends:   # (a que já se despede na última fala desliga ali)
+			lines.append_array([GameData.pick(C.overheard_bye), GameData.pick(C.overheard_bye_back)])
 	elif place == null or place.hello == "":
 		lines.append(GameData.pick(C.overheard_greet))
 	var vars := GameData.talk_vars()   # as lacunas, as mesmas na conversa toda
